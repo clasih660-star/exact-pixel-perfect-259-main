@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const listEnrollments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { course_id: string }) => data)
+  .validator((data: { course_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("course_enrollments")
@@ -30,7 +30,7 @@ export const listEnrollments = createServerFn({ method: "GET" })
 
 export const enrollStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         course_id: z.string().uuid(),
@@ -67,7 +67,7 @@ export const enrollStudent = createServerFn({ method: "POST" })
 
 export const removeEnrollment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ enrollment_id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ enrollment_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("course_enrollments")

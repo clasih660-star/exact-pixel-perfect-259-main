@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const listLessons = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { course_id: string }) => data)
+  .validator((data: { course_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("lessons")
@@ -17,7 +17,7 @@ export const listLessons = createServerFn({ method: "GET" })
 
 export const getLesson = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { lesson_id: string }) => data)
+  .validator((data: { lesson_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: lesson, error } = await context.supabase
       .from("lessons")
@@ -39,7 +39,7 @@ const CreateSchema = z.object({
 
 export const createLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => CreateSchema.parse(data))
+  .validator((data: unknown) => CreateSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { data: course, error: cErr } = await context.supabase
       .from("courses")
@@ -75,7 +75,7 @@ export const createLesson = createServerFn({ method: "POST" })
 
 export const updateLessonStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         lesson_id: z.string().uuid(),

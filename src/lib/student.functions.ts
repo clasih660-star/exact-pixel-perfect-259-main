@@ -193,7 +193,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
 
 export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         captionsEnabled: z.boolean().optional(),
@@ -212,7 +212,7 @@ export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
 
 export const getCourseForStudent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { course_id: string }) => data)
+  .validator((data: { course_id: string }) => data)
   .handler(async ({ data, context }) => {
     const [course, lessons, progress] = await Promise.all([
       context.supabase
@@ -242,7 +242,7 @@ export const getCourseForStudent = createServerFn({ method: "GET" })
 
 export const updateLessonProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         lesson_id: z.string().uuid(),

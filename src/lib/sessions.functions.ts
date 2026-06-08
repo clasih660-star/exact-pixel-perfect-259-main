@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const startSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: lesson, error: lErr } = await context.supabase
       .from("lessons")
@@ -39,7 +39,7 @@ export const startSession = createServerFn({ method: "POST" })
 
 export const startOrResumeClassroom = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         courseId: z.string().min(1),
@@ -84,7 +84,7 @@ export const startOrResumeClassroom = createServerFn({ method: "POST" })
 
 export const getClassroomContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { session_id: string }) => data)
+  .validator((data: { session_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: session, error } = await context.supabase
       .from("classroom_sessions")
@@ -123,7 +123,7 @@ export const getClassroomContext = createServerFn({ method: "GET" })
 
 export const postChatMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         session_id: z.string().uuid(),
@@ -158,7 +158,7 @@ export const postChatMessage = createServerFn({ method: "POST" })
 
 export const submitQuizResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         session_id: z.string().uuid().optional(),
@@ -202,7 +202,7 @@ export const submitQuizResult = createServerFn({ method: "POST" })
 
 export const endSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("classroom_sessions")

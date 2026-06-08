@@ -46,7 +46,7 @@ function slugify(input: string) {
 }
 
 export const registerInstitution = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => RegisterSchema.parse(data))
+  .validator((data: unknown) => RegisterSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const listClassrooms = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { institution_id: string }) => data)
+  .validator((data: { institution_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("virtual_classrooms")
@@ -28,7 +28,7 @@ const CreateSchema = z.object({
 
 export const createClassroom = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => CreateSchema.parse(data))
+  .validator((data: unknown) => CreateSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { error, data: row } = await context.supabase
       .from("virtual_classrooms")

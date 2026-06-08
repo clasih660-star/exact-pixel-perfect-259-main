@@ -97,7 +97,7 @@ You MUST return valid JSON matching the schema. board.lines is what gets drawn o
 }
 
 export const teacherTurn = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => InputSchema.parse(input))
+  .validator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<TeacherResponse> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing LOVABLE_API_KEY");

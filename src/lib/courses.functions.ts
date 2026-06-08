@@ -15,7 +15,7 @@ function slugify(s: string) {
 
 export const listCourses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { institution_id: string }) => data)
+  .validator((data: { institution_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("courses")
@@ -28,7 +28,7 @@ export const listCourses = createServerFn({ method: "GET" })
 
 export const getCourse = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { course_id: string }) => data)
+  .validator((data: { course_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { data: course, error } = await context.supabase
       .from("courses")
@@ -65,7 +65,7 @@ const CreateSchema = z.object({
 
 export const createCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => CreateSchema.parse(data))
+  .validator((data: unknown) => CreateSchema.parse(data))
   .handler(async ({ data, context }) => {
     const baseSlug = slugify(data.title);
     let slug = baseSlug;
@@ -99,7 +99,7 @@ export const createCourse = createServerFn({ method: "POST" })
 
 export const updateCourseStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         course_id: z.string().uuid(),

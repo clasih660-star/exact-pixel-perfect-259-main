@@ -18,7 +18,7 @@ export const getMyInstitutions = createServerFn({ method: "GET" })
 
 export const getInstitutionOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { institution_id: string }) => data)
+  .validator((data: { institution_id: string }) => data)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [inst, classrooms, members, resources] = await Promise.all([
