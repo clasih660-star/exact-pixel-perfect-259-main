@@ -40,6 +40,115 @@ export type BoardState = {
   mode: "lesson" | "example" | "correction" | "quiz" | "summary";
 };
 
+export type SessionEventKind =
+  | "session_started"
+  | "audio_started"
+  | "audio_ended"
+  | "student_message"
+  | "teacher_message"
+  | "quick_action"
+  | "step_changed"
+  | "quiz_started"
+  | "quiz_answered"
+  | "note_saved"
+  | "board_saved"
+  | "access_updated"
+  | "focus_mode_enabled"
+  | "focus_mode_disabled"
+  | "session_ended";
+
+export type SessionEvent = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  sessionId: string;
+  studentId?: string | null;
+  actorUserId?: string | null;
+  actorRole: "student" | "teacher" | "ai_teacher" | "system";
+  eventType: SessionEventKind;
+  eventSource?: string | null;
+  payload: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type BoardSnapshot = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  sessionId: string;
+  sourceEventId?: string | null;
+  stepKey?: LessonStepKey | null;
+  mode: BoardState["mode"];
+  title: string;
+  lines: string[];
+  description?: string | null;
+  activeLineIndex: number;
+  highlight?: string | null;
+  createdAt: string;
+};
+
+export type SessionNote = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  sessionId?: string | null;
+  studentId: string;
+  title: string;
+  body: string;
+  notes: string[];
+  sourceType: "manual" | "board" | "teacher" | "quiz" | "summary";
+  isBoardExport: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Recommendation = {
+  id: string;
+  institutionId: string;
+  studentId: string;
+  courseId?: string | null;
+  lessonId?: string | null;
+  sessionId?: string | null;
+  recommendationType:
+    | "next_lesson"
+    | "review_topic"
+    | "quiz_retry"
+    | "accessibility_tip"
+    | "focus_mode"
+    | "study_plan";
+  title: string;
+  description?: string | null;
+  reason: Record<string, unknown>;
+  targetUrl?: string | null;
+  priority: number;
+  isRead: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type NotificationItem = {
+  id: string;
+  institutionId?: string | null;
+  userId: string;
+  notificationType:
+    | "reminder"
+    | "nudge"
+    | "summary_ready"
+    | "quiz_ready"
+    | "session_update"
+    | "system";
+  title: string;
+  body: string;
+  targetUrl?: string | null;
+  payload: Record<string, unknown>;
+  readAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type LessonStepKey =
   | "hook"
   | "concept"

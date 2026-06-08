@@ -96,7 +96,45 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
 
     const enrollments = enrollmentsResult.data ?? [];
     const progressRows = progressResult.data ?? [];
+    const [membershipResult, profileResult] = await Promise.all([
+      context.supabase
+        .from("institution_members")
+        .select("institution_id")
+        .eq("user_id", context.userId)
+        .eq("status", "active")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+      context.supabase
+        .from("learner_access_profiles")
+        .select("*")
+        .eq("user_id", context.userId)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
     const firstCourse = enrollments[0]?.course;
+    const accessProfile = profileResult.data
+      ? {
+          currentMode: profileResult.data.explanation_style === "detailed"
+            ? "Detailed"
+            : profileResult.data.explanation_style === "simple"
+              ? "Simple"
+              : "Standard",
+          captionsEnabled: profileResult.data.captions_enabled,
+          audioEnabled: profileResult.data.audio_enabled,
+          keyboardShortcutsEnabled: profileResult.data.keyboard_shortcuts_enabled,
+          focusModeEnabled: profileResult.data.reduced_motion,
+          speechRate: Number(profileResult.data.speech_rate ?? 1),
+        }
+      : {
+          currentMode: "Standard",
+          captionsEnabled: true,
+          audioEnabled: true,
+          keyboardShortcutsEnabled: true,
+          focusModeEnabled: false,
+          speechRate: 1,
+        };
     const continueLearning = {
       courseId: firstCourse?.id ?? DEMO_DASHBOARD_DATA.courses[0].id,
       lessonId: progressRows[0]?.lesson_id ?? "lesson-quadratic",
@@ -180,14 +218,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         summaryId: `summary-${index + 1}`,
         quizId: `quiz-${index + 1}`,
       })),
-      accessProfile: {
-        currentMode: "Standard",
-        captionsEnabled: true,
-        audioEnabled: true,
-        keyboardShortcutsEnabled: true,
-        focusModeEnabled: false,
-        speechRate: 1,
-      },
+      accessProfile,
     } satisfies StudentDashboardV2;
   });
 
@@ -205,9 +236,70 @@ export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
       })
       .parse(data),
   )
-  .handler(async ({ data }) => {
-    // Demo-friendly endpoint: the dashboard uses the optimistic response immediately.
-    return { ok: true, profile: data };
+  .handler(async ({ data, context }) => {
+    const [membershipResult, existingProfileResult] = await Promise.all([
+      context.supabase
+        .from("institution_members")
+        .select("institution_id")
+        .eq("user_id", context.userId)
+        .eq("status", "active")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+      context.supabase
+        .from("learner_access_profiles")
+        .select("*")
+        .eq("user_id", context.userId)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+    const institutionId =
+      membershipResult.data?.institution_id ??
+      existingProfileResult.data?.institution_id;
+    if (!institutionId) {
+      throw new Error("No active institution found for access profile update");
+    }
+
+    const existing = existingProfileResult.data;
+    const { data: row, error } = await context.supabase
+      .from("learner_access_profiles")
+      .upsert(
+        {
+          user_id: context.userId,
+          institution_id: institutionId,
+          accessibility_modes_json: existing?.accessibility_modes_json ?? [],
+          captions_enabled: data.captionsEnabled ?? existing?.captions_enabled ?? true,
+          transcript_enabled: existing?.transcript_enabled ?? true,
+          audio_enabled: data.audioEnabled ?? existing?.audio_enabled ?? true,
+          board_descriptions_enabled: existing?.board_descriptions_enabled ?? true,
+          screen_reader_optimized: existing?.screen_reader_optimized ?? false,
+          high_contrast: existing?.high_contrast ?? false,
+          large_text: existing?.large_text ?? false,
+          reduced_motion: data.focusModeEnabled ?? existing?.reduced_motion ?? false,
+          keyboard_shortcuts_enabled:
+            data.keyboardShortcutsEnabled ?? existing?.keyboard_shortcuts_enabled ?? true,
+          voice_input_enabled: existing?.voice_input_enabled ?? true,
+          speech_rate: data.speechRate ?? existing?.speech_rate ?? 1,
+          font_scale: existing?.font_scale ?? 1,
+          lesson_pace:
+            existing?.lesson_pace ??
+            (data.focusModeEnabled ? "slow" : "normal"),
+          explanation_style:
+            data.currentMode?.toLowerCase() === "simple"
+              ? "simple"
+              : data.currentMode?.toLowerCase() === "detailed"
+                ? "detailed"
+                : existing?.explanation_style ?? "standard",
+        },
+        { onConflict: "user_id,institution_id" },
+      )
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+
+    return { ok: true, profile: row };
   });
 
 export const getCourseForStudent = createServerFn({ method: "GET" })

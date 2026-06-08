@@ -671,6 +671,377 @@ export type Database = {
           },
         ];
       };
+      board_snapshots: {
+        Row: {
+          active_line_index: number;
+          course_id: string;
+          created_at: string;
+          description: string | null;
+          highlight: string | null;
+          id: string;
+          institution_id: string;
+          lesson_id: string;
+          lines_json: Json;
+          mode: string;
+          session_id: string;
+          source_event_id: string | null;
+          step_key: string | null;
+          title: string;
+        };
+        Insert: {
+          active_line_index?: number;
+          course_id: string;
+          created_at?: string;
+          description?: string | null;
+          highlight?: string | null;
+          id?: string;
+          institution_id: string;
+          lesson_id: string;
+          lines_json?: Json;
+          mode?: string;
+          session_id: string;
+          source_event_id?: string | null;
+          step_key?: string | null;
+          title: string;
+        };
+        Update: {
+          active_line_index?: number;
+          course_id?: string;
+          created_at?: string;
+          description?: string | null;
+          highlight?: string | null;
+          id?: string;
+          institution_id?: string;
+          lesson_id?: string;
+          lines_json?: Json;
+          mode?: string;
+          session_id?: string;
+          source_event_id?: string | null;
+          step_key?: string | null;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "board_snapshots_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_snapshots_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_snapshots_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_snapshots_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "classroom_sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_snapshots_source_event_id_fkey";
+            columns: ["source_event_id"];
+            isOneToOne: false;
+            referencedRelation: "session_events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      session_events: {
+        Row: {
+          actor_role: string;
+          actor_user_id: string | null;
+          course_id: string;
+          created_at: string;
+          event_source: string | null;
+          event_type: string;
+          id: string;
+          institution_id: string;
+          lesson_id: string;
+          payload_json: Json;
+          session_id: string;
+          student_id: string | null;
+        };
+        Insert: {
+          actor_role: string;
+          actor_user_id?: string | null;
+          course_id: string;
+          created_at?: string;
+          event_source?: string | null;
+          event_type: string;
+          id?: string;
+          institution_id: string;
+          lesson_id: string;
+          payload_json?: Json;
+          session_id: string;
+          student_id?: string | null;
+        };
+        Update: {
+          actor_role?: string;
+          actor_user_id?: string | null;
+          course_id?: string;
+          created_at?: string;
+          event_source?: string | null;
+          event_type?: string;
+          id?: string;
+          institution_id?: string;
+          lesson_id?: string;
+          payload_json?: Json;
+          session_id?: string;
+          student_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "session_events_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_events_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_events_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_events_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "classroom_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      session_notes: {
+        Row: {
+          body: string;
+          course_id: string;
+          created_at: string;
+          id: string;
+          institution_id: string;
+          is_board_export: boolean;
+          lesson_id: string;
+          notes_json: Json;
+          session_id: string | null;
+          source_type: string;
+          student_id: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          body?: string;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          institution_id: string;
+          is_board_export?: boolean;
+          lesson_id: string;
+          notes_json?: Json;
+          session_id?: string | null;
+          source_type?: string;
+          student_id: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Update: {
+          body?: string;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          institution_id?: string;
+          is_board_export?: boolean;
+          lesson_id?: string;
+          notes_json?: Json;
+          session_id?: string | null;
+          source_type?: string;
+          student_id?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "session_notes_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_notes_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_notes_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_notes_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "classroom_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recommendations: {
+        Row: {
+          course_id: string | null;
+          created_at: string;
+          description: string | null;
+          id: string;
+          institution_id: string;
+          is_read: boolean;
+          lesson_id: string | null;
+          priority: number;
+          reason_json: Json;
+          recommendation_type: string;
+          session_id: string | null;
+          student_id: string;
+          target_url: string | null;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          course_id?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          institution_id: string;
+          is_read?: boolean;
+          lesson_id?: string | null;
+          priority?: number;
+          reason_json?: Json;
+          recommendation_type: string;
+          session_id?: string | null;
+          student_id: string;
+          target_url?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          course_id?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          institution_id?: string;
+          is_read?: boolean;
+          lesson_id?: string | null;
+          priority?: number;
+          reason_json?: Json;
+          recommendation_type?: string;
+          session_id?: string | null;
+          student_id?: string;
+          target_url?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recommendations_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recommendations_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recommendations_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "classroom_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          institution_id: string | null;
+          notification_type: string;
+          payload_json: Json;
+          read_at: string | null;
+          target_url: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          institution_id?: string | null;
+          notification_type: string;
+          payload_json?: Json;
+          read_at?: string | null;
+          target_url?: string | null;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          institution_id?: string | null;
+          notification_type?: string;
+          payload_json?: Json;
+          read_at?: string | null;
+          target_url?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       lessons: {
         Row: {
           accessibility_data_json: Json;
