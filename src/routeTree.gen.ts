@@ -71,6 +71,7 @@ import { Route as AuthenticatedInstitutionCoursesCourseIdRouteImport } from './r
 import { Route as AuthenticatedTeacherLessonsLessonIdEditRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId.edit'
 import { Route as AuthenticatedTeacherCoursesCourseIdAnalyticsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.analytics'
 import { Route as AuthenticatedStudentSessionsSessionIdSummaryRouteImport } from './routes/_authenticated/student.sessions.$sessionId.summary'
+import { Route as AuthenticatedStudentSessionsSessionIdReplayRouteImport } from './routes/_authenticated/student.sessions.$sessionId.replay'
 import { Route as AuthenticatedStudentCoursesCourseIdLessonsRouteImport } from './routes/_authenticated/student.courses.$courseId.lessons'
 
 const AuthRoute = AuthRouteImport.update({
@@ -435,6 +436,12 @@ const AuthenticatedStudentSessionsSessionIdSummaryRoute =
     path: '/$sessionId/summary',
     getParentRoute: () => AuthenticatedStudentSessionsRoute,
   } as any)
+const AuthenticatedStudentSessionsSessionIdReplayRoute =
+  AuthenticatedStudentSessionsSessionIdReplayRouteImport.update({
+    id: '/$sessionId/replay',
+    path: '/$sessionId/replay',
+    getParentRoute: () => AuthenticatedStudentSessionsRoute,
+  } as any)
 const AuthenticatedStudentCoursesCourseIdLessonsRoute =
   AuthenticatedStudentCoursesCourseIdLessonsRouteImport.update({
     id: '/lessons',
@@ -502,6 +509,7 @@ export interface FileRoutesByFullPath {
   '/student/settings/profile': typeof AuthenticatedStudentSettingsProfileRoute
   '/teacher/courses/$courseId': typeof AuthenticatedTeacherCoursesCourseIdRouteWithChildren
   '/student/courses/$courseId/lessons': typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  '/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
   '/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
@@ -566,6 +574,7 @@ export interface FileRoutesByTo {
   '/student/settings/profile': typeof AuthenticatedStudentSettingsProfileRoute
   '/teacher/courses/$courseId': typeof AuthenticatedTeacherCoursesCourseIdRouteWithChildren
   '/student/courses/$courseId/lessons': typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  '/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
   '/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
@@ -632,6 +641,7 @@ export interface FileRoutesById {
   '/_authenticated/student/settings/profile': typeof AuthenticatedStudentSettingsProfileRoute
   '/_authenticated/teacher/courses/$courseId': typeof AuthenticatedTeacherCoursesCourseIdRouteWithChildren
   '/_authenticated/student/courses/$courseId/lessons': typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  '/_authenticated/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/_authenticated/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/_authenticated/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
   '/_authenticated/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
@@ -698,6 +708,7 @@ export interface FileRouteTypes {
     | '/student/settings/profile'
     | '/teacher/courses/$courseId'
     | '/student/courses/$courseId/lessons'
+    | '/student/sessions/$sessionId/replay'
     | '/student/sessions/$sessionId/summary'
     | '/teacher/courses/$courseId/analytics'
     | '/teacher/lessons/$lessonId/edit'
@@ -762,6 +773,7 @@ export interface FileRouteTypes {
     | '/student/settings/profile'
     | '/teacher/courses/$courseId'
     | '/student/courses/$courseId/lessons'
+    | '/student/sessions/$sessionId/replay'
     | '/student/sessions/$sessionId/summary'
     | '/teacher/courses/$courseId/analytics'
     | '/teacher/lessons/$lessonId/edit'
@@ -827,6 +839,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student/settings/profile'
     | '/_authenticated/teacher/courses/$courseId'
     | '/_authenticated/student/courses/$courseId/lessons'
+    | '/_authenticated/student/sessions/$sessionId/replay'
     | '/_authenticated/student/sessions/$sessionId/summary'
     | '/_authenticated/teacher/courses/$courseId/analytics'
     | '/_authenticated/teacher/lessons/$lessonId/edit'
@@ -1282,6 +1295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentSessionsSessionIdSummaryRouteImport
       parentRoute: typeof AuthenticatedStudentSessionsRoute
     }
+    '/_authenticated/student/sessions/$sessionId/replay': {
+      id: '/_authenticated/student/sessions/$sessionId/replay'
+      path: '/$sessionId/replay'
+      fullPath: '/student/sessions/$sessionId/replay'
+      preLoaderRoute: typeof AuthenticatedStudentSessionsSessionIdReplayRouteImport
+      parentRoute: typeof AuthenticatedStudentSessionsRoute
+    }
     '/_authenticated/student/courses/$courseId/lessons': {
       id: '/_authenticated/student/courses/$courseId/lessons'
       path: '/lessons'
@@ -1415,11 +1435,14 @@ const AuthenticatedStudentResourcesRouteWithChildren =
   )
 
 interface AuthenticatedStudentSessionsRouteChildren {
+  AuthenticatedStudentSessionsSessionIdReplayRoute: typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   AuthenticatedStudentSessionsSessionIdSummaryRoute: typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
 }
 
 const AuthenticatedStudentSessionsRouteChildren: AuthenticatedStudentSessionsRouteChildren =
   {
+    AuthenticatedStudentSessionsSessionIdReplayRoute:
+      AuthenticatedStudentSessionsSessionIdReplayRoute,
     AuthenticatedStudentSessionsSessionIdSummaryRoute:
       AuthenticatedStudentSessionsSessionIdSummaryRoute,
   }

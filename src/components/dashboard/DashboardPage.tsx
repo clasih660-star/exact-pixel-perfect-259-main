@@ -1,8 +1,17 @@
+/**
+ * DashboardPage.tsx
+ *
+ * Production-grade dashboard that fetches real data from the backend,
+ * falling back to demo data when no real data exists.
+ */
+
 import { AppShell } from "@/components/layout/AppShell";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { CourseCard } from "@/components/dashboard/CourseCard";
 import { RecentSessionCard } from "@/components/dashboard/RecentSessionCard";
+import { useDashboard } from "@/hooks/useDashboard";
 import { DEMO_DASHBOARD_DATA } from "@/lib/demo-data";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Users,
   BookOpen,
@@ -18,36 +27,137 @@ import {
   Flame,
   Brain,
   Zap,
+  RefreshCw,
+  Play,
 } from "lucide-react";
 
 export function DashboardPage() {
-  const { studentName, stats, courses, recentSessions, upcomingSessions } = DEMO_DASHBOARD_DATA;
+  const { data, isLoading, error, refresh, isUsingDemoData } = useDashboard();
+  const navigate = useNavigate();
+
+  // Fallback to demo data structure for sections not yet populated by real data
+  const demo = DEMO_DASHBOARD_DATA;
+  const { upcomingSessions } = demo;
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-500">Loading your dashboard...</p>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const stats = data?.stats ?? {
+    activeCourses: 0,
+    completedLessons: 0,
+    totalTimeMinutes: 0,
+    avgQuizScore: 0,
+    recentSessionsCount: 0,
+  };
+
+  const courses = data?.courses ?? [];
+  const recentSessions = data?.recentSessions ?? [];
+  const continueLearning = data?.continueLearning;
+  const recommendations = data?.recommendations ?? [];
+
+  const formatStudyTime = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
 
   return (
     <AppShell>
       <div>
+        {/* Demo mode indicator */}
+        {isUsingDemoData && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 text-sm text-amber-700">
+            <Sparkles size={14} />
+            <span>Showing demo data. Start a lesson to see your real progress!</span>
+          </div>
+        )}
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="page-title">Welcome back, {studentName}!</h1>
+            <h1 className="page-title">Welcome back!</h1>
             <p className="page-subtitle">
-              You're making great progress. Keep up the fantastic work!
+              {continueLearning
+                ? "Continue where you left off, or start something new."
+                : "You're making great progress. Keep up the fantastic work!"}
             </p>
           </div>
-          <button className="btn btn-primary">
-            <Sparkles size={16} />
-            Start new lesson
-          </button>
+          <div className="flex items-center gap-2">
+            <button className="btn btn-ghost btn-sm" onClick={refresh}>
+              <RefreshCw size={14} />
+            </button>
+            {continueLearning ? (
+              <Link
+                to="/student/classrooms"
+                className="btn btn-primary"
+              >
+                <Play size={16} />
+                Continue Learning
+              </Link>
+            ) : (
+              <Link to="/student/courses" className="btn btn-primary">
+                <Sparkles size={16} />
+                Start new lesson
+              </Link>
+            )}
+          </div>
         </div>
+
+        {/* Continue Learning Hero */}
+        {continueLearning && (
+          <div className="card p-6 mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold mb-1">Continue Learning</h2>
+                <p className="text-blue-100 mb-2">
+                  {continueLearning.courseTitle}
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1 text-sm text-blue-200">
+                    <span>Step: {continueLearning.currentStep}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-blue-200">
+                    <span>{continueLearning.progressPercentage}% complete</span>
+                  </div>
+                </div>
+              </div>
+              <Link
+                to="/student/classrooms"
+                className="btn bg-white text-blue-600 hover:bg-blue-50"
+              >
+                <Play size={16} />
+                Resume
+              </Link>
+            </div>
+            <div className="mt-4 bg-blue-500/30 rounded-full h-2">
+              <div
+                className="bg-white rounded-full h-2 transition-all"
+                style={{ width: `${continueLearning.progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Stats Row */}
         <div className="stats-row">
           <StatCard
             title="Classrooms"
-            value={stats.classrooms}
+            value={stats.activeCourses}
             subtitle="Active courses"
             color="blue"
             icon={<Users size={20} />}
-            link="/courses"
+            link="/student/courses"
             linkText="View all"
           />
           <StatCard
@@ -56,37 +166,62 @@ export function DashboardPage() {
             subtitle="Lessons finished"
             color="green"
             icon={<BookOpen size={20} />}
-            link="/progress"
+            link="/student/sessions"
             linkText="View progress"
           />
           <StatCard
             title="Study time"
-            value={stats.studyTime}
-            subtitle="This week"
+            value={formatStudyTime(stats.totalTimeMinutes)}
+            subtitle="Total"
             color="purple"
             icon={<Clock size={20} />}
-            link="/progress"
+            link="/student/sessions"
             linkText="View details"
           />
           <StatCard
             title="Quiz average"
-            value={`${stats.quizAverage}%`}
+            value={`${stats.avgQuizScore}%`}
             subtitle="Last 10 quizzes"
             color="orange"
             icon={<Target size={20} />}
-            link="/progress"
+            link="/student/quizzes"
             linkText="View quizzes"
           />
           <StatCard
-            title="Streak"
-            value={stats.streak}
-            subtitle="Days in a row"
+            title="Sessions"
+            value={stats.recentSessionsCount}
+            subtitle="Recent"
             color="cyan"
             icon={<Flame size={20} />}
-            link="/progress"
-            linkText="Keep it up!"
+            link="/student/sessions"
+            linkText="View all"
           />
         </div>
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <div className="card p-4 mb-6">
+            <div className="section-header">
+              <h2 className="section-title">
+                <Brain size={16} className="inline mr-1" />
+                Recommended for You
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {recommendations.slice(0, 3).map((rec) => (
+                <div key={rec.id} className="p-3 bg-gray-50 rounded-lg">
+                  <div className="font-medium text-sm mb-1">{rec.title}</div>
+                  <div className="text-xs text-gray-500 mb-2">{rec.description}</div>
+                  {rec.targetUrl && (
+                    <Link to={rec.targetUrl} className="text-xs text-blue-600 hover:underline">
+                      Go →
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Main Dashboard Grid */}
         <div className="dashboard-grid">
@@ -94,14 +229,24 @@ export function DashboardPage() {
           <div className="card" style={{ gridColumn: "span 2" }}>
             <div className="section-header">
               <h2 className="section-title">My Courses</h2>
-              <a href="/courses" className="section-link">
+              <Link to="/student/courses" className="section-link">
                 View all <ArrowRight size={12} />
-              </a>
+              </Link>
             </div>
             <div className="classroom-list">
-              {courses.slice(0, 4).map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
+              {courses.length > 0 ? (
+                courses.slice(0, 4).map((course) => (
+                  <CourseCard key={course.id ?? Math.random()} course={course as any} />
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                  <BookOpen size={32} className="mx-auto mb-2" />
+                  <p>No courses yet. Browse available courses to get started!</p>
+                  <Link to="/student/courses" className="btn btn-primary mt-3">
+                    Browse Courses
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Start AI Learning Card */}
@@ -112,10 +257,10 @@ export function DashboardPage() {
                   Begin an interactive lesson with Mr. Klass, your AI teacher
                 </div>
               </div>
-              <button className="btn btn-primary">
+              <Link to="/student/courses" className="btn btn-primary">
                 <Sparkles size={16} />
                 Start
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -123,13 +268,13 @@ export function DashboardPage() {
           <div className="card">
             <div className="section-header">
               <h2 className="section-title">Schedule</h2>
-              <a href="/schedule" className="section-link">
+              <Link to="/student/calendar" className="section-link">
                 Full calendar <ArrowRight size={12} />
-              </a>
+              </Link>
             </div>
             <MiniCalendar />
             <div className="upcoming-list">
-              {upcomingSessions?.slice(0, 3).map((session) => (
+              {upcomingSessions?.slice(0, 3).map((session: any) => (
                 <div key={session.id} className="upcoming-item">
                   <div
                     className={`upcoming-icon ${
@@ -157,14 +302,31 @@ export function DashboardPage() {
           <div className="card">
             <div className="section-header">
               <h2 className="section-title">Recent Sessions</h2>
-              <a href="/progress" className="section-link">
+              <Link to="/student/sessions" className="section-link">
                 View history <ArrowRight size={12} />
-              </a>
+              </Link>
             </div>
             <div className="session-list">
-              {recentSessions.slice(0, 5).map((session) => (
-                <RecentSessionCard key={session.id} session={session} />
-              ))}
+              {recentSessions.length > 0 ? (
+                recentSessions.slice(0, 5).map((session) => (
+                  <RecentSessionCard
+                    key={session.id}
+                    session={{
+                      id: session.id,
+                      title: session.lessonTitle,
+                      courseTitle: session.courseTitle,
+                      status: session.status as "completed" | "in_progress" | "scheduled",
+                      timestamp: session.startedAt ?? "",
+                      duration: session.durationMinutes ? `${session.durationMinutes} min` : "—",
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                  <Clock size={32} className="mx-auto mb-2" />
+                  <p>No sessions yet. Start your first lesson!</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -172,52 +334,41 @@ export function DashboardPage() {
           <div>
             <div className="section-header">
               <h2 className="section-title">Achievements</h2>
-              <a href="/progress" className="section-link">
+              <Link to="/student/achievements" className="section-link">
                 View all <ArrowRight size={12} />
-              </a>
+              </Link>
             </div>
             <div className="achievements-row">
-              <div className="achievement-card green">
-                <span className="ach-icon">🎯</span>
-                <div className="ach-name">First Steps</div>
-                <div className="ach-sub">Complete your first lesson</div>
-                <div className="ach-tag badge badge-green">Earned</div>
-              </div>
-              <div className="achievement-card green">
-                <span className="ach-icon">🔥</span>
-                <div className="ach-name">Week Warrior</div>
-                <div className="ach-sub">7-day learning streak</div>
-                <div className="ach-tag badge badge-green">Earned</div>
-              </div>
-              <div className="achievement-card blue">
-                <span className="ach-icon">💯</span>
-                <div className="ach-name">Perfect Score</div>
-                <div className="ach-sub">Score 100% on a quiz</div>
-                <div className="ach-tag badge badge-orange">In progress</div>
-              </div>
-              <div className="achievement-card blue">
-                <span className="ach-icon">🏆</span>
-                <div className="ach-name">Quiz Master</div>
-                <div className="ach-sub">Complete 10 quizzes</div>
-                <div className="ach-tag badge badge-orange">In progress</div>
-              </div>
-              <div className="achievement-card purple">
-                <span className="ach-icon">🧮</span>
-                <div className="ach-name">Math Whiz</div>
-                <div className="ach-sub">Complete all algebra lessons</div>
-                <div className="ach-tag badge badge-blue">In progress</div>
-              </div>
-              <div className="achievement-card purple">
-                <span className="ach-icon">⚡</span>
-                <div className="ach-name">Quick Learner</div>
-                <div className="ach-sub">5 lessons in one day</div>
-                <div className="ach-tag badge badge-blue">In progress</div>
-              </div>
+              <AchievementCard icon="🎯" name="First Steps" sub="Complete your first lesson" earned={stats.completedLessons > 0} />
+              <AchievementCard icon="🔥" name="Week Warrior" sub="7-day learning streak" earned={false} />
+              <AchievementCard icon="💯" name="Perfect Score" sub="Score 100% on a quiz" earned={stats.avgQuizScore === 100} inProgress />
+              <AchievementCard icon="🏆" name="Quiz Master" sub="Complete 10 quizzes" earned={false} inProgress />
+              <AchievementCard icon="🧮" name="Math Whiz" sub="Complete all algebra lessons" earned={false} inProgress />
+              <AchievementCard icon="⚡" name="Quick Learner" sub="5 lessons in one day" earned={false} inProgress />
             </div>
           </div>
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function AchievementCard({ icon, name, sub, earned, inProgress }: {
+  icon: string;
+  name: string;
+  sub: string;
+  earned: boolean;
+  inProgress?: boolean;
+}) {
+  return (
+    <div className={`achievement-card ${earned ? "green" : inProgress ? "blue" : "purple"}`}>
+      <span className="ach-icon">{icon}</span>
+      <div className="ach-name">{name}</div>
+      <div className="ach-sub">{sub}</div>
+      <div className={`ach-tag badge ${earned ? "badge-green" : inProgress ? "badge-orange" : "badge-blue"}`}>
+        {earned ? "Earned" : inProgress ? "In progress" : "Locked"}
+      </div>
+    </div>
   );
 }
 
