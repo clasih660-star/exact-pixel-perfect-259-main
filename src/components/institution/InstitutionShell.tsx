@@ -1,6 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { type ReactNode } from "react";
-import { LayoutDashboard, School, FolderUp, Settings, LogOut, BookOpen } from "lucide-react";
+import { LayoutDashboard, School, FolderUp, Settings, LogOut, BookOpen, Users, GraduationCap, UserCheck, ChartBar as BarChart3, Calendar } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,12 @@ const items = [
   { to: "/institution/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/institution/courses", label: "Courses", icon: BookOpen },
   { to: "/institution/classrooms", label: "Classrooms", icon: School },
+  { to: "/institution/sessions", label: "Sessions", icon: Calendar },
   { to: "/institution/resources", label: "Resources", icon: FolderUp },
+  { to: "/institution/students", label: "Students", icon: Users },
+  { to: "/institution/teachers", label: "Teachers", icon: GraduationCap },
+  { to: "/institution/enrollments", label: "Enrollments", icon: UserCheck },
+  { to: "/institution/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/institution/settings", label: "Settings", icon: Settings },
 ] as const;
 

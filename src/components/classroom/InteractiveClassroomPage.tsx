@@ -1,31 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Brain,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  Copy,
-  Eye,
-  EyeOff,
-  HelpCircle,
-  Lightbulb,
-  Loader2,
-  Mic,
-  MicOff,
-  Notebook,
-  Play,
-  PlayCircle,
-  Send,
-  Settings,
-  Sparkles,
-  Subtitles,
-  Target,
-  Volume2,
-  VolumeX,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft, Brain, CircleCheck as CheckCircle2, ChevronRight, Clock3, Copy, Eye, EyeOff, Circle as HelpCircle, Lightbulb, Loader as Loader2, Mic, MicOff, Notebook, Play, CirclePlay as PlayCircle, Send, Settings, Sparkles, Bubbles as Subtitles, Target, Volume2, VolumeX, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -749,48 +724,123 @@ function TeacherPanel({
   currentStepData: ClassroomContext["lesson"]["steps"][number];
 }) {
   return (
-    <Card className="border-[var(--gray-200)]">
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-              Teacher
+    <Card className="overflow-hidden border-[var(--gray-200)]">
+      <CardContent className="p-0">
+        <div className="border-b border-[var(--gray-200)] p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
+                Video Classroom
+              </div>
+              <h2 className="text-lg font-black text-[var(--gray-900)]">AI Teacher</h2>
             </div>
-            <h2 className="text-xl font-black text-[var(--gray-900)]">Mr. Klass</h2>
-          </div>
-          <div
-            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${state.teacherState === "speaking" ? "bg-[var(--primary-light)] text-[var(--primary)]" : state.teacherState === "thinking" ? "bg-[var(--orange-light)] text-[var(--orange)]" : "bg-[var(--gray-100)] text-[var(--gray-600)]"}`}
-          >
-            {state.teacherState}
+            <div className="flex items-center gap-1.5">
+              <span className="flex h-2 w-2 rounded-full bg-green-500" />
+              <span className="text-xs font-semibold text-green-600">Live</span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl border border-[var(--gray-200)] bg-[linear-gradient(135deg,#dbeafe_0%,#ede9fe_100%)] p-6 text-center">
-          <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-white shadow-inner">
-            <div
-              className={`h-20 w-20 rounded-full bg-[var(--primary)]/10 ${state.teacherState === "speaking" ? "animate-pulse" : ""}`}
-            />
+        <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative">
+              <div
+                className={`absolute inset-0 rounded-full ${state.teacherState === "speaking" ? "animate-ping opacity-20" : ""} bg-[var(--primary)]`}
+                style={{ animationDuration: "1.5s" }}
+              />
+              <div
+                className={`relative h-32 w-32 rounded-full border-4 ${state.teacherState === "speaking" ? "border-[var(--primary)]" : "border-slate-600"} bg-gradient-to-br from-slate-700 to-slate-800 shadow-2xl`}
+              >
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-slate-600 to-slate-700" />
+                <div className="absolute inset-4 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+                  <div
+                    className={`h-16 w-16 rounded-full ${state.teacherState === "speaking" ? "animate-pulse" : ""} bg-gradient-to-br from-blue-400 to-purple-500`}
+                  />
+                </div>
+              </div>
+              {state.teacherState === "speaking" && (
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                  <div className="flex items-end gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1 rounded-full bg-[var(--primary)]"
+                        style={{
+                          height: `${8 + Math.random() * 16}px`,
+                          animation: "wave 0.5s ease-in-out infinite",
+                          animationDelay: `${i * 0.1}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="mt-4 text-sm font-semibold text-[var(--gray-700)]">
-            {state.teacherState === "thinking"
-              ? "Thinking..."
-              : state.teacherState === "speaking"
-                ? "Speaking..."
-                : "Ready to teach"}
+
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/90 to-transparent p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-white">Mr. Klass</p>
+                <p className="text-xs text-slate-400">
+                  {state.teacherState === "thinking"
+                    ? "Processing..."
+                    : state.teacherState === "speaking"
+                      ? "Teaching..."
+                      : "Listening..."}
+                </p>
+              </div>
+              <div
+                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${state.teacherState === "speaking" ? "bg-blue-500/20 text-blue-400" : state.teacherState === "thinking" ? "bg-amber-500/20 text-amber-400" : "bg-slate-500/20 text-slate-400"}`}
+              >
+                {state.teacherState}
+              </div>
+            </div>
           </div>
-          <p className="mt-2 text-xs text-[var(--gray-500)]">
-            Step {state.stepIndex + 1} of {STEP_ORDER.length}: {currentStepData.title}
-          </p>
+
+          <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+            <div className="rounded-full bg-green-500/20 px-2.5 py-1 text-[10px] font-semibold text-green-400">
+              AI Online
+            </div>
+            <div className="rounded-full bg-blue-500/20 px-2.5 py-1 text-[10px] font-semibold text-blue-400">
+              Voice Active
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 space-y-2">
-          <InfoRow label="Mode" value={state.mode} />
-          <InfoRow label="Lesson pace" value={state.lessonPace} />
-          <InfoRow label="Confusion" value={`${Math.round(state.confusionScore * 100)}%`} />
-          <InfoRow label="Progress" value={`${state.progressPercentage}%`} />
+        <div className="border-t border-[var(--gray-200)] bg-slate-50 p-3 text-center text-xs text-slate-500">
+          Video placeholder — WebRTC streaming will connect here in a future update
+        </div>
+
+        <div className="space-y-2 p-4">
+          <div className="grid grid-cols-2 gap-2">
+            <InfoChip label="Mode" value={state.mode} />
+            <InfoChip label="Pace" value={state.lessonPace} />
+            <InfoChip label="Confusion" value={`${Math.round(state.confusionScore * 100)}%`} />
+            <InfoChip label="Progress" value={`${state.progressPercentage}%`} />
+          </div>
+          <div className="rounded-xl border border-[var(--gray-200)] bg-white p-3 text-center">
+            <p className="text-xs text-[var(--gray-500)]">
+              Step {state.stepIndex + 1} of {STEP_ORDER.length}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-[var(--gray-900)]">
+              {currentStepData.title}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function InfoChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-white px-2.5 py-1.5 text-center shadow-sm">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--gray-400)]">
+        {label}
+      </p>
+      <p className="text-sm font-bold text-[var(--gray-900)]">{value}</p>
+    </div>
   );
 }
 
@@ -1343,39 +1393,87 @@ function AudioBar({
   onEndLesson: () => void;
 }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--gray-200)] bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <button className="rounded-full border border-[var(--gray-200)] p-3 text-[var(--gray-600)]">
-          {state.audio.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </button>
-        <button className="rounded-full border border-[var(--gray-200)] p-3 text-[var(--gray-600)]">
-          {state.audio.playing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Play className="h-4 w-4" />
-          )}
-        </button>
-        <div className="rounded-full bg-[var(--gray-100)] px-4 py-2 text-sm font-semibold text-[var(--gray-700)]">
-          {state.audio.rate.toFixed(2)}x
+    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--gray-200)] bg-white/95 backdrop-blur">
+      <div className="mx-auto flex max-w-[1600px] items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-1">
+          <button className="rounded-xl border border-[var(--gray-200)] p-2.5 text-[var(--gray-600)] transition hover:bg-[var(--gray-50)]">
+            {state.audio.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+          <button className="rounded-xl border border-[var(--gray-200)] p-2.5 text-[var(--gray-600)] transition hover:bg-[var(--gray-50)]">
+            {state.audio.playing ? (
+              <div className="h-4 w-4 rounded-sm bg-[var(--primary)]" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+          </button>
         </div>
-        <button
-          onClick={() => onRateChange(Math.max(0.5, state.audio.rate - 0.25))}
-          className="rounded-full border border-[var(--gray-200)] px-3 py-2 text-sm"
-        >
-          Slower
-        </button>
-        <button
-          onClick={() => onRateChange(Math.min(2, state.audio.rate + 0.25))}
-          className="rounded-full border border-[var(--gray-200)] px-3 py-2 text-sm"
-        >
-          Faster
-        </button>
-        <button
-          onClick={onEndLesson}
-          className="ml-auto rounded-full bg-[var(--red)] px-4 py-2 text-sm font-semibold text-white"
-        >
-          End Lesson
-        </button>
+
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={() => onRateChange(0.5)}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${state.audio.rate === 0.5 ? "bg-[var(--primary)] text-white" : "border border-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-50)]"}`}
+          >
+            0.5x
+          </button>
+          <button
+            onClick={() => onRateChange(0.75)}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${state.audio.rate === 0.75 ? "bg-[var(--primary)] text-white" : "border border-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-50)]"}`}
+          >
+            0.75x
+          </button>
+          <button
+            onClick={() => onRateChange(1)}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${state.audio.rate === 1 ? "bg-[var(--primary)] text-white" : "border border-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-50)]"}`}
+          >
+            1x
+          </button>
+          <button
+            onClick={() => onRateChange(1.25)}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${state.audio.rate === 1.25 ? "bg-[var(--primary)] text-white" : "border border-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-50)]"}`}
+          >
+            1.25x
+          </button>
+          <button
+            onClick={() => onRateChange(1.5)}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${state.audio.rate === 1.5 ? "bg-[var(--primary)] text-white" : "border border-[var(--gray-200)] text-[var(--gray-600)] hover:bg-[var(--gray-50)]"}`}
+          >
+            1.5x
+          </button>
+        </div>
+
+        <div className="h-6 w-px bg-[var(--gray-200)]" />
+
+        <div className="flex items-center gap-1">
+          <button className="rounded-xl border border-[var(--gray-200)] p-2.5 text-[var(--gray-600)] transition hover:bg-[var(--gray-50)]">
+            <span className="text-xs font-bold">Replay</span>
+          </button>
+          <button className="rounded-xl border border-[var(--gray-200)] p-2.5 text-[var(--gray-600)] transition hover:bg-[var(--gray-50)]">
+            <Mic className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="h-6 w-px bg-[var(--gray-200)]" />
+
+        <div className="flex items-center gap-1">
+          <button className="rounded-xl border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-600)] transition hover:bg-[var(--gray-50)]">
+            Repeat
+          </button>
+          <button className="rounded-xl border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-600)] transition hover:bg-[var(--gray-50)]">
+            Give Example
+          </button>
+          <button className="rounded-xl border border-[var(--primary)] bg-[var(--primary-light)] px-3 py-2 text-xs font-semibold text-[var(--primary)] transition hover:bg-blue-100">
+            Quiz Me
+          </button>
+        </div>
+
+        <div className="ml-auto">
+          <button
+            onClick={onEndLesson}
+            className="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600"
+          >
+            End Lesson
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
+import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
@@ -94,6 +95,11 @@ const StudentProgressRoute = StudentProgressRouteImport.update({
 const InstitutionsRegisterRoute = InstitutionsRegisterRouteImport.update({
   id: '/institutions/register',
   path: '/institutions/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoClassroomRoute = DemoClassroomRouteImport.update({
+  id: '/demo/classroom',
+  path: '/demo/classroom',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassroomLessonIdRoute = ClassroomLessonIdRouteImport.update({
@@ -443,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/classroom': typeof DemoClassroomRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
@@ -506,6 +513,7 @@ export interface FileRoutesByTo {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/classroom': typeof DemoClassroomRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
@@ -571,6 +579,7 @@ export interface FileRoutesById {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/classroom': typeof DemoClassroomRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
   '/_authenticated/institution/activity': typeof AuthenticatedInstitutionActivityRoute
@@ -636,6 +645,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/classroom'
     | '/institutions/register'
     | '/student/progress'
     | '/institution/activity'
@@ -699,6 +709,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/classroom'
     | '/institutions/register'
     | '/student/progress'
     | '/institution/activity'
@@ -763,6 +774,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/classroom'
     | '/institutions/register'
     | '/student/progress'
     | '/_authenticated/institution/activity'
@@ -827,6 +839,7 @@ export interface RootRouteChildren {
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
+  DemoClassroomRoute: typeof DemoClassroomRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
   StudentProgressRoute: typeof StudentProgressRoute
   ClassroomPreviewLessonIdRoute: typeof ClassroomPreviewLessonIdRoute
@@ -868,6 +881,13 @@ declare module '@tanstack/react-router' {
       path: '/institutions/register'
       fullPath: '/institutions/register'
       preLoaderRoute: typeof InstitutionsRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/classroom': {
+      id: '/demo/classroom'
+      path: '/demo/classroom'
+      fullPath: '/demo/classroom'
+      preLoaderRoute: typeof DemoClassroomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classroom/$lessonId': {
@@ -1576,6 +1596,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   ClassroomLessonIdRoute: ClassroomLessonIdRoute,
+  DemoClassroomRoute: DemoClassroomRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
   StudentProgressRoute: StudentProgressRoute,
   ClassroomPreviewLessonIdRoute: ClassroomPreviewLessonIdRoute,

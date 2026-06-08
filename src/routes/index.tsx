@@ -49,8 +49,11 @@ function Nav() {
           <a href="#how" className="hover:text-foreground">
             How it works
           </a>
-          <Link to="/dashboard" className="hover:text-foreground">
-            Demo
+          <Link to="/demo/classroom" className="hover:text-foreground">
+            Demo Classroom
+          </Link>
+          <Link to="/institutions/register" className="hover:text-foreground">
+            For Institutions
           </Link>
         </nav>
         <div className="flex items-center gap-2">
