@@ -2,30 +2,7 @@ import { useState, type ComponentType } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  ArrowRight,
-  BookOpen,
-  Calendar,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  Folder,
-  Lightbulb,
-  Monitor,
-  Notebook,
-  PlayCircle,
-  Search,
-  Sparkles,
-  Star,
-  Target,
-  Trophy,
-  Zap,
-  Bell,
-  HelpCircle,
-  MessageSquare,
-  Settings,
-  Accessibility,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Calendar, CircleCheck as CheckCircle2, ChevronRight, Clock3, Folder, Lightbulb, Monitor, Notebook, CirclePlay as PlayCircle, Search, Sparkles, Star, Target, Trophy, Zap, Bell, Circle as HelpCircle, MessageSquare, Settings, Accessibility, LayoutDashboard, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -50,7 +27,6 @@ export function StudentDashboardPage() {
   const data = q.data as StudentDashboardV2 | undefined;
   const [planStarted, setPlanStarted] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
-  const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
 
   const classes = data?.courses ?? [];
   const recentSessions = data?.recentSessions ?? [];
@@ -81,228 +57,292 @@ export function StudentDashboardPage() {
     },
   });
 
-  const quickQuiz = recentSessions[0]?.quizId ?? "quiz-demo";
-  const lastSummary = recentSessions[0]?.summaryId ?? "summary-demo";
-
-  const hero = continueLearning ? (
-    <Card className="overflow-hidden border-[var(--gray-200)] shadow-[0_20px_60px_rgba(37,99,235,0.08)]">
-      <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
-        <div className="bg-[linear-gradient(135deg,#eff6ff_0%,#ffffff_60%,#f8fbff_100%)] p-6 sm:p-8">
-          <div className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-500)] shadow-sm">
-            Continue Learning
-          </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-[var(--gray-900)] sm:text-4xl">
-            {continueLearning.courseTitle}
-          </h2>
-          <p className="mt-2 text-lg font-medium text-[var(--gray-700)]">
-            {continueLearning.lessonTitle}
-          </p>
-          <p className="mt-3 text-sm text-[var(--gray-600)]">
-            You are on Step 3 of 8:{" "}
-            <span className="font-semibold text-[var(--gray-900)]">
-              {continueLearning.currentStep}
-            </span>
-          </p>
-
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-[var(--gray-600)]">Progress</span>
-              <span className="font-semibold text-[var(--gray-900)]">
-                {continueLearning.progressPercentage}%
-              </span>
-            </div>
-            <Progress value={continueLearning.progressPercentage} className="h-2.5" />
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button
-              onClick={() => startOrGo.mutate()}
-              disabled={startOrGo.isPending}
-              className="shadow-[0_12px_28px_rgba(37,99,235,0.25)]"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Enter Classroom
-            </Button>
-            <Link to="/student/sessions/$sessionId/summary" params={{ sessionId: lastSummary }}>
-              <Button variant="outline">Review Last Summary</Button>
-            </Link>
-            <Link to="/student/quizzes/$quizId" params={{ quizId: quickQuiz }}>
-              <Button variant="outline">Take Quick Quiz</Button>
-            </Link>
-          </div>
-
-          <div className="mt-6 flex items-center gap-2 text-xs text-[var(--gray-500)]">
-            <CheckCircle2 className="h-4 w-4 text-[var(--green)]" />
-            <span>
-              Everything here is live. Entering class updates your progress, notes, and next
-              recommendation.
-            </span>
-          </div>
-        </div>
-
-        <div className="border-t border-[var(--gray-200)] bg-white p-6 lg:border-l lg:border-t-0">
-          <div className="rounded-2xl border border-[var(--gray-200)] bg-[linear-gradient(135deg,#ffffff_0%,#eff6ff_100%)] p-5">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--gray-400)]">
-              Today&apos;s Learning Plan
-            </div>
-            <ol className="mt-4 space-y-3">
-              {(data?.learningPlan ?? []).map((item, index) => (
-                <li
-                  key={item.id}
-                  className={`flex items-start gap-3 rounded-xl border p-3 transition ${planStarted && index === 0 ? "border-[var(--primary)] bg-[var(--primary-light)]" : "border-[var(--gray-200)] bg-white"}`}
-                >
-                  <div
-                    className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${index === 0 ? "bg-[var(--primary)] text-white" : "bg-[var(--gray-100)] text-[var(--gray-600)]"}`}
-                  >
-                    {index + 1}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[var(--gray-900)]">{item.title}</p>
-                    <p className="text-xs text-[var(--gray-500)]">{item.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <div className="mt-5 flex gap-2">
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  setPlanStarted(true);
-                  startOrGo.mutate();
-                }}
-              >
-                Start Plan
-              </Button>
-              <Button variant="outline" className="flex-1">
-                Skip for now
-              </Button>
-            </div>
-            <div className="mt-2">
-              <Link
-                to="/student/learning-plan"
-                className="text-sm font-semibold text-[var(--primary)] hover:underline"
-              >
-                Customize learning plan
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
-  ) : null;
-
   return (
     <div className="min-h-screen bg-[var(--gray-50)]">
-      <DashboardChrome />
-      <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          {hero}
+      {/* Top Navigation Bar */}
+      <TopNavBar />
 
-          <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
-            <StatsGrid stats={data} />
-            <LearningAccessWidget
-              profile={data?.accessProfile}
-              focusMode={focusMode}
-              onToggleFocusMode={async () => {
-                const next = !focusMode;
-                setFocusMode(next);
-                await accessFn({
-                  data: {
-                    focusModeEnabled: next,
-                    captionsEnabled: data?.accessProfile.captionsEnabled,
-                    audioEnabled: data?.accessProfile.audioEnabled,
-                    keyboardShortcutsEnabled: data?.accessProfile.keyboardShortcutsEnabled,
-                    speechRate: data?.accessProfile.speechRate,
-                    currentMode: next ? "Focus" : "Standard",
-                  },
-                });
-              }}
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="ml-[220px] pt-16">
+        <div className="mx-auto max-w-[1200px] p-6">
+          {/* Hero Continue Learning */}
+          {continueLearning && (
+            <ContinueLearningHero
+              data={continueLearning}
+              onStart={() => startOrGo.mutate()}
+              isLoading={startOrGo.isPending}
             />
-          </div>
+          )}
 
-          <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-            <MyClassroomsPanel
-              courses={classes}
-              hoveredCourse={hoveredCourse}
-              onHoverCourse={setHoveredCourse}
-              onEnter={(course) =>
+          {/* Stats Row */}
+          <StatsGrid stats={data} />
+
+          {/* Main Grid */}
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <MyClassroomsPanel courses={classes} onEnter={(course) =>
                 startOrGo.mutate({
                   courseId: course.id,
                   lessonId: course.lessonId,
                   sessionId: course.sessionId,
                 })
-              }
-            />
-            <RecentSessionsPanel sessions={recentSessions} />
+              } />
+              <RecentSessionsPanel sessions={recentSessions} />
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              <LearningPlanPanel
+                plan={data?.learningPlan ?? []}
+                planStarted={planStarted}
+                onStart={() => {
+                  setPlanStarted(true);
+                  startOrGo.mutate();
+                }}
+              />
+              <LearningAccessWidget
+                profile={data?.accessProfile}
+                focusMode={focusMode}
+                onToggleFocusMode={async () => {
+                  const next = !focusMode;
+                  setFocusMode(next);
+                  await accessFn({
+                    data: {
+                      focusModeEnabled: next,
+                      captionsEnabled: data?.accessProfile.captionsEnabled,
+                      audioEnabled: data?.accessProfile.audioEnabled,
+                      keyboardShortcutsEnabled: data?.accessProfile.keyboardShortcutsEnabled,
+                      speechRate: data?.accessProfile.speechRate,
+                      currentMode: next ? "Focus" : "Standard",
+                    },
+                  });
+                }}
+              />
+              <UpcomingSessionsPanel />
+            </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
-            <UpcomingSessionsPanel />
-            <RecommendedNextLesson />
-          </div>
+          {/* Achievements Row */}
+          <AchievementsRow />
         </div>
       </div>
     </div>
   );
 }
 
-function DashboardChrome() {
+function TopNavBar() {
   return (
-    <div className="sticky top-0 z-30 border-b border-[var(--gray-200)] bg-white/85 backdrop-blur">
-      <div className="mx-auto flex max-w-[1440px] items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <Link to="/student/dashboard" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary)] text-white shadow-[0_12px_30px_rgba(37,99,235,0.25)]">
-            <Star className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="font-display text-xl font-extrabold tracking-tight text-[var(--gray-900)]">
-              Klassruum
-            </div>
-            <div className="text-xs text-[var(--gray-500)]">Learning command center</div>
-          </div>
-        </Link>
-
-        <div className="hidden flex-1 items-center gap-2 rounded-2xl border border-[var(--gray-200)] bg-[var(--gray-50)] px-4 py-3 md:flex">
+    <header className="topnav fixed top-0 right-0 left-[220px] z-40 flex h-16 items-center justify-between border-b border-[var(--gray-200)] bg-white/95 px-6 backdrop-blur">
+      <div className="flex flex-1 items-center gap-4">
+        <div className="search-box flex max-w-md flex-1 items-center gap-3 rounded-lg border border-[var(--gray-200)] bg-[var(--gray-50)] px-4 py-2.5">
           <Search className="h-4 w-4 text-[var(--gray-400)]" />
           <input
             type="text"
             placeholder="Search lessons, notes, resources..."
-            className="w-full bg-transparent text-sm outline-none placeholder:text-[var(--gray-400)]"
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--gray-400)]"
           />
         </div>
+      </div>
+      <div className="topnav-actions flex items-center gap-3">
+        <Link to="/student/notifications">
+          <IconCircle icon={Bell} badge />
+        </Link>
+        <Link to="/student/settings">
+          <IconCircle icon={HelpCircle} />
+        </Link>
+        <Link to="/student/settings/profile">
+          <IconCircle label="DS" />
+        </Link>
+      </div>
+    </header>
+  );
+}
 
-        <div className="ml-auto flex items-center gap-2">
-          <Link to="/student/notifications">
-            <IconCircle icon={Bell} />
-          </Link>
-          <Link to="/student/settings">
-            <IconCircle icon={HelpCircle} />
-          </Link>
-          <Link to="/student/settings/profile">
-            <IconCircle icon={Settings} label="DS" />
-          </Link>
+function Sidebar() {
+  const items = [
+    { to: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/student/classrooms", label: "My Classrooms", icon: Monitor },
+    { to: "/student/courses", label: "My Courses", icon: BookOpen },
+    { to: "/student/lessons", label: "Lessons", icon: BookOpen },
+    { to: "/student/calendar", label: "Calendar", icon: Calendar },
+    { to: "/student/resources", label: "Resources", icon: Folder },
+    { to: "/student/assignments", label: "Assignments", icon: Clipboard },
+    { to: "/student/quizzes", label: "Quizzes", icon: Target },
+    { to: "/student/progress", label: "Progress", icon: TrendingUp },
+    { to: "/student/messages", label: "Messages", icon: MessageSquare },
+    { to: "/student/notes", label: "Notes", icon: Notebook },
+    { to: "/student/achievements", label: "Achievements", icon: Trophy },
+    { to: "/student/access", label: "Learning Access", icon: Accessibility },
+  ] as const;
+
+  return (
+    <aside className="sidebar fixed inset-y-0 left-0 z-50 flex w-[220px] flex-col border-r border-[var(--gray-200)] bg-white">
+      {/* Logo */}
+      <div className="sidebar-logo flex items-center gap-3 border-b border-[var(--gray-100)] px-5 py-4">
+        <Link to="/" className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)] text-white shadow-md shadow-[var(--primary)]/20">
+            <Star className="h-4 w-4" />
+          </div>
+          <span className="font-display text-lg font-extrabold tracking-tight text-[var(--gray-900)]">
+            Klassruum
+          </span>
+        </Link>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3">
+        <div className="space-y-0.5">
+          {items.map((i) => (
+            <Link
+              key={i.to}
+              to={i.to}
+              className="nav-item group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--gray-600)] transition-all duration-150 hover:bg-[var(--gray-100)] hover:text-[var(--gray-900)]"
+              activeProps={{
+                className:
+                  "nav-item active flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-[var(--primary)] text-white shadow-sm",
+              }}
+            >
+              <i.icon className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{i.label}</span>
+              <ChevronRight className="ml-auto h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+            </Link>
+          ))}
+        </div>
+      </nav>
+
+      {/* Footer */}
+      <div className="sidebar-footer border-t border-[var(--gray-100)] px-4 py-4">
+        <Link
+          to="/student/access"
+          className="learning-access-card mb-3 block rounded-lg border border-transparent bg-[var(--primary-light)] p-3 transition-all duration-150 hover:border-[var(--primary)]"
+        >
+          <div className="flex items-center gap-2">
+            <Accessibility className="h-4 w-4 text-[var(--primary)]" />
+            <span className="text-xs font-semibold text-[var(--primary)]">Learning Access</span>
+          </div>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--gray-500)]">
+            Manage captions, focus mode, and more
+          </p>
+        </Link>
+
+        <div className="user-card flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[var(--gray-50)]">
+          <div className="avatar flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-bold text-white">
+            DS
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-[var(--gray-800)]">Demo Student</p>
+            <p className="text-[11px] text-[var(--gray-400)]">Standard access</p>
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }
 
 function IconCircle({
   icon: Icon,
   label,
+  badge,
 }: {
   icon?: ComponentType<{ className?: string }>;
   label?: string;
+  badge?: boolean;
 }) {
   return (
-    <button className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--gray-200)] bg-white text-[var(--gray-600)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      {label ? (
-        <span className="text-xs font-bold">{label}</span>
-      ) : Icon ? (
-        <Icon className="h-4 w-4" />
-      ) : null}
-    </button>
+    <div className="relative">
+      <button className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gray-200)] bg-white text-[var(--gray-600)] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+        {label ? (
+          <span className="text-xs font-bold">{label}</span>
+        ) : Icon ? (
+          <Icon className="h-4 w-4" />
+        ) : null}
+      </button>
+      {badge && <span className="notif-dot absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500" />}
+    </div>
+  );
+}
+
+function ContinueLearningHero({
+  data,
+  onStart,
+  isLoading,
+}: {
+  data: NonNullable<StudentDashboardV2["continueLearning"]>;
+  onStart: () => void;
+  isLoading: boolean;
+}) {
+  return (
+    <Card className="overflow-hidden border-[var(--gray-200)] shadow-lg">
+      <div className="grid gap-0 lg:grid-cols-[1.3fr_0.7fr]">
+        <div className="bg-gradient-to-br from-[var(--primary-light)] via-white to-blue-50/50 p-8">
+          <div className="inline-flex items-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--gray-500)] shadow-sm">
+            Continue Learning
+          </div>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[var(--gray-900)]">
+            {data.courseTitle}
+          </h2>
+          <p className="mt-2 text-lg font-medium text-[var(--gray-700)]">{data.lessonTitle}</p>
+          <p className="mt-3 text-sm text-[var(--gray-600)]">
+            You are on Step 3 of 8:{" "}
+            <span className="font-semibold text-[var(--gray-900)]">{data.currentStep}</span>
+          </p>
+
+          <div className="mt-6 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-[var(--gray-600)]">Progress</span>
+              <span className="font-bold text-[var(--gray-900)]">{data.progressPercentage}%</span>
+            </div>
+            <Progress value={data.progressPercentage} className="h-2.5" />
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button onClick={onStart} disabled={isLoading} size="lg" className="shadow-lg shadow-[var(--primary)]/25">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Enter Classroom
+            </Button>
+            <Button variant="outline" size="lg">
+              Review Last Summary
+            </Button>
+            <Button variant="outline" size="lg">
+              Take Quick Quiz
+            </Button>
+          </div>
+
+          <div className="mt-6 flex items-center gap-2 text-xs text-[var(--gray-500)]">
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <span>
+              Live progress tracking. Your classroom experience updates in real-time.
+            </span>
+          </div>
+        </div>
+
+        <div className="border-t border-[var(--gray-200)] bg-white p-6 lg:border-l lg:border-t-0">
+          <div className="rounded-xl border border-[var(--gray-200)] bg-gradient-to-br from-white to-[var(--primary-light)] p-4">
+            <div className="text-xs font-semibold uppercase tracking-wider text-[var(--gray-400)]">
+              Quick Stats
+            </div>
+            <div className="mt-4 grid gap-3">
+              <div className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm">
+                <span className="text-sm text-[var(--gray-600)]">Time Today</span>
+                <span className="font-bold text-[var(--gray-900)]">45m</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm">
+                <span className="text-sm text-[var(--gray-600)]">Quizzes Passed</span>
+                <span className="font-bold text-[var(--gray-900)]">12</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm">
+                <span className="text-sm text-[var(--gray-600)]">Current Streak</span>
+                <span className="font-bold text-[var(--primary)]">7 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -314,6 +354,7 @@ function StatsGrid({ stats }: { stats?: StudentDashboardV2 }) {
       sub: "Active classrooms",
       icon: Monitor,
       to: "/student/classrooms",
+      color: "bg-blue-50 text-blue-600",
     },
     {
       label: "Completed Lessons",
@@ -321,6 +362,7 @@ function StatsGrid({ stats }: { stats?: StudentDashboardV2 }) {
       sub: "This month",
       icon: BookOpen,
       to: "/student/progress",
+      color: "bg-green-50 text-green-600",
     },
     {
       label: "Study Time",
@@ -328,6 +370,7 @@ function StatsGrid({ stats }: { stats?: StudentDashboardV2 }) {
       sub: "This week",
       icon: Clock3,
       to: "/student/progress",
+      color: "bg-purple-50 text-purple-600",
     },
     {
       label: "Quiz Average",
@@ -335,6 +378,7 @@ function StatsGrid({ stats }: { stats?: StudentDashboardV2 }) {
       sub: "This month",
       icon: Target,
       to: "/student/quizzes",
+      color: "bg-orange-50 text-orange-600",
     },
     {
       label: "Current Streak",
@@ -342,27 +386,26 @@ function StatsGrid({ stats }: { stats?: StudentDashboardV2 }) {
       sub: "Days in a row",
       icon: Zap,
       to: "/student/progress",
+      color: "bg-yellow-50 text-yellow-600",
     },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="stats-row mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {cards.map((card) => (
         <Link key={card.label} to={card.to} className="group">
-          <Card className="h-full border-[var(--gray-200)] transition duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_18px_38px_rgba(15,23,42,0.08)]">
+          <Card className="stat-card h-full border-[var(--gray-200)] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
             <CardContent className="p-5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary-light)] text-[var(--primary)]">
+              <div className={`stat-icon ${card.color} rounded-lg`}>
                 <card.icon className="h-5 w-5" />
               </div>
-              <div className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-                {card.label}
-              </div>
-              <div className="mt-1 text-3xl font-black tracking-tight text-[var(--gray-900)]">
+              <div className="stat-label mt-3 text-xs text-[var(--gray-500)]">{card.label}</div>
+              <div className="stat-value mt-1 text-2xl font-bold text-[var(--gray-900)]">
                 {card.value}
               </div>
-              <div className="mt-1 text-sm text-[var(--gray-500)]">{card.sub}</div>
-              <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)]">
-                Open <ArrowRight className="h-4 w-4" />
+              <div className="stat-sub text-[11px] text-[var(--gray-400)]">{card.sub}</div>
+              <div className="stat-link mt-3 inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)]">
+                Open <ArrowRight className="h-3.5 w-3.5" />
               </div>
             </CardContent>
           </Card>
@@ -374,130 +417,73 @@ function StatsGrid({ stats }: { stats?: StudentDashboardV2 }) {
 
 function MyClassroomsPanel({
   courses,
-  hoveredCourse,
-  onHoverCourse,
   onEnter,
 }: {
   courses: StudentDashboardV2["courses"];
-  hoveredCourse: string | null;
-  onHoverCourse: (id: string | null) => void;
   onEnter: (course: StudentDashboardV2["courses"][number]) => void;
 }) {
   return (
     <Card className="border-[var(--gray-200)]">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
+      <CardContent className="p-0">
+        <div className="section-header flex items-center justify-between border-b border-[var(--gray-100)] px-5 py-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
+            <h3 className="section-title text-base font-bold text-[var(--gray-900)]">
               My Classrooms
-            </div>
-            <h3 className="mt-1 text-xl font-bold text-[var(--gray-900)]">
-              Enter your next classroom fast
             </h3>
+            <p className="text-xs text-[var(--gray-500)]">Enter your next classroom fast</p>
           </div>
-          <Link to="/student/classrooms" className="text-sm font-semibold text-[var(--primary)]">
+          <Link to="/student/classrooms" className="section-link text-xs font-medium text-[var(--primary)]">
             View all
           </Link>
         </div>
 
-        <div className="mt-5 space-y-3">
-          {courses.map((course) => {
-            const isHovered = hoveredCourse === course.id;
-            return (
-              <div
-                key={course.id}
-                onMouseEnter={() => onHoverCourse(course.id)}
-                onMouseLeave={() => onHoverCourse(null)}
-                className="group rounded-2xl border border-[var(--gray-200)] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary-light)] text-sm font-black text-[var(--primary)]">
-                    {course.title.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="truncate text-base font-bold text-[var(--gray-900)]">
-                        {course.title}
-                      </h4>
-                      <span className="rounded-full bg-[var(--gray-100)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--gray-500)]">
-                        AI Teacher
-                      </span>
-                    </div>
-                    <p className="text-sm text-[var(--gray-500)]">
-                      {course.institutionName} • {course.subject} • {course.level}
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--gray-600)]">
-                      Current Lesson: {course.currentLessonTitle}
-                    </p>
-                    <p className="text-sm text-[var(--gray-600)]">
-                      Current Step: {course.currentStep}
-                    </p>
-
-                    <div className="mt-3 flex items-center gap-3">
-                      <div className="flex-1">
-                        <div className="mb-1 flex items-center justify-between text-xs text-[var(--gray-500)]">
-                          <span>Progress</span>
-                          <span>{course.progressPercentage}%</span>
-                        </div>
-                        <Progress value={course.progressPercentage} className="h-2.5" />
-                      </div>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--gray-600)]">
-                      <Pill icon={Accessibility} text={course.accessibilityStatus} />
-                      <Pill icon={Monitor} text={course.teacherMode} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid gap-3 rounded-2xl bg-[var(--gray-50)] p-4 sm:grid-cols-3">
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-                      Last activity
-                    </div>
-                    <div className="mt-1 text-sm font-semibold text-[var(--gray-900)]">
-                      {course.lastActivity}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-                      Next action
-                    </div>
-                    <div className="mt-1 text-sm font-semibold text-[var(--gray-900)]">
-                      {course.nextRecommendedAction}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-                      Time left
-                    </div>
-                    <div className="mt-1 text-sm font-semibold text-[var(--gray-900)]">
-                      {course.estimatedTimeLeft}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button onClick={() => onEnter(course)} className="shadow-sm">
-                    Enter Classroom
-                  </Button>
-                  <Link to="/student/courses/$courseId" params={{ courseId: course.id }}>
-                    <Button variant="outline">View Course</Button>
-                  </Link>
-                  <Link to="/student/courses/$courseId/lessons" params={{ courseId: course.id }}>
-                    <Button variant="outline">Lessons</Button>
-                  </Link>
-                </div>
-
-                {isHovered && (
-                  <div className="mt-4 rounded-2xl border border-dashed border-[var(--primary)] bg-[var(--primary-light)] p-3 text-sm text-[var(--gray-700)]">
-                    Hover insight: you have one fast route into class. Entering will resume progress
-                    and refresh your dashboard.
-                  </div>
-                )}
+        <div className="divide-y divide-[var(--gray-100)]">
+          {courses.slice(0, 3).map((course) => (
+            <div key={course.id} className="classroom-item flex items-center gap-4 px-5 py-4 transition-colors hover:bg-[var(--gray-50)]">
+              <div className="class-icon flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--primary-light)] text-sm font-bold text-[var(--primary)]">
+                {course.title.slice(0, 2).toUpperCase()}
               </div>
-            );
-          })}
+              <div className="class-info min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="class-name truncate text-sm font-semibold text-[var(--gray-800)]">
+                    {course.title}
+                  </h4>
+                  <span className="badge badge-blue text-[10px]">AI Teacher</span>
+                </div>
+                <p className="class-sub mt-0.5 text-xs text-[var(--gray-400)]">
+                  {course.subject} • {course.level}
+                </p>
+                <div className="class-progress mt-2">
+                  <div className="progress-bar h-1.5 flex-1 rounded-full bg-[var(--gray-100)]">
+                    <div
+                      className="progress-fill h-full rounded-full bg-[var(--primary)]"
+                      style={{ width: `${course.progressPercentage}%` }}
+                    />
+                  </div>
+                  <span className="class-pct text-xs font-semibold">{course.progressPercentage}%</span>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => onEnter(course)}>
+                Enter
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* Start AI Classroom Card */}
+        <div className="start-ai-card mx-4 my-4 flex items-center justify-between rounded-lg border border-transparent bg-[var(--primary-light)] p-4 transition-colors hover:border-[var(--primary)]">
+          <div>
+            <p className="ai-title text-sm font-semibold text-[var(--gray-800)]">
+              Start a new AI lesson
+            </p>
+            <p className="ai-desc mt-1 text-xs text-[var(--gray-500)]">
+              Begin any lesson with your AI teacher
+            </p>
+          </div>
+          <Button size="sm">
+            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+            Start
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -507,68 +493,112 @@ function MyClassroomsPanel({
 function RecentSessionsPanel({ sessions }: { sessions: StudentDashboardV2["recentSessions"] }) {
   return (
     <Card className="border-[var(--gray-200)]">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
+      <CardContent className="p-0">
+        <div className="section-header flex items-center justify-between border-b border-[var(--gray-100)] px-5 py-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
+            <h3 className="section-title text-base font-bold text-[var(--gray-900)]">
               Recent Sessions
-            </div>
-            <h3 className="mt-1 text-xl font-bold text-[var(--gray-900)]">Pick up from history</h3>
+            </h3>
+            <p className="text-xs text-[var(--gray-500)]">Pick up from history</p>
           </div>
-          <Link to="/student/sessions" className="text-sm font-semibold text-[var(--primary)]">
+          <Link to="/student/sessions" className="section-link text-xs font-medium text-[var(--primary)]">
             View all
           </Link>
         </div>
 
-        <div className="mt-5 space-y-3">
-          {sessions.map((session) => (
-            <div
-              key={session.id}
-              className="rounded-2xl border border-[var(--gray-200)] bg-white p-4"
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--gray-100)] text-[var(--gray-700)]">
-                  <PlayCircle className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="truncate font-bold text-[var(--gray-900)]">
-                    {session.lessonTitle}
-                  </h4>
-                  <p className="text-sm text-[var(--gray-500)]">{session.courseTitle}</p>
-                  <p className="mt-1 text-xs text-[var(--gray-500)]">{session.startedAt}</p>
-                </div>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${session.status === "completed" ? "bg-[var(--green-light)] text-[var(--green)]" : "bg-[var(--primary-light)] text-[var(--primary)]"}`}
-                >
-                  {session.status}
-                </span>
+        <div className="session-list px-4 py-3">
+          {sessions.slice(0, 4).map((session) => (
+            <div key={session.id} className="session-item flex items-center gap-3 py-3 transition-colors hover:bg-[var(--gray-50)]">
+              <div className="session-thumb flex h-12 w-16 items-center justify-center rounded bg-[var(--gray-800)] text-white">
+                <PlayCircle className="h-5 w-5" />
               </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  to="/student/sessions/$sessionId/summary"
-                  params={{ sessionId: session.summaryId ?? session.id }}
-                >
-                  <Button variant="outline" size="sm">
-                    Review Summary
-                  </Button>
-                </Link>
-                <Link to="/classroom/session/$sessionId" params={{ sessionId: session.id }}>
-                  <Button variant="outline" size="sm">
-                    Replay Explanation
-                  </Button>
-                </Link>
-                <Link
-                  to="/student/quizzes/$quizId"
-                  params={{ quizId: session.quizId ?? "quiz-demo" }}
-                >
-                  <Button variant="outline" size="sm">
-                    Retake Quiz
-                  </Button>
-                </Link>
+              <div className="session-info min-w-0 flex-1">
+                <p className="session-name text-sm font-semibold text-[var(--gray-800)]">
+                  {session.lessonTitle}
+                </p>
+                <p className="session-class text-xs text-[var(--gray-400)]">{session.courseTitle}</p>
+                <div className="session-meta mt-1 flex gap-3 text-xs text-[var(--gray-400)]">
+                  <span>{session.startedAt}</span>
+                </div>
               </div>
+              <span
+                className={`badge ${session.status === "completed" ? "badge-green" : "badge-blue"}`}
+              >
+                {session.status}
+              </span>
             </div>
           ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function LearningPlanPanel({
+  plan,
+  planStarted,
+  onStart,
+}: {
+  plan: StudentDashboardV2["learningPlan"];
+  planStarted: boolean;
+  onStart: () => void;
+}) {
+  return (
+    <Card className="border-[var(--gray-200)]">
+      <CardContent className="p-0">
+        <div className="section-header flex items-center justify-between border-b border-[var(--gray-100)] px-5 py-4">
+          <div>
+            <h3 className="section-title text-base font-bold text-[var(--gray-900)]">
+              Today's Learning Plan
+            </h3>
+            <p className="text-xs text-[var(--gray-500)]">Your personalized roadmap</p>
+          </div>
+        </div>
+
+        <div className="p-4">
+          <div className="space-y-2">
+            {plan.slice(0, 4).map((item, index) => (
+              <div
+                key={item.id}
+                className={`flex items-start gap-3 rounded-lg border p-3 transition-all ${
+                  planStarted && index === 0
+                    ? "border-[var(--primary)] bg-[var(--primary-light)]"
+                    : "border-[var(--gray-200)] bg-white"
+                }`}
+              >
+                <div
+                  className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                    index === 0
+                      ? "bg-[var(--primary)] text-white"
+                      : "bg-[var(--gray-100)] text-[var(--gray-600)]"
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[var(--gray-900)]">{item.title}</p>
+                  <p className="text-xs text-[var(--gray-500)]">{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <Button className="flex-1" size="sm" onClick={onStart}>
+              Start Plan
+            </Button>
+            <Button variant="outline" className="flex-1" size="sm">
+              Skip
+            </Button>
+          </div>
+          <div className="mt-3">
+            <Link
+              to="/student/learning-plan"
+              className="text-xs font-medium text-[var(--primary)] hover:underline"
+            >
+              Customize learning plan
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -586,206 +616,186 @@ function LearningAccessWidget({
 }) {
   return (
     <Card className="border-[var(--gray-200)]">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
+      <CardContent className="p-0">
+        <div className="section-header flex items-center justify-between border-b border-[var(--gray-100)] px-5 py-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
+            <h3 className="section-title text-base font-bold text-[var(--gray-900)]">
               Learning Access
-            </div>
-            <h3 className="mt-1 text-xl font-bold text-[var(--gray-900)]">
-              Accessibility-first by default
             </h3>
+            <p className="text-xs text-[var(--gray-500)]">Accessibility-first by default</p>
           </div>
-          <Link to="/student/access" className="text-sm font-semibold text-[var(--primary)]">
-            Adjust Access
+          <Link to="/student/access" className="section-link text-xs font-medium text-[var(--primary)]">
+            Adjust
           </Link>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-[var(--gray-200)] bg-[linear-gradient(135deg,#ffffff_0%,#eff6ff_100%)] p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary)] text-white">
-              <Accessibility className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-[var(--gray-500)]">Current profile</div>
-              <div className="text-lg font-black text-[var(--gray-900)]">
-                {profile?.currentMode ?? "Standard"}
+        <div className="p-4">
+          <div className="rounded-lg border border-[var(--gray-200)] bg-gradient-to-br from-white to-[var(--primary-light)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--primary)] text-white">
+                <Accessibility className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs text-[var(--gray-500)]">Current profile</p>
+                <p className="text-lg font-bold text-[var(--gray-900)]">
+                  {profile?.currentMode ?? "Standard"}
+                </p>
               </div>
             </div>
-          </div>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <AccessPill label="Captions" enabled={profile?.captionsEnabled ?? true} />
-            <AccessPill label="Teacher voice" enabled={profile?.audioEnabled ?? true} />
-            <AccessPill
-              label="Keyboard shortcuts"
-              enabled={profile?.keyboardShortcutsEnabled ?? true}
-            />
-            <AccessPill
-              label="Focus mode"
-              enabled={focusMode || (profile?.focusModeEnabled ?? false)}
-            />
-          </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <AccessPill label="Captions" enabled={profile?.captionsEnabled ?? true} />
+              <AccessPill label="Voice" enabled={profile?.audioEnabled ?? true} />
+              <AccessPill label="Shortcuts" enabled={profile?.keyboardShortcutsEnabled ?? true} />
+              <AccessPill label="Focus" enabled={focusMode || (profile?.focusModeEnabled ?? false)} />
+            </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link to="/student/access">
-              <Button variant="outline" size="sm">
-                Adjust Access
+            <div className="mt-4 flex gap-2">
+              <Link to="/student/access" className="flex-1">
+                <Button variant="outline" size="sm" className="w-full">
+                  Adjust Access
+                </Button>
+              </Link>
+              <Button size="sm" onClick={onToggleFocusMode}>
+                {focusMode ? "Exit Focus" : "Focus Mode"}
               </Button>
-            </Link>
-            <Button size="sm" onClick={onToggleFocusMode}>
-              {focusMode ? "Disable Focus Mode" : "Enable Focus Mode"}
-            </Button>
+            </div>
           </div>
-
-          <p className="mt-3 text-xs text-[var(--gray-500)]">
-            Toggling focus mode updates the dashboard immediately and carries into the classroom
-            before you open it.
-          </p>
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function UpcomingSessionsPanel() {
-  return (
-    <Card className="border-[var(--gray-200)]">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-              Upcoming Sessions
-            </div>
-            <h3 className="mt-1 text-xl font-bold text-[var(--gray-900)]">
-              What&apos;s next today
-            </h3>
-          </div>
-          <Link to="/student/calendar" className="text-sm font-semibold text-[var(--primary)]">
-            View calendar
-          </Link>
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-[var(--gray-200)] bg-white p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-[var(--gray-900)]">Mini calendar</p>
-              <p className="text-xs text-[var(--gray-500)]">This week&apos;s learning rhythm</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="rounded-full border border-[var(--gray-200)] p-2">
-                <ChevronRight className="h-4 w-4 rotate-180" />
-              </button>
-              <button className="rounded-full border border-[var(--gray-200)] p-2">
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-7 gap-2 text-center text-xs text-[var(--gray-400)]">
-            {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-              <div key={d}>{d}</div>
-            ))}
-            {Array.from({ length: 14 }, (_, i) => i + 1).map((d) => (
-              <div
-                key={d}
-                className={`rounded-full py-2 ${d === 8 ? "bg-[var(--primary)] text-white" : "bg-[var(--gray-50)] text-[var(--gray-600)]"}`}
-              >
-                {d}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-3">
-          <UpcomingItem
-            title="Quadratic Equations Practice"
-            course="Mathematics Form 2"
-            time="10:30 AM"
-          />
-          <UpcomingItem title="Speaking Drill" course="English Speaking Practice" time="2:00 PM" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function UpcomingItem({ title, course, time }: { title: string; course: string; time: string }) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[var(--gray-200)] bg-white p-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary-light)] text-[var(--primary)]">
-        <Calendar className="h-5 w-5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-[var(--gray-900)]">{title}</p>
-        <p className="text-sm text-[var(--gray-500)]">{course}</p>
-      </div>
-      <div className="text-sm font-semibold text-[var(--gray-700)]">{time}</div>
-    </div>
-  );
-}
-
-function RecommendedNextLesson() {
-  return (
-    <Card className="border-[var(--gray-200)]">
-      <CardContent className="p-6">
-        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-          Recommended Next
-        </div>
-        <h3 className="mt-1 text-xl font-bold text-[var(--gray-900)]">
-          Continue with the lesson that fits your progress
-        </h3>
-        <p className="mt-3 text-sm leading-6 text-[var(--gray-600)]">
-          Klassruum uses your last session, weak topics, and quiz results to keep the next move
-          obvious.
-        </p>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <ActionCard
-            icon={Lightbulb}
-            title="Continue Lesson"
-            desc="Return to the active classroom"
-          />
-          <ActionCard icon={Notebook} title="Review Previous" desc="Open the last summary" />
-          <ActionCard icon={Trophy} title="Take Quiz" desc="Check understanding now" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ActionCard({
-  icon: Icon,
-  title,
-  desc,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-[var(--gray-50)] p-4">
-      <Icon className="h-5 w-5 text-[var(--primary)]" />
-      <div className="mt-3 font-semibold text-[var(--gray-900)]">{title}</div>
-      <div className="mt-1 text-xs text-[var(--gray-500)]">{desc}</div>
-    </div>
-  );
-}
-
-function Pill({ icon: Icon, text }: { icon: ComponentType<{ className?: string }>; text: string }) {
-  return (
-    <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--gray-50)] px-3 py-1.5 text-xs font-semibold text-[var(--gray-700)]">
-      <Icon className="h-3.5 w-3.5 text-[var(--primary)]" />
-      {text}
-    </div>
   );
 }
 
 function AccessPill({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <div
-      className={`rounded-2xl border px-3 py-2 text-sm font-semibold ${enabled ? "border-[var(--green)] bg-[var(--green-light)] text-[var(--green)]" : "border-[var(--gray-200)] bg-white text-[var(--gray-500)]"}`}
+      className={`rounded-lg border px-3 py-2 text-xs font-semibold ${
+        enabled
+          ? "border-green-200 bg-green-50 text-green-700"
+          : "border-[var(--gray-200)] bg-white text-[var(--gray-500)]"
+      }`}
     >
       {label}: {enabled ? "On" : "Off"}
+    </div>
+  );
+}
+
+function UpcomingSessionsPanel() {
+  return (
+    <Card className="border-[var(--gray-200)]">
+      <CardContent className="p-0">
+        <div className="section-header flex items-center justify-between border-b border-[var(--gray-100)] px-5 py-4">
+          <div>
+            <h3 className="section-title text-base font-bold text-[var(--gray-900)]">
+              Upcoming Sessions
+            </h3>
+            <p className="text-xs text-[var(--gray-500)]">What's next today</p>
+          </div>
+          <Link to="/student/calendar" className="section-link text-xs font-medium text-[var(--primary)]">
+            Calendar
+          </Link>
+        </div>
+
+        <div className="p-4">
+          {/* Mini Calendar */}
+          <div className="rounded-lg border border-[var(--gray-200)] bg-white p-4">
+            <div className="calendar-nav mb-3 flex items-center justify-between">
+              <span className="cal-month text-sm font-bold text-[var(--gray-800)]">June 2026</span>
+              <div className="flex gap-1">
+                <button className="cal-btn flex h-6 w-6 items-center justify-center rounded text-[var(--gray-400)] hover:bg-[var(--gray-100)]">
+                  <ChevronRight className="h-3 w-3 rotate-180" />
+                </button>
+                <button className="cal-btn flex h-6 w-6 items-center justify-center rounded text-[var(--gray-400)] hover:bg-[var(--gray-100)]">
+                  <ChevronRight className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+            <div className="cal-grid grid grid-cols-7 gap-1 text-center">
+              {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
+                <div key={d} className="cal-day-label py-1 text-[10px] font-semibold text-[var(--gray-400)]">
+                  {d}
+                </div>
+              ))}
+              {Array.from({ length: 14 }, (_, i) => i + 1).map((d) => (
+                <div
+                  key={d}
+                  className={`cal-day mx-auto flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium ${
+                    d === 8
+                      ? "bg-[var(--primary)] text-white"
+                      : "text-[var(--gray-600)] hover:bg-[var(--gray-100)]"
+                  }`}
+                >
+                  {d}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Upcoming Items */}
+          <div className="upcoming-list mt-4 space-y-2">
+            <div className="upcoming-item flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-[var(--gray-50)]">
+              <div className="upcoming-icon flex h-8 w-8 items-center justify-center rounded bg-blue-50 text-blue-600">
+                <Target className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="upcoming-name text-xs font-semibold text-[var(--gray-800)]">
+                  Quadratic Equations
+                </p>
+                <p className="upcoming-class text-[10px] text-[var(--gray-400)]">Math Form 2</p>
+              </div>
+              <span className="upcoming-time text-xs font-semibold text-[var(--gray-500)]">10:30 AM</span>
+            </div>
+            <div className="upcoming-item flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-[var(--gray-50)]">
+              <div className="upcoming-icon flex h-8 w-8 items-center justify-center rounded bg-green-50 text-green-600">
+                <MessageSquare className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="upcoming-name text-xs font-semibold text-[var(--gray-800)]">
+                  Speaking Drill
+                </p>
+                <p className="upcoming-class text-[10px] text-[var(--gray-400)]">English Practice</p>
+              </div>
+              <span className="upcoming-time text-xs font-semibold text-[var(--gray-500)]">2:00 PM</span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AchievementsRow() {
+  const achievements = [
+    { icon: "🔥", name: "7-Day Streak", sub: "Keep it up!", tag: "This week", color: "bg-orange-50 border-orange-100" },
+    { icon: "📚", name: "18 Lessons", sub: "Completed this month", tag: "On track", color: "bg-blue-50 border-blue-100" },
+    { icon: "🎯", name: "86% Quiz Avg", sub: "Excellent performance", tag: "Top 10%", color: "bg-green-50 border-green-100" },
+  ];
+
+  return (
+    <div className="mt-6">
+      <div className="section-header mb-4 flex items-center justify-between">
+        <div>
+          <h3 className="section-title text-base font-bold text-[var(--gray-900)]">Achievements</h3>
+          <p className="text-xs text-[var(--gray-500)]">Your learning milestones</p>
+        </div>
+        <Link to="/student/achievements" className="section-link text-xs font-medium text-[var(--primary)]">
+          View all
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {achievements.map((ach) => (
+          <div
+            key={ach.name}
+            className={`achievement-card rounded-xl border p-4 text-center transition-all hover:-translate-y-1 hover:shadow-md ${ach.color}`}
+          >
+            <span className="ach-icon block text-3xl">{ach.icon}</span>
+            <p className="mt-2 text-sm font-bold text-[var(--gray-800)]">{ach.name}</p>
+            <p className="mt-0.5 text-[11px] text-[var(--gray-500)]">{ach.sub}</p>
+            <p className="mt-2 text-[10px] font-semibold text-[var(--gray-400)]">{ach.tag}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
