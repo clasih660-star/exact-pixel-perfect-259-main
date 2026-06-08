@@ -1,0 +1,95 @@
+import type { ClassroomContext } from "@/lib/types";
+import { CheckCircle, Circle, Target } from "lucide-react";
+import { LESSON_STEPS } from "@/lib/teacher-types";
+
+interface StepsPanelProps {
+  classroomContext: ClassroomContext;
+}
+
+export function StepsPanel({ classroomContext }: StepsPanelProps) {
+  const { progress, lesson } = classroomContext;
+  const currentStepIndex = LESSON_STEPS.indexOf(progress.currentStep as any);
+
+  return (
+    <div className="flex flex-col h-full bg-white">
+      <div className="p-4 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-gray-900">Lesson Steps</h3>
+        <p className="text-xs text-gray-500 mt-1">
+          Step {currentStepIndex + 1} of {LESSON_STEPS.length}
+        </p>
+      </div>
+
+      <div className="flex-1 overflow-auto p-4">
+        <div className="space-y-2">
+          {LESSON_STEPS.map((step, index) => {
+            const isCompleted = index < currentStepIndex;
+            const isCurrent = index === currentStepIndex;
+            const stepData = lesson.steps[index];
+
+            return (
+              <div
+                key={step}
+                className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
+                  isCurrent
+                    ? "bg-blue-50 border border-blue-200"
+                    : isCompleted
+                      ? "bg-green-50/50"
+                      : "bg-gray-50/50"
+                }`}
+              >
+                <div className="flex-shrink-0 mt-0.5">
+                  {isCompleted ? (
+                    <CheckCircle size={20} className="text-green-600" />
+                  ) : isCurrent ? (
+                    <Target size={20} className="text-blue-600" />
+                  ) : (
+                    <Circle size={20} className="text-gray-400" />
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div
+                    className={`text-sm font-medium ${
+                      isCurrent ? "text-blue-900" : isCompleted ? "text-green-900" : "text-gray-700"
+                    }`}
+                  >
+                    {stepData?.title || step}
+                  </div>
+                  {stepData?.simpleExplanation && (
+                    <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+                      {stepData.simpleExplanation}
+                    </div>
+                  )}
+                </div>
+
+                {isCurrent && (
+                  <div className="flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Progress Summary */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-700">Progress</span>
+            <span className="text-xs font-semibold text-blue-600">
+              {Math.round(((currentStepIndex + 1) / LESSON_STEPS.length) * 100)}%
+            </span>
+          </div>
+          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all duration-300"
+              style={{
+                width: `${((currentStepIndex + 1) / LESSON_STEPS.length) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
