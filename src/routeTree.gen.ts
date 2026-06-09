@@ -9,19 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AccessibilityRouteImport } from './routes/accessibility'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
+import { Route as DemoWhiteboardRouteImport } from './routes/demo.whiteboard'
 import { Route as DemoTeachingRouteImport } from './routes/demo.teaching'
 import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as DemoAiVideoRouteImport } from './routes/demo.ai-video'
+import { Route as DemoAccessibilityDemoRouteImport } from './routes/demo.accessibility-demo'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
-import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
-import { Route as AuthenticatedSimpleTestRouteImport } from './routes/_authenticated/simple-test'
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
+import { Route as AuthSignupRouteImport } from './routes/auth.signup'
+import { Route as AuthSelectRoleRouteImport } from './routes/auth.select-role'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
+import { Route as AuthCompleteProfileRouteImport } from './routes/auth.complete-profile'
+import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
 import { Route as AuthenticatedTeacherStudentsRouteImport } from './routes/_authenticated/teacher.students'
@@ -33,6 +50,7 @@ import { Route as AuthenticatedTeacherLessonsRouteImport } from './routes/_authe
 import { Route as AuthenticatedTeacherDashboardRouteImport } from './routes/_authenticated/teacher.dashboard'
 import { Route as AuthenticatedTeacherCoursesRouteImport } from './routes/_authenticated/teacher.courses'
 import { Route as AuthenticatedTeacherAnalyticsRouteImport } from './routes/_authenticated/teacher.analytics'
+import { Route as AuthenticatedStudentTranscriptsRouteImport } from './routes/_authenticated/student.transcripts'
 import { Route as AuthenticatedStudentSettingsRouteImport } from './routes/_authenticated/student.settings'
 import { Route as AuthenticatedStudentSessionsRouteImport } from './routes/_authenticated/student.sessions'
 import { Route as AuthenticatedStudentSearchRouteImport } from './routes/_authenticated/student.search'
@@ -62,6 +80,8 @@ import { Route as AuthenticatedInstitutionStudentsRouteImport } from './routes/_
 import { Route as AuthenticatedInstitutionSettingsRouteImport } from './routes/_authenticated/institution.settings'
 import { Route as AuthenticatedInstitutionSessionsRouteImport } from './routes/_authenticated/institution.sessions'
 import { Route as AuthenticatedInstitutionResourcesRouteImport } from './routes/_authenticated/institution.resources'
+import { Route as AuthenticatedInstitutionProgrammesRouteImport } from './routes/_authenticated/institution.programmes'
+import { Route as AuthenticatedInstitutionLessonGenerationRouteImport } from './routes/_authenticated/institution.lesson-generation'
 import { Route as AuthenticatedInstitutionEnrollmentsRouteImport } from './routes/_authenticated/institution.enrollments'
 import { Route as AuthenticatedInstitutionDashboardRouteImport } from './routes/_authenticated/institution.dashboard'
 import { Route as AuthenticatedInstitutionCoursesRouteImport } from './routes/_authenticated/institution.courses'
@@ -69,14 +89,31 @@ import { Route as AuthenticatedInstitutionClassroomsRouteImport } from './routes
 import { Route as AuthenticatedInstitutionBillingRouteImport } from './routes/_authenticated/institution.billing'
 import { Route as AuthenticatedInstitutionAnalyticsRouteImport } from './routes/_authenticated/institution.analytics'
 import { Route as AuthenticatedInstitutionActivityRouteImport } from './routes/_authenticated/institution.activity'
+import { Route as AuthenticatedDevTestRouteImport } from './routes/_authenticated/dev/test'
+import { Route as AuthenticatedDevSimpleTestRouteImport } from './routes/_authenticated/dev/simple-test'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminUsageRouteImport } from './routes/_authenticated/admin.usage'
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminRealtimeRouteImport } from './routes/_authenticated/admin.realtime'
+import { Route as AuthenticatedAdminProgrammesRouteImport } from './routes/_authenticated/admin.programmes'
 import { Route as AuthenticatedAdminPlatformRouteImport } from './routes/_authenticated/admin.platform'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
+import { Route as AuthenticatedAdminMaterialsRouteImport } from './routes/_authenticated/admin.materials'
+import { Route as AuthenticatedAdminLessonsRouteImport } from './routes/_authenticated/admin.lessons'
+import { Route as AuthenticatedAdminLessonGenerationRouteImport } from './routes/_authenticated/admin.lesson-generation'
+import { Route as AuthenticatedAdminKingpinCoursesRouteImport } from './routes/_authenticated/admin.kingpin-courses'
 import { Route as AuthenticatedAdminInstitutionsRouteImport } from './routes/_authenticated/admin.institutions'
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
+import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
+import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin.audit-logs'
+import { Route as AuthenticatedAdminAiSettingsRouteImport } from './routes/_authenticated/admin.ai-settings'
+import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
+import { Route as AuthenticatedTeacherSessionsNewRouteImport } from './routes/_authenticated/teacher.sessions.new'
+import { Route as AuthenticatedTeacherSessionsSessionIdRouteImport } from './routes/_authenticated/teacher.sessions.$sessionId'
+import { Route as AuthenticatedTeacherLessonsNewRouteImport } from './routes/_authenticated/teacher.lessons.new'
+import { Route as AuthenticatedTeacherLessonsLessonIdRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId'
 import { Route as AuthenticatedTeacherCoursesCourseIdRouteImport } from './routes/_authenticated/teacher.courses.$courseId'
 import { Route as AuthenticatedStudentSettingsProfileRouteImport } from './routes/_authenticated/student.settings.profile'
 import { Route as AuthenticatedStudentResourcesResourceIdRouteImport } from './routes/_authenticated/student.resources.$resourceId'
@@ -89,18 +126,102 @@ import { Route as AuthenticatedInstitutionTeachersInviteRouteImport } from './ro
 import { Route as AuthenticatedInstitutionStudentsInviteRouteImport } from './routes/_authenticated/institution.students.invite'
 import { Route as AuthenticatedInstitutionSessionsNewRouteImport } from './routes/_authenticated/institution.sessions.new'
 import { Route as AuthenticatedInstitutionResourcesUploadRouteImport } from './routes/_authenticated/institution.resources.upload'
+import { Route as AuthenticatedInstitutionProgrammesNewRouteImport } from './routes/_authenticated/institution.programmes.new'
+import { Route as AuthenticatedInstitutionProgrammesProgrammeIdRouteImport } from './routes/_authenticated/institution.programmes.$programmeId'
+import { Route as AuthenticatedInstitutionLessonGenerationJobIdRouteImport } from './routes/_authenticated/institution.lesson-generation.$jobId'
 import { Route as AuthenticatedInstitutionCoursesNewRouteImport } from './routes/_authenticated/institution.courses.new'
 import { Route as AuthenticatedInstitutionCoursesCourseIdRouteImport } from './routes/_authenticated/institution.courses.$courseId'
+import { Route as AuthenticatedDevClassroomEnhancedLessonIdRouteImport } from './routes/_authenticated/dev/classroom-enhanced.$lessonId'
+import { Route as AuthenticatedDevClassroomDesignLessonIdRouteImport } from './routes/_authenticated/dev/classroom-design.$lessonId'
+import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin.users.$userId'
+import { Route as AuthenticatedAdminProgrammesProgrammeIdRouteImport } from './routes/_authenticated/admin.programmes.$programmeId'
+import { Route as AuthenticatedAdminLessonGenerationJobIdRouteImport } from './routes/_authenticated/admin.lesson-generation.$jobId'
+import { Route as AuthenticatedAdminKingpinCoursesNewRouteImport } from './routes/_authenticated/admin.kingpin-courses.new'
+import { Route as AuthenticatedAdminKingpinCoursesCourseIdRouteImport } from './routes/_authenticated/admin.kingpin-courses.$courseId'
+import { Route as AuthenticatedAdminInstitutionsInstitutionIdRouteImport } from './routes/_authenticated/admin.institutions.$institutionId'
+import { Route as AuthenticatedTeacherSessionsSessionIdActivityRouteImport } from './routes/_authenticated/teacher.sessions.$sessionId.activity'
+import { Route as AuthenticatedTeacherLessonsLessonIdPreviewRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId.preview'
 import { Route as AuthenticatedTeacherLessonsLessonIdEditRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId.edit'
 import { Route as AuthenticatedTeacherCoursesCourseIdStudentsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.students'
+import { Route as AuthenticatedTeacherCoursesCourseIdMaterialsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.materials'
+import { Route as AuthenticatedTeacherCoursesCourseIdLessonsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.lessons'
+import { Route as AuthenticatedTeacherCoursesCourseIdGenerateLessonsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.generate-lessons'
 import { Route as AuthenticatedTeacherCoursesCourseIdAnalyticsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.analytics'
 import { Route as AuthenticatedStudentSessionsSessionIdSummaryRouteImport } from './routes/_authenticated/student.sessions.$sessionId.summary'
 import { Route as AuthenticatedStudentSessionsSessionIdReplayRouteImport } from './routes/_authenticated/student.sessions.$sessionId.replay'
+import { Route as AuthenticatedStudentLessonsLessonIdStartRouteImport } from './routes/_authenticated/student.lessons.$lessonId.start'
+import { Route as AuthenticatedStudentCoursesCourseIdProgressRouteImport } from './routes/_authenticated/student.courses.$courseId.progress'
 import { Route as AuthenticatedStudentCoursesCourseIdLessonsRouteImport } from './routes/_authenticated/student.courses.$courseId.lessons'
+import { Route as AuthenticatedInstitutionProgrammesProgrammeIdStudentsRouteImport } from './routes/_authenticated/institution.programmes.$programmeId.students'
+import { Route as AuthenticatedInstitutionProgrammesProgrammeIdEditRouteImport } from './routes/_authenticated/institution.programmes.$programmeId.edit'
+import { Route as AuthenticatedInstitutionProgrammesProgrammeIdCoursesRouteImport } from './routes/_authenticated/institution.programmes.$programmeId.courses'
+import { Route as AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRouteImport } from './routes/_authenticated/institution.programmes.$programmeId.analytics'
+import { Route as AuthenticatedInstitutionCoursesCourseIdTeachersRouteImport } from './routes/_authenticated/institution.courses.$courseId.teachers'
+import { Route as AuthenticatedInstitutionCoursesCourseIdSettingsRouteImport } from './routes/_authenticated/institution.courses.$courseId.settings'
+import { Route as AuthenticatedInstitutionCoursesCourseIdMaterialsRouteImport } from './routes/_authenticated/institution.courses.$courseId.materials'
+import { Route as AuthenticatedInstitutionCoursesCourseIdLessonsRouteImport } from './routes/_authenticated/institution.courses.$courseId.lessons'
+import { Route as AuthenticatedInstitutionCoursesCourseIdGenerationJobsRouteImport } from './routes/_authenticated/institution.courses.$courseId.generation-jobs'
+import { Route as AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRouteImport } from './routes/_authenticated/institution.courses.$courseId.generate-lessons'
+import { Route as AuthenticatedInstitutionCoursesCourseIdEnrollmentsRouteImport } from './routes/_authenticated/institution.courses.$courseId.enrollments'
+import { Route as AuthenticatedInstitutionCoursesCourseIdEditRouteImport } from './routes/_authenticated/institution.courses.$courseId.edit'
+import { Route as AuthenticatedAdminKingpinCoursesCourseIdMaterialsRouteImport } from './routes/_authenticated/admin.kingpin-courses.$courseId.materials'
+import { Route as AuthenticatedAdminKingpinCoursesCourseIdLessonsRouteImport } from './routes/_authenticated/admin.kingpin-courses.$courseId.lessons'
+import { Route as AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRouteImport } from './routes/_authenticated/admin.kingpin-courses.$courseId.generate-lessons'
+import { Route as AuthenticatedAdminInstitutionsInstitutionIdUsersRouteImport } from './routes/_authenticated/admin.institutions.$institutionId.users'
+import { Route as AuthenticatedAdminInstitutionsInstitutionIdCoursesRouteImport } from './routes/_authenticated/admin.institutions.$institutionId.courses'
+import { Route as AuthenticatedAdminInstitutionsInstitutionIdActivityRouteImport } from './routes/_authenticated/admin.institutions.$institutionId.activity'
+import { Route as AuthenticatedTeacherCoursesCourseIdMaterialsUploadRouteImport } from './routes/_authenticated/teacher.courses.$courseId.materials.upload'
+import { Route as AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRouteImport } from './routes/_authenticated/institution.courses.$courseId.materials.upload'
+import { Route as AuthenticatedInstitutionCoursesCourseIdLessonsNewRouteImport } from './routes/_authenticated/institution.courses.$courseId.lessons.new'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessibilityRoute = AccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -122,6 +243,11 @@ const InstitutionsRegisterRoute = InstitutionsRegisterRouteImport.update({
   path: '/institutions/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoWhiteboardRoute = DemoWhiteboardRouteImport.update({
+  id: '/demo/whiteboard',
+  path: '/demo/whiteboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoTeachingRoute = DemoTeachingRouteImport.update({
   id: '/demo/teaching',
   path: '/demo/teaching',
@@ -135,6 +261,11 @@ const DemoClassroomRoute = DemoClassroomRouteImport.update({
 const DemoAiVideoRoute = DemoAiVideoRouteImport.update({
   id: '/demo/ai-video',
   path: '/demo/ai-video',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoAccessibilityDemoRoute = DemoAccessibilityDemoRouteImport.update({
+  id: '/demo/accessibility-demo',
+  path: '/demo/accessibility-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassroomLessonIdRoute = ClassroomLessonIdRouteImport.update({
@@ -153,14 +284,44 @@ const ClassroomDesignLessonIdRoute = ClassroomDesignLessonIdRouteImport.update({
   path: '/classroom-design/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => AuthRoute,
 } as any)
-const AuthenticatedSimpleTestRoute = AuthenticatedSimpleTestRouteImport.update({
-  id: '/simple-test',
-  path: '/simple-test',
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSelectRoleRoute = AuthSelectRoleRouteImport.update({
+  id: '/select-role',
+  path: '/select-role',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCompleteProfileRoute = AuthCompleteProfileRouteImport.update({
+  id: '/complete-profile',
+  path: '/complete-profile',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthenticatedDevRouteRoute = AuthenticatedDevRouteRouteImport.update({
+  id: '/dev',
+  path: '/dev',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ClassroomSessionSessionIdRoute =
@@ -227,6 +388,12 @@ const AuthenticatedTeacherAnalyticsRoute =
   AuthenticatedTeacherAnalyticsRouteImport.update({
     id: '/teacher/analytics',
     path: '/teacher/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudentTranscriptsRoute =
+  AuthenticatedStudentTranscriptsRouteImport.update({
+    id: '/student/transcripts',
+    path: '/student/transcripts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStudentSettingsRoute =
@@ -403,6 +570,18 @@ const AuthenticatedInstitutionResourcesRoute =
     path: '/institution/resources',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInstitutionProgrammesRoute =
+  AuthenticatedInstitutionProgrammesRouteImport.update({
+    id: '/institution/programmes',
+    path: '/institution/programmes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstitutionLessonGenerationRoute =
+  AuthenticatedInstitutionLessonGenerationRouteImport.update({
+    id: '/institution/lesson-generation',
+    path: '/institution/lesson-generation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInstitutionEnrollmentsRoute =
   AuthenticatedInstitutionEnrollmentsRouteImport.update({
     id: '/institution/enrollments',
@@ -445,6 +624,17 @@ const AuthenticatedInstitutionActivityRoute =
     path: '/institution/activity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDevTestRoute = AuthenticatedDevTestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => AuthenticatedDevRouteRoute,
+} as any)
+const AuthenticatedDevSimpleTestRoute =
+  AuthenticatedDevSimpleTestRouteImport.update({
+    id: '/simple-test',
+    path: '/simple-test',
+    getParentRoute: () => AuthenticatedDevRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
@@ -467,6 +657,18 @@ const AuthenticatedAdminSettingsRoute =
     path: '/admin/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminRealtimeRoute =
+  AuthenticatedAdminRealtimeRouteImport.update({
+    id: '/admin/realtime',
+    path: '/admin/realtime',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminProgrammesRoute =
+  AuthenticatedAdminProgrammesRouteImport.update({
+    id: '/admin/programmes',
+    path: '/admin/programmes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPlatformRoute =
   AuthenticatedAdminPlatformRouteImport.update({
     id: '/admin/platform',
@@ -478,6 +680,30 @@ const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
   path: '/admin/plans',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminMaterialsRoute =
+  AuthenticatedAdminMaterialsRouteImport.update({
+    id: '/admin/materials',
+    path: '/admin/materials',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLessonsRoute =
+  AuthenticatedAdminLessonsRouteImport.update({
+    id: '/admin/lessons',
+    path: '/admin/lessons',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLessonGenerationRoute =
+  AuthenticatedAdminLessonGenerationRouteImport.update({
+    id: '/admin/lesson-generation',
+    path: '/admin/lesson-generation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminKingpinCoursesRoute =
+  AuthenticatedAdminKingpinCoursesRouteImport.update({
+    id: '/admin/kingpin-courses',
+    path: '/admin/kingpin-courses',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminInstitutionsRoute =
   AuthenticatedAdminInstitutionsRouteImport.update({
     id: '/admin/institutions',
@@ -489,6 +715,60 @@ const AuthenticatedAdminHealthRoute =
     id: '/admin/health',
     path: '/admin/health',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/admin/dashboard',
+    path: '/admin/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCoursesRoute =
+  AuthenticatedAdminCoursesRouteImport.update({
+    id: '/admin/courses',
+    path: '/admin/courses',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminAuditLogsRoute =
+  AuthenticatedAdminAuditLogsRouteImport.update({
+    id: '/admin/audit-logs',
+    path: '/admin/audit-logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminAiSettingsRoute =
+  AuthenticatedAdminAiSettingsRouteImport.update({
+    id: '/admin/ai-settings',
+    path: '/admin/ai-settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminActivityRoute =
+  AuthenticatedAdminActivityRouteImport.update({
+    id: '/admin/activity',
+    path: '/admin/activity',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeacherSessionsNewRoute =
+  AuthenticatedTeacherSessionsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedTeacherSessionsRoute,
+  } as any)
+const AuthenticatedTeacherSessionsSessionIdRoute =
+  AuthenticatedTeacherSessionsSessionIdRouteImport.update({
+    id: '/$sessionId',
+    path: '/$sessionId',
+    getParentRoute: () => AuthenticatedTeacherSessionsRoute,
+  } as any)
+const AuthenticatedTeacherLessonsNewRoute =
+  AuthenticatedTeacherLessonsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedTeacherLessonsRoute,
+  } as any)
+const AuthenticatedTeacherLessonsLessonIdRoute =
+  AuthenticatedTeacherLessonsLessonIdRouteImport.update({
+    id: '/$lessonId',
+    path: '/$lessonId',
+    getParentRoute: () => AuthenticatedTeacherLessonsRoute,
   } as any)
 const AuthenticatedTeacherCoursesCourseIdRoute =
   AuthenticatedTeacherCoursesCourseIdRouteImport.update({
@@ -562,6 +842,24 @@ const AuthenticatedInstitutionResourcesUploadRoute =
     path: '/upload',
     getParentRoute: () => AuthenticatedInstitutionResourcesRoute,
   } as any)
+const AuthenticatedInstitutionProgrammesNewRoute =
+  AuthenticatedInstitutionProgrammesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedInstitutionProgrammesRoute,
+  } as any)
+const AuthenticatedInstitutionProgrammesProgrammeIdRoute =
+  AuthenticatedInstitutionProgrammesProgrammeIdRouteImport.update({
+    id: '/$programmeId',
+    path: '/$programmeId',
+    getParentRoute: () => AuthenticatedInstitutionProgrammesRoute,
+  } as any)
+const AuthenticatedInstitutionLessonGenerationJobIdRoute =
+  AuthenticatedInstitutionLessonGenerationJobIdRouteImport.update({
+    id: '/$jobId',
+    path: '/$jobId',
+    getParentRoute: () => AuthenticatedInstitutionLessonGenerationRoute,
+  } as any)
 const AuthenticatedInstitutionCoursesNewRoute =
   AuthenticatedInstitutionCoursesNewRouteImport.update({
     id: '/new',
@@ -574,16 +872,94 @@ const AuthenticatedInstitutionCoursesCourseIdRoute =
     path: '/$courseId',
     getParentRoute: () => AuthenticatedInstitutionCoursesRoute,
   } as any)
+const AuthenticatedDevClassroomEnhancedLessonIdRoute =
+  AuthenticatedDevClassroomEnhancedLessonIdRouteImport.update({
+    id: '/classroom-enhanced/$lessonId',
+    path: '/classroom-enhanced/$lessonId',
+    getParentRoute: () => AuthenticatedDevRouteRoute,
+  } as any)
+const AuthenticatedDevClassroomDesignLessonIdRoute =
+  AuthenticatedDevClassroomDesignLessonIdRouteImport.update({
+    id: '/classroom-design/$lessonId',
+    path: '/classroom-design/$lessonId',
+    getParentRoute: () => AuthenticatedDevRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersUserIdRoute =
+  AuthenticatedAdminUsersUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => AuthenticatedAdminUsersRoute,
+  } as any)
+const AuthenticatedAdminProgrammesProgrammeIdRoute =
+  AuthenticatedAdminProgrammesProgrammeIdRouteImport.update({
+    id: '/$programmeId',
+    path: '/$programmeId',
+    getParentRoute: () => AuthenticatedAdminProgrammesRoute,
+  } as any)
+const AuthenticatedAdminLessonGenerationJobIdRoute =
+  AuthenticatedAdminLessonGenerationJobIdRouteImport.update({
+    id: '/$jobId',
+    path: '/$jobId',
+    getParentRoute: () => AuthenticatedAdminLessonGenerationRoute,
+  } as any)
+const AuthenticatedAdminKingpinCoursesNewRoute =
+  AuthenticatedAdminKingpinCoursesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminKingpinCoursesRoute,
+  } as any)
+const AuthenticatedAdminKingpinCoursesCourseIdRoute =
+  AuthenticatedAdminKingpinCoursesCourseIdRouteImport.update({
+    id: '/$courseId',
+    path: '/$courseId',
+    getParentRoute: () => AuthenticatedAdminKingpinCoursesRoute,
+  } as any)
+const AuthenticatedAdminInstitutionsInstitutionIdRoute =
+  AuthenticatedAdminInstitutionsInstitutionIdRouteImport.update({
+    id: '/$institutionId',
+    path: '/$institutionId',
+    getParentRoute: () => AuthenticatedAdminInstitutionsRoute,
+  } as any)
+const AuthenticatedTeacherSessionsSessionIdActivityRoute =
+  AuthenticatedTeacherSessionsSessionIdActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedTeacherSessionsSessionIdRoute,
+  } as any)
+const AuthenticatedTeacherLessonsLessonIdPreviewRoute =
+  AuthenticatedTeacherLessonsLessonIdPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => AuthenticatedTeacherLessonsLessonIdRoute,
+  } as any)
 const AuthenticatedTeacherLessonsLessonIdEditRoute =
   AuthenticatedTeacherLessonsLessonIdEditRouteImport.update({
-    id: '/$lessonId/edit',
-    path: '/$lessonId/edit',
-    getParentRoute: () => AuthenticatedTeacherLessonsRoute,
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedTeacherLessonsLessonIdRoute,
   } as any)
 const AuthenticatedTeacherCoursesCourseIdStudentsRoute =
   AuthenticatedTeacherCoursesCourseIdStudentsRouteImport.update({
     id: '/students',
     path: '/students',
+    getParentRoute: () => AuthenticatedTeacherCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedTeacherCoursesCourseIdMaterialsRoute =
+  AuthenticatedTeacherCoursesCourseIdMaterialsRouteImport.update({
+    id: '/materials',
+    path: '/materials',
+    getParentRoute: () => AuthenticatedTeacherCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedTeacherCoursesCourseIdLessonsRoute =
+  AuthenticatedTeacherCoursesCourseIdLessonsRouteImport.update({
+    id: '/lessons',
+    path: '/lessons',
+    getParentRoute: () => AuthenticatedTeacherCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute =
+  AuthenticatedTeacherCoursesCourseIdGenerateLessonsRouteImport.update({
+    id: '/generate-lessons',
+    path: '/generate-lessons',
     getParentRoute: () => AuthenticatedTeacherCoursesCourseIdRoute,
   } as any)
 const AuthenticatedTeacherCoursesCourseIdAnalyticsRoute =
@@ -604,34 +980,202 @@ const AuthenticatedStudentSessionsSessionIdReplayRoute =
     path: '/$sessionId/replay',
     getParentRoute: () => AuthenticatedStudentSessionsRoute,
   } as any)
+const AuthenticatedStudentLessonsLessonIdStartRoute =
+  AuthenticatedStudentLessonsLessonIdStartRouteImport.update({
+    id: '/start',
+    path: '/start',
+    getParentRoute: () => AuthenticatedStudentLessonsLessonIdRoute,
+  } as any)
+const AuthenticatedStudentCoursesCourseIdProgressRoute =
+  AuthenticatedStudentCoursesCourseIdProgressRouteImport.update({
+    id: '/progress',
+    path: '/progress',
+    getParentRoute: () => AuthenticatedStudentCoursesCourseIdRoute,
+  } as any)
 const AuthenticatedStudentCoursesCourseIdLessonsRoute =
   AuthenticatedStudentCoursesCourseIdLessonsRouteImport.update({
     id: '/lessons',
     path: '/lessons',
     getParentRoute: () => AuthenticatedStudentCoursesCourseIdRoute,
   } as any)
+const AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute =
+  AuthenticatedInstitutionProgrammesProgrammeIdStudentsRouteImport.update({
+    id: '/students',
+    path: '/students',
+    getParentRoute: () => AuthenticatedInstitutionProgrammesProgrammeIdRoute,
+  } as any)
+const AuthenticatedInstitutionProgrammesProgrammeIdEditRoute =
+  AuthenticatedInstitutionProgrammesProgrammeIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedInstitutionProgrammesProgrammeIdRoute,
+  } as any)
+const AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute =
+  AuthenticatedInstitutionProgrammesProgrammeIdCoursesRouteImport.update({
+    id: '/courses',
+    path: '/courses',
+    getParentRoute: () => AuthenticatedInstitutionProgrammesProgrammeIdRoute,
+  } as any)
+const AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute =
+  AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedInstitutionProgrammesProgrammeIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdTeachersRoute =
+  AuthenticatedInstitutionCoursesCourseIdTeachersRouteImport.update({
+    id: '/teachers',
+    path: '/teachers',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdSettingsRoute =
+  AuthenticatedInstitutionCoursesCourseIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdMaterialsRoute =
+  AuthenticatedInstitutionCoursesCourseIdMaterialsRouteImport.update({
+    id: '/materials',
+    path: '/materials',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdLessonsRoute =
+  AuthenticatedInstitutionCoursesCourseIdLessonsRouteImport.update({
+    id: '/lessons',
+    path: '/lessons',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute =
+  AuthenticatedInstitutionCoursesCourseIdGenerationJobsRouteImport.update({
+    id: '/generation-jobs',
+    path: '/generation-jobs',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute =
+  AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRouteImport.update({
+    id: '/generate-lessons',
+    path: '/generate-lessons',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute =
+  AuthenticatedInstitutionCoursesCourseIdEnrollmentsRouteImport.update({
+    id: '/enrollments',
+    path: '/enrollments',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdEditRoute =
+  AuthenticatedInstitutionCoursesCourseIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute =
+  AuthenticatedAdminKingpinCoursesCourseIdMaterialsRouteImport.update({
+    id: '/materials',
+    path: '/materials',
+    getParentRoute: () => AuthenticatedAdminKingpinCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute =
+  AuthenticatedAdminKingpinCoursesCourseIdLessonsRouteImport.update({
+    id: '/lessons',
+    path: '/lessons',
+    getParentRoute: () => AuthenticatedAdminKingpinCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute =
+  AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRouteImport.update({
+    id: '/generate-lessons',
+    path: '/generate-lessons',
+    getParentRoute: () => AuthenticatedAdminKingpinCoursesCourseIdRoute,
+  } as any)
+const AuthenticatedAdminInstitutionsInstitutionIdUsersRoute =
+  AuthenticatedAdminInstitutionsInstitutionIdUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedAdminInstitutionsInstitutionIdRoute,
+  } as any)
+const AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute =
+  AuthenticatedAdminInstitutionsInstitutionIdCoursesRouteImport.update({
+    id: '/courses',
+    path: '/courses',
+    getParentRoute: () => AuthenticatedAdminInstitutionsInstitutionIdRoute,
+  } as any)
+const AuthenticatedAdminInstitutionsInstitutionIdActivityRoute =
+  AuthenticatedAdminInstitutionsInstitutionIdActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedAdminInstitutionsInstitutionIdRoute,
+  } as any)
+const AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute =
+  AuthenticatedTeacherCoursesCourseIdMaterialsUploadRouteImport.update({
+    id: '/upload',
+    path: '/upload',
+    getParentRoute: () => AuthenticatedTeacherCoursesCourseIdMaterialsRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute =
+  AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRouteImport.update({
+    id: '/upload',
+    path: '/upload',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdMaterialsRoute,
+  } as any)
+const AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute =
+  AuthenticatedInstitutionCoursesCourseIdLessonsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedInstitutionCoursesCourseIdLessonsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/simple-test': typeof AuthenticatedSimpleTestRoute
-  '/test': typeof AuthenticatedTestRoute
+  '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/auth/complete-profile': typeof AuthCompleteProfileRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/select-role': typeof AuthSelectRoleRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/accessibility-demo': typeof DemoAccessibilityDemoRoute
   '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/teaching': typeof DemoTeachingRoute
+  '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
-  '/admin/institutions': typeof AuthenticatedAdminInstitutionsRoute
+  '/admin/institutions': typeof AuthenticatedAdminInstitutionsRouteWithChildren
+  '/admin/kingpin-courses': typeof AuthenticatedAdminKingpinCoursesRouteWithChildren
+  '/admin/lesson-generation': typeof AuthenticatedAdminLessonGenerationRouteWithChildren
+  '/admin/lessons': typeof AuthenticatedAdminLessonsRoute
+  '/admin/materials': typeof AuthenticatedAdminMaterialsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/platform': typeof AuthenticatedAdminPlatformRoute
+  '/admin/programmes': typeof AuthenticatedAdminProgrammesRouteWithChildren
+  '/admin/realtime': typeof AuthenticatedAdminRealtimeRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/usage': typeof AuthenticatedAdminUsageRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/dev/simple-test': typeof AuthenticatedDevSimpleTestRoute
+  '/dev/test': typeof AuthenticatedDevTestRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
   '/institution/billing': typeof AuthenticatedInstitutionBillingRoute
@@ -639,6 +1183,8 @@ export interface FileRoutesByFullPath {
   '/institution/courses': typeof AuthenticatedInstitutionCoursesRouteWithChildren
   '/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
+  '/institution/lesson-generation': typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  '/institution/programmes': typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   '/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
   '/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
   '/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
@@ -668,59 +1214,133 @@ export interface FileRoutesByFullPath {
   '/student/search': typeof AuthenticatedStudentSearchRoute
   '/student/sessions': typeof AuthenticatedStudentSessionsRouteWithChildren
   '/student/settings': typeof AuthenticatedStudentSettingsRouteWithChildren
+  '/student/transcripts': typeof AuthenticatedStudentTranscriptsRoute
   '/teacher/analytics': typeof AuthenticatedTeacherAnalyticsRoute
   '/teacher/courses': typeof AuthenticatedTeacherCoursesRouteWithChildren
   '/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
   '/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
   '/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
-  '/teacher/sessions': typeof AuthenticatedTeacherSessionsRoute
+  '/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
   '/teacher/students': typeof AuthenticatedTeacherStudentsRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
-  '/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRoute
+  '/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
+  '/admin/kingpin-courses/$courseId': typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
+  '/admin/kingpin-courses/new': typeof AuthenticatedAdminKingpinCoursesNewRoute
+  '/admin/lesson-generation/$jobId': typeof AuthenticatedAdminLessonGenerationJobIdRoute
+  '/admin/programmes/$programmeId': typeof AuthenticatedAdminProgrammesProgrammeIdRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/dev/classroom-design/$lessonId': typeof AuthenticatedDevClassroomDesignLessonIdRoute
+  '/dev/classroom-enhanced/$lessonId': typeof AuthenticatedDevClassroomEnhancedLessonIdRoute
+  '/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRouteWithChildren
   '/institution/courses/new': typeof AuthenticatedInstitutionCoursesNewRoute
+  '/institution/lesson-generation/$jobId': typeof AuthenticatedInstitutionLessonGenerationJobIdRoute
+  '/institution/programmes/$programmeId': typeof AuthenticatedInstitutionProgrammesProgrammeIdRouteWithChildren
+  '/institution/programmes/new': typeof AuthenticatedInstitutionProgrammesNewRoute
   '/institution/resources/upload': typeof AuthenticatedInstitutionResourcesUploadRoute
   '/institution/sessions/new': typeof AuthenticatedInstitutionSessionsNewRoute
   '/institution/students/invite': typeof AuthenticatedInstitutionStudentsInviteRoute
   '/institution/teachers/invite': typeof AuthenticatedInstitutionTeachersInviteRoute
   '/student/ai-lesson/new': typeof AuthenticatedStudentAiLessonNewRoute
   '/student/courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRouteWithChildren
-  '/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRoute
+  '/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRouteWithChildren
   '/student/notes/$noteId': typeof AuthenticatedStudentNotesNoteIdRoute
   '/student/quizzes/$quizId': typeof AuthenticatedStudentQuizzesQuizIdRoute
   '/student/resources/$resourceId': typeof AuthenticatedStudentResourcesResourceIdRoute
   '/student/settings/profile': typeof AuthenticatedStudentSettingsProfileRoute
   '/teacher/courses/$courseId': typeof AuthenticatedTeacherCoursesCourseIdRouteWithChildren
+  '/teacher/lessons/$lessonId': typeof AuthenticatedTeacherLessonsLessonIdRouteWithChildren
+  '/teacher/lessons/new': typeof AuthenticatedTeacherLessonsNewRoute
+  '/teacher/sessions/$sessionId': typeof AuthenticatedTeacherSessionsSessionIdRouteWithChildren
+  '/teacher/sessions/new': typeof AuthenticatedTeacherSessionsNewRoute
+  '/admin/institutions/$institutionId/activity': typeof AuthenticatedAdminInstitutionsInstitutionIdActivityRoute
+  '/admin/institutions/$institutionId/courses': typeof AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute
+  '/admin/institutions/$institutionId/users': typeof AuthenticatedAdminInstitutionsInstitutionIdUsersRoute
+  '/admin/kingpin-courses/$courseId/generate-lessons': typeof AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute
+  '/admin/kingpin-courses/$courseId/lessons': typeof AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute
+  '/admin/kingpin-courses/$courseId/materials': typeof AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute
+  '/institution/courses/$courseId/edit': typeof AuthenticatedInstitutionCoursesCourseIdEditRoute
+  '/institution/courses/$courseId/enrollments': typeof AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute
+  '/institution/courses/$courseId/generate-lessons': typeof AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute
+  '/institution/courses/$courseId/generation-jobs': typeof AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute
+  '/institution/courses/$courseId/lessons': typeof AuthenticatedInstitutionCoursesCourseIdLessonsRouteWithChildren
+  '/institution/courses/$courseId/materials': typeof AuthenticatedInstitutionCoursesCourseIdMaterialsRouteWithChildren
+  '/institution/courses/$courseId/settings': typeof AuthenticatedInstitutionCoursesCourseIdSettingsRoute
+  '/institution/courses/$courseId/teachers': typeof AuthenticatedInstitutionCoursesCourseIdTeachersRoute
+  '/institution/programmes/$programmeId/analytics': typeof AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute
+  '/institution/programmes/$programmeId/courses': typeof AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute
+  '/institution/programmes/$programmeId/edit': typeof AuthenticatedInstitutionProgrammesProgrammeIdEditRoute
+  '/institution/programmes/$programmeId/students': typeof AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute
   '/student/courses/$courseId/lessons': typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  '/student/courses/$courseId/progress': typeof AuthenticatedStudentCoursesCourseIdProgressRoute
+  '/student/lessons/$lessonId/start': typeof AuthenticatedStudentLessonsLessonIdStartRoute
   '/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  '/teacher/courses/$courseId/generate-lessons': typeof AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute
+  '/teacher/courses/$courseId/lessons': typeof AuthenticatedTeacherCoursesCourseIdLessonsRoute
+  '/teacher/courses/$courseId/materials': typeof AuthenticatedTeacherCoursesCourseIdMaterialsRouteWithChildren
   '/teacher/courses/$courseId/students': typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
   '/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
+  '/teacher/lessons/$lessonId/preview': typeof AuthenticatedTeacherLessonsLessonIdPreviewRoute
+  '/teacher/sessions/$sessionId/activity': typeof AuthenticatedTeacherSessionsSessionIdActivityRoute
+  '/institution/courses/$courseId/lessons/new': typeof AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute
+  '/institution/courses/$courseId/materials/upload': typeof AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute
+  '/teacher/courses/$courseId/materials/upload': typeof AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/simple-test': typeof AuthenticatedSimpleTestRoute
-  '/test': typeof AuthenticatedTestRoute
+  '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/auth/complete-profile': typeof AuthCompleteProfileRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/select-role': typeof AuthSelectRoleRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/accessibility-demo': typeof DemoAccessibilityDemoRoute
   '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/teaching': typeof DemoTeachingRoute
+  '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
-  '/admin/institutions': typeof AuthenticatedAdminInstitutionsRoute
+  '/admin/institutions': typeof AuthenticatedAdminInstitutionsRouteWithChildren
+  '/admin/kingpin-courses': typeof AuthenticatedAdminKingpinCoursesRouteWithChildren
+  '/admin/lesson-generation': typeof AuthenticatedAdminLessonGenerationRouteWithChildren
+  '/admin/lessons': typeof AuthenticatedAdminLessonsRoute
+  '/admin/materials': typeof AuthenticatedAdminMaterialsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/platform': typeof AuthenticatedAdminPlatformRoute
+  '/admin/programmes': typeof AuthenticatedAdminProgrammesRouteWithChildren
+  '/admin/realtime': typeof AuthenticatedAdminRealtimeRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/usage': typeof AuthenticatedAdminUsageRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/dev/simple-test': typeof AuthenticatedDevSimpleTestRoute
+  '/dev/test': typeof AuthenticatedDevTestRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
   '/institution/billing': typeof AuthenticatedInstitutionBillingRoute
@@ -728,6 +1348,8 @@ export interface FileRoutesByTo {
   '/institution/courses': typeof AuthenticatedInstitutionCoursesRouteWithChildren
   '/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
+  '/institution/lesson-generation': typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  '/institution/programmes': typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   '/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
   '/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
   '/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
@@ -757,61 +1379,135 @@ export interface FileRoutesByTo {
   '/student/search': typeof AuthenticatedStudentSearchRoute
   '/student/sessions': typeof AuthenticatedStudentSessionsRouteWithChildren
   '/student/settings': typeof AuthenticatedStudentSettingsRouteWithChildren
+  '/student/transcripts': typeof AuthenticatedStudentTranscriptsRoute
   '/teacher/analytics': typeof AuthenticatedTeacherAnalyticsRoute
   '/teacher/courses': typeof AuthenticatedTeacherCoursesRouteWithChildren
   '/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
   '/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
   '/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
-  '/teacher/sessions': typeof AuthenticatedTeacherSessionsRoute
+  '/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
   '/teacher/students': typeof AuthenticatedTeacherStudentsRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
-  '/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRoute
+  '/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
+  '/admin/kingpin-courses/$courseId': typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
+  '/admin/kingpin-courses/new': typeof AuthenticatedAdminKingpinCoursesNewRoute
+  '/admin/lesson-generation/$jobId': typeof AuthenticatedAdminLessonGenerationJobIdRoute
+  '/admin/programmes/$programmeId': typeof AuthenticatedAdminProgrammesProgrammeIdRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/dev/classroom-design/$lessonId': typeof AuthenticatedDevClassroomDesignLessonIdRoute
+  '/dev/classroom-enhanced/$lessonId': typeof AuthenticatedDevClassroomEnhancedLessonIdRoute
+  '/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRouteWithChildren
   '/institution/courses/new': typeof AuthenticatedInstitutionCoursesNewRoute
+  '/institution/lesson-generation/$jobId': typeof AuthenticatedInstitutionLessonGenerationJobIdRoute
+  '/institution/programmes/$programmeId': typeof AuthenticatedInstitutionProgrammesProgrammeIdRouteWithChildren
+  '/institution/programmes/new': typeof AuthenticatedInstitutionProgrammesNewRoute
   '/institution/resources/upload': typeof AuthenticatedInstitutionResourcesUploadRoute
   '/institution/sessions/new': typeof AuthenticatedInstitutionSessionsNewRoute
   '/institution/students/invite': typeof AuthenticatedInstitutionStudentsInviteRoute
   '/institution/teachers/invite': typeof AuthenticatedInstitutionTeachersInviteRoute
   '/student/ai-lesson/new': typeof AuthenticatedStudentAiLessonNewRoute
   '/student/courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRouteWithChildren
-  '/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRoute
+  '/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRouteWithChildren
   '/student/notes/$noteId': typeof AuthenticatedStudentNotesNoteIdRoute
   '/student/quizzes/$quizId': typeof AuthenticatedStudentQuizzesQuizIdRoute
   '/student/resources/$resourceId': typeof AuthenticatedStudentResourcesResourceIdRoute
   '/student/settings/profile': typeof AuthenticatedStudentSettingsProfileRoute
   '/teacher/courses/$courseId': typeof AuthenticatedTeacherCoursesCourseIdRouteWithChildren
+  '/teacher/lessons/$lessonId': typeof AuthenticatedTeacherLessonsLessonIdRouteWithChildren
+  '/teacher/lessons/new': typeof AuthenticatedTeacherLessonsNewRoute
+  '/teacher/sessions/$sessionId': typeof AuthenticatedTeacherSessionsSessionIdRouteWithChildren
+  '/teacher/sessions/new': typeof AuthenticatedTeacherSessionsNewRoute
+  '/admin/institutions/$institutionId/activity': typeof AuthenticatedAdminInstitutionsInstitutionIdActivityRoute
+  '/admin/institutions/$institutionId/courses': typeof AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute
+  '/admin/institutions/$institutionId/users': typeof AuthenticatedAdminInstitutionsInstitutionIdUsersRoute
+  '/admin/kingpin-courses/$courseId/generate-lessons': typeof AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute
+  '/admin/kingpin-courses/$courseId/lessons': typeof AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute
+  '/admin/kingpin-courses/$courseId/materials': typeof AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute
+  '/institution/courses/$courseId/edit': typeof AuthenticatedInstitutionCoursesCourseIdEditRoute
+  '/institution/courses/$courseId/enrollments': typeof AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute
+  '/institution/courses/$courseId/generate-lessons': typeof AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute
+  '/institution/courses/$courseId/generation-jobs': typeof AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute
+  '/institution/courses/$courseId/lessons': typeof AuthenticatedInstitutionCoursesCourseIdLessonsRouteWithChildren
+  '/institution/courses/$courseId/materials': typeof AuthenticatedInstitutionCoursesCourseIdMaterialsRouteWithChildren
+  '/institution/courses/$courseId/settings': typeof AuthenticatedInstitutionCoursesCourseIdSettingsRoute
+  '/institution/courses/$courseId/teachers': typeof AuthenticatedInstitutionCoursesCourseIdTeachersRoute
+  '/institution/programmes/$programmeId/analytics': typeof AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute
+  '/institution/programmes/$programmeId/courses': typeof AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute
+  '/institution/programmes/$programmeId/edit': typeof AuthenticatedInstitutionProgrammesProgrammeIdEditRoute
+  '/institution/programmes/$programmeId/students': typeof AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute
   '/student/courses/$courseId/lessons': typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  '/student/courses/$courseId/progress': typeof AuthenticatedStudentCoursesCourseIdProgressRoute
+  '/student/lessons/$lessonId/start': typeof AuthenticatedStudentLessonsLessonIdStartRoute
   '/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  '/teacher/courses/$courseId/generate-lessons': typeof AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute
+  '/teacher/courses/$courseId/lessons': typeof AuthenticatedTeacherCoursesCourseIdLessonsRoute
+  '/teacher/courses/$courseId/materials': typeof AuthenticatedTeacherCoursesCourseIdMaterialsRouteWithChildren
   '/teacher/courses/$courseId/students': typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
   '/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
+  '/teacher/lessons/$lessonId/preview': typeof AuthenticatedTeacherLessonsLessonIdPreviewRoute
+  '/teacher/sessions/$sessionId/activity': typeof AuthenticatedTeacherSessionsSessionIdActivityRoute
+  '/institution/courses/$courseId/lessons/new': typeof AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute
+  '/institution/courses/$courseId/materials/upload': typeof AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute
+  '/teacher/courses/$courseId/materials/upload': typeof AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
-  '/_authenticated/simple-test': typeof AuthenticatedSimpleTestRoute
-  '/_authenticated/test': typeof AuthenticatedTestRoute
+  '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/contact': typeof ContactRoute
+  '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/_authenticated/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/auth/complete-profile': typeof AuthCompleteProfileRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/select-role': typeof AuthSelectRoleRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/accessibility-demo': typeof DemoAccessibilityDemoRoute
   '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/teaching': typeof DemoTeachingRoute
+  '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
+  '/_authenticated/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
+  '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
+  '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
+  '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
-  '/_authenticated/admin/institutions': typeof AuthenticatedAdminInstitutionsRoute
+  '/_authenticated/admin/institutions': typeof AuthenticatedAdminInstitutionsRouteWithChildren
+  '/_authenticated/admin/kingpin-courses': typeof AuthenticatedAdminKingpinCoursesRouteWithChildren
+  '/_authenticated/admin/lesson-generation': typeof AuthenticatedAdminLessonGenerationRouteWithChildren
+  '/_authenticated/admin/lessons': typeof AuthenticatedAdminLessonsRoute
+  '/_authenticated/admin/materials': typeof AuthenticatedAdminMaterialsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/platform': typeof AuthenticatedAdminPlatformRoute
+  '/_authenticated/admin/programmes': typeof AuthenticatedAdminProgrammesRouteWithChildren
+  '/_authenticated/admin/realtime': typeof AuthenticatedAdminRealtimeRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/admin/usage': typeof AuthenticatedAdminUsageRoute
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/_authenticated/dev/simple-test': typeof AuthenticatedDevSimpleTestRoute
+  '/_authenticated/dev/test': typeof AuthenticatedDevTestRoute
   '/_authenticated/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/_authenticated/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
   '/_authenticated/institution/billing': typeof AuthenticatedInstitutionBillingRoute
@@ -819,6 +1515,8 @@ export interface FileRoutesById {
   '/_authenticated/institution/courses': typeof AuthenticatedInstitutionCoursesRouteWithChildren
   '/_authenticated/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/_authenticated/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
+  '/_authenticated/institution/lesson-generation': typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  '/_authenticated/institution/programmes': typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   '/_authenticated/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
   '/_authenticated/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
   '/_authenticated/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
@@ -848,61 +1546,135 @@ export interface FileRoutesById {
   '/_authenticated/student/search': typeof AuthenticatedStudentSearchRoute
   '/_authenticated/student/sessions': typeof AuthenticatedStudentSessionsRouteWithChildren
   '/_authenticated/student/settings': typeof AuthenticatedStudentSettingsRouteWithChildren
+  '/_authenticated/student/transcripts': typeof AuthenticatedStudentTranscriptsRoute
   '/_authenticated/teacher/analytics': typeof AuthenticatedTeacherAnalyticsRoute
   '/_authenticated/teacher/courses': typeof AuthenticatedTeacherCoursesRouteWithChildren
   '/_authenticated/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/_authenticated/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
   '/_authenticated/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
   '/_authenticated/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
-  '/_authenticated/teacher/sessions': typeof AuthenticatedTeacherSessionsRoute
+  '/_authenticated/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/_authenticated/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
   '/_authenticated/teacher/students': typeof AuthenticatedTeacherStudentsRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
-  '/_authenticated/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRoute
+  '/_authenticated/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
+  '/_authenticated/admin/kingpin-courses/$courseId': typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
+  '/_authenticated/admin/kingpin-courses/new': typeof AuthenticatedAdminKingpinCoursesNewRoute
+  '/_authenticated/admin/lesson-generation/$jobId': typeof AuthenticatedAdminLessonGenerationJobIdRoute
+  '/_authenticated/admin/programmes/$programmeId': typeof AuthenticatedAdminProgrammesProgrammeIdRoute
+  '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/_authenticated/dev/classroom-design/$lessonId': typeof AuthenticatedDevClassroomDesignLessonIdRoute
+  '/_authenticated/dev/classroom-enhanced/$lessonId': typeof AuthenticatedDevClassroomEnhancedLessonIdRoute
+  '/_authenticated/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRouteWithChildren
   '/_authenticated/institution/courses/new': typeof AuthenticatedInstitutionCoursesNewRoute
+  '/_authenticated/institution/lesson-generation/$jobId': typeof AuthenticatedInstitutionLessonGenerationJobIdRoute
+  '/_authenticated/institution/programmes/$programmeId': typeof AuthenticatedInstitutionProgrammesProgrammeIdRouteWithChildren
+  '/_authenticated/institution/programmes/new': typeof AuthenticatedInstitutionProgrammesNewRoute
   '/_authenticated/institution/resources/upload': typeof AuthenticatedInstitutionResourcesUploadRoute
   '/_authenticated/institution/sessions/new': typeof AuthenticatedInstitutionSessionsNewRoute
   '/_authenticated/institution/students/invite': typeof AuthenticatedInstitutionStudentsInviteRoute
   '/_authenticated/institution/teachers/invite': typeof AuthenticatedInstitutionTeachersInviteRoute
   '/_authenticated/student/ai-lesson/new': typeof AuthenticatedStudentAiLessonNewRoute
   '/_authenticated/student/courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRouteWithChildren
-  '/_authenticated/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRoute
+  '/_authenticated/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRouteWithChildren
   '/_authenticated/student/notes/$noteId': typeof AuthenticatedStudentNotesNoteIdRoute
   '/_authenticated/student/quizzes/$quizId': typeof AuthenticatedStudentQuizzesQuizIdRoute
   '/_authenticated/student/resources/$resourceId': typeof AuthenticatedStudentResourcesResourceIdRoute
   '/_authenticated/student/settings/profile': typeof AuthenticatedStudentSettingsProfileRoute
   '/_authenticated/teacher/courses/$courseId': typeof AuthenticatedTeacherCoursesCourseIdRouteWithChildren
+  '/_authenticated/teacher/lessons/$lessonId': typeof AuthenticatedTeacherLessonsLessonIdRouteWithChildren
+  '/_authenticated/teacher/lessons/new': typeof AuthenticatedTeacherLessonsNewRoute
+  '/_authenticated/teacher/sessions/$sessionId': typeof AuthenticatedTeacherSessionsSessionIdRouteWithChildren
+  '/_authenticated/teacher/sessions/new': typeof AuthenticatedTeacherSessionsNewRoute
+  '/_authenticated/admin/institutions/$institutionId/activity': typeof AuthenticatedAdminInstitutionsInstitutionIdActivityRoute
+  '/_authenticated/admin/institutions/$institutionId/courses': typeof AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute
+  '/_authenticated/admin/institutions/$institutionId/users': typeof AuthenticatedAdminInstitutionsInstitutionIdUsersRoute
+  '/_authenticated/admin/kingpin-courses/$courseId/generate-lessons': typeof AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute
+  '/_authenticated/admin/kingpin-courses/$courseId/lessons': typeof AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute
+  '/_authenticated/admin/kingpin-courses/$courseId/materials': typeof AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute
+  '/_authenticated/institution/courses/$courseId/edit': typeof AuthenticatedInstitutionCoursesCourseIdEditRoute
+  '/_authenticated/institution/courses/$courseId/enrollments': typeof AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute
+  '/_authenticated/institution/courses/$courseId/generate-lessons': typeof AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute
+  '/_authenticated/institution/courses/$courseId/generation-jobs': typeof AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute
+  '/_authenticated/institution/courses/$courseId/lessons': typeof AuthenticatedInstitutionCoursesCourseIdLessonsRouteWithChildren
+  '/_authenticated/institution/courses/$courseId/materials': typeof AuthenticatedInstitutionCoursesCourseIdMaterialsRouteWithChildren
+  '/_authenticated/institution/courses/$courseId/settings': typeof AuthenticatedInstitutionCoursesCourseIdSettingsRoute
+  '/_authenticated/institution/courses/$courseId/teachers': typeof AuthenticatedInstitutionCoursesCourseIdTeachersRoute
+  '/_authenticated/institution/programmes/$programmeId/analytics': typeof AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute
+  '/_authenticated/institution/programmes/$programmeId/courses': typeof AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute
+  '/_authenticated/institution/programmes/$programmeId/edit': typeof AuthenticatedInstitutionProgrammesProgrammeIdEditRoute
+  '/_authenticated/institution/programmes/$programmeId/students': typeof AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute
   '/_authenticated/student/courses/$courseId/lessons': typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  '/_authenticated/student/courses/$courseId/progress': typeof AuthenticatedStudentCoursesCourseIdProgressRoute
+  '/_authenticated/student/lessons/$lessonId/start': typeof AuthenticatedStudentLessonsLessonIdStartRoute
   '/_authenticated/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/_authenticated/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/_authenticated/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  '/_authenticated/teacher/courses/$courseId/generate-lessons': typeof AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute
+  '/_authenticated/teacher/courses/$courseId/lessons': typeof AuthenticatedTeacherCoursesCourseIdLessonsRoute
+  '/_authenticated/teacher/courses/$courseId/materials': typeof AuthenticatedTeacherCoursesCourseIdMaterialsRouteWithChildren
   '/_authenticated/teacher/courses/$courseId/students': typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
   '/_authenticated/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
+  '/_authenticated/teacher/lessons/$lessonId/preview': typeof AuthenticatedTeacherLessonsLessonIdPreviewRoute
+  '/_authenticated/teacher/sessions/$sessionId/activity': typeof AuthenticatedTeacherSessionsSessionIdActivityRoute
+  '/_authenticated/institution/courses/$courseId/lessons/new': typeof AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute
+  '/_authenticated/institution/courses/$courseId/materials/upload': typeof AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute
+  '/_authenticated/teacher/courses/$courseId/materials/upload': typeof AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
+    | '/accessibility'
     | '/auth'
-    | '/simple-test'
-    | '/test'
+    | '/contact'
+    | '/features'
+    | '/help'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/dev'
+    | '/auth/complete-profile'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/reset-password'
+    | '/auth/select-role'
+    | '/auth/signup'
+    | '/auth/verify-email'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/accessibility-demo'
     | '/demo/ai-video'
     | '/demo/classroom'
     | '/demo/teaching'
+    | '/demo/whiteboard'
     | '/institutions/register'
     | '/student/progress'
+    | '/admin/activity'
+    | '/admin/ai-settings'
+    | '/admin/audit-logs'
+    | '/admin/courses'
+    | '/admin/dashboard'
     | '/admin/health'
     | '/admin/institutions'
+    | '/admin/kingpin-courses'
+    | '/admin/lesson-generation'
+    | '/admin/lessons'
+    | '/admin/materials'
     | '/admin/plans'
     | '/admin/platform'
+    | '/admin/programmes'
+    | '/admin/realtime'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/usage'
     | '/admin/users'
+    | '/dev/simple-test'
+    | '/dev/test'
     | '/institution/activity'
     | '/institution/analytics'
     | '/institution/billing'
@@ -910,6 +1682,8 @@ export interface FileRouteTypes {
     | '/institution/courses'
     | '/institution/dashboard'
     | '/institution/enrollments'
+    | '/institution/lesson-generation'
+    | '/institution/programmes'
     | '/institution/resources'
     | '/institution/sessions'
     | '/institution/settings'
@@ -939,6 +1713,7 @@ export interface FileRouteTypes {
     | '/student/search'
     | '/student/sessions'
     | '/student/settings'
+    | '/student/transcripts'
     | '/teacher/analytics'
     | '/teacher/courses'
     | '/teacher/dashboard'
@@ -950,8 +1725,19 @@ export interface FileRouteTypes {
     | '/teacher/students'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
+    | '/admin/institutions/$institutionId'
+    | '/admin/kingpin-courses/$courseId'
+    | '/admin/kingpin-courses/new'
+    | '/admin/lesson-generation/$jobId'
+    | '/admin/programmes/$programmeId'
+    | '/admin/users/$userId'
+    | '/dev/classroom-design/$lessonId'
+    | '/dev/classroom-enhanced/$lessonId'
     | '/institution/courses/$courseId'
     | '/institution/courses/new'
+    | '/institution/lesson-generation/$jobId'
+    | '/institution/programmes/$programmeId'
+    | '/institution/programmes/new'
     | '/institution/resources/upload'
     | '/institution/sessions/new'
     | '/institution/students/invite'
@@ -964,34 +1750,96 @@ export interface FileRouteTypes {
     | '/student/resources/$resourceId'
     | '/student/settings/profile'
     | '/teacher/courses/$courseId'
+    | '/teacher/lessons/$lessonId'
+    | '/teacher/lessons/new'
+    | '/teacher/sessions/$sessionId'
+    | '/teacher/sessions/new'
+    | '/admin/institutions/$institutionId/activity'
+    | '/admin/institutions/$institutionId/courses'
+    | '/admin/institutions/$institutionId/users'
+    | '/admin/kingpin-courses/$courseId/generate-lessons'
+    | '/admin/kingpin-courses/$courseId/lessons'
+    | '/admin/kingpin-courses/$courseId/materials'
+    | '/institution/courses/$courseId/edit'
+    | '/institution/courses/$courseId/enrollments'
+    | '/institution/courses/$courseId/generate-lessons'
+    | '/institution/courses/$courseId/generation-jobs'
+    | '/institution/courses/$courseId/lessons'
+    | '/institution/courses/$courseId/materials'
+    | '/institution/courses/$courseId/settings'
+    | '/institution/courses/$courseId/teachers'
+    | '/institution/programmes/$programmeId/analytics'
+    | '/institution/programmes/$programmeId/courses'
+    | '/institution/programmes/$programmeId/edit'
+    | '/institution/programmes/$programmeId/students'
     | '/student/courses/$courseId/lessons'
+    | '/student/courses/$courseId/progress'
+    | '/student/lessons/$lessonId/start'
     | '/student/sessions/$sessionId/replay'
     | '/student/sessions/$sessionId/summary'
     | '/teacher/courses/$courseId/analytics'
+    | '/teacher/courses/$courseId/generate-lessons'
+    | '/teacher/courses/$courseId/lessons'
+    | '/teacher/courses/$courseId/materials'
     | '/teacher/courses/$courseId/students'
     | '/teacher/lessons/$lessonId/edit'
+    | '/teacher/lessons/$lessonId/preview'
+    | '/teacher/sessions/$sessionId/activity'
+    | '/institution/courses/$courseId/lessons/new'
+    | '/institution/courses/$courseId/materials/upload'
+    | '/teacher/courses/$courseId/materials/upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/accessibility'
     | '/auth'
-    | '/simple-test'
-    | '/test'
+    | '/contact'
+    | '/features'
+    | '/help'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/dev'
+    | '/auth/complete-profile'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/reset-password'
+    | '/auth/select-role'
+    | '/auth/signup'
+    | '/auth/verify-email'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/accessibility-demo'
     | '/demo/ai-video'
     | '/demo/classroom'
     | '/demo/teaching'
+    | '/demo/whiteboard'
     | '/institutions/register'
     | '/student/progress'
+    | '/admin/activity'
+    | '/admin/ai-settings'
+    | '/admin/audit-logs'
+    | '/admin/courses'
+    | '/admin/dashboard'
     | '/admin/health'
     | '/admin/institutions'
+    | '/admin/kingpin-courses'
+    | '/admin/lesson-generation'
+    | '/admin/lessons'
+    | '/admin/materials'
     | '/admin/plans'
     | '/admin/platform'
+    | '/admin/programmes'
+    | '/admin/realtime'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/usage'
     | '/admin/users'
+    | '/dev/simple-test'
+    | '/dev/test'
     | '/institution/activity'
     | '/institution/analytics'
     | '/institution/billing'
@@ -999,6 +1847,8 @@ export interface FileRouteTypes {
     | '/institution/courses'
     | '/institution/dashboard'
     | '/institution/enrollments'
+    | '/institution/lesson-generation'
+    | '/institution/programmes'
     | '/institution/resources'
     | '/institution/sessions'
     | '/institution/settings'
@@ -1028,6 +1878,7 @@ export interface FileRouteTypes {
     | '/student/search'
     | '/student/sessions'
     | '/student/settings'
+    | '/student/transcripts'
     | '/teacher/analytics'
     | '/teacher/courses'
     | '/teacher/dashboard'
@@ -1039,8 +1890,19 @@ export interface FileRouteTypes {
     | '/teacher/students'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
+    | '/admin/institutions/$institutionId'
+    | '/admin/kingpin-courses/$courseId'
+    | '/admin/kingpin-courses/new'
+    | '/admin/lesson-generation/$jobId'
+    | '/admin/programmes/$programmeId'
+    | '/admin/users/$userId'
+    | '/dev/classroom-design/$lessonId'
+    | '/dev/classroom-enhanced/$lessonId'
     | '/institution/courses/$courseId'
     | '/institution/courses/new'
+    | '/institution/lesson-generation/$jobId'
+    | '/institution/programmes/$programmeId'
+    | '/institution/programmes/new'
     | '/institution/resources/upload'
     | '/institution/sessions/new'
     | '/institution/students/invite'
@@ -1053,35 +1915,97 @@ export interface FileRouteTypes {
     | '/student/resources/$resourceId'
     | '/student/settings/profile'
     | '/teacher/courses/$courseId'
+    | '/teacher/lessons/$lessonId'
+    | '/teacher/lessons/new'
+    | '/teacher/sessions/$sessionId'
+    | '/teacher/sessions/new'
+    | '/admin/institutions/$institutionId/activity'
+    | '/admin/institutions/$institutionId/courses'
+    | '/admin/institutions/$institutionId/users'
+    | '/admin/kingpin-courses/$courseId/generate-lessons'
+    | '/admin/kingpin-courses/$courseId/lessons'
+    | '/admin/kingpin-courses/$courseId/materials'
+    | '/institution/courses/$courseId/edit'
+    | '/institution/courses/$courseId/enrollments'
+    | '/institution/courses/$courseId/generate-lessons'
+    | '/institution/courses/$courseId/generation-jobs'
+    | '/institution/courses/$courseId/lessons'
+    | '/institution/courses/$courseId/materials'
+    | '/institution/courses/$courseId/settings'
+    | '/institution/courses/$courseId/teachers'
+    | '/institution/programmes/$programmeId/analytics'
+    | '/institution/programmes/$programmeId/courses'
+    | '/institution/programmes/$programmeId/edit'
+    | '/institution/programmes/$programmeId/students'
     | '/student/courses/$courseId/lessons'
+    | '/student/courses/$courseId/progress'
+    | '/student/lessons/$lessonId/start'
     | '/student/sessions/$sessionId/replay'
     | '/student/sessions/$sessionId/summary'
     | '/teacher/courses/$courseId/analytics'
+    | '/teacher/courses/$courseId/generate-lessons'
+    | '/teacher/courses/$courseId/lessons'
+    | '/teacher/courses/$courseId/materials'
     | '/teacher/courses/$courseId/students'
     | '/teacher/lessons/$lessonId/edit'
+    | '/teacher/lessons/$lessonId/preview'
+    | '/teacher/sessions/$sessionId/activity'
+    | '/institution/courses/$courseId/lessons/new'
+    | '/institution/courses/$courseId/materials/upload'
+    | '/teacher/courses/$courseId/materials/upload'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
+    | '/accessibility'
     | '/auth'
-    | '/_authenticated/simple-test'
-    | '/_authenticated/test'
+    | '/contact'
+    | '/features'
+    | '/help'
+    | '/how-it-works'
+    | '/pricing'
+    | '/privacy'
+    | '/terms'
+    | '/_authenticated/dev'
+    | '/auth/complete-profile'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/auth/reset-password'
+    | '/auth/select-role'
+    | '/auth/signup'
+    | '/auth/verify-email'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/accessibility-demo'
     | '/demo/ai-video'
     | '/demo/classroom'
     | '/demo/teaching'
+    | '/demo/whiteboard'
     | '/institutions/register'
     | '/student/progress'
+    | '/_authenticated/admin/activity'
+    | '/_authenticated/admin/ai-settings'
+    | '/_authenticated/admin/audit-logs'
+    | '/_authenticated/admin/courses'
+    | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/health'
     | '/_authenticated/admin/institutions'
+    | '/_authenticated/admin/kingpin-courses'
+    | '/_authenticated/admin/lesson-generation'
+    | '/_authenticated/admin/lessons'
+    | '/_authenticated/admin/materials'
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/platform'
+    | '/_authenticated/admin/programmes'
+    | '/_authenticated/admin/realtime'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/support'
     | '/_authenticated/admin/usage'
     | '/_authenticated/admin/users'
+    | '/_authenticated/dev/simple-test'
+    | '/_authenticated/dev/test'
     | '/_authenticated/institution/activity'
     | '/_authenticated/institution/analytics'
     | '/_authenticated/institution/billing'
@@ -1089,6 +2013,8 @@ export interface FileRouteTypes {
     | '/_authenticated/institution/courses'
     | '/_authenticated/institution/dashboard'
     | '/_authenticated/institution/enrollments'
+    | '/_authenticated/institution/lesson-generation'
+    | '/_authenticated/institution/programmes'
     | '/_authenticated/institution/resources'
     | '/_authenticated/institution/sessions'
     | '/_authenticated/institution/settings'
@@ -1118,6 +2044,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student/search'
     | '/_authenticated/student/sessions'
     | '/_authenticated/student/settings'
+    | '/_authenticated/student/transcripts'
     | '/_authenticated/teacher/analytics'
     | '/_authenticated/teacher/courses'
     | '/_authenticated/teacher/dashboard'
@@ -1129,8 +2056,19 @@ export interface FileRouteTypes {
     | '/_authenticated/teacher/students'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
+    | '/_authenticated/admin/institutions/$institutionId'
+    | '/_authenticated/admin/kingpin-courses/$courseId'
+    | '/_authenticated/admin/kingpin-courses/new'
+    | '/_authenticated/admin/lesson-generation/$jobId'
+    | '/_authenticated/admin/programmes/$programmeId'
+    | '/_authenticated/admin/users/$userId'
+    | '/_authenticated/dev/classroom-design/$lessonId'
+    | '/_authenticated/dev/classroom-enhanced/$lessonId'
     | '/_authenticated/institution/courses/$courseId'
     | '/_authenticated/institution/courses/new'
+    | '/_authenticated/institution/lesson-generation/$jobId'
+    | '/_authenticated/institution/programmes/$programmeId'
+    | '/_authenticated/institution/programmes/new'
     | '/_authenticated/institution/resources/upload'
     | '/_authenticated/institution/sessions/new'
     | '/_authenticated/institution/students/invite'
@@ -1143,24 +2081,67 @@ export interface FileRouteTypes {
     | '/_authenticated/student/resources/$resourceId'
     | '/_authenticated/student/settings/profile'
     | '/_authenticated/teacher/courses/$courseId'
+    | '/_authenticated/teacher/lessons/$lessonId'
+    | '/_authenticated/teacher/lessons/new'
+    | '/_authenticated/teacher/sessions/$sessionId'
+    | '/_authenticated/teacher/sessions/new'
+    | '/_authenticated/admin/institutions/$institutionId/activity'
+    | '/_authenticated/admin/institutions/$institutionId/courses'
+    | '/_authenticated/admin/institutions/$institutionId/users'
+    | '/_authenticated/admin/kingpin-courses/$courseId/generate-lessons'
+    | '/_authenticated/admin/kingpin-courses/$courseId/lessons'
+    | '/_authenticated/admin/kingpin-courses/$courseId/materials'
+    | '/_authenticated/institution/courses/$courseId/edit'
+    | '/_authenticated/institution/courses/$courseId/enrollments'
+    | '/_authenticated/institution/courses/$courseId/generate-lessons'
+    | '/_authenticated/institution/courses/$courseId/generation-jobs'
+    | '/_authenticated/institution/courses/$courseId/lessons'
+    | '/_authenticated/institution/courses/$courseId/materials'
+    | '/_authenticated/institution/courses/$courseId/settings'
+    | '/_authenticated/institution/courses/$courseId/teachers'
+    | '/_authenticated/institution/programmes/$programmeId/analytics'
+    | '/_authenticated/institution/programmes/$programmeId/courses'
+    | '/_authenticated/institution/programmes/$programmeId/edit'
+    | '/_authenticated/institution/programmes/$programmeId/students'
     | '/_authenticated/student/courses/$courseId/lessons'
+    | '/_authenticated/student/courses/$courseId/progress'
+    | '/_authenticated/student/lessons/$lessonId/start'
     | '/_authenticated/student/sessions/$sessionId/replay'
     | '/_authenticated/student/sessions/$sessionId/summary'
     | '/_authenticated/teacher/courses/$courseId/analytics'
+    | '/_authenticated/teacher/courses/$courseId/generate-lessons'
+    | '/_authenticated/teacher/courses/$courseId/lessons'
+    | '/_authenticated/teacher/courses/$courseId/materials'
     | '/_authenticated/teacher/courses/$courseId/students'
     | '/_authenticated/teacher/lessons/$lessonId/edit'
+    | '/_authenticated/teacher/lessons/$lessonId/preview'
+    | '/_authenticated/teacher/sessions/$sessionId/activity'
+    | '/_authenticated/institution/courses/$courseId/lessons/new'
+    | '/_authenticated/institution/courses/$courseId/materials/upload'
+    | '/_authenticated/teacher/courses/$courseId/materials/upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AboutRoute: typeof AboutRoute
+  AccessibilityRoute: typeof AccessibilityRoute
+  AuthRoute: typeof AuthRouteWithChildren
+  ContactRoute: typeof ContactRoute
+  FeaturesRoute: typeof FeaturesRoute
+  HelpRoute: typeof HelpRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
+  DemoAccessibilityDemoRoute: typeof DemoAccessibilityDemoRoute
   DemoAiVideoRoute: typeof DemoAiVideoRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
   DemoTeachingRoute: typeof DemoTeachingRoute
+  DemoWhiteboardRoute: typeof DemoWhiteboardRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
   StudentProgressRoute: typeof StudentProgressRoute
   ClassroomPreviewLessonIdRoute: typeof ClassroomPreviewLessonIdRoute
@@ -1169,11 +2150,74 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accessibility': {
+      id: '/accessibility'
+      path: '/accessibility'
+      fullPath: '/accessibility'
+      preLoaderRoute: typeof AccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1204,6 +2248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstitutionsRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/whiteboard': {
+      id: '/demo/whiteboard'
+      path: '/demo/whiteboard'
+      fullPath: '/demo/whiteboard'
+      preLoaderRoute: typeof DemoWhiteboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/teaching': {
       id: '/demo/teaching'
       path: '/demo/teaching'
@@ -1223,6 +2274,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/ai-video'
       fullPath: '/demo/ai-video'
       preLoaderRoute: typeof DemoAiVideoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/accessibility-demo': {
+      id: '/demo/accessibility-demo'
+      path: '/demo/accessibility-demo'
+      fullPath: '/demo/accessibility-demo'
+      preLoaderRoute: typeof DemoAccessibilityDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classroom/$lessonId': {
@@ -1246,18 +2304,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClassroomDesignLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/test': {
-      id: '/_authenticated/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof AuthenticatedTestRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/auth/verify-email': {
+      id: '/auth/verify-email'
+      path: '/verify-email'
+      fullPath: '/auth/verify-email'
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport
+      parentRoute: typeof AuthRoute
     }
-    '/_authenticated/simple-test': {
-      id: '/_authenticated/simple-test'
-      path: '/simple-test'
-      fullPath: '/simple-test'
-      preLoaderRoute: typeof AuthenticatedSimpleTestRouteImport
+    '/auth/signup': {
+      id: '/auth/signup'
+      path: '/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/select-role': {
+      id: '/auth/select-role'
+      path: '/select-role'
+      fullPath: '/auth/select-role'
+      preLoaderRoute: typeof AuthSelectRoleRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/complete-profile': {
+      id: '/auth/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/auth/complete-profile'
+      preLoaderRoute: typeof AuthCompleteProfileRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_authenticated/dev': {
+      id: '/_authenticated/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof AuthenticatedDevRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/classroom/session/$sessionId': {
@@ -1335,6 +2435,13 @@ declare module '@tanstack/react-router' {
       path: '/teacher/analytics'
       fullPath: '/teacher/analytics'
       preLoaderRoute: typeof AuthenticatedTeacherAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/student/transcripts': {
+      id: '/_authenticated/student/transcripts'
+      path: '/student/transcripts'
+      fullPath: '/student/transcripts'
+      preLoaderRoute: typeof AuthenticatedStudentTranscriptsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/student/settings': {
@@ -1540,6 +2647,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstitutionResourcesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/institution/programmes': {
+      id: '/_authenticated/institution/programmes'
+      path: '/institution/programmes'
+      fullPath: '/institution/programmes'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/institution/lesson-generation': {
+      id: '/_authenticated/institution/lesson-generation'
+      path: '/institution/lesson-generation'
+      fullPath: '/institution/lesson-generation'
+      preLoaderRoute: typeof AuthenticatedInstitutionLessonGenerationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/institution/enrollments': {
       id: '/_authenticated/institution/enrollments'
       path: '/institution/enrollments'
@@ -1589,6 +2710,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstitutionActivityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dev/test': {
+      id: '/_authenticated/dev/test'
+      path: '/test'
+      fullPath: '/dev/test'
+      preLoaderRoute: typeof AuthenticatedDevTestRouteImport
+      parentRoute: typeof AuthenticatedDevRouteRoute
+    }
+    '/_authenticated/dev/simple-test': {
+      id: '/_authenticated/dev/simple-test'
+      path: '/simple-test'
+      fullPath: '/dev/simple-test'
+      preLoaderRoute: typeof AuthenticatedDevSimpleTestRouteImport
+      parentRoute: typeof AuthenticatedDevRouteRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/admin/users'
@@ -1617,6 +2752,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/realtime': {
+      id: '/_authenticated/admin/realtime'
+      path: '/admin/realtime'
+      fullPath: '/admin/realtime'
+      preLoaderRoute: typeof AuthenticatedAdminRealtimeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/programmes': {
+      id: '/_authenticated/admin/programmes'
+      path: '/admin/programmes'
+      fullPath: '/admin/programmes'
+      preLoaderRoute: typeof AuthenticatedAdminProgrammesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/platform': {
       id: '/_authenticated/admin/platform'
       path: '/admin/platform'
@@ -1629,6 +2778,34 @@ declare module '@tanstack/react-router' {
       path: '/admin/plans'
       fullPath: '/admin/plans'
       preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/materials': {
+      id: '/_authenticated/admin/materials'
+      path: '/admin/materials'
+      fullPath: '/admin/materials'
+      preLoaderRoute: typeof AuthenticatedAdminMaterialsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/lessons': {
+      id: '/_authenticated/admin/lessons'
+      path: '/admin/lessons'
+      fullPath: '/admin/lessons'
+      preLoaderRoute: typeof AuthenticatedAdminLessonsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/lesson-generation': {
+      id: '/_authenticated/admin/lesson-generation'
+      path: '/admin/lesson-generation'
+      fullPath: '/admin/lesson-generation'
+      preLoaderRoute: typeof AuthenticatedAdminLessonGenerationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/kingpin-courses': {
+      id: '/_authenticated/admin/kingpin-courses'
+      path: '/admin/kingpin-courses'
+      fullPath: '/admin/kingpin-courses'
+      preLoaderRoute: typeof AuthenticatedAdminKingpinCoursesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/institutions': {
@@ -1644,6 +2821,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/health'
       preLoaderRoute: typeof AuthenticatedAdminHealthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/dashboard': {
+      id: '/_authenticated/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/courses': {
+      id: '/_authenticated/admin/courses'
+      path: '/admin/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/audit-logs': {
+      id: '/_authenticated/admin/audit-logs'
+      path: '/admin/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AuthenticatedAdminAuditLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/ai-settings': {
+      id: '/_authenticated/admin/ai-settings'
+      path: '/admin/ai-settings'
+      fullPath: '/admin/ai-settings'
+      preLoaderRoute: typeof AuthenticatedAdminAiSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/activity': {
+      id: '/_authenticated/admin/activity'
+      path: '/admin/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AuthenticatedAdminActivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teacher/sessions/new': {
+      id: '/_authenticated/teacher/sessions/new'
+      path: '/new'
+      fullPath: '/teacher/sessions/new'
+      preLoaderRoute: typeof AuthenticatedTeacherSessionsNewRouteImport
+      parentRoute: typeof AuthenticatedTeacherSessionsRoute
+    }
+    '/_authenticated/teacher/sessions/$sessionId': {
+      id: '/_authenticated/teacher/sessions/$sessionId'
+      path: '/$sessionId'
+      fullPath: '/teacher/sessions/$sessionId'
+      preLoaderRoute: typeof AuthenticatedTeacherSessionsSessionIdRouteImport
+      parentRoute: typeof AuthenticatedTeacherSessionsRoute
+    }
+    '/_authenticated/teacher/lessons/new': {
+      id: '/_authenticated/teacher/lessons/new'
+      path: '/new'
+      fullPath: '/teacher/lessons/new'
+      preLoaderRoute: typeof AuthenticatedTeacherLessonsNewRouteImport
+      parentRoute: typeof AuthenticatedTeacherLessonsRoute
+    }
+    '/_authenticated/teacher/lessons/$lessonId': {
+      id: '/_authenticated/teacher/lessons/$lessonId'
+      path: '/$lessonId'
+      fullPath: '/teacher/lessons/$lessonId'
+      preLoaderRoute: typeof AuthenticatedTeacherLessonsLessonIdRouteImport
+      parentRoute: typeof AuthenticatedTeacherLessonsRoute
     }
     '/_authenticated/teacher/courses/$courseId': {
       id: '/_authenticated/teacher/courses/$courseId'
@@ -1729,6 +2969,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstitutionResourcesUploadRouteImport
       parentRoute: typeof AuthenticatedInstitutionResourcesRoute
     }
+    '/_authenticated/institution/programmes/new': {
+      id: '/_authenticated/institution/programmes/new'
+      path: '/new'
+      fullPath: '/institution/programmes/new'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesNewRouteImport
+      parentRoute: typeof AuthenticatedInstitutionProgrammesRoute
+    }
+    '/_authenticated/institution/programmes/$programmeId': {
+      id: '/_authenticated/institution/programmes/$programmeId'
+      path: '/$programmeId'
+      fullPath: '/institution/programmes/$programmeId'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdRouteImport
+      parentRoute: typeof AuthenticatedInstitutionProgrammesRoute
+    }
+    '/_authenticated/institution/lesson-generation/$jobId': {
+      id: '/_authenticated/institution/lesson-generation/$jobId'
+      path: '/$jobId'
+      fullPath: '/institution/lesson-generation/$jobId'
+      preLoaderRoute: typeof AuthenticatedInstitutionLessonGenerationJobIdRouteImport
+      parentRoute: typeof AuthenticatedInstitutionLessonGenerationRoute
+    }
     '/_authenticated/institution/courses/new': {
       id: '/_authenticated/institution/courses/new'
       path: '/new'
@@ -1743,18 +3004,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdRouteImport
       parentRoute: typeof AuthenticatedInstitutionCoursesRoute
     }
+    '/_authenticated/dev/classroom-enhanced/$lessonId': {
+      id: '/_authenticated/dev/classroom-enhanced/$lessonId'
+      path: '/classroom-enhanced/$lessonId'
+      fullPath: '/dev/classroom-enhanced/$lessonId'
+      preLoaderRoute: typeof AuthenticatedDevClassroomEnhancedLessonIdRouteImport
+      parentRoute: typeof AuthenticatedDevRouteRoute
+    }
+    '/_authenticated/dev/classroom-design/$lessonId': {
+      id: '/_authenticated/dev/classroom-design/$lessonId'
+      path: '/classroom-design/$lessonId'
+      fullPath: '/dev/classroom-design/$lessonId'
+      preLoaderRoute: typeof AuthenticatedDevClassroomDesignLessonIdRouteImport
+      parentRoute: typeof AuthenticatedDevRouteRoute
+    }
+    '/_authenticated/admin/users/$userId': {
+      id: '/_authenticated/admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedAdminUsersRoute
+    }
+    '/_authenticated/admin/programmes/$programmeId': {
+      id: '/_authenticated/admin/programmes/$programmeId'
+      path: '/$programmeId'
+      fullPath: '/admin/programmes/$programmeId'
+      preLoaderRoute: typeof AuthenticatedAdminProgrammesProgrammeIdRouteImport
+      parentRoute: typeof AuthenticatedAdminProgrammesRoute
+    }
+    '/_authenticated/admin/lesson-generation/$jobId': {
+      id: '/_authenticated/admin/lesson-generation/$jobId'
+      path: '/$jobId'
+      fullPath: '/admin/lesson-generation/$jobId'
+      preLoaderRoute: typeof AuthenticatedAdminLessonGenerationJobIdRouteImport
+      parentRoute: typeof AuthenticatedAdminLessonGenerationRoute
+    }
+    '/_authenticated/admin/kingpin-courses/new': {
+      id: '/_authenticated/admin/kingpin-courses/new'
+      path: '/new'
+      fullPath: '/admin/kingpin-courses/new'
+      preLoaderRoute: typeof AuthenticatedAdminKingpinCoursesNewRouteImport
+      parentRoute: typeof AuthenticatedAdminKingpinCoursesRoute
+    }
+    '/_authenticated/admin/kingpin-courses/$courseId': {
+      id: '/_authenticated/admin/kingpin-courses/$courseId'
+      path: '/$courseId'
+      fullPath: '/admin/kingpin-courses/$courseId'
+      preLoaderRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdRouteImport
+      parentRoute: typeof AuthenticatedAdminKingpinCoursesRoute
+    }
+    '/_authenticated/admin/institutions/$institutionId': {
+      id: '/_authenticated/admin/institutions/$institutionId'
+      path: '/$institutionId'
+      fullPath: '/admin/institutions/$institutionId'
+      preLoaderRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdRouteImport
+      parentRoute: typeof AuthenticatedAdminInstitutionsRoute
+    }
+    '/_authenticated/teacher/sessions/$sessionId/activity': {
+      id: '/_authenticated/teacher/sessions/$sessionId/activity'
+      path: '/activity'
+      fullPath: '/teacher/sessions/$sessionId/activity'
+      preLoaderRoute: typeof AuthenticatedTeacherSessionsSessionIdActivityRouteImport
+      parentRoute: typeof AuthenticatedTeacherSessionsSessionIdRoute
+    }
+    '/_authenticated/teacher/lessons/$lessonId/preview': {
+      id: '/_authenticated/teacher/lessons/$lessonId/preview'
+      path: '/preview'
+      fullPath: '/teacher/lessons/$lessonId/preview'
+      preLoaderRoute: typeof AuthenticatedTeacherLessonsLessonIdPreviewRouteImport
+      parentRoute: typeof AuthenticatedTeacherLessonsLessonIdRoute
+    }
     '/_authenticated/teacher/lessons/$lessonId/edit': {
       id: '/_authenticated/teacher/lessons/$lessonId/edit'
-      path: '/$lessonId/edit'
+      path: '/edit'
       fullPath: '/teacher/lessons/$lessonId/edit'
       preLoaderRoute: typeof AuthenticatedTeacherLessonsLessonIdEditRouteImport
-      parentRoute: typeof AuthenticatedTeacherLessonsRoute
+      parentRoute: typeof AuthenticatedTeacherLessonsLessonIdRoute
     }
     '/_authenticated/teacher/courses/$courseId/students': {
       id: '/_authenticated/teacher/courses/$courseId/students'
       path: '/students'
       fullPath: '/teacher/courses/$courseId/students'
       preLoaderRoute: typeof AuthenticatedTeacherCoursesCourseIdStudentsRouteImport
+      parentRoute: typeof AuthenticatedTeacherCoursesCourseIdRoute
+    }
+    '/_authenticated/teacher/courses/$courseId/materials': {
+      id: '/_authenticated/teacher/courses/$courseId/materials'
+      path: '/materials'
+      fullPath: '/teacher/courses/$courseId/materials'
+      preLoaderRoute: typeof AuthenticatedTeacherCoursesCourseIdMaterialsRouteImport
+      parentRoute: typeof AuthenticatedTeacherCoursesCourseIdRoute
+    }
+    '/_authenticated/teacher/courses/$courseId/lessons': {
+      id: '/_authenticated/teacher/courses/$courseId/lessons'
+      path: '/lessons'
+      fullPath: '/teacher/courses/$courseId/lessons'
+      preLoaderRoute: typeof AuthenticatedTeacherCoursesCourseIdLessonsRouteImport
+      parentRoute: typeof AuthenticatedTeacherCoursesCourseIdRoute
+    }
+    '/_authenticated/teacher/courses/$courseId/generate-lessons': {
+      id: '/_authenticated/teacher/courses/$courseId/generate-lessons'
+      path: '/generate-lessons'
+      fullPath: '/teacher/courses/$courseId/generate-lessons'
+      preLoaderRoute: typeof AuthenticatedTeacherCoursesCourseIdGenerateLessonsRouteImport
       parentRoute: typeof AuthenticatedTeacherCoursesCourseIdRoute
     }
     '/_authenticated/teacher/courses/$courseId/analytics': {
@@ -1778,6 +3130,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentSessionsSessionIdReplayRouteImport
       parentRoute: typeof AuthenticatedStudentSessionsRoute
     }
+    '/_authenticated/student/lessons/$lessonId/start': {
+      id: '/_authenticated/student/lessons/$lessonId/start'
+      path: '/start'
+      fullPath: '/student/lessons/$lessonId/start'
+      preLoaderRoute: typeof AuthenticatedStudentLessonsLessonIdStartRouteImport
+      parentRoute: typeof AuthenticatedStudentLessonsLessonIdRoute
+    }
+    '/_authenticated/student/courses/$courseId/progress': {
+      id: '/_authenticated/student/courses/$courseId/progress'
+      path: '/progress'
+      fullPath: '/student/courses/$courseId/progress'
+      preLoaderRoute: typeof AuthenticatedStudentCoursesCourseIdProgressRouteImport
+      parentRoute: typeof AuthenticatedStudentCoursesCourseIdRoute
+    }
     '/_authenticated/student/courses/$courseId/lessons': {
       id: '/_authenticated/student/courses/$courseId/lessons'
       path: '/lessons'
@@ -1785,18 +3151,371 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentCoursesCourseIdLessonsRouteImport
       parentRoute: typeof AuthenticatedStudentCoursesCourseIdRoute
     }
+    '/_authenticated/institution/programmes/$programmeId/students': {
+      id: '/_authenticated/institution/programmes/$programmeId/students'
+      path: '/students'
+      fullPath: '/institution/programmes/$programmeId/students'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdStudentsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdRoute
+    }
+    '/_authenticated/institution/programmes/$programmeId/edit': {
+      id: '/_authenticated/institution/programmes/$programmeId/edit'
+      path: '/edit'
+      fullPath: '/institution/programmes/$programmeId/edit'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdEditRouteImport
+      parentRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdRoute
+    }
+    '/_authenticated/institution/programmes/$programmeId/courses': {
+      id: '/_authenticated/institution/programmes/$programmeId/courses'
+      path: '/courses'
+      fullPath: '/institution/programmes/$programmeId/courses'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdCoursesRouteImport
+      parentRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdRoute
+    }
+    '/_authenticated/institution/programmes/$programmeId/analytics': {
+      id: '/_authenticated/institution/programmes/$programmeId/analytics'
+      path: '/analytics'
+      fullPath: '/institution/programmes/$programmeId/analytics'
+      preLoaderRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/teachers': {
+      id: '/_authenticated/institution/courses/$courseId/teachers'
+      path: '/teachers'
+      fullPath: '/institution/courses/$courseId/teachers'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdTeachersRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/settings': {
+      id: '/_authenticated/institution/courses/$courseId/settings'
+      path: '/settings'
+      fullPath: '/institution/courses/$courseId/settings'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/materials': {
+      id: '/_authenticated/institution/courses/$courseId/materials'
+      path: '/materials'
+      fullPath: '/institution/courses/$courseId/materials'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdMaterialsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/lessons': {
+      id: '/_authenticated/institution/courses/$courseId/lessons'
+      path: '/lessons'
+      fullPath: '/institution/courses/$courseId/lessons'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdLessonsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/generation-jobs': {
+      id: '/_authenticated/institution/courses/$courseId/generation-jobs'
+      path: '/generation-jobs'
+      fullPath: '/institution/courses/$courseId/generation-jobs'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdGenerationJobsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/generate-lessons': {
+      id: '/_authenticated/institution/courses/$courseId/generate-lessons'
+      path: '/generate-lessons'
+      fullPath: '/institution/courses/$courseId/generate-lessons'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/enrollments': {
+      id: '/_authenticated/institution/courses/$courseId/enrollments'
+      path: '/enrollments'
+      fullPath: '/institution/courses/$courseId/enrollments'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdEnrollmentsRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/institution/courses/$courseId/edit': {
+      id: '/_authenticated/institution/courses/$courseId/edit'
+      path: '/edit'
+      fullPath: '/institution/courses/$courseId/edit'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdEditRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+    }
+    '/_authenticated/admin/kingpin-courses/$courseId/materials': {
+      id: '/_authenticated/admin/kingpin-courses/$courseId/materials'
+      path: '/materials'
+      fullPath: '/admin/kingpin-courses/$courseId/materials'
+      preLoaderRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdMaterialsRouteImport
+      parentRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdRoute
+    }
+    '/_authenticated/admin/kingpin-courses/$courseId/lessons': {
+      id: '/_authenticated/admin/kingpin-courses/$courseId/lessons'
+      path: '/lessons'
+      fullPath: '/admin/kingpin-courses/$courseId/lessons'
+      preLoaderRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdLessonsRouteImport
+      parentRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdRoute
+    }
+    '/_authenticated/admin/kingpin-courses/$courseId/generate-lessons': {
+      id: '/_authenticated/admin/kingpin-courses/$courseId/generate-lessons'
+      path: '/generate-lessons'
+      fullPath: '/admin/kingpin-courses/$courseId/generate-lessons'
+      preLoaderRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRouteImport
+      parentRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdRoute
+    }
+    '/_authenticated/admin/institutions/$institutionId/users': {
+      id: '/_authenticated/admin/institutions/$institutionId/users'
+      path: '/users'
+      fullPath: '/admin/institutions/$institutionId/users'
+      preLoaderRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdRoute
+    }
+    '/_authenticated/admin/institutions/$institutionId/courses': {
+      id: '/_authenticated/admin/institutions/$institutionId/courses'
+      path: '/courses'
+      fullPath: '/admin/institutions/$institutionId/courses'
+      preLoaderRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdCoursesRouteImport
+      parentRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdRoute
+    }
+    '/_authenticated/admin/institutions/$institutionId/activity': {
+      id: '/_authenticated/admin/institutions/$institutionId/activity'
+      path: '/activity'
+      fullPath: '/admin/institutions/$institutionId/activity'
+      preLoaderRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdActivityRouteImport
+      parentRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdRoute
+    }
+    '/_authenticated/teacher/courses/$courseId/materials/upload': {
+      id: '/_authenticated/teacher/courses/$courseId/materials/upload'
+      path: '/upload'
+      fullPath: '/teacher/courses/$courseId/materials/upload'
+      preLoaderRoute: typeof AuthenticatedTeacherCoursesCourseIdMaterialsUploadRouteImport
+      parentRoute: typeof AuthenticatedTeacherCoursesCourseIdMaterialsRoute
+    }
+    '/_authenticated/institution/courses/$courseId/materials/upload': {
+      id: '/_authenticated/institution/courses/$courseId/materials/upload'
+      path: '/upload'
+      fullPath: '/institution/courses/$courseId/materials/upload'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdMaterialsRoute
+    }
+    '/_authenticated/institution/courses/$courseId/lessons/new': {
+      id: '/_authenticated/institution/courses/$courseId/lessons/new'
+      path: '/new'
+      fullPath: '/institution/courses/$courseId/lessons/new'
+      preLoaderRoute: typeof AuthenticatedInstitutionCoursesCourseIdLessonsNewRouteImport
+      parentRoute: typeof AuthenticatedInstitutionCoursesCourseIdLessonsRoute
+    }
   }
 }
 
+interface AuthenticatedDevRouteRouteChildren {
+  AuthenticatedDevSimpleTestRoute: typeof AuthenticatedDevSimpleTestRoute
+  AuthenticatedDevTestRoute: typeof AuthenticatedDevTestRoute
+  AuthenticatedDevClassroomDesignLessonIdRoute: typeof AuthenticatedDevClassroomDesignLessonIdRoute
+  AuthenticatedDevClassroomEnhancedLessonIdRoute: typeof AuthenticatedDevClassroomEnhancedLessonIdRoute
+}
+
+const AuthenticatedDevRouteRouteChildren: AuthenticatedDevRouteRouteChildren = {
+  AuthenticatedDevSimpleTestRoute: AuthenticatedDevSimpleTestRoute,
+  AuthenticatedDevTestRoute: AuthenticatedDevTestRoute,
+  AuthenticatedDevClassroomDesignLessonIdRoute:
+    AuthenticatedDevClassroomDesignLessonIdRoute,
+  AuthenticatedDevClassroomEnhancedLessonIdRoute:
+    AuthenticatedDevClassroomEnhancedLessonIdRoute,
+}
+
+const AuthenticatedDevRouteRouteWithChildren =
+  AuthenticatedDevRouteRoute._addFileChildren(
+    AuthenticatedDevRouteRouteChildren,
+  )
+
+interface AuthenticatedAdminInstitutionsInstitutionIdRouteChildren {
+  AuthenticatedAdminInstitutionsInstitutionIdActivityRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdActivityRoute
+  AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute
+  AuthenticatedAdminInstitutionsInstitutionIdUsersRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdUsersRoute
+}
+
+const AuthenticatedAdminInstitutionsInstitutionIdRouteChildren: AuthenticatedAdminInstitutionsInstitutionIdRouteChildren =
+  {
+    AuthenticatedAdminInstitutionsInstitutionIdActivityRoute:
+      AuthenticatedAdminInstitutionsInstitutionIdActivityRoute,
+    AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute:
+      AuthenticatedAdminInstitutionsInstitutionIdCoursesRoute,
+    AuthenticatedAdminInstitutionsInstitutionIdUsersRoute:
+      AuthenticatedAdminInstitutionsInstitutionIdUsersRoute,
+  }
+
+const AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren =
+  AuthenticatedAdminInstitutionsInstitutionIdRoute._addFileChildren(
+    AuthenticatedAdminInstitutionsInstitutionIdRouteChildren,
+  )
+
+interface AuthenticatedAdminInstitutionsRouteChildren {
+  AuthenticatedAdminInstitutionsInstitutionIdRoute: typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
+}
+
+const AuthenticatedAdminInstitutionsRouteChildren: AuthenticatedAdminInstitutionsRouteChildren =
+  {
+    AuthenticatedAdminInstitutionsInstitutionIdRoute:
+      AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren,
+  }
+
+const AuthenticatedAdminInstitutionsRouteWithChildren =
+  AuthenticatedAdminInstitutionsRoute._addFileChildren(
+    AuthenticatedAdminInstitutionsRouteChildren,
+  )
+
+interface AuthenticatedAdminKingpinCoursesCourseIdRouteChildren {
+  AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute
+  AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute
+  AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute
+}
+
+const AuthenticatedAdminKingpinCoursesCourseIdRouteChildren: AuthenticatedAdminKingpinCoursesCourseIdRouteChildren =
+  {
+    AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute:
+      AuthenticatedAdminKingpinCoursesCourseIdGenerateLessonsRoute,
+    AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute:
+      AuthenticatedAdminKingpinCoursesCourseIdLessonsRoute,
+    AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute:
+      AuthenticatedAdminKingpinCoursesCourseIdMaterialsRoute,
+  }
+
+const AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren =
+  AuthenticatedAdminKingpinCoursesCourseIdRoute._addFileChildren(
+    AuthenticatedAdminKingpinCoursesCourseIdRouteChildren,
+  )
+
+interface AuthenticatedAdminKingpinCoursesRouteChildren {
+  AuthenticatedAdminKingpinCoursesCourseIdRoute: typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
+  AuthenticatedAdminKingpinCoursesNewRoute: typeof AuthenticatedAdminKingpinCoursesNewRoute
+}
+
+const AuthenticatedAdminKingpinCoursesRouteChildren: AuthenticatedAdminKingpinCoursesRouteChildren =
+  {
+    AuthenticatedAdminKingpinCoursesCourseIdRoute:
+      AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren,
+    AuthenticatedAdminKingpinCoursesNewRoute:
+      AuthenticatedAdminKingpinCoursesNewRoute,
+  }
+
+const AuthenticatedAdminKingpinCoursesRouteWithChildren =
+  AuthenticatedAdminKingpinCoursesRoute._addFileChildren(
+    AuthenticatedAdminKingpinCoursesRouteChildren,
+  )
+
+interface AuthenticatedAdminLessonGenerationRouteChildren {
+  AuthenticatedAdminLessonGenerationJobIdRoute: typeof AuthenticatedAdminLessonGenerationJobIdRoute
+}
+
+const AuthenticatedAdminLessonGenerationRouteChildren: AuthenticatedAdminLessonGenerationRouteChildren =
+  {
+    AuthenticatedAdminLessonGenerationJobIdRoute:
+      AuthenticatedAdminLessonGenerationJobIdRoute,
+  }
+
+const AuthenticatedAdminLessonGenerationRouteWithChildren =
+  AuthenticatedAdminLessonGenerationRoute._addFileChildren(
+    AuthenticatedAdminLessonGenerationRouteChildren,
+  )
+
+interface AuthenticatedAdminProgrammesRouteChildren {
+  AuthenticatedAdminProgrammesProgrammeIdRoute: typeof AuthenticatedAdminProgrammesProgrammeIdRoute
+}
+
+const AuthenticatedAdminProgrammesRouteChildren: AuthenticatedAdminProgrammesRouteChildren =
+  {
+    AuthenticatedAdminProgrammesProgrammeIdRoute:
+      AuthenticatedAdminProgrammesProgrammeIdRoute,
+  }
+
+const AuthenticatedAdminProgrammesRouteWithChildren =
+  AuthenticatedAdminProgrammesRoute._addFileChildren(
+    AuthenticatedAdminProgrammesRouteChildren,
+  )
+
+interface AuthenticatedAdminUsersRouteChildren {
+  AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
+}
+
+const AuthenticatedAdminUsersRouteChildren: AuthenticatedAdminUsersRouteChildren =
+  {
+    AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
+  }
+
+const AuthenticatedAdminUsersRouteWithChildren =
+  AuthenticatedAdminUsersRoute._addFileChildren(
+    AuthenticatedAdminUsersRouteChildren,
+  )
+
+interface AuthenticatedInstitutionCoursesCourseIdLessonsRouteChildren {
+  AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute: typeof AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute
+}
+
+const AuthenticatedInstitutionCoursesCourseIdLessonsRouteChildren: AuthenticatedInstitutionCoursesCourseIdLessonsRouteChildren =
+  {
+    AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute:
+      AuthenticatedInstitutionCoursesCourseIdLessonsNewRoute,
+  }
+
+const AuthenticatedInstitutionCoursesCourseIdLessonsRouteWithChildren =
+  AuthenticatedInstitutionCoursesCourseIdLessonsRoute._addFileChildren(
+    AuthenticatedInstitutionCoursesCourseIdLessonsRouteChildren,
+  )
+
+interface AuthenticatedInstitutionCoursesCourseIdMaterialsRouteChildren {
+  AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute: typeof AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute
+}
+
+const AuthenticatedInstitutionCoursesCourseIdMaterialsRouteChildren: AuthenticatedInstitutionCoursesCourseIdMaterialsRouteChildren =
+  {
+    AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute:
+      AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRoute,
+  }
+
+const AuthenticatedInstitutionCoursesCourseIdMaterialsRouteWithChildren =
+  AuthenticatedInstitutionCoursesCourseIdMaterialsRoute._addFileChildren(
+    AuthenticatedInstitutionCoursesCourseIdMaterialsRouteChildren,
+  )
+
+interface AuthenticatedInstitutionCoursesCourseIdRouteChildren {
+  AuthenticatedInstitutionCoursesCourseIdEditRoute: typeof AuthenticatedInstitutionCoursesCourseIdEditRoute
+  AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute: typeof AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute
+  AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute: typeof AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute
+  AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute: typeof AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute
+  AuthenticatedInstitutionCoursesCourseIdLessonsRoute: typeof AuthenticatedInstitutionCoursesCourseIdLessonsRouteWithChildren
+  AuthenticatedInstitutionCoursesCourseIdMaterialsRoute: typeof AuthenticatedInstitutionCoursesCourseIdMaterialsRouteWithChildren
+  AuthenticatedInstitutionCoursesCourseIdSettingsRoute: typeof AuthenticatedInstitutionCoursesCourseIdSettingsRoute
+  AuthenticatedInstitutionCoursesCourseIdTeachersRoute: typeof AuthenticatedInstitutionCoursesCourseIdTeachersRoute
+}
+
+const AuthenticatedInstitutionCoursesCourseIdRouteChildren: AuthenticatedInstitutionCoursesCourseIdRouteChildren =
+  {
+    AuthenticatedInstitutionCoursesCourseIdEditRoute:
+      AuthenticatedInstitutionCoursesCourseIdEditRoute,
+    AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute:
+      AuthenticatedInstitutionCoursesCourseIdEnrollmentsRoute,
+    AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute:
+      AuthenticatedInstitutionCoursesCourseIdGenerateLessonsRoute,
+    AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute:
+      AuthenticatedInstitutionCoursesCourseIdGenerationJobsRoute,
+    AuthenticatedInstitutionCoursesCourseIdLessonsRoute:
+      AuthenticatedInstitutionCoursesCourseIdLessonsRouteWithChildren,
+    AuthenticatedInstitutionCoursesCourseIdMaterialsRoute:
+      AuthenticatedInstitutionCoursesCourseIdMaterialsRouteWithChildren,
+    AuthenticatedInstitutionCoursesCourseIdSettingsRoute:
+      AuthenticatedInstitutionCoursesCourseIdSettingsRoute,
+    AuthenticatedInstitutionCoursesCourseIdTeachersRoute:
+      AuthenticatedInstitutionCoursesCourseIdTeachersRoute,
+  }
+
+const AuthenticatedInstitutionCoursesCourseIdRouteWithChildren =
+  AuthenticatedInstitutionCoursesCourseIdRoute._addFileChildren(
+    AuthenticatedInstitutionCoursesCourseIdRouteChildren,
+  )
+
 interface AuthenticatedInstitutionCoursesRouteChildren {
-  AuthenticatedInstitutionCoursesCourseIdRoute: typeof AuthenticatedInstitutionCoursesCourseIdRoute
+  AuthenticatedInstitutionCoursesCourseIdRoute: typeof AuthenticatedInstitutionCoursesCourseIdRouteWithChildren
   AuthenticatedInstitutionCoursesNewRoute: typeof AuthenticatedInstitutionCoursesNewRoute
 }
 
 const AuthenticatedInstitutionCoursesRouteChildren: AuthenticatedInstitutionCoursesRouteChildren =
   {
     AuthenticatedInstitutionCoursesCourseIdRoute:
-      AuthenticatedInstitutionCoursesCourseIdRoute,
+      AuthenticatedInstitutionCoursesCourseIdRouteWithChildren,
     AuthenticatedInstitutionCoursesNewRoute:
       AuthenticatedInstitutionCoursesNewRoute,
   }
@@ -1804,6 +3523,63 @@ const AuthenticatedInstitutionCoursesRouteChildren: AuthenticatedInstitutionCour
 const AuthenticatedInstitutionCoursesRouteWithChildren =
   AuthenticatedInstitutionCoursesRoute._addFileChildren(
     AuthenticatedInstitutionCoursesRouteChildren,
+  )
+
+interface AuthenticatedInstitutionLessonGenerationRouteChildren {
+  AuthenticatedInstitutionLessonGenerationJobIdRoute: typeof AuthenticatedInstitutionLessonGenerationJobIdRoute
+}
+
+const AuthenticatedInstitutionLessonGenerationRouteChildren: AuthenticatedInstitutionLessonGenerationRouteChildren =
+  {
+    AuthenticatedInstitutionLessonGenerationJobIdRoute:
+      AuthenticatedInstitutionLessonGenerationJobIdRoute,
+  }
+
+const AuthenticatedInstitutionLessonGenerationRouteWithChildren =
+  AuthenticatedInstitutionLessonGenerationRoute._addFileChildren(
+    AuthenticatedInstitutionLessonGenerationRouteChildren,
+  )
+
+interface AuthenticatedInstitutionProgrammesProgrammeIdRouteChildren {
+  AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute
+  AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute
+  AuthenticatedInstitutionProgrammesProgrammeIdEditRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdEditRoute
+  AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute
+}
+
+const AuthenticatedInstitutionProgrammesProgrammeIdRouteChildren: AuthenticatedInstitutionProgrammesProgrammeIdRouteChildren =
+  {
+    AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute:
+      AuthenticatedInstitutionProgrammesProgrammeIdAnalyticsRoute,
+    AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute:
+      AuthenticatedInstitutionProgrammesProgrammeIdCoursesRoute,
+    AuthenticatedInstitutionProgrammesProgrammeIdEditRoute:
+      AuthenticatedInstitutionProgrammesProgrammeIdEditRoute,
+    AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute:
+      AuthenticatedInstitutionProgrammesProgrammeIdStudentsRoute,
+  }
+
+const AuthenticatedInstitutionProgrammesProgrammeIdRouteWithChildren =
+  AuthenticatedInstitutionProgrammesProgrammeIdRoute._addFileChildren(
+    AuthenticatedInstitutionProgrammesProgrammeIdRouteChildren,
+  )
+
+interface AuthenticatedInstitutionProgrammesRouteChildren {
+  AuthenticatedInstitutionProgrammesProgrammeIdRoute: typeof AuthenticatedInstitutionProgrammesProgrammeIdRouteWithChildren
+  AuthenticatedInstitutionProgrammesNewRoute: typeof AuthenticatedInstitutionProgrammesNewRoute
+}
+
+const AuthenticatedInstitutionProgrammesRouteChildren: AuthenticatedInstitutionProgrammesRouteChildren =
+  {
+    AuthenticatedInstitutionProgrammesProgrammeIdRoute:
+      AuthenticatedInstitutionProgrammesProgrammeIdRouteWithChildren,
+    AuthenticatedInstitutionProgrammesNewRoute:
+      AuthenticatedInstitutionProgrammesNewRoute,
+  }
+
+const AuthenticatedInstitutionProgrammesRouteWithChildren =
+  AuthenticatedInstitutionProgrammesRoute._addFileChildren(
+    AuthenticatedInstitutionProgrammesRouteChildren,
   )
 
 interface AuthenticatedInstitutionResourcesRouteChildren {
@@ -1868,12 +3644,15 @@ const AuthenticatedInstitutionTeachersRouteWithChildren =
 
 interface AuthenticatedStudentCoursesCourseIdRouteChildren {
   AuthenticatedStudentCoursesCourseIdLessonsRoute: typeof AuthenticatedStudentCoursesCourseIdLessonsRoute
+  AuthenticatedStudentCoursesCourseIdProgressRoute: typeof AuthenticatedStudentCoursesCourseIdProgressRoute
 }
 
 const AuthenticatedStudentCoursesCourseIdRouteChildren: AuthenticatedStudentCoursesCourseIdRouteChildren =
   {
     AuthenticatedStudentCoursesCourseIdLessonsRoute:
       AuthenticatedStudentCoursesCourseIdLessonsRoute,
+    AuthenticatedStudentCoursesCourseIdProgressRoute:
+      AuthenticatedStudentCoursesCourseIdProgressRoute,
   }
 
 const AuthenticatedStudentCoursesCourseIdRouteWithChildren =
@@ -1896,14 +3675,29 @@ const AuthenticatedStudentCoursesRouteWithChildren =
     AuthenticatedStudentCoursesRouteChildren,
   )
 
+interface AuthenticatedStudentLessonsLessonIdRouteChildren {
+  AuthenticatedStudentLessonsLessonIdStartRoute: typeof AuthenticatedStudentLessonsLessonIdStartRoute
+}
+
+const AuthenticatedStudentLessonsLessonIdRouteChildren: AuthenticatedStudentLessonsLessonIdRouteChildren =
+  {
+    AuthenticatedStudentLessonsLessonIdStartRoute:
+      AuthenticatedStudentLessonsLessonIdStartRoute,
+  }
+
+const AuthenticatedStudentLessonsLessonIdRouteWithChildren =
+  AuthenticatedStudentLessonsLessonIdRoute._addFileChildren(
+    AuthenticatedStudentLessonsLessonIdRouteChildren,
+  )
+
 interface AuthenticatedStudentLessonsRouteChildren {
-  AuthenticatedStudentLessonsLessonIdRoute: typeof AuthenticatedStudentLessonsLessonIdRoute
+  AuthenticatedStudentLessonsLessonIdRoute: typeof AuthenticatedStudentLessonsLessonIdRouteWithChildren
 }
 
 const AuthenticatedStudentLessonsRouteChildren: AuthenticatedStudentLessonsRouteChildren =
   {
     AuthenticatedStudentLessonsLessonIdRoute:
-      AuthenticatedStudentLessonsLessonIdRoute,
+      AuthenticatedStudentLessonsLessonIdRouteWithChildren,
   }
 
 const AuthenticatedStudentLessonsRouteWithChildren =
@@ -1988,8 +3782,26 @@ const AuthenticatedStudentSettingsRouteWithChildren =
     AuthenticatedStudentSettingsRouteChildren,
   )
 
+interface AuthenticatedTeacherCoursesCourseIdMaterialsRouteChildren {
+  AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute: typeof AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute
+}
+
+const AuthenticatedTeacherCoursesCourseIdMaterialsRouteChildren: AuthenticatedTeacherCoursesCourseIdMaterialsRouteChildren =
+  {
+    AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute:
+      AuthenticatedTeacherCoursesCourseIdMaterialsUploadRoute,
+  }
+
+const AuthenticatedTeacherCoursesCourseIdMaterialsRouteWithChildren =
+  AuthenticatedTeacherCoursesCourseIdMaterialsRoute._addFileChildren(
+    AuthenticatedTeacherCoursesCourseIdMaterialsRouteChildren,
+  )
+
 interface AuthenticatedTeacherCoursesCourseIdRouteChildren {
   AuthenticatedTeacherCoursesCourseIdAnalyticsRoute: typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute: typeof AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute
+  AuthenticatedTeacherCoursesCourseIdLessonsRoute: typeof AuthenticatedTeacherCoursesCourseIdLessonsRoute
+  AuthenticatedTeacherCoursesCourseIdMaterialsRoute: typeof AuthenticatedTeacherCoursesCourseIdMaterialsRouteWithChildren
   AuthenticatedTeacherCoursesCourseIdStudentsRoute: typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
 }
 
@@ -1997,6 +3809,12 @@ const AuthenticatedTeacherCoursesCourseIdRouteChildren: AuthenticatedTeacherCour
   {
     AuthenticatedTeacherCoursesCourseIdAnalyticsRoute:
       AuthenticatedTeacherCoursesCourseIdAnalyticsRoute,
+    AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute:
+      AuthenticatedTeacherCoursesCourseIdGenerateLessonsRoute,
+    AuthenticatedTeacherCoursesCourseIdLessonsRoute:
+      AuthenticatedTeacherCoursesCourseIdLessonsRoute,
+    AuthenticatedTeacherCoursesCourseIdMaterialsRoute:
+      AuthenticatedTeacherCoursesCourseIdMaterialsRouteWithChildren,
     AuthenticatedTeacherCoursesCourseIdStudentsRoute:
       AuthenticatedTeacherCoursesCourseIdStudentsRoute,
   }
@@ -2021,14 +3839,34 @@ const AuthenticatedTeacherCoursesRouteWithChildren =
     AuthenticatedTeacherCoursesRouteChildren,
   )
 
-interface AuthenticatedTeacherLessonsRouteChildren {
+interface AuthenticatedTeacherLessonsLessonIdRouteChildren {
   AuthenticatedTeacherLessonsLessonIdEditRoute: typeof AuthenticatedTeacherLessonsLessonIdEditRoute
+  AuthenticatedTeacherLessonsLessonIdPreviewRoute: typeof AuthenticatedTeacherLessonsLessonIdPreviewRoute
+}
+
+const AuthenticatedTeacherLessonsLessonIdRouteChildren: AuthenticatedTeacherLessonsLessonIdRouteChildren =
+  {
+    AuthenticatedTeacherLessonsLessonIdEditRoute:
+      AuthenticatedTeacherLessonsLessonIdEditRoute,
+    AuthenticatedTeacherLessonsLessonIdPreviewRoute:
+      AuthenticatedTeacherLessonsLessonIdPreviewRoute,
+  }
+
+const AuthenticatedTeacherLessonsLessonIdRouteWithChildren =
+  AuthenticatedTeacherLessonsLessonIdRoute._addFileChildren(
+    AuthenticatedTeacherLessonsLessonIdRouteChildren,
+  )
+
+interface AuthenticatedTeacherLessonsRouteChildren {
+  AuthenticatedTeacherLessonsLessonIdRoute: typeof AuthenticatedTeacherLessonsLessonIdRouteWithChildren
+  AuthenticatedTeacherLessonsNewRoute: typeof AuthenticatedTeacherLessonsNewRoute
 }
 
 const AuthenticatedTeacherLessonsRouteChildren: AuthenticatedTeacherLessonsRouteChildren =
   {
-    AuthenticatedTeacherLessonsLessonIdEditRoute:
-      AuthenticatedTeacherLessonsLessonIdEditRoute,
+    AuthenticatedTeacherLessonsLessonIdRoute:
+      AuthenticatedTeacherLessonsLessonIdRouteWithChildren,
+    AuthenticatedTeacherLessonsNewRoute: AuthenticatedTeacherLessonsNewRoute,
   }
 
 const AuthenticatedTeacherLessonsRouteWithChildren =
@@ -2036,17 +3874,59 @@ const AuthenticatedTeacherLessonsRouteWithChildren =
     AuthenticatedTeacherLessonsRouteChildren,
   )
 
+interface AuthenticatedTeacherSessionsSessionIdRouteChildren {
+  AuthenticatedTeacherSessionsSessionIdActivityRoute: typeof AuthenticatedTeacherSessionsSessionIdActivityRoute
+}
+
+const AuthenticatedTeacherSessionsSessionIdRouteChildren: AuthenticatedTeacherSessionsSessionIdRouteChildren =
+  {
+    AuthenticatedTeacherSessionsSessionIdActivityRoute:
+      AuthenticatedTeacherSessionsSessionIdActivityRoute,
+  }
+
+const AuthenticatedTeacherSessionsSessionIdRouteWithChildren =
+  AuthenticatedTeacherSessionsSessionIdRoute._addFileChildren(
+    AuthenticatedTeacherSessionsSessionIdRouteChildren,
+  )
+
+interface AuthenticatedTeacherSessionsRouteChildren {
+  AuthenticatedTeacherSessionsSessionIdRoute: typeof AuthenticatedTeacherSessionsSessionIdRouteWithChildren
+  AuthenticatedTeacherSessionsNewRoute: typeof AuthenticatedTeacherSessionsNewRoute
+}
+
+const AuthenticatedTeacherSessionsRouteChildren: AuthenticatedTeacherSessionsRouteChildren =
+  {
+    AuthenticatedTeacherSessionsSessionIdRoute:
+      AuthenticatedTeacherSessionsSessionIdRouteWithChildren,
+    AuthenticatedTeacherSessionsNewRoute: AuthenticatedTeacherSessionsNewRoute,
+  }
+
+const AuthenticatedTeacherSessionsRouteWithChildren =
+  AuthenticatedTeacherSessionsRoute._addFileChildren(
+    AuthenticatedTeacherSessionsRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedSimpleTestRoute: typeof AuthenticatedSimpleTestRoute
-  AuthenticatedTestRoute: typeof AuthenticatedTestRoute
+  AuthenticatedDevRouteRoute: typeof AuthenticatedDevRouteRouteWithChildren
+  AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
+  AuthenticatedAdminAiSettingsRoute: typeof AuthenticatedAdminAiSettingsRoute
+  AuthenticatedAdminAuditLogsRoute: typeof AuthenticatedAdminAuditLogsRoute
+  AuthenticatedAdminCoursesRoute: typeof AuthenticatedAdminCoursesRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
-  AuthenticatedAdminInstitutionsRoute: typeof AuthenticatedAdminInstitutionsRoute
+  AuthenticatedAdminInstitutionsRoute: typeof AuthenticatedAdminInstitutionsRouteWithChildren
+  AuthenticatedAdminKingpinCoursesRoute: typeof AuthenticatedAdminKingpinCoursesRouteWithChildren
+  AuthenticatedAdminLessonGenerationRoute: typeof AuthenticatedAdminLessonGenerationRouteWithChildren
+  AuthenticatedAdminLessonsRoute: typeof AuthenticatedAdminLessonsRoute
+  AuthenticatedAdminMaterialsRoute: typeof AuthenticatedAdminMaterialsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPlatformRoute: typeof AuthenticatedAdminPlatformRoute
+  AuthenticatedAdminProgrammesRoute: typeof AuthenticatedAdminProgrammesRouteWithChildren
+  AuthenticatedAdminRealtimeRoute: typeof AuthenticatedAdminRealtimeRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminUsageRoute: typeof AuthenticatedAdminUsageRoute
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRouteWithChildren
   AuthenticatedInstitutionActivityRoute: typeof AuthenticatedInstitutionActivityRoute
   AuthenticatedInstitutionAnalyticsRoute: typeof AuthenticatedInstitutionAnalyticsRoute
   AuthenticatedInstitutionBillingRoute: typeof AuthenticatedInstitutionBillingRoute
@@ -2054,6 +3934,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInstitutionCoursesRoute: typeof AuthenticatedInstitutionCoursesRouteWithChildren
   AuthenticatedInstitutionDashboardRoute: typeof AuthenticatedInstitutionDashboardRoute
   AuthenticatedInstitutionEnrollmentsRoute: typeof AuthenticatedInstitutionEnrollmentsRoute
+  AuthenticatedInstitutionLessonGenerationRoute: typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  AuthenticatedInstitutionProgrammesRoute: typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   AuthenticatedInstitutionResourcesRoute: typeof AuthenticatedInstitutionResourcesRouteWithChildren
   AuthenticatedInstitutionSessionsRoute: typeof AuthenticatedInstitutionSessionsRouteWithChildren
   AuthenticatedInstitutionSettingsRoute: typeof AuthenticatedInstitutionSettingsRoute
@@ -2083,29 +3965,44 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudentSearchRoute: typeof AuthenticatedStudentSearchRoute
   AuthenticatedStudentSessionsRoute: typeof AuthenticatedStudentSessionsRouteWithChildren
   AuthenticatedStudentSettingsRoute: typeof AuthenticatedStudentSettingsRouteWithChildren
+  AuthenticatedStudentTranscriptsRoute: typeof AuthenticatedStudentTranscriptsRoute
   AuthenticatedTeacherAnalyticsRoute: typeof AuthenticatedTeacherAnalyticsRoute
   AuthenticatedTeacherCoursesRoute: typeof AuthenticatedTeacherCoursesRouteWithChildren
   AuthenticatedTeacherDashboardRoute: typeof AuthenticatedTeacherDashboardRoute
   AuthenticatedTeacherLessonsRoute: typeof AuthenticatedTeacherLessonsRouteWithChildren
   AuthenticatedTeacherMessagesRoute: typeof AuthenticatedTeacherMessagesRoute
   AuthenticatedTeacherResourcesRoute: typeof AuthenticatedTeacherResourcesRoute
-  AuthenticatedTeacherSessionsRoute: typeof AuthenticatedTeacherSessionsRoute
+  AuthenticatedTeacherSessionsRoute: typeof AuthenticatedTeacherSessionsRouteWithChildren
   AuthenticatedTeacherSettingsRoute: typeof AuthenticatedTeacherSettingsRoute
   AuthenticatedTeacherStudentsRoute: typeof AuthenticatedTeacherStudentsRoute
   AuthenticatedStudentAiLessonNewRoute: typeof AuthenticatedStudentAiLessonNewRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedSimpleTestRoute: AuthenticatedSimpleTestRoute,
-  AuthenticatedTestRoute: AuthenticatedTestRoute,
+  AuthenticatedDevRouteRoute: AuthenticatedDevRouteRouteWithChildren,
+  AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
+  AuthenticatedAdminAiSettingsRoute: AuthenticatedAdminAiSettingsRoute,
+  AuthenticatedAdminAuditLogsRoute: AuthenticatedAdminAuditLogsRoute,
+  AuthenticatedAdminCoursesRoute: AuthenticatedAdminCoursesRoute,
+  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
-  AuthenticatedAdminInstitutionsRoute: AuthenticatedAdminInstitutionsRoute,
+  AuthenticatedAdminInstitutionsRoute:
+    AuthenticatedAdminInstitutionsRouteWithChildren,
+  AuthenticatedAdminKingpinCoursesRoute:
+    AuthenticatedAdminKingpinCoursesRouteWithChildren,
+  AuthenticatedAdminLessonGenerationRoute:
+    AuthenticatedAdminLessonGenerationRouteWithChildren,
+  AuthenticatedAdminLessonsRoute: AuthenticatedAdminLessonsRoute,
+  AuthenticatedAdminMaterialsRoute: AuthenticatedAdminMaterialsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPlatformRoute: AuthenticatedAdminPlatformRoute,
+  AuthenticatedAdminProgrammesRoute:
+    AuthenticatedAdminProgrammesRouteWithChildren,
+  AuthenticatedAdminRealtimeRoute: AuthenticatedAdminRealtimeRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
   AuthenticatedAdminUsageRoute: AuthenticatedAdminUsageRoute,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRouteWithChildren,
   AuthenticatedInstitutionActivityRoute: AuthenticatedInstitutionActivityRoute,
   AuthenticatedInstitutionAnalyticsRoute:
     AuthenticatedInstitutionAnalyticsRoute,
@@ -2118,6 +4015,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedInstitutionDashboardRoute,
   AuthenticatedInstitutionEnrollmentsRoute:
     AuthenticatedInstitutionEnrollmentsRoute,
+  AuthenticatedInstitutionLessonGenerationRoute:
+    AuthenticatedInstitutionLessonGenerationRouteWithChildren,
+  AuthenticatedInstitutionProgrammesRoute:
+    AuthenticatedInstitutionProgrammesRouteWithChildren,
   AuthenticatedInstitutionResourcesRoute:
     AuthenticatedInstitutionResourcesRouteWithChildren,
   AuthenticatedInstitutionSessionsRoute:
@@ -2158,6 +4059,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStudentSessionsRouteWithChildren,
   AuthenticatedStudentSettingsRoute:
     AuthenticatedStudentSettingsRouteWithChildren,
+  AuthenticatedStudentTranscriptsRoute: AuthenticatedStudentTranscriptsRoute,
   AuthenticatedTeacherAnalyticsRoute: AuthenticatedTeacherAnalyticsRoute,
   AuthenticatedTeacherCoursesRoute:
     AuthenticatedTeacherCoursesRouteWithChildren,
@@ -2166,7 +4068,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedTeacherLessonsRouteWithChildren,
   AuthenticatedTeacherMessagesRoute: AuthenticatedTeacherMessagesRoute,
   AuthenticatedTeacherResourcesRoute: AuthenticatedTeacherResourcesRoute,
-  AuthenticatedTeacherSessionsRoute: AuthenticatedTeacherSessionsRoute,
+  AuthenticatedTeacherSessionsRoute:
+    AuthenticatedTeacherSessionsRouteWithChildren,
   AuthenticatedTeacherSettingsRoute: AuthenticatedTeacherSettingsRoute,
   AuthenticatedTeacherStudentsRoute: AuthenticatedTeacherStudentsRoute,
   AuthenticatedStudentAiLessonNewRoute: AuthenticatedStudentAiLessonNewRoute,
@@ -2175,16 +4078,49 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthCompleteProfileRoute: typeof AuthCompleteProfileRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthSelectRoleRoute: typeof AuthSelectRoleRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCompleteProfileRoute: AuthCompleteProfileRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
+  AuthSelectRoleRoute: AuthSelectRoleRoute,
+  AuthSignupRoute: AuthSignupRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AboutRoute: AboutRoute,
+  AccessibilityRoute: AccessibilityRoute,
+  AuthRoute: AuthRouteWithChildren,
+  ContactRoute: ContactRoute,
+  FeaturesRoute: FeaturesRoute,
+  HelpRoute: HelpRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   ClassroomLessonIdRoute: ClassroomLessonIdRoute,
+  DemoAccessibilityDemoRoute: DemoAccessibilityDemoRoute,
   DemoAiVideoRoute: DemoAiVideoRoute,
   DemoClassroomRoute: DemoClassroomRoute,
   DemoTeachingRoute: DemoTeachingRoute,
+  DemoWhiteboardRoute: DemoWhiteboardRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
   StudentProgressRoute: StudentProgressRoute,
   ClassroomPreviewLessonIdRoute: ClassroomPreviewLessonIdRoute,

@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 
-export type UserRole = "platform_admin" | "institution_admin" | "teacher" | "student";
+export type UserRole = "platform_admin" | "institution_admin" | "teacher" | "student" | "parent";
 
 export type TeacherState =
   | "idle"
@@ -623,3 +623,216 @@ export type MediaPermissionState = {
   camera: PermissionState;
   microphone: PermissionState;
 };
+
+/* ─── Klassruum Business Hierarchy Types ─────────────────────── */
+
+/** Programme: groups courses under an institution (e.g., "Form 2 Mathematics") */
+export type Programme = {
+  id: string;
+  institutionId: string;
+  title: string;
+  description?: string;
+  level?: string;
+  subjectArea?: string;
+  targetLearners?: string;
+  learningOutcomes: string[];
+  startDate?: string;
+  endDate?: string;
+  timelineWeeks?: number;
+  status: "draft" | "active" | "archived";
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Course material: uploaded content tied to a course for lesson generation */
+export type CourseMaterial = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  uploadedBy?: string;
+  title: string;
+  type: "pdf" | "document" | "slide" | "image" | "text" | "link" | "worksheet" | "syllabus";
+  fileUrl?: string;
+  linkUrl?: string;
+  extractedText?: string;
+  syllabusReference?: string;
+  processingStatus: "pending" | "processing" | "ready" | "failed";
+  processingError?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Material image: extracted from course materials */
+export type MaterialImage = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  courseMaterialId: string;
+  imageUrl: string;
+  caption?: string;
+  extractedContext?: string;
+  suggestedLessonId?: string;
+  createdAt: string;
+};
+
+/** Lesson generation job: tracks AI lesson generation from materials */
+export type LessonGenerationJob = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  programmeId?: string;
+  triggeredBy: string;
+  sourceMaterialIds: string[];
+  status: "queued" | "processing" | "completed" | "failed" | "cancelled";
+  totalLessonsRequested?: number;
+  totalLessonsGenerated?: number;
+  generationSettings: LessonGenerationSettings;
+  errorMessage?: string;
+  startedAt?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Settings for lesson generation */
+export type LessonGenerationSettings = {
+  mode: "auto" | "manual" | "mixed";
+  targetLessonCount?: number;
+  minimumDurationMinutes: number;
+  maximumDurationMinutes: number;
+  defaultDurationMinutes: number;
+  teachingDepth: "basic" | "standard" | "detailed" | "intensive";
+  includeImages: boolean;
+  includeGuidedPractice: boolean;
+  includeIndependentPractice: boolean;
+  includeNotes: boolean;
+  includeTranscriptStructure: boolean;
+};
+
+/** Lesson section: structured teaching unit within a lesson */
+export type LessonSection = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  title: string;
+  type:
+    | "welcome"
+    | "objective"
+    | "why_it_matters"
+    | "prerequisite_check"
+    | "concept"
+    | "worked_example"
+    | "question_checkpoint"
+    | "required_middle_question"
+    | "guided_practice"
+    | "independent_practice"
+    | "correction"
+    | "summary"
+    | "exit_reflection"
+    | "homework";
+  orderIndex: number;
+  estimatedMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Teaching item: individual board item within a section */
+export type TeachingItem = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  sectionId: string;
+  orderIndex: number;
+  type:
+    | "heading"
+    | "bullet"
+    | "equation"
+    | "calculation"
+    | "image"
+    | "diagram"
+    | "question"
+    | "answer"
+    | "correction"
+    | "instruction"
+    | "concept";
+  boardText?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  exactSpokenText: string;
+  teacherExplanation: string;
+  learnerNotes: string;
+  accessibleDescription: string;
+  whyThisMatters?: string;
+  commonMistake?: string;
+  writingSpeed: "slow" | "normal" | "fast";
+  estimatedSeconds: number;
+  sourceMaterialId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Learner question: asked in class, answered from context */
+export type LearnerQuestion = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  sessionId?: string;
+  studentId: string;
+  sectionType?: string;
+  boardItemRef?: string;
+  questionText: string;
+  answerText?: string;
+  answerWordCount?: number;
+  contextJson: Record<string, unknown>;
+  answerSource: "ai" | "teacher" | "fallback";
+  learningMode?: string;
+  createdAt: string;
+};
+
+/** Learning result: per-session activity & evidence */
+export type LearningResult = {
+  id: string;
+  institutionId: string;
+  courseId: string;
+  lessonId: string;
+  sessionId?: string;
+  studentId: string;
+  status: "not_started" | "in_progress" | "paused" | "needs_review" | "completed" | "replayed";
+  progressPercentage: number;
+  timeSpentSeconds: number;
+  currentSection?: string;
+  resumePointJson: Record<string, unknown>;
+  questionsAsked: number;
+  raisedHands: number;
+  practiceAttempts: number;
+  practiceCorrect: number;
+  hintsUsed: number;
+  middleQuestionCorrect?: boolean;
+  confidenceChecks: unknown[];
+  misconceptionsDetected: number;
+  weakAreas: unknown[];
+  notesSaved: boolean;
+  transcriptSaved: boolean;
+  eventsJson: unknown[];
+  lastActiveAt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** User presence: realtime online tracking */
+export type UserPresence = {
+  id: string;
+  userId: string;
+  institutionId?: string;
+  status: "online" | "away" | "offline";
+  lastHeartbeat: string;
+  currentSessionId?: string;
+  currentLessonId?: string;
+};
+
+/** KingPin course source type */
+export type CourseSourceType = "institution" | "kingpin";

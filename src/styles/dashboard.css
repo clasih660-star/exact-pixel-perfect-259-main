@@ -10,9 +10,9 @@
 
 /* ---- Dashboard CSS Variables ---- */
 :root {
-  --kr-primary: #2563eb;
-  --kr-primary-dark: #1d4ed8;
-  --kr-blue-soft: #eff6ff;
+  --kr-primary: #1d4ed8;
+  --kr-primary-dark: #1e3a8a;
+  --kr-blue-soft: #eef3ff;
   --kr-navy: #0f172a;
   --kr-muted: #64748b;
   --kr-bg: #f8fafc;
@@ -24,9 +24,9 @@
   --kr-warning-light: #fffbeb;
   --kr-error: #ef4444;
   --kr-error-light: #fef2f2;
-  --kr-radius: 20px;
-  --kr-radius-sm: 12px;
-  --kr-radius-lg: 28px;
+  --kr-radius: 0px;
+  --kr-radius-sm: 0px;
+  --kr-radius-lg: 0px;
   --kr-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
   --kr-shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
 }

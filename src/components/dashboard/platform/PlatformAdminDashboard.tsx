@@ -28,12 +28,71 @@ export function PlatformAdminDashboard() {
             Platform Overview
           </span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-[var(--gray-900)]">
+        <h1 className="text-3xl font-bold tracking-tight text-[var(--gray-900)] lg:text-4xl">
           Platform Administration
         </h1>
         <p className="mt-2 text-sm text-[var(--gray-500)]">
           Manage institutions, monitor platform health, and oversee system operations
         </p>
+      </section>
+
+      {/* Featured hero — live platform status */}
+      <section className="relative mb-8 overflow-hidden rounded-3xl border border-[var(--primary)]/20 bg-gradient-to-br from-white via-[var(--primary-light)] to-white p-7 shadow-lg">
+        <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-[var(--primary)]/5 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+              </span>
+              All systems operational
+            </span>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--gray-900)] lg:text-3xl">
+              Live platform activity
+            </h2>
+            <p className="mt-1 text-sm text-[var(--gray-500)]">
+              Real-time view across all institutions and classrooms
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-6">
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">Users Online</p>
+                <p className="text-2xl font-extrabold text-[var(--primary)]">1,284</p>
+              </div>
+              <div className="h-8 w-px bg-[var(--gray-200)]" />
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">Active Classrooms</p>
+                <p className="font-bold text-[var(--gray-900)]">96</p>
+              </div>
+              <div className="h-8 w-px bg-[var(--gray-200)]" />
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">Institutions Live</p>
+                <p className="font-bold text-[var(--gray-900)]">38</p>
+              </div>
+              <div className="h-8 w-px bg-[var(--gray-200)]" />
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">Lessons Generating</p>
+                <p className="font-bold text-[var(--gray-900)]">7</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 lg:items-end">
+            <Link
+              to="/admin/institutions"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[var(--primary)] px-6 text-sm font-bold text-white shadow-lg shadow-[var(--primary)]/25 transition-all hover:bg-[var(--primary-dark)] lg:w-auto"
+            >
+              <Building2 className="h-4 w-4" />
+              Manage Institutions
+            </Link>
+            <Link
+              to="/admin/usage"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
+            >
+              <Activity className="h-4 w-4" />
+              View Usage
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Platform KPI Cards */}

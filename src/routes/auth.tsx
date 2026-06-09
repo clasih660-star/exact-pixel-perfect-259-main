@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Logo } from "@/components/brand/Logo";
+import { LogoMark } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,43 +61,48 @@ function AuthPage() {
           alt="Students learning together with Klassruum"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover"
         />
-        {/* Brand blue overlay for legibility */}
+        {/* Royal-blue overlay tuned for strong legibility */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg, rgba(29,78,216,0.92) 0%, rgba(37,99,235,0.78) 42%, rgba(37,99,235,0.30) 100%)",
+              "linear-gradient(135deg, rgba(15,29,77,0.94) 0%, rgba(29,78,216,0.86) 45%, rgba(37,99,235,0.55) 100%)",
           }}
+        />
+        {/* Bottom scrim so the headline & stats stay crisp over the photo */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
+          style={{ background: "linear-gradient(to top, rgba(8,18,54,0.85), transparent)" }}
         />
         {/* Decorative overlay circles */}
         <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10" />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[520px] w-[520px] rounded-full bg-white/10" />
-        <div className="pointer-events-none absolute right-1/4 top-1/3 h-64 w-64 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[520px] w-[520px] rounded-full bg-white/[0.08]" />
 
-        <Link to="/" className="relative z-10 flex items-center gap-2">
-          <Logo />
+        <Link to="/" className="relative z-10 flex items-center gap-2.5">
+          <LogoMark size={40} />
+          <span className="text-2xl font-extrabold tracking-tight text-white">Klassruum</span>
         </Link>
         <div className="relative z-10">
-          <h2 className="max-w-md text-4xl font-extrabold leading-[1.1] tracking-tight">
+          <h2 className="max-w-md text-4xl font-extrabold leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
             Virtual classrooms for every learner.
           </h2>
-          <p className="mt-5 max-w-md text-base leading-relaxed text-white/85">
+          <p className="mt-5 max-w-md text-base leading-relaxed text-white/95 drop-shadow-[0_1px_8px_rgba(0,0,0,0.3)]">
             AI-powered lessons that speak, write, explain, and adapt to each student's needs. Sign in to manage your institution, classrooms, and resources.
           </p>
           <div className="mt-10 flex items-center gap-8">
             <div>
               <p className="text-3xl font-extrabold">10k+</p>
-              <p className="mt-0.5 text-xs font-medium text-white/70">Active Learners</p>
+              <p className="mt-0.5 text-xs font-semibold text-white/85">Active Learners</p>
             </div>
             <div className="h-10 w-px bg-white/25" />
             <div>
               <p className="text-3xl font-extrabold">500+</p>
-              <p className="mt-0.5 text-xs font-medium text-white/70">Institutions</p>
+              <p className="mt-0.5 text-xs font-semibold text-white/85">Institutions</p>
             </div>
             <div className="h-10 w-px bg-white/25" />
             <div>
               <p className="text-3xl font-extrabold">98%</p>
-              <p className="mt-0.5 text-xs font-medium text-white/70">Satisfaction</p>
+              <p className="mt-0.5 text-xs font-semibold text-white/85">Satisfaction</p>
             </div>
           </div>
         </div>
@@ -108,16 +113,14 @@ function AuthPage() {
 
       <div className="flex items-center justify-center bg-background p-8">
         <div className="w-full max-w-sm">
-          <div className="lg:hidden mb-8">
-                <Link to="/">
-                  <Logo size={40} />
-                </Link>
-              </div>
-          {/* Brand name above the welcome text for quick recognition on the right */}
-          <div className="mb-2 hidden lg:block">
-            <span className="text-sm font-semibold text-muted-foreground">Klassruum</span>
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {/* Branded logo + name above the welcome text (both mobile and desktop) */}
+          <Link to="/" className="mb-8 flex items-center gap-2.5">
+            <LogoMark size={38} />
+            <span className="text-xl font-extrabold tracking-tight text-foreground">
+              Klass<span className="text-[var(--primary)]">ruum</span>
+            </span>
+          </Link>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
             {mode === "signin" ? "Welcome back" : "Create your account"}
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">

@@ -1,4 +1,25 @@
 /* =============================================================================
+   SHARP CORNERS — premium, architectural look across the whole product.
+   Zero out the common rounded utilities; keep true circles (rounded-full,
+   avatars, dots, pills, toggles) round so they don't turn into squares.
+   ============================================================================= */
+[class*="rounded-"]:not(.rounded-full):not([class*="rounded-full"]) {
+  border-radius: 0 !important;
+}
+.kr-pcard, .kr-card, .kr-glass, .kr-media, .kr-chip,
+.dashboard-card, .sidebar, .topnav, button, input, textarea, select,
+.card, [data-slot="card"], [data-slot="button"], [data-slot="input"] {
+  border-radius: 0 !important;
+}
+/* Keep genuinely circular elements round */
+.rounded-full, [class*="rounded-full"],
+.kr-avatar, .avatar, .kr-cal-dot, .vc-teacher-badge-dot,
+[role="switch"], [data-slot="switch"], [data-slot="switch-thumb"],
+.kr-status-pill, .badge, [data-slot="avatar"] {
+  border-radius: 999px !important;
+}
+
+/* =============================================================================
    Student Calendar + Notes page primitives
    ============================================================================= */
 .kr-cal-nav {
@@ -37,8 +58,8 @@
   --kr-blue-100: #dbeafe;
   --kr-blue-200: #bfdbfe;
   --kr-blue-400: #60a5fa;
-  --kr-blue-500: #3b82f6;
-  --kr-blue-600: #2563eb;
+  --kr-blue-500: #3b5bff;
+  --kr-blue-600: #2547e0;
   --kr-blue-700: #1d4ed8;
   --kr-navy:     #0f172a;
   --kr-navy-700: #1e293b;

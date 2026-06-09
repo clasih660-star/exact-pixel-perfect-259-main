@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_authenticated")({
       if (import.meta.env.DEV) {
         return { user: { id: "demo-user-123", email: "demo@klassruum.com" } };
       }
+      // Re-throw redirects
+      if (err && typeof err === "object" && "to" in err) throw err;
       throw redirect({ to: "/auth" });
     }
   },

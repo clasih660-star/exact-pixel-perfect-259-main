@@ -1,12 +1,14 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
+import { dashboardConfigs, type DashboardConfig } from "@/lib/dashboard-config";
 
 type RouteItem = {
   label: string;
-  to: string;
-  description: string;
+  /** Either `href` (new) or `to` (legacy) is accepted. */
+  href?: string;
+  to?: string;
+  description?: string;
 };
 
 type RouteStubPageProps = {
@@ -15,72 +17,139 @@ type RouteStubPageProps = {
   role: string;
   primary?: { label: string; to: string };
   secondary?: { label: string; to: string };
-  items: RouteItem[];
+  items?: RouteItem[];
 };
 
-export function RouteStubPage({
-  title,
-  description,
-  role,
-  primary,
-  secondary,
-  items,
-}: RouteStubPageProps) {
-  return (
-    <div className="min-h-screen bg-[var(--gray-50)] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl overflow-hidden rounded-[28px] border border-[var(--gray-200)] bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-        <div className="border-b border-[var(--gray-200)] bg-[linear-gradient(135deg,#eff6ff_0%,#ffffff_60%,#f8fafc_100%)] px-6 py-6">
-          <div className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--gray-500)] shadow-sm">
-            {role}
-          </div>
-          <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-[var(--gray-900)]">
-            {title}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--gray-600)]">{description}</p>
+// Map the human-readable role label to a dashboard config so the stub page
+// renders inside the same persistent sidebar + topbar as the rest of that
+// role's app (the chrome stays visible — pages open *within*).
+function configForRole(role: string): DashboardConfig | null {
+  const r = role.toLowerCase();
+  if (r.includes("student") || r.includes("learner")) return dashboardConfigs.learner;
+  if (r.includes("teacher")) return dashboardConfigs.teacher;
+  if (r.includes("institution")) return dashboardConfigs.institution;
+  if (r.includes("platform") || r.includes("admin")) return dashboardConfigs.platform_admin;
+  if (r.includes("parent")) return dashboardConfigs.parent;
+  return null;
+}
 
-          {(primary || secondary) && (
-            <div className="mt-5 flex flex-wrap gap-3">
-              {primary && (
-                <Link to={primary.to}>
-                  <Button>
-                    {primary.label}
-                    <ArrowRight className="ml-1.5 h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
-              {secondary && (
-                <Link to={secondary.to}>
-                  <Button variant="outline">{secondary.label}</Button>
-                </Link>
-              )}
-            </div>
+function StubBody({ title, description, role, primary, secondary, items = [] }: RouteStubPageProps) {
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[var(--gray-900)]">{title}</h1>
+        <span className="bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Stub</span>
+      </div>
+      <p className="text-lg text-[var(--gray-600)]">{description}</p>
+
+      {(primary || secondary) && (
+        <div className="mt-5 flex flex-wrap gap-3">
+          {primary && (
+            <Link
+              to={primary.to}
+              className="inline-flex items-center gap-1.5 bg-[var(--primary)] px-4 py-2 text-sm font-bold text-white transition hover:bg-[var(--primary-dark)]"
+            >
+              {primary.label}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+          {secondary && (
+            <Link
+              to={secondary.to}
+              className="inline-flex items-center border border-[var(--gray-200)] bg-white px-4 py-2 text-sm font-bold text-[var(--gray-700)] transition hover:bg-[var(--gray-50)]"
+            >
+              {secondary.label}
+            </Link>
           )}
         </div>
+      )}
 
-        <div className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => (
-            <Link key={item.to} to={item.to} className="group block">
-              <Card className="h-full border-[var(--gray-200)] transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-[0_16px_32px_rgba(15,23,42,0.08)]">
-                <CardContent className="p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">
-                    Route
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold text-[var(--gray-900)]">
-                    {item.label}
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-[var(--gray-600)]">
-                    {item.description}
-                  </p>
-                  <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)]">
+      <div className="mt-8 border border-dashed border-[var(--gray-300)] bg-white p-8">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--gray-100)]">
+            <svg className="h-6 w-6 text-[var(--gray-400)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <h3 className="text-sm font-semibold text-[var(--gray-700)]">This page is architecturally defined</h3>
+          <p className="mt-1 text-sm text-[var(--gray-500)]">
+            The route exists and is properly connected. Full implementation coming soon.
+          </p>
+        </div>
+      </div>
+
+      {items.length > 0 && (
+        <div className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold text-[var(--gray-700)]">Related Pages</h2>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {items.map((item) => {
+              const target = item.href ?? item.to ?? "#";
+              return (
+                <Link
+                  key={target + item.label}
+                  to={target}
+                  className="group block border border-[var(--gray-200)] bg-white p-4 transition hover:border-[var(--primary)]/40 hover:shadow-sm"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gray-400)]">{role}</p>
+                  <h3 className="mt-1.5 text-base font-semibold text-[var(--gray-900)]">{item.label}</h3>
+                  {item.description && (
+                    <p className="mt-1.5 text-sm leading-6 text-[var(--gray-600)]">{item.description}</p>
+                  )}
+                  <div className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[var(--primary)]">
                     Open
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Placeholder page for routes that are architecturally defined but not yet
+ * fully implemented. Renders inside the role's persistent shell so the top bar
+ * and left menu stay visible (pages open within).
+ */
+export function RouteStubPage(props: RouteStubPageProps) {
+  const config = configForRole(props.role);
+  const location = useLocation();
+
+  if (config) {
+    return (
+      <DashboardShell config={config} activePath={location.pathname} title={props.title}>
+        <StubBody {...props} />
+      </DashboardShell>
+    );
+  }
+
+  // Outside a known role (e.g. a public preview) → standalone with a Back link.
+  return (
+    <div className="min-h-screen bg-[var(--gray-50)]">
+      <header className="border-b border-[var(--gray-200)] bg-white px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <Link
+            to="."
+            onClick={(e) => {
+              e.preventDefault();
+              window.history.back();
+            }}
+            className="inline-flex items-center gap-1 text-sm font-medium text-[var(--gray-600)] hover:text-[var(--gray-900)]"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Link>
+          <span className="bg-[var(--gray-100)] px-3 py-1 text-xs font-medium text-[var(--gray-600)]">
+            {props.role}
+          </span>
+        </div>
+      </header>
+      <main className="mx-auto max-w-4xl px-6 py-12">
+        <StubBody {...props} />
+      </main>
     </div>
   );
 }

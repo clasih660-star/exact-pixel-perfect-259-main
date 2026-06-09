@@ -30,12 +30,72 @@ export function ParentDashboard() {
             Parent Portal
           </span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-[var(--gray-900)]">
+        <h1 className="text-3xl font-bold tracking-tight text-[var(--gray-900)] lg:text-4xl">
           Monitor Your Child's Progress
         </h1>
         <p className="mt-2 text-sm text-[var(--gray-500)]">
           Track learning activities, review performance, and stay connected with teachers
         </p>
+      </section>
+
+      {/* Featured hero — latest learner activity */}
+      <section className="relative mb-8 overflow-hidden rounded-3xl border border-[var(--primary)]/20 bg-gradient-to-br from-white via-[var(--primary-light)] to-white p-7 shadow-lg">
+        <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-[var(--primary)]/5 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Active today
+            </span>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--gray-900)] lg:text-3xl">
+              John is learning Quadratic Equations
+            </h2>
+            <p className="mt-1 text-sm text-[var(--gray-500)]">
+              Mathematics Form 2 · Klassruum Demo Academy
+            </p>
+            <div className="mt-5 flex items-center gap-6">
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">Current Step</p>
+                <p className="font-bold text-[var(--gray-900)]">Step 3 of 8 · Worked Example</p>
+              </div>
+              <div className="h-8 w-px bg-[var(--gray-200)]" />
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">Progress</p>
+                <p className="text-2xl font-extrabold text-[var(--primary)]">42%</p>
+              </div>
+              <div className="h-8 w-px bg-[var(--gray-200)]" />
+              <div>
+                <p className="text-xs text-[var(--gray-400)]">This Week</p>
+                <p className="font-bold text-[var(--gray-900)]">18h 30m</p>
+              </div>
+            </div>
+            <div className="mt-4 h-2.5 w-full max-w-md rounded-full bg-[var(--primary)]/10">
+              <div className="h-full w-[42%] rounded-full bg-[var(--primary)] transition-all" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 lg:items-end">
+            <Link
+              to="/parent/progress"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[var(--primary)] px-6 text-sm font-bold text-white shadow-lg shadow-[var(--primary)]/25 transition-all hover:bg-[var(--primary-dark)] lg:w-auto"
+            >
+              <TrendingUp className="h-4 w-4" />
+              View Progress
+            </Link>
+            <Link
+              to="/parent/sessions"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
+            >
+              <Video className="h-4 w-4" />
+              Recent Sessions
+            </Link>
+            <Link
+              to="/parent/messages"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Message Teacher
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Parent KPI Cards */}
