@@ -21,10 +21,12 @@ import type { DashboardConfig } from "@/lib/dashboard-config";
 type Props = {
   config: DashboardConfig;
   activePath: string;
+  title?: string;
+  subtitle?: string;
   children: ReactNode;
 };
 
-export function DashboardShell({ config, activePath, children }: Props) {
+export function DashboardShell({ config, activePath, title, subtitle, children }: Props) {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -149,8 +151,8 @@ export function DashboardShell({ config, activePath, children }: Props) {
       {/* Main content */}
       <div className="lg:ml-[260px]">
         {/* Header */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[var(--gray-200)] bg-white/95 px-4 lg:px-6 backdrop-blur">
-          <div className="flex items-center gap-4">
+        <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between gap-4 border-b border-[var(--gray-200)] bg-white/95 px-4 py-3 lg:px-6 backdrop-blur">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               className="lg:hidden"
               onClick={toggleMobileMenu}
@@ -159,26 +161,51 @@ export function DashboardShell({ config, activePath, children }: Props) {
               <Menu className="h-5 w-5 text-[var(--gray-600)]" />
             </button>
 
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--gray-400)]" />
-              <input
-                type="text"
-                placeholder={config.searchPlaceholder}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full rounded-xl border border-[var(--gray-200)] bg-[var(--gray-50)] py-2.5 pl-10 pr-4 text-sm text-[var(--gray-900)] placeholder:text-[var(--gray-400)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
-              />
-            </div>
+            {title ? (
+              <div className="min-w-0">
+                <h1 className="flex items-center gap-2 truncate text-xl font-extrabold tracking-tight text-[var(--gray-900)] lg:text-2xl">
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className="truncate text-sm text-[var(--gray-500)]">{subtitle}</p>
+                )}
+              </div>
+            ) : (
+              <div className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--gray-400)]" />
+                <input
+                  type="text"
+                  placeholder={config.searchPlaceholder}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full rounded-xl border border-[var(--gray-200)] bg-[var(--gray-50)] py-2.5 pl-10 pr-4 text-sm text-[var(--gray-900)] placeholder:text-[var(--gray-400)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {title && (
+              <div className="relative hidden w-64 md:block xl:w-80">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--gray-400)]" />
+                <input
+                  type="text"
+                  placeholder={config.searchPlaceholder}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full rounded-xl border border-[var(--gray-200)] bg-[var(--gray-50)] py-2.5 pl-10 pr-4 text-sm text-[var(--gray-900)] placeholder:text-[var(--gray-400)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
+                />
+              </div>
+            )}
             <button
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gray-200)] bg-white text-[var(--gray-500)] hover:bg-[var(--gray-50)] hover:text-[var(--gray-700)]"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gray-200)] bg-white text-[var(--gray-500)] hover:bg-[var(--gray-50)] hover:text-[var(--gray-700)]"
               aria-label="Notifications"
             >
               <Bell className="h-4 w-4" />
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--red)] px-1 text-[10px] font-bold text-white">
+                3
+              </span>
             </button>
             <button
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gray-200)] bg-white text-[var(--gray-500)] hover:bg-[var(--gray-50)] hover:text-[var(--gray-700)]"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[var(--gray-200)] bg-white text-[var(--gray-500)] hover:bg-[var(--gray-50)] hover:text-[var(--gray-700)] sm:flex"
               aria-label="Help"
             >
               <HelpCircle className="h-4 w-4" />

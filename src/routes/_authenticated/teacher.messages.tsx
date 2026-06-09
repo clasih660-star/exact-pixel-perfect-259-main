@@ -1,0 +1,31 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { RouteStubPage } from "@/components/route/RouteStubPage";
+
+export const Route = createFileRoute("/_authenticated/teacher/messages")({
+  component: () => (
+    <RouteStubPage
+      role="Teacher"
+      title="Messages"
+      description="Message your students, answer questions, and follow up on alerts from your courses."
+      primary={{ label: "Teacher dashboard", to: "/teacher/dashboard" }}
+      secondary={{ label: "Students", to: "/teacher/students" }}
+      items={[
+        {
+          label: "Student conversations",
+          to: "/teacher/messages",
+          description: "Direct messages with learners in your courses.",
+        },
+        {
+          label: "Students",
+          to: "/teacher/students",
+          description: "Pick a student to message.",
+        },
+        {
+          label: "Analytics",
+          to: "/teacher/analytics",
+          description: "Spot learners who need a follow-up message.",
+        },
+      ]}
+    />
+  ),
+});

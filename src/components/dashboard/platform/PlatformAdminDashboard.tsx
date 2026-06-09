@@ -38,51 +38,51 @@ export function PlatformAdminDashboard() {
 
       {/* Platform KPI Cards */}
       <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <KpiCard 
-          title="Institutions" 
-          value="1,247" 
-          subtitle="Active organizations" 
-          href="/admin/institutions" 
-          icon={<Building2 className="h-5 w-5" />}
+        <KpiCard
+          title="Institutions"
+          value="1,247"
+          subtitle="Active organizations"
+          href="/admin/institutions"
+          icon={Building2}
           trend="+12%"
         />
-        <KpiCard 
-          title="Total Users" 
-          value="89,432" 
-          subtitle="Across all roles" 
-          href="/admin/users" 
-          icon={<Users className="h-5 w-5" />}
+        <KpiCard
+          title="Total Users"
+          value="89,432"
+          subtitle="Across all roles"
+          href="/admin/users"
+          icon={Users}
           trend="+8%"
         />
-        <KpiCard 
-          title="Active Sessions" 
-          value="1,847" 
-          subtitle="Live classrooms" 
-          href="/admin/usage" 
-          icon={<Activity className="h-5 w-5" />}
+        <KpiCard
+          title="Active Sessions"
+          value="1,847"
+          subtitle="Live classrooms"
+          href="/admin/usage"
+          icon={Activity}
           trend="+23%"
         />
-        <KpiCard 
-          title="Monthly Revenue" 
-          value="$247,892" 
-          subtitle="Subscription income" 
-          href="/admin/plans" 
-          icon={<CreditCard className="h-5 w-5" />}
+        <KpiCard
+          title="Monthly Revenue"
+          value="$247,892"
+          subtitle="Subscription income"
+          href="/admin/plans"
+          icon={CreditCard}
           trend="+15%"
         />
-        <KpiCard 
-          title="Platform Health" 
-          value="99.9%" 
-          subtitle="Uptime this month" 
-          href="/admin/health" 
-          icon={<CheckCircle2 className="h-5 w-5" />}
+        <KpiCard
+          title="Platform Health"
+          value="99.9%"
+          subtitle="Uptime this month"
+          href="/admin/health"
+          icon={CheckCircle2}
         />
-        <KpiCard 
-          title="Support Tickets" 
-          value="23" 
-          subtitle="Open issues" 
-          href="/admin/support" 
-          icon={<AlertTriangle className="h-5 w-5" />}
+        <KpiCard
+          title="Support Tickets"
+          value="23"
+          subtitle="Open issues"
+          href="/admin/support"
+          icon={AlertTriangle}
         />
       </section>
 

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
+import { Route as DemoTeachingRouteImport } from './routes/demo.teaching'
 import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
@@ -26,6 +27,7 @@ import { Route as AuthenticatedTeacherStudentsRouteImport } from './routes/_auth
 import { Route as AuthenticatedTeacherSettingsRouteImport } from './routes/_authenticated/teacher.settings'
 import { Route as AuthenticatedTeacherSessionsRouteImport } from './routes/_authenticated/teacher.sessions'
 import { Route as AuthenticatedTeacherResourcesRouteImport } from './routes/_authenticated/teacher.resources'
+import { Route as AuthenticatedTeacherMessagesRouteImport } from './routes/_authenticated/teacher.messages'
 import { Route as AuthenticatedTeacherLessonsRouteImport } from './routes/_authenticated/teacher.lessons'
 import { Route as AuthenticatedTeacherDashboardRouteImport } from './routes/_authenticated/teacher.dashboard'
 import { Route as AuthenticatedTeacherCoursesRouteImport } from './routes/_authenticated/teacher.courses'
@@ -47,6 +49,12 @@ import { Route as AuthenticatedStudentCalendarRouteImport } from './routes/_auth
 import { Route as AuthenticatedStudentAssignmentsRouteImport } from './routes/_authenticated/student.assignments'
 import { Route as AuthenticatedStudentAchievementsRouteImport } from './routes/_authenticated/student.achievements'
 import { Route as AuthenticatedStudentAccessRouteImport } from './routes/_authenticated/student.access'
+import { Route as AuthenticatedParentSettingsRouteImport } from './routes/_authenticated/parent.settings'
+import { Route as AuthenticatedParentSessionsRouteImport } from './routes/_authenticated/parent.sessions'
+import { Route as AuthenticatedParentReportsRouteImport } from './routes/_authenticated/parent.reports'
+import { Route as AuthenticatedParentProgressRouteImport } from './routes/_authenticated/parent.progress'
+import { Route as AuthenticatedParentMessagesRouteImport } from './routes/_authenticated/parent.messages'
+import { Route as AuthenticatedParentLearnersRouteImport } from './routes/_authenticated/parent.learners'
 import { Route as AuthenticatedParentDashboardRouteImport } from './routes/_authenticated/parent.dashboard'
 import { Route as AuthenticatedInstitutionTeachersRouteImport } from './routes/_authenticated/institution.teachers'
 import { Route as AuthenticatedInstitutionStudentsRouteImport } from './routes/_authenticated/institution.students'
@@ -57,9 +65,17 @@ import { Route as AuthenticatedInstitutionEnrollmentsRouteImport } from './route
 import { Route as AuthenticatedInstitutionDashboardRouteImport } from './routes/_authenticated/institution.dashboard'
 import { Route as AuthenticatedInstitutionCoursesRouteImport } from './routes/_authenticated/institution.courses'
 import { Route as AuthenticatedInstitutionClassroomsRouteImport } from './routes/_authenticated/institution.classrooms'
+import { Route as AuthenticatedInstitutionBillingRouteImport } from './routes/_authenticated/institution.billing'
 import { Route as AuthenticatedInstitutionAnalyticsRouteImport } from './routes/_authenticated/institution.analytics'
 import { Route as AuthenticatedInstitutionActivityRouteImport } from './routes/_authenticated/institution.activity'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminUsageRouteImport } from './routes/_authenticated/admin.usage'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminPlatformRouteImport } from './routes/_authenticated/admin.platform'
+import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
+import { Route as AuthenticatedAdminInstitutionsRouteImport } from './routes/_authenticated/admin.institutions'
+import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
 import { Route as AuthenticatedTeacherCoursesCourseIdRouteImport } from './routes/_authenticated/teacher.courses.$courseId'
 import { Route as AuthenticatedStudentSettingsProfileRouteImport } from './routes/_authenticated/student.settings.profile'
 import { Route as AuthenticatedStudentResourcesResourceIdRouteImport } from './routes/_authenticated/student.resources.$resourceId'
@@ -68,10 +84,14 @@ import { Route as AuthenticatedStudentNotesNoteIdRouteImport } from './routes/_a
 import { Route as AuthenticatedStudentLessonsLessonIdRouteImport } from './routes/_authenticated/student.lessons.$lessonId'
 import { Route as AuthenticatedStudentCoursesCourseIdRouteImport } from './routes/_authenticated/student.courses.$courseId'
 import { Route as AuthenticatedStudentAiLessonNewRouteImport } from './routes/_authenticated/student.ai-lesson.new'
+import { Route as AuthenticatedInstitutionTeachersInviteRouteImport } from './routes/_authenticated/institution.teachers.invite'
+import { Route as AuthenticatedInstitutionStudentsInviteRouteImport } from './routes/_authenticated/institution.students.invite'
+import { Route as AuthenticatedInstitutionSessionsNewRouteImport } from './routes/_authenticated/institution.sessions.new'
 import { Route as AuthenticatedInstitutionResourcesUploadRouteImport } from './routes/_authenticated/institution.resources.upload'
 import { Route as AuthenticatedInstitutionCoursesNewRouteImport } from './routes/_authenticated/institution.courses.new'
 import { Route as AuthenticatedInstitutionCoursesCourseIdRouteImport } from './routes/_authenticated/institution.courses.$courseId'
 import { Route as AuthenticatedTeacherLessonsLessonIdEditRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId.edit'
+import { Route as AuthenticatedTeacherCoursesCourseIdStudentsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.students'
 import { Route as AuthenticatedTeacherCoursesCourseIdAnalyticsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.analytics'
 import { Route as AuthenticatedStudentSessionsSessionIdSummaryRouteImport } from './routes/_authenticated/student.sessions.$sessionId.summary'
 import { Route as AuthenticatedStudentSessionsSessionIdReplayRouteImport } from './routes/_authenticated/student.sessions.$sessionId.replay'
@@ -99,6 +119,11 @@ const StudentProgressRoute = StudentProgressRouteImport.update({
 const InstitutionsRegisterRoute = InstitutionsRegisterRouteImport.update({
   id: '/institutions/register',
   path: '/institutions/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoTeachingRoute = DemoTeachingRouteImport.update({
+  id: '/demo/teaching',
+  path: '/demo/teaching',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoClassroomRoute = DemoClassroomRouteImport.update({
@@ -166,6 +191,12 @@ const AuthenticatedTeacherResourcesRoute =
   AuthenticatedTeacherResourcesRouteImport.update({
     id: '/teacher/resources',
     path: '/teacher/resources',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeacherMessagesRoute =
+  AuthenticatedTeacherMessagesRouteImport.update({
+    id: '/teacher/messages',
+    path: '/teacher/messages',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeacherLessonsRoute =
@@ -294,6 +325,42 @@ const AuthenticatedStudentAccessRoute =
     path: '/student/access',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedParentSettingsRoute =
+  AuthenticatedParentSettingsRouteImport.update({
+    id: '/parent/settings',
+    path: '/parent/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParentSessionsRoute =
+  AuthenticatedParentSessionsRouteImport.update({
+    id: '/parent/sessions',
+    path: '/parent/sessions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParentReportsRoute =
+  AuthenticatedParentReportsRouteImport.update({
+    id: '/parent/reports',
+    path: '/parent/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParentProgressRoute =
+  AuthenticatedParentProgressRouteImport.update({
+    id: '/parent/progress',
+    path: '/parent/progress',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParentMessagesRoute =
+  AuthenticatedParentMessagesRouteImport.update({
+    id: '/parent/messages',
+    path: '/parent/messages',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParentLearnersRoute =
+  AuthenticatedParentLearnersRouteImport.update({
+    id: '/parent/learners',
+    path: '/parent/learners',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParentDashboardRoute =
   AuthenticatedParentDashboardRouteImport.update({
     id: '/parent/dashboard',
@@ -354,6 +421,12 @@ const AuthenticatedInstitutionClassroomsRoute =
     path: '/institution/classrooms',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInstitutionBillingRoute =
+  AuthenticatedInstitutionBillingRouteImport.update({
+    id: '/institution/billing',
+    path: '/institution/billing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInstitutionAnalyticsRoute =
   AuthenticatedInstitutionAnalyticsRouteImport.update({
     id: '/institution/analytics',
@@ -366,10 +439,49 @@ const AuthenticatedInstitutionActivityRoute =
     path: '/institution/activity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminUsageRoute = AuthenticatedAdminUsageRouteImport.update({
+  id: '/admin/usage',
+  path: '/admin/usage',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/admin/support',
+    path: '/admin/support',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/admin/settings',
+    path: '/admin/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPlatformRoute =
   AuthenticatedAdminPlatformRouteImport.update({
     id: '/admin/platform',
     path: '/admin/platform',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
+  id: '/admin/plans',
+  path: '/admin/plans',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminInstitutionsRoute =
+  AuthenticatedAdminInstitutionsRouteImport.update({
+    id: '/admin/institutions',
+    path: '/admin/institutions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminHealthRoute =
+  AuthenticatedAdminHealthRouteImport.update({
+    id: '/admin/health',
+    path: '/admin/health',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeacherCoursesCourseIdRoute =
@@ -420,6 +532,24 @@ const AuthenticatedStudentAiLessonNewRoute =
     path: '/student/ai-lesson/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInstitutionTeachersInviteRoute =
+  AuthenticatedInstitutionTeachersInviteRouteImport.update({
+    id: '/invite',
+    path: '/invite',
+    getParentRoute: () => AuthenticatedInstitutionTeachersRoute,
+  } as any)
+const AuthenticatedInstitutionStudentsInviteRoute =
+  AuthenticatedInstitutionStudentsInviteRouteImport.update({
+    id: '/invite',
+    path: '/invite',
+    getParentRoute: () => AuthenticatedInstitutionStudentsRoute,
+  } as any)
+const AuthenticatedInstitutionSessionsNewRoute =
+  AuthenticatedInstitutionSessionsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedInstitutionSessionsRoute,
+  } as any)
 const AuthenticatedInstitutionResourcesUploadRoute =
   AuthenticatedInstitutionResourcesUploadRouteImport.update({
     id: '/upload',
@@ -443,6 +573,12 @@ const AuthenticatedTeacherLessonsLessonIdEditRoute =
     id: '/$lessonId/edit',
     path: '/$lessonId/edit',
     getParentRoute: () => AuthenticatedTeacherLessonsRoute,
+  } as any)
+const AuthenticatedTeacherCoursesCourseIdStudentsRoute =
+  AuthenticatedTeacherCoursesCourseIdStudentsRouteImport.update({
+    id: '/students',
+    path: '/students',
+    getParentRoute: () => AuthenticatedTeacherCoursesCourseIdRoute,
   } as any)
 const AuthenticatedTeacherCoursesCourseIdAnalyticsRoute =
   AuthenticatedTeacherCoursesCourseIdAnalyticsRouteImport.update({
@@ -478,21 +614,36 @@ export interface FileRoutesByFullPath {
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
   '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/teaching': typeof DemoTeachingRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/admin/institutions': typeof AuthenticatedAdminInstitutionsRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/platform': typeof AuthenticatedAdminPlatformRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/admin/usage': typeof AuthenticatedAdminUsageRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
+  '/institution/billing': typeof AuthenticatedInstitutionBillingRoute
   '/institution/classrooms': typeof AuthenticatedInstitutionClassroomsRoute
   '/institution/courses': typeof AuthenticatedInstitutionCoursesRouteWithChildren
   '/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
   '/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
-  '/institution/sessions': typeof AuthenticatedInstitutionSessionsRoute
+  '/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
   '/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
-  '/institution/students': typeof AuthenticatedInstitutionStudentsRoute
-  '/institution/teachers': typeof AuthenticatedInstitutionTeachersRoute
+  '/institution/students': typeof AuthenticatedInstitutionStudentsRouteWithChildren
+  '/institution/teachers': typeof AuthenticatedInstitutionTeachersRouteWithChildren
   '/parent/dashboard': typeof AuthenticatedParentDashboardRoute
+  '/parent/learners': typeof AuthenticatedParentLearnersRoute
+  '/parent/messages': typeof AuthenticatedParentMessagesRoute
+  '/parent/progress': typeof AuthenticatedParentProgressRoute
+  '/parent/reports': typeof AuthenticatedParentReportsRoute
+  '/parent/sessions': typeof AuthenticatedParentSessionsRoute
+  '/parent/settings': typeof AuthenticatedParentSettingsRoute
   '/student/access': typeof AuthenticatedStudentAccessRoute
   '/student/achievements': typeof AuthenticatedStudentAchievementsRoute
   '/student/assignments': typeof AuthenticatedStudentAssignmentsRoute
@@ -514,6 +665,7 @@ export interface FileRoutesByFullPath {
   '/teacher/courses': typeof AuthenticatedTeacherCoursesRouteWithChildren
   '/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
+  '/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
   '/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
   '/teacher/sessions': typeof AuthenticatedTeacherSessionsRoute
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
@@ -523,6 +675,9 @@ export interface FileRoutesByFullPath {
   '/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRoute
   '/institution/courses/new': typeof AuthenticatedInstitutionCoursesNewRoute
   '/institution/resources/upload': typeof AuthenticatedInstitutionResourcesUploadRoute
+  '/institution/sessions/new': typeof AuthenticatedInstitutionSessionsNewRoute
+  '/institution/students/invite': typeof AuthenticatedInstitutionStudentsInviteRoute
+  '/institution/teachers/invite': typeof AuthenticatedInstitutionTeachersInviteRoute
   '/student/ai-lesson/new': typeof AuthenticatedStudentAiLessonNewRoute
   '/student/courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRouteWithChildren
   '/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRoute
@@ -535,6 +690,7 @@ export interface FileRoutesByFullPath {
   '/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  '/teacher/courses/$courseId/students': typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
   '/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -546,21 +702,36 @@ export interface FileRoutesByTo {
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
   '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/teaching': typeof DemoTeachingRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/admin/institutions': typeof AuthenticatedAdminInstitutionsRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/platform': typeof AuthenticatedAdminPlatformRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/admin/usage': typeof AuthenticatedAdminUsageRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
+  '/institution/billing': typeof AuthenticatedInstitutionBillingRoute
   '/institution/classrooms': typeof AuthenticatedInstitutionClassroomsRoute
   '/institution/courses': typeof AuthenticatedInstitutionCoursesRouteWithChildren
   '/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
   '/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
-  '/institution/sessions': typeof AuthenticatedInstitutionSessionsRoute
+  '/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
   '/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
-  '/institution/students': typeof AuthenticatedInstitutionStudentsRoute
-  '/institution/teachers': typeof AuthenticatedInstitutionTeachersRoute
+  '/institution/students': typeof AuthenticatedInstitutionStudentsRouteWithChildren
+  '/institution/teachers': typeof AuthenticatedInstitutionTeachersRouteWithChildren
   '/parent/dashboard': typeof AuthenticatedParentDashboardRoute
+  '/parent/learners': typeof AuthenticatedParentLearnersRoute
+  '/parent/messages': typeof AuthenticatedParentMessagesRoute
+  '/parent/progress': typeof AuthenticatedParentProgressRoute
+  '/parent/reports': typeof AuthenticatedParentReportsRoute
+  '/parent/sessions': typeof AuthenticatedParentSessionsRoute
+  '/parent/settings': typeof AuthenticatedParentSettingsRoute
   '/student/access': typeof AuthenticatedStudentAccessRoute
   '/student/achievements': typeof AuthenticatedStudentAchievementsRoute
   '/student/assignments': typeof AuthenticatedStudentAssignmentsRoute
@@ -582,6 +753,7 @@ export interface FileRoutesByTo {
   '/teacher/courses': typeof AuthenticatedTeacherCoursesRouteWithChildren
   '/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
+  '/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
   '/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
   '/teacher/sessions': typeof AuthenticatedTeacherSessionsRoute
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
@@ -591,6 +763,9 @@ export interface FileRoutesByTo {
   '/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRoute
   '/institution/courses/new': typeof AuthenticatedInstitutionCoursesNewRoute
   '/institution/resources/upload': typeof AuthenticatedInstitutionResourcesUploadRoute
+  '/institution/sessions/new': typeof AuthenticatedInstitutionSessionsNewRoute
+  '/institution/students/invite': typeof AuthenticatedInstitutionStudentsInviteRoute
+  '/institution/teachers/invite': typeof AuthenticatedInstitutionTeachersInviteRoute
   '/student/ai-lesson/new': typeof AuthenticatedStudentAiLessonNewRoute
   '/student/courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRouteWithChildren
   '/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRoute
@@ -603,6 +778,7 @@ export interface FileRoutesByTo {
   '/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  '/teacher/courses/$courseId/students': typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
   '/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
 }
 export interface FileRoutesById {
@@ -616,21 +792,36 @@ export interface FileRoutesById {
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
   '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/teaching': typeof DemoTeachingRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/_authenticated/admin/institutions': typeof AuthenticatedAdminInstitutionsRoute
+  '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/platform': typeof AuthenticatedAdminPlatformRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/_authenticated/admin/usage': typeof AuthenticatedAdminUsageRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/_authenticated/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
+  '/_authenticated/institution/billing': typeof AuthenticatedInstitutionBillingRoute
   '/_authenticated/institution/classrooms': typeof AuthenticatedInstitutionClassroomsRoute
   '/_authenticated/institution/courses': typeof AuthenticatedInstitutionCoursesRouteWithChildren
   '/_authenticated/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/_authenticated/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
   '/_authenticated/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
-  '/_authenticated/institution/sessions': typeof AuthenticatedInstitutionSessionsRoute
+  '/_authenticated/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
   '/_authenticated/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
-  '/_authenticated/institution/students': typeof AuthenticatedInstitutionStudentsRoute
-  '/_authenticated/institution/teachers': typeof AuthenticatedInstitutionTeachersRoute
+  '/_authenticated/institution/students': typeof AuthenticatedInstitutionStudentsRouteWithChildren
+  '/_authenticated/institution/teachers': typeof AuthenticatedInstitutionTeachersRouteWithChildren
   '/_authenticated/parent/dashboard': typeof AuthenticatedParentDashboardRoute
+  '/_authenticated/parent/learners': typeof AuthenticatedParentLearnersRoute
+  '/_authenticated/parent/messages': typeof AuthenticatedParentMessagesRoute
+  '/_authenticated/parent/progress': typeof AuthenticatedParentProgressRoute
+  '/_authenticated/parent/reports': typeof AuthenticatedParentReportsRoute
+  '/_authenticated/parent/sessions': typeof AuthenticatedParentSessionsRoute
+  '/_authenticated/parent/settings': typeof AuthenticatedParentSettingsRoute
   '/_authenticated/student/access': typeof AuthenticatedStudentAccessRoute
   '/_authenticated/student/achievements': typeof AuthenticatedStudentAchievementsRoute
   '/_authenticated/student/assignments': typeof AuthenticatedStudentAssignmentsRoute
@@ -652,6 +843,7 @@ export interface FileRoutesById {
   '/_authenticated/teacher/courses': typeof AuthenticatedTeacherCoursesRouteWithChildren
   '/_authenticated/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/_authenticated/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
+  '/_authenticated/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
   '/_authenticated/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
   '/_authenticated/teacher/sessions': typeof AuthenticatedTeacherSessionsRoute
   '/_authenticated/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
@@ -661,6 +853,9 @@ export interface FileRoutesById {
   '/_authenticated/institution/courses/$courseId': typeof AuthenticatedInstitutionCoursesCourseIdRoute
   '/_authenticated/institution/courses/new': typeof AuthenticatedInstitutionCoursesNewRoute
   '/_authenticated/institution/resources/upload': typeof AuthenticatedInstitutionResourcesUploadRoute
+  '/_authenticated/institution/sessions/new': typeof AuthenticatedInstitutionSessionsNewRoute
+  '/_authenticated/institution/students/invite': typeof AuthenticatedInstitutionStudentsInviteRoute
+  '/_authenticated/institution/teachers/invite': typeof AuthenticatedInstitutionTeachersInviteRoute
   '/_authenticated/student/ai-lesson/new': typeof AuthenticatedStudentAiLessonNewRoute
   '/_authenticated/student/courses/$courseId': typeof AuthenticatedStudentCoursesCourseIdRouteWithChildren
   '/_authenticated/student/lessons/$lessonId': typeof AuthenticatedStudentLessonsLessonIdRoute
@@ -673,6 +868,7 @@ export interface FileRoutesById {
   '/_authenticated/student/sessions/$sessionId/replay': typeof AuthenticatedStudentSessionsSessionIdReplayRoute
   '/_authenticated/student/sessions/$sessionId/summary': typeof AuthenticatedStudentSessionsSessionIdSummaryRoute
   '/_authenticated/teacher/courses/$courseId/analytics': typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  '/_authenticated/teacher/courses/$courseId/students': typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
   '/_authenticated/teacher/lessons/$lessonId/edit': typeof AuthenticatedTeacherLessonsLessonIdEditRoute
 }
 export interface FileRouteTypes {
@@ -686,11 +882,20 @@ export interface FileRouteTypes {
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
     | '/demo/classroom'
+    | '/demo/teaching'
     | '/institutions/register'
     | '/student/progress'
+    | '/admin/health'
+    | '/admin/institutions'
+    | '/admin/plans'
     | '/admin/platform'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/admin/usage'
+    | '/admin/users'
     | '/institution/activity'
     | '/institution/analytics'
+    | '/institution/billing'
     | '/institution/classrooms'
     | '/institution/courses'
     | '/institution/dashboard'
@@ -701,6 +906,12 @@ export interface FileRouteTypes {
     | '/institution/students'
     | '/institution/teachers'
     | '/parent/dashboard'
+    | '/parent/learners'
+    | '/parent/messages'
+    | '/parent/progress'
+    | '/parent/reports'
+    | '/parent/sessions'
+    | '/parent/settings'
     | '/student/access'
     | '/student/achievements'
     | '/student/assignments'
@@ -722,6 +933,7 @@ export interface FileRouteTypes {
     | '/teacher/courses'
     | '/teacher/dashboard'
     | '/teacher/lessons'
+    | '/teacher/messages'
     | '/teacher/resources'
     | '/teacher/sessions'
     | '/teacher/settings'
@@ -731,6 +943,9 @@ export interface FileRouteTypes {
     | '/institution/courses/$courseId'
     | '/institution/courses/new'
     | '/institution/resources/upload'
+    | '/institution/sessions/new'
+    | '/institution/students/invite'
+    | '/institution/teachers/invite'
     | '/student/ai-lesson/new'
     | '/student/courses/$courseId'
     | '/student/lessons/$lessonId'
@@ -743,6 +958,7 @@ export interface FileRouteTypes {
     | '/student/sessions/$sessionId/replay'
     | '/student/sessions/$sessionId/summary'
     | '/teacher/courses/$courseId/analytics'
+    | '/teacher/courses/$courseId/students'
     | '/teacher/lessons/$lessonId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -754,11 +970,20 @@ export interface FileRouteTypes {
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
     | '/demo/classroom'
+    | '/demo/teaching'
     | '/institutions/register'
     | '/student/progress'
+    | '/admin/health'
+    | '/admin/institutions'
+    | '/admin/plans'
     | '/admin/platform'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/admin/usage'
+    | '/admin/users'
     | '/institution/activity'
     | '/institution/analytics'
+    | '/institution/billing'
     | '/institution/classrooms'
     | '/institution/courses'
     | '/institution/dashboard'
@@ -769,6 +994,12 @@ export interface FileRouteTypes {
     | '/institution/students'
     | '/institution/teachers'
     | '/parent/dashboard'
+    | '/parent/learners'
+    | '/parent/messages'
+    | '/parent/progress'
+    | '/parent/reports'
+    | '/parent/sessions'
+    | '/parent/settings'
     | '/student/access'
     | '/student/achievements'
     | '/student/assignments'
@@ -790,6 +1021,7 @@ export interface FileRouteTypes {
     | '/teacher/courses'
     | '/teacher/dashboard'
     | '/teacher/lessons'
+    | '/teacher/messages'
     | '/teacher/resources'
     | '/teacher/sessions'
     | '/teacher/settings'
@@ -799,6 +1031,9 @@ export interface FileRouteTypes {
     | '/institution/courses/$courseId'
     | '/institution/courses/new'
     | '/institution/resources/upload'
+    | '/institution/sessions/new'
+    | '/institution/students/invite'
+    | '/institution/teachers/invite'
     | '/student/ai-lesson/new'
     | '/student/courses/$courseId'
     | '/student/lessons/$lessonId'
@@ -811,6 +1046,7 @@ export interface FileRouteTypes {
     | '/student/sessions/$sessionId/replay'
     | '/student/sessions/$sessionId/summary'
     | '/teacher/courses/$courseId/analytics'
+    | '/teacher/courses/$courseId/students'
     | '/teacher/lessons/$lessonId/edit'
   id:
     | '__root__'
@@ -823,11 +1059,20 @@ export interface FileRouteTypes {
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
     | '/demo/classroom'
+    | '/demo/teaching'
     | '/institutions/register'
     | '/student/progress'
+    | '/_authenticated/admin/health'
+    | '/_authenticated/admin/institutions'
+    | '/_authenticated/admin/plans'
     | '/_authenticated/admin/platform'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/support'
+    | '/_authenticated/admin/usage'
+    | '/_authenticated/admin/users'
     | '/_authenticated/institution/activity'
     | '/_authenticated/institution/analytics'
+    | '/_authenticated/institution/billing'
     | '/_authenticated/institution/classrooms'
     | '/_authenticated/institution/courses'
     | '/_authenticated/institution/dashboard'
@@ -838,6 +1083,12 @@ export interface FileRouteTypes {
     | '/_authenticated/institution/students'
     | '/_authenticated/institution/teachers'
     | '/_authenticated/parent/dashboard'
+    | '/_authenticated/parent/learners'
+    | '/_authenticated/parent/messages'
+    | '/_authenticated/parent/progress'
+    | '/_authenticated/parent/reports'
+    | '/_authenticated/parent/sessions'
+    | '/_authenticated/parent/settings'
     | '/_authenticated/student/access'
     | '/_authenticated/student/achievements'
     | '/_authenticated/student/assignments'
@@ -859,6 +1110,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teacher/courses'
     | '/_authenticated/teacher/dashboard'
     | '/_authenticated/teacher/lessons'
+    | '/_authenticated/teacher/messages'
     | '/_authenticated/teacher/resources'
     | '/_authenticated/teacher/sessions'
     | '/_authenticated/teacher/settings'
@@ -868,6 +1120,9 @@ export interface FileRouteTypes {
     | '/_authenticated/institution/courses/$courseId'
     | '/_authenticated/institution/courses/new'
     | '/_authenticated/institution/resources/upload'
+    | '/_authenticated/institution/sessions/new'
+    | '/_authenticated/institution/students/invite'
+    | '/_authenticated/institution/teachers/invite'
     | '/_authenticated/student/ai-lesson/new'
     | '/_authenticated/student/courses/$courseId'
     | '/_authenticated/student/lessons/$lessonId'
@@ -880,6 +1135,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student/sessions/$sessionId/replay'
     | '/_authenticated/student/sessions/$sessionId/summary'
     | '/_authenticated/teacher/courses/$courseId/analytics'
+    | '/_authenticated/teacher/courses/$courseId/students'
     | '/_authenticated/teacher/lessons/$lessonId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -891,6 +1147,7 @@ export interface RootRouteChildren {
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
+  DemoTeachingRoute: typeof DemoTeachingRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
   StudentProgressRoute: typeof StudentProgressRoute
   ClassroomPreviewLessonIdRoute: typeof ClassroomPreviewLessonIdRoute
@@ -932,6 +1189,13 @@ declare module '@tanstack/react-router' {
       path: '/institutions/register'
       fullPath: '/institutions/register'
       preLoaderRoute: typeof InstitutionsRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/teaching': {
+      id: '/demo/teaching'
+      path: '/demo/teaching'
+      fullPath: '/demo/teaching'
+      preLoaderRoute: typeof DemoTeachingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/classroom': {
@@ -1016,6 +1280,13 @@ declare module '@tanstack/react-router' {
       path: '/teacher/resources'
       fullPath: '/teacher/resources'
       preLoaderRoute: typeof AuthenticatedTeacherResourcesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teacher/messages': {
+      id: '/_authenticated/teacher/messages'
+      path: '/teacher/messages'
+      fullPath: '/teacher/messages'
+      preLoaderRoute: typeof AuthenticatedTeacherMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teacher/lessons': {
@@ -1165,6 +1436,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentAccessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/parent/settings': {
+      id: '/_authenticated/parent/settings'
+      path: '/parent/settings'
+      fullPath: '/parent/settings'
+      preLoaderRoute: typeof AuthenticatedParentSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parent/sessions': {
+      id: '/_authenticated/parent/sessions'
+      path: '/parent/sessions'
+      fullPath: '/parent/sessions'
+      preLoaderRoute: typeof AuthenticatedParentSessionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parent/reports': {
+      id: '/_authenticated/parent/reports'
+      path: '/parent/reports'
+      fullPath: '/parent/reports'
+      preLoaderRoute: typeof AuthenticatedParentReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parent/progress': {
+      id: '/_authenticated/parent/progress'
+      path: '/parent/progress'
+      fullPath: '/parent/progress'
+      preLoaderRoute: typeof AuthenticatedParentProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parent/messages': {
+      id: '/_authenticated/parent/messages'
+      path: '/parent/messages'
+      fullPath: '/parent/messages'
+      preLoaderRoute: typeof AuthenticatedParentMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parent/learners': {
+      id: '/_authenticated/parent/learners'
+      path: '/parent/learners'
+      fullPath: '/parent/learners'
+      preLoaderRoute: typeof AuthenticatedParentLearnersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/parent/dashboard': {
       id: '/_authenticated/parent/dashboard'
       path: '/parent/dashboard'
@@ -1235,6 +1548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstitutionClassroomsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/institution/billing': {
+      id: '/_authenticated/institution/billing'
+      path: '/institution/billing'
+      fullPath: '/institution/billing'
+      preLoaderRoute: typeof AuthenticatedInstitutionBillingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/institution/analytics': {
       id: '/_authenticated/institution/analytics'
       path: '/institution/analytics'
@@ -1249,11 +1569,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInstitutionActivityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/usage': {
+      id: '/_authenticated/admin/usage'
+      path: '/admin/usage'
+      fullPath: '/admin/usage'
+      preLoaderRoute: typeof AuthenticatedAdminUsageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/admin/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/platform': {
       id: '/_authenticated/admin/platform'
       path: '/admin/platform'
       fullPath: '/admin/platform'
       preLoaderRoute: typeof AuthenticatedAdminPlatformRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/plans': {
+      id: '/_authenticated/admin/plans'
+      path: '/admin/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/institutions': {
+      id: '/_authenticated/admin/institutions'
+      path: '/admin/institutions'
+      fullPath: '/admin/institutions'
+      preLoaderRoute: typeof AuthenticatedAdminInstitutionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/health': {
+      id: '/_authenticated/admin/health'
+      path: '/admin/health'
+      fullPath: '/admin/health'
+      preLoaderRoute: typeof AuthenticatedAdminHealthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teacher/courses/$courseId': {
@@ -1312,6 +1681,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentAiLessonNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/institution/teachers/invite': {
+      id: '/_authenticated/institution/teachers/invite'
+      path: '/invite'
+      fullPath: '/institution/teachers/invite'
+      preLoaderRoute: typeof AuthenticatedInstitutionTeachersInviteRouteImport
+      parentRoute: typeof AuthenticatedInstitutionTeachersRoute
+    }
+    '/_authenticated/institution/students/invite': {
+      id: '/_authenticated/institution/students/invite'
+      path: '/invite'
+      fullPath: '/institution/students/invite'
+      preLoaderRoute: typeof AuthenticatedInstitutionStudentsInviteRouteImport
+      parentRoute: typeof AuthenticatedInstitutionStudentsRoute
+    }
+    '/_authenticated/institution/sessions/new': {
+      id: '/_authenticated/institution/sessions/new'
+      path: '/new'
+      fullPath: '/institution/sessions/new'
+      preLoaderRoute: typeof AuthenticatedInstitutionSessionsNewRouteImport
+      parentRoute: typeof AuthenticatedInstitutionSessionsRoute
+    }
     '/_authenticated/institution/resources/upload': {
       id: '/_authenticated/institution/resources/upload'
       path: '/upload'
@@ -1339,6 +1729,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/lessons/$lessonId/edit'
       preLoaderRoute: typeof AuthenticatedTeacherLessonsLessonIdEditRouteImport
       parentRoute: typeof AuthenticatedTeacherLessonsRoute
+    }
+    '/_authenticated/teacher/courses/$courseId/students': {
+      id: '/_authenticated/teacher/courses/$courseId/students'
+      path: '/students'
+      fullPath: '/teacher/courses/$courseId/students'
+      preLoaderRoute: typeof AuthenticatedTeacherCoursesCourseIdStudentsRouteImport
+      parentRoute: typeof AuthenticatedTeacherCoursesCourseIdRoute
     }
     '/_authenticated/teacher/courses/$courseId/analytics': {
       id: '/_authenticated/teacher/courses/$courseId/analytics'
@@ -1402,6 +1799,51 @@ const AuthenticatedInstitutionResourcesRouteChildren: AuthenticatedInstitutionRe
 const AuthenticatedInstitutionResourcesRouteWithChildren =
   AuthenticatedInstitutionResourcesRoute._addFileChildren(
     AuthenticatedInstitutionResourcesRouteChildren,
+  )
+
+interface AuthenticatedInstitutionSessionsRouteChildren {
+  AuthenticatedInstitutionSessionsNewRoute: typeof AuthenticatedInstitutionSessionsNewRoute
+}
+
+const AuthenticatedInstitutionSessionsRouteChildren: AuthenticatedInstitutionSessionsRouteChildren =
+  {
+    AuthenticatedInstitutionSessionsNewRoute:
+      AuthenticatedInstitutionSessionsNewRoute,
+  }
+
+const AuthenticatedInstitutionSessionsRouteWithChildren =
+  AuthenticatedInstitutionSessionsRoute._addFileChildren(
+    AuthenticatedInstitutionSessionsRouteChildren,
+  )
+
+interface AuthenticatedInstitutionStudentsRouteChildren {
+  AuthenticatedInstitutionStudentsInviteRoute: typeof AuthenticatedInstitutionStudentsInviteRoute
+}
+
+const AuthenticatedInstitutionStudentsRouteChildren: AuthenticatedInstitutionStudentsRouteChildren =
+  {
+    AuthenticatedInstitutionStudentsInviteRoute:
+      AuthenticatedInstitutionStudentsInviteRoute,
+  }
+
+const AuthenticatedInstitutionStudentsRouteWithChildren =
+  AuthenticatedInstitutionStudentsRoute._addFileChildren(
+    AuthenticatedInstitutionStudentsRouteChildren,
+  )
+
+interface AuthenticatedInstitutionTeachersRouteChildren {
+  AuthenticatedInstitutionTeachersInviteRoute: typeof AuthenticatedInstitutionTeachersInviteRoute
+}
+
+const AuthenticatedInstitutionTeachersRouteChildren: AuthenticatedInstitutionTeachersRouteChildren =
+  {
+    AuthenticatedInstitutionTeachersInviteRoute:
+      AuthenticatedInstitutionTeachersInviteRoute,
+  }
+
+const AuthenticatedInstitutionTeachersRouteWithChildren =
+  AuthenticatedInstitutionTeachersRoute._addFileChildren(
+    AuthenticatedInstitutionTeachersRouteChildren,
   )
 
 interface AuthenticatedStudentCoursesCourseIdRouteChildren {
@@ -1528,12 +1970,15 @@ const AuthenticatedStudentSettingsRouteWithChildren =
 
 interface AuthenticatedTeacherCoursesCourseIdRouteChildren {
   AuthenticatedTeacherCoursesCourseIdAnalyticsRoute: typeof AuthenticatedTeacherCoursesCourseIdAnalyticsRoute
+  AuthenticatedTeacherCoursesCourseIdStudentsRoute: typeof AuthenticatedTeacherCoursesCourseIdStudentsRoute
 }
 
 const AuthenticatedTeacherCoursesCourseIdRouteChildren: AuthenticatedTeacherCoursesCourseIdRouteChildren =
   {
     AuthenticatedTeacherCoursesCourseIdAnalyticsRoute:
       AuthenticatedTeacherCoursesCourseIdAnalyticsRoute,
+    AuthenticatedTeacherCoursesCourseIdStudentsRoute:
+      AuthenticatedTeacherCoursesCourseIdStudentsRoute,
   }
 
 const AuthenticatedTeacherCoursesCourseIdRouteWithChildren =
@@ -1574,19 +2019,33 @@ const AuthenticatedTeacherLessonsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSimpleTestRoute: typeof AuthenticatedSimpleTestRoute
   AuthenticatedTestRoute: typeof AuthenticatedTestRoute
+  AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
+  AuthenticatedAdminInstitutionsRoute: typeof AuthenticatedAdminInstitutionsRoute
+  AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPlatformRoute: typeof AuthenticatedAdminPlatformRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
+  AuthenticatedAdminUsageRoute: typeof AuthenticatedAdminUsageRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedInstitutionActivityRoute: typeof AuthenticatedInstitutionActivityRoute
   AuthenticatedInstitutionAnalyticsRoute: typeof AuthenticatedInstitutionAnalyticsRoute
+  AuthenticatedInstitutionBillingRoute: typeof AuthenticatedInstitutionBillingRoute
   AuthenticatedInstitutionClassroomsRoute: typeof AuthenticatedInstitutionClassroomsRoute
   AuthenticatedInstitutionCoursesRoute: typeof AuthenticatedInstitutionCoursesRouteWithChildren
   AuthenticatedInstitutionDashboardRoute: typeof AuthenticatedInstitutionDashboardRoute
   AuthenticatedInstitutionEnrollmentsRoute: typeof AuthenticatedInstitutionEnrollmentsRoute
   AuthenticatedInstitutionResourcesRoute: typeof AuthenticatedInstitutionResourcesRouteWithChildren
-  AuthenticatedInstitutionSessionsRoute: typeof AuthenticatedInstitutionSessionsRoute
+  AuthenticatedInstitutionSessionsRoute: typeof AuthenticatedInstitutionSessionsRouteWithChildren
   AuthenticatedInstitutionSettingsRoute: typeof AuthenticatedInstitutionSettingsRoute
-  AuthenticatedInstitutionStudentsRoute: typeof AuthenticatedInstitutionStudentsRoute
-  AuthenticatedInstitutionTeachersRoute: typeof AuthenticatedInstitutionTeachersRoute
+  AuthenticatedInstitutionStudentsRoute: typeof AuthenticatedInstitutionStudentsRouteWithChildren
+  AuthenticatedInstitutionTeachersRoute: typeof AuthenticatedInstitutionTeachersRouteWithChildren
   AuthenticatedParentDashboardRoute: typeof AuthenticatedParentDashboardRoute
+  AuthenticatedParentLearnersRoute: typeof AuthenticatedParentLearnersRoute
+  AuthenticatedParentMessagesRoute: typeof AuthenticatedParentMessagesRoute
+  AuthenticatedParentProgressRoute: typeof AuthenticatedParentProgressRoute
+  AuthenticatedParentReportsRoute: typeof AuthenticatedParentReportsRoute
+  AuthenticatedParentSessionsRoute: typeof AuthenticatedParentSessionsRoute
+  AuthenticatedParentSettingsRoute: typeof AuthenticatedParentSettingsRoute
   AuthenticatedStudentAccessRoute: typeof AuthenticatedStudentAccessRoute
   AuthenticatedStudentAchievementsRoute: typeof AuthenticatedStudentAchievementsRoute
   AuthenticatedStudentAssignmentsRoute: typeof AuthenticatedStudentAssignmentsRoute
@@ -1608,6 +2067,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeacherCoursesRoute: typeof AuthenticatedTeacherCoursesRouteWithChildren
   AuthenticatedTeacherDashboardRoute: typeof AuthenticatedTeacherDashboardRoute
   AuthenticatedTeacherLessonsRoute: typeof AuthenticatedTeacherLessonsRouteWithChildren
+  AuthenticatedTeacherMessagesRoute: typeof AuthenticatedTeacherMessagesRoute
   AuthenticatedTeacherResourcesRoute: typeof AuthenticatedTeacherResourcesRoute
   AuthenticatedTeacherSessionsRoute: typeof AuthenticatedTeacherSessionsRoute
   AuthenticatedTeacherSettingsRoute: typeof AuthenticatedTeacherSettingsRoute
@@ -1618,10 +2078,18 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSimpleTestRoute: AuthenticatedSimpleTestRoute,
   AuthenticatedTestRoute: AuthenticatedTestRoute,
+  AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
+  AuthenticatedAdminInstitutionsRoute: AuthenticatedAdminInstitutionsRoute,
+  AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPlatformRoute: AuthenticatedAdminPlatformRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
+  AuthenticatedAdminUsageRoute: AuthenticatedAdminUsageRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedInstitutionActivityRoute: AuthenticatedInstitutionActivityRoute,
   AuthenticatedInstitutionAnalyticsRoute:
     AuthenticatedInstitutionAnalyticsRoute,
+  AuthenticatedInstitutionBillingRoute: AuthenticatedInstitutionBillingRoute,
   AuthenticatedInstitutionClassroomsRoute:
     AuthenticatedInstitutionClassroomsRoute,
   AuthenticatedInstitutionCoursesRoute:
@@ -1632,11 +2100,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedInstitutionEnrollmentsRoute,
   AuthenticatedInstitutionResourcesRoute:
     AuthenticatedInstitutionResourcesRouteWithChildren,
-  AuthenticatedInstitutionSessionsRoute: AuthenticatedInstitutionSessionsRoute,
+  AuthenticatedInstitutionSessionsRoute:
+    AuthenticatedInstitutionSessionsRouteWithChildren,
   AuthenticatedInstitutionSettingsRoute: AuthenticatedInstitutionSettingsRoute,
-  AuthenticatedInstitutionStudentsRoute: AuthenticatedInstitutionStudentsRoute,
-  AuthenticatedInstitutionTeachersRoute: AuthenticatedInstitutionTeachersRoute,
+  AuthenticatedInstitutionStudentsRoute:
+    AuthenticatedInstitutionStudentsRouteWithChildren,
+  AuthenticatedInstitutionTeachersRoute:
+    AuthenticatedInstitutionTeachersRouteWithChildren,
   AuthenticatedParentDashboardRoute: AuthenticatedParentDashboardRoute,
+  AuthenticatedParentLearnersRoute: AuthenticatedParentLearnersRoute,
+  AuthenticatedParentMessagesRoute: AuthenticatedParentMessagesRoute,
+  AuthenticatedParentProgressRoute: AuthenticatedParentProgressRoute,
+  AuthenticatedParentReportsRoute: AuthenticatedParentReportsRoute,
+  AuthenticatedParentSessionsRoute: AuthenticatedParentSessionsRoute,
+  AuthenticatedParentSettingsRoute: AuthenticatedParentSettingsRoute,
   AuthenticatedStudentAccessRoute: AuthenticatedStudentAccessRoute,
   AuthenticatedStudentAchievementsRoute: AuthenticatedStudentAchievementsRoute,
   AuthenticatedStudentAssignmentsRoute: AuthenticatedStudentAssignmentsRoute,
@@ -1667,6 +2144,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeacherDashboardRoute: AuthenticatedTeacherDashboardRoute,
   AuthenticatedTeacherLessonsRoute:
     AuthenticatedTeacherLessonsRouteWithChildren,
+  AuthenticatedTeacherMessagesRoute: AuthenticatedTeacherMessagesRoute,
   AuthenticatedTeacherResourcesRoute: AuthenticatedTeacherResourcesRoute,
   AuthenticatedTeacherSessionsRoute: AuthenticatedTeacherSessionsRoute,
   AuthenticatedTeacherSettingsRoute: AuthenticatedTeacherSettingsRoute,
@@ -1685,6 +2163,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   ClassroomLessonIdRoute: ClassroomLessonIdRoute,
   DemoClassroomRoute: DemoClassroomRoute,
+  DemoTeachingRoute: DemoTeachingRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
   StudentProgressRoute: StudentProgressRoute,
   ClassroomPreviewLessonIdRoute: ClassroomPreviewLessonIdRoute,

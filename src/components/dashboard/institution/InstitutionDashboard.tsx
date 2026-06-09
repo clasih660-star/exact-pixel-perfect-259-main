@@ -197,7 +197,8 @@ function CoursesOverviewPanel() {
             <div className="flex items-center gap-2">
               <StatusBadge variant={c.status === "Published" ? "success" : "warning"}>{c.status}</StatusBadge>
               <Link
-                to={`/institution/courses/course_${c.title.toLowerCase().replace(/\s+/g, "_")}`}
+                to="/institution/courses/$courseId"
+                params={{ courseId: `course_${c.title.toLowerCase().replace(/\s+/g, "_")}` }}
                 className="inline-flex h-9 items-center rounded-xl border border-[var(--primary)]/20 px-4 text-xs font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]"
               >
                 Open
@@ -219,7 +220,8 @@ function ActiveSessionsPanel() {
         {activeSessions.map((s) => (
           <Link
             key={s.title}
-            to="/classroom/session_demo_math"
+            to="/classroom/$lessonId"
+            params={{ lessonId: "session_demo_math" }}
             className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
           >
             <div className="min-w-0 flex-1">

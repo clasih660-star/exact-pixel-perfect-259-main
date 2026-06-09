@@ -1,11 +1,82 @@
 /**
  * Klassruum Lesson Data Models
  *
+ * Real classroom teaching model: explain → write → read → explain written → check → continue.
+ *
  * Three-layer content model for real classroom experience:
  * 1. Whiteboard Content - Visual teaching (equations, diagrams, bullets)
- * 2. Teacher Notes - Deep explanations teacher uses
- * 3. Learner Notes - Study notes for revision
+ * 2. Teacher Narrative - What the teacher reads and explains for each item
+ * 3. Learner Notes - Study notes for revision (preserving full narrative)
+ *
+ * Every board item has both a visual component and a teaching narrative.
+ * The board shows the math. The teacher gives the thinking behind the math.
  */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Math Teaching Item — The Core Teaching Unit
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Types of content that can appear on the whiteboard during teaching */
+export type MathTeachingItemType =
+  | "equation"
+  | "calculation"
+  | "instruction"
+  | "concept"
+  | "answer"
+  | "warning"
+  | "question";
+
+/**
+ * MathTeachingItem — The core unit of real classroom teaching.
+ *
+ * Each item represents ONE thing the teacher writes on the board,
+ * paired with everything the teacher says about it.
+ *
+ * Teaching flow for each item:
+ *   1. Explain the goal of the step
+ *   2. Write the calculation on the whiteboard (boardText)
+ *   3. Read the written calculation exactly (exactSpokenText)
+ *   4. Explain what the calculation means (teacherExplanation)
+ *   5. Explain why that step is valid (whyThisStepMatters)
+ *   6. Warn about common mistakes (commonMistake, if present)
+ *   7. Ask or check if the learner understands
+ *   8. Move to the next step
+ */
+export type MathTeachingItem = {
+  /** Unique identifier for this teaching item */
+  id: string;
+
+  /** What appears on the whiteboard — the visual math/text */
+  boardText: string;
+
+  /** What the teacher reads exactly after writing — verbatim spoken form */
+  exactSpokenText: string;
+
+  /** What the teacher explains after reading — the deep explanation */
+  teacherExplanation: string;
+
+  /** Why this step matters in the overall solving process */
+  whyThisStepMatters: string;
+
+  /** Common mistake learners make at this step (shown as a warning) */
+  commonMistake?: string;
+
+  /** Accessibility description for screen readers and assistive tech */
+  accessibleDescription: string;
+
+  /** The semantic type of this board item */
+  type: MathTeachingItemType;
+
+  /** How fast to animate the writing on the board */
+  writingSpeed?: "slow" | "normal" | "fast";
+
+  /** Time in ms to pause after this item before continuing */
+  pauseAfter?: number;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Legacy Board Item Types (backward-compatible)
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Board item types for whiteboard
 export type BoardItemType =
@@ -190,7 +261,7 @@ export type ClassroomEvent =
   | { type: "guided_practice_started"; practiceId: string; timestamp: string }
   | { type: "independent_practice_started"; practiceId: string; timestamp: string }
   | { type: "practice_answer_submitted"; practiceId: string; correct: boolean; timestamp: string }
-  | { type: "misconception_detected"; type: string; learnerAnswer: string; timestamp: string }
+  | { type: "misconception_detected"; misconceptionType: string; learnerAnswer: string; timestamp: string }
   | { type: "exit_ticket_submitted"; correct: boolean; timestamp: string }
   | { type: "lesson_completed"; summary: LessonCompletionSummary; timestamp: string }
   | { type: "lesson_replayed"; fromStep: number; timestamp: string };

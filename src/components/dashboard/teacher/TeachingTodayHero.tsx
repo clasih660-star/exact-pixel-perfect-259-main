@@ -70,21 +70,24 @@ export function TeachingTodayHero({
         {/* Right side: Actions */}
         <div className="flex flex-col gap-3 lg:min-w-[200px]">
           <Link
-            to={`/classroom/${sessionId}`}
+            to="/classroom/$lessonId"
+            params={{ lessonId: sessionId }}
             className="btn-primary flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-green-700"
           >
             <Play className="h-4 w-4" />
             Start Class
           </Link>
           <Link
-            to={`/teacher/lessons/${lessonId}/edit`}
+            to="/teacher/lessons/$lessonId/edit"
+            params={{ lessonId }}
             className="btn-secondary flex items-center justify-center gap-2 rounded-xl border border-[var(--gray-200)] bg-white px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] hover:bg-[var(--gray-50)]"
           >
             <Eye className="h-4 w-4" />
             Preview Lesson
           </Link>
           <Link
-            to={`/teacher/courses/${courseId}/students`}
+            to="/teacher/courses/$courseId/students"
+            params={{ courseId }}
             className="btn-secondary flex items-center justify-center gap-2 rounded-xl border border-[var(--gray-200)] bg-white px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] hover:bg-[var(--gray-50)]"
           >
             <UserCheck className="h-4 w-4" />

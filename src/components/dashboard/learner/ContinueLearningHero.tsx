@@ -88,21 +88,24 @@ export function ContinueLearningHero({
         {/* Right side: Actions */}
         <div className="flex flex-col gap-3 lg:min-w-[200px]">
           <Link
-            to={`/classroom/${sessionId}`}
+            to="/classroom/$lessonId"
+            params={{ lessonId: sessionId }}
             className="btn-primary flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-center text-sm font-semibold text-white"
           >
             <Play className="h-4 w-4" />
             Enter Classroom
           </Link>
           <Link
-            to={`/student/sessions/${sessionId}/summary`}
+            to="/student/sessions/$sessionId/summary"
+            params={{ sessionId }}
             className="btn-secondary flex items-center justify-center gap-2 rounded-xl border border-[var(--gray-200)] bg-white px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] hover:bg-[var(--gray-50)]"
           >
             <FileText className="h-4 w-4" />
             Review Summary
           </Link>
           <Link
-            to={`/student/quizzes/quiz_${sessionId}`}
+            to="/student/quizzes/$quizId"
+            params={{ quizId: `quiz_${sessionId}` }}
             className="btn-secondary flex items-center justify-center gap-2 rounded-xl border border-[var(--gray-200)] bg-white px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] hover:bg-[var(--gray-50)]"
           >
             <Clock className="h-4 w-4" />

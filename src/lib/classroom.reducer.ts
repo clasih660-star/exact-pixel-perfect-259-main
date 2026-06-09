@@ -22,6 +22,7 @@ import type {
   LessonStep,
   StudentLevel,
 } from "./types";
+import type { MathTeachingItem, MathTeachingItemType } from "./lesson-models";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // State

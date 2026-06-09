@@ -75,7 +75,7 @@ export function LearnerDashboard() {
           <h1>Continue your learning journey</h1>
           <p>Your next classroom is ready. Pick up from your last lesson and keep your progress moving.</p>
         </div>
-        <Link to="/classroom/session_demo_math" className="kr-primary-button">
+        <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-primary-button">
           <Monitor className="h-4 w-4" />
           Enter Classroom
         </Link>
@@ -114,15 +114,15 @@ export function LearnerDashboard() {
         </div>
 
         <div className="kr-hero-actions">
-          <Link to="/classroom/session_demo_math" className="kr-primary-button">
+          <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-primary-button">
             <Monitor className="h-4 w-4" />
             Enter Classroom
           </Link>
-          <Link to="/student/sessions/session_demo_math/summary" className="kr-secondary-button">
+          <Link to="/student/sessions/$sessionId/summary" params={{ sessionId: "session_demo_math" }} className="kr-secondary-button">
             <FileText className="h-4 w-4" />
             Review Summary
           </Link>
-          <Link to="/student/quizzes/quiz_quadratic_001" className="kr-secondary-button">
+          <Link to="/student/quizzes/$quizId" params={{ quizId: "quiz_quadratic_001" }} className="kr-secondary-button">
             <Clock className="h-4 w-4" />
             Take Quick Quiz
           </Link>
@@ -210,7 +210,7 @@ export function LearnerDashboard() {
                   </div>
                 </div>
                 <span className="kr-status-pill">{c.mode}</span>
-                <Link to="/classroom/session_demo_math" className="kr-secondary-button">
+                <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-secondary-button">
                   Enter
                 </Link>
               </article>
@@ -251,7 +251,7 @@ export function LearnerDashboard() {
           </ol>
 
           <div className="kr-button-row">
-            <Link to="/classroom/session_demo_math" className="kr-primary-button">
+            <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-primary-button">
               Start Plan
             </Link>
             <Link to="/student/learning-plan" className="kr-secondary-button">
@@ -269,7 +269,7 @@ export function LearnerDashboard() {
             {recentSessions.map((s) => (
               <Link
                 key={s.title}
-                to="/student/sessions/session_demo_math/summary"
+                to="/student/sessions/$sessionId/summary" params={{ sessionId: "session_demo_math" }}
                 className="kr-activity-item"
               >
                 <div>

@@ -11,12 +11,18 @@ interface AITeacherPanelProps {
 
 const STATE_MESSAGES: Record<TeacherState, string> = {
   idle: "Ready to help",
+  preparing: "Preparing lesson…",
   listening: "Listening to you…",
   thinking: "Thinking…",
   speaking: "Speaking…",
   explaining: "Explaining…",
   correcting: "Let me help you…",
   encouraging: "Great job!",
+  writing: "Writing on board…",
+  reading: "Reading aloud…",
+  warning: "Common mistake alert!",
+  checking: "Checking understanding…",
+  paused: "Paused",
 };
 
 export function AITeacherPanel({

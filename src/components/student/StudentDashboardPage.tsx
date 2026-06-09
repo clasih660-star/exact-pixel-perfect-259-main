@@ -79,7 +79,8 @@ function Header() {
         </p>
       </div>
       <Link
-        to="/classroom/session_demo_math"
+        to="/classroom/$lessonId"
+        params={{ lessonId: "session_demo_math" }}
         className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-2xl bg-[var(--primary)] px-6 text-sm font-bold text-white shadow-lg shadow-[var(--primary)]/25 transition-all hover:bg-[var(--primary-dark)]"
       >
         <Monitor className="h-4 w-4" />
@@ -129,20 +130,23 @@ function ContinueLearningHero() {
         </div>
         <div className="flex flex-col gap-2 lg:items-end">
           <Link
-            to="/classroom/session_demo_math"
+            to="/classroom/$lessonId"
+        params={{ lessonId: "session_demo_math" }}
             className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[var(--primary)] px-6 text-sm font-bold text-white shadow-lg shadow-[var(--primary)]/25 transition-all hover:bg-[var(--primary-dark)] lg:w-auto"
           >
             <Monitor className="h-4 w-4" />
             Enter Classroom
           </Link>
           <Link
-            to="/student/sessions/session_demo_math/summary"
+            to="/student/sessions/$sessionId/summary"
+        params={{ sessionId: "session_demo_math" }}
             className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
           >
             Review Summary
           </Link>
           <Link
-            to="/student/quizzes/quiz_quadratic_001"
+            to="/student/quizzes/$quizId"
+        params={{ quizId: "quiz_quadratic_001" }}
             className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
           >
             Take Quick Quiz
@@ -217,7 +221,8 @@ function MyClassroomsPanel() {
             <div className="flex items-center gap-2">
               <StatusBadge>{c.mode}</StatusBadge>
               <Link
-                to="/classroom/session_demo_math"
+                to="/classroom/$lessonId"
+        params={{ lessonId: "session_demo_math" }}
                 className="inline-flex h-9 items-center rounded-xl border border-[var(--primary)]/20 px-4 text-xs font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]"
               >
                 Enter
@@ -251,7 +256,8 @@ function LearningPlanCard() {
       </ol>
       <div className="mt-5 flex gap-2">
         <Link
-          to="/classroom/session_demo_math"
+          to="/classroom/$lessonId"
+        params={{ lessonId: "session_demo_math" }}
           className="inline-flex h-10 flex-1 items-center justify-center rounded-2xl bg-[var(--primary)] px-4 text-sm font-bold text-white transition-all hover:bg-[var(--primary-dark)]"
         >
           Start Plan
@@ -276,7 +282,8 @@ function RecentSessionsPanel() {
         {recentSessions.map((s) => (
           <Link
             key={s.title}
-            to="/student/sessions/session_demo_math/summary"
+            to="/student/sessions/$sessionId/summary"
+        params={{ sessionId: "session_demo_math" }}
             className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
           >
             <div className="min-w-0 flex-1">

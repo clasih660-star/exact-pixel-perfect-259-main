@@ -30,6 +30,23 @@ import {
   ChevronRight,
   RefreshCw,
   Hand,
+  FileText,
+  Clock,
+  Target,
+  Award,
+  AlertCircle,
+  ChevronLeft,
+  Plus,
+  Save,
+  Home,
+  Video,
+  VideoOff,
+  Users,
+  MonitorUp,
+  HandMetal,
+  Wifi,
+  WifiOff,
+  CircleDot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -43,9 +60,24 @@ import type {
   WritingSpeed,
   BlindQuestionState,
   ClassroomContext,
+  VideoSessionState,
+  VideoConnectionStatus,
+  VideoParticipantState,
 } from "@/lib/types";
+import {
+  DEMO_LESSON,
+  type Lesson,
+  type LessonStep,
+  type LessonCompletionSummary,
+  type ClassroomEvent,
+  type RequiredLessonQuestion,
+  type PracticeBlock,
+  type ExitTicket,
+  type QuestionCheckpoint,
+  type LearnerNotes,
+} from "@/lib/lesson-models";
 
-/* ─── Sample Board Sequence ──────────────────────────────────── */
+/* ─── Sample Board Sequence (kept for fallback) ──────────────── */
 
 const SAMPLE_BOARD_SEQUENCE: BoardWriteItem[] = [
   {
@@ -172,6 +204,50 @@ function getCharDelay(speed?: WritingSpeed, mode?: LearningMode): number {
 function getLinePause(mode?: LearningMode): number {
   return mode === "adhd_focus" ? 1200 : 800;
 }
+
+/* ─── Classroom Event Tracker ────────────────────────────────── */
+
+const trackedEvents: ClassroomEvent[] = [];
+
+function trackEvent(event: ClassroomEvent) {
+  trackedEvents.push(event);
+  // In production, this would send to analytics backend
+  console.log("[ClassroomEvent]", event.type, event);
+}
+
+/* ─── Completion State ───────────────────────────────────────── */
+
+type CompletionTracking = {
+  middleQuestionAnswered: boolean;
+  middleQuestionCorrect: boolean;
+  guidedPracticeAttempted: boolean;
+  guidedPracticeCorrect: boolean;
+  independentPracticeAttempted: boolean;
+  independentPracticeCorrect: boolean;
+  exitTicketAnswered: boolean;
+  exitTicketCorrect: boolean;
+  questionsAskedCount: number;
+  lessonCompleted: boolean;
+  summaryViewed: boolean;
+  notesSaved: boolean;
+  weakAreas: string[];
+};
+
+const INITIAL_COMPLETION: CompletionTracking = {
+  middleQuestionAnswered: false,
+  middleQuestionCorrect: false,
+  guidedPracticeAttempted: false,
+  guidedPracticeCorrect: false,
+  independentPracticeAttempted: false,
+  independentPracticeCorrect: false,
+  exitTicketAnswered: false,
+  exitTicketCorrect: false,
+  questionsAskedCount: 0,
+  lessonCompleted: false,
+  summaryViewed: false,
+  notesSaved: false,
+  weakAreas: [],
+};
 
 /* ─── Initial State ──────────────────────────────────────────── */
 
@@ -345,16 +421,39 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   const [isPaused, setIsPaused] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [showModeSwitcher, setShowModeSwitcher] = useState(false);
+  const [showNotesDrawer, setShowNotesDrawer] = useState(false);
+  const [showLessonTimeline, setShowLessonTimeline] = useState(false);
   const [questionInput, setQuestionInput] = useState("");
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [lastCheckpointMinute, setLastCheckpointMinute] = useState(0);
+  const [showRequiredQuestion, setShowRequiredQuestion] = useState(false);
+  const [showPractice, setShowPractice] = useState(false);
+  const [showExitTicket, setShowExitTicket] = useState(false);
+  const [showCompletionSummary, setShowCompletionSummary] = useState(false);
+  const [practiceAnswer, setPracticeAnswer] = useState("");
+  const [practiceResult, setPracticeResult] = useState<"correct" | "incorrect" | null>(null);
+  const [exitTicketAnswer, setExitTicketAnswer] = useState("");
+  const [exitTicketResult, setExitTicketResult] = useState<"correct" | "incorrect" | null>(null);
+  const [requiredQuestionAnswer, setRequiredQuestionAnswer] = useState("");
+  const [requiredQuestionResult, setRequiredQuestionResult] = useState<"correct" | "incorrect" | null>(null);
+  const [userNotes, setUserNotes] = useState<string[]>([]);
+  const [userNoteInput, setUserNoteInput] = useState("");
+  const [completion, setCompletion] = useState<CompletionTracking>(INITIAL_COMPLETION);
+
   const boardRef = useRef<HTMLDivElement>(null);
   const writingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recognitionRef = useRef<any>(null);
   const isPlayingRef = useRef(false);
   const currentCharIndexRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lessonRef = useRef(DEMO_LESSON);
 
   const lesson = classroomContext?.lesson;
   const institution = classroomContext?.institution;
   const course = classroomContext?.course;
+  const activeLesson = lessonRef.current;
+
+  const currentStepLabel = STEP_ORDER[state.progress.stepIndex]?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) ?? "Hook";
 
   /* ── Cleanup ─────────────────────────────────────────────── */
   useEffect(() => {
@@ -362,8 +461,54 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       stopSpeech();
       stopVoiceListening(recognitionRef.current);
       if (writingTimerRef.current) clearTimeout(writingTimerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  /* ── Elapsed time tracker ──────────────────────────────────── */
+  useEffect(() => {
+    if (isPlayingRef.current && !isPaused) {
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPaused]);
+
+  /* ── 5-minute question checkpoint ──────────────────────────── */
+  useEffect(() => {
+    const currentMinute = Math.floor(elapsedSeconds / 300); // every 5 minutes
+    if (
+      currentMinute > lastCheckpointMinute &&
+      currentMinute > 0 &&
+      isPlayingRef.current &&
+      !showRequiredQuestion &&
+      !showPractice &&
+      !showExitTicket &&
+      !state.questionState.isPromptOpen
+    ) {
+      setLastCheckpointMinute(currentMinute);
+      triggerCheckpoint(currentMinute);
+    }
+  }, [elapsedSeconds, lastCheckpointMinute]);
+
+  /* ── Required middle question at 50% ───────────────────────── */
+  useEffect(() => {
+    if (
+      state.progress.percentage >= 50 &&
+      !completion.middleQuestionAnswered &&
+      isPlayingRef.current &&
+      !showRequiredQuestion &&
+      !showPractice &&
+      !state.questionState.isPromptOpen
+    ) {
+      triggerRequiredMiddleQuestion();
+    }
+  }, [state.progress.percentage, completion.middleQuestionAnswered]);
 
   /* ── Auto-scroll board ───────────────────────────────────── */
   useEffect(() => {
@@ -379,6 +524,8 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
         dispatch({ type: "SET_TEACHER_STATE", state: "writing" });
         dispatch({ type: "SET_WRITING", isWriting: true, currentText: "" });
         dispatch({ type: "SET_CAPTION", text: item.accessibleDescription });
+
+        trackEvent({ type: "board_item_written", itemId: item.id, timestamp: new Date().toISOString() });
 
         const delay = getCharDelay(item.writingSpeed, state.learningMode);
         const text = item.text;
@@ -436,15 +583,17 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       // Short pause after writing
       await new Promise<void>((r) => setTimeout(r, getLinePause(state.learningMode)));
 
-      // 2. Teacher reads exact text
+      // 2. Teacher reads exact text (the exact-read rule)
       dispatch({ type: "SET_TEACHER_STATE", state: "speaking" });
       if (item.readExactly) {
+        trackEvent({ type: "teacher_read_board_item", itemId: item.id, timestamp: new Date().toISOString() });
         await speakText(item.text);
       }
 
-      // 3. Teacher gives explanation if available
+      // 3. Teacher gives deeper explanation if available
       if (item.explanation) {
         dispatch({ type: "SET_TEACHER_STATE", state: "explaining" });
+        trackEvent({ type: "teacher_explained_item", itemId: item.id, timestamp: new Date().toISOString() });
         await speakText(item.explanation);
       }
 
@@ -463,6 +612,238 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     [animateItem, speakText, state.learningMode],
   );
 
+  /* ── Trigger 5-min checkpoint ──────────────────────────────── */
+  const triggerCheckpoint = useCallback(
+    (minute: number) => {
+      dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
+      dispatch({ type: "OPEN_QUESTION" });
+      dispatch({
+        type: "ADD_TRANSCRIPT",
+        entry: {
+          id: crypto.randomUUID(),
+          role: "teacher",
+          text: "Do you have any question before we continue?",
+          timestamp: new Date().toISOString(),
+        },
+      });
+      trackEvent({ type: "question_checkpoint_triggered", checkpointId: `checkpoint_${minute}`, timestamp: new Date().toISOString() });
+      speakText("Do you have any question before we continue?");
+    },
+    [speakText],
+  );
+
+  /* ── Play lesson ref to break circular dependency ──────────── */
+  const playLessonRef = useRef<() => Promise<void>>(async () => {});
+
+  /* ── Trigger required middle question ──────────────────────── */
+  const triggerRequiredMiddleQuestion = useCallback(() => {
+    isPlayingRef.current = false;
+    setIsPaused(true);
+    setShowRequiredQuestion(true);
+    dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
+    dispatch({ type: "SET_CAPTION", text: activeLesson.requiredMidLessonQuestion.questionText });
+
+    trackEvent({ type: "required_question_asked", questionId: activeLesson.requiredMidLessonQuestion.id, timestamp: new Date().toISOString() });
+
+    speakText(activeLesson.requiredMidLessonQuestion.questionText);
+  }, [speakText, activeLesson]);
+
+  /* ── Handle required question answer ───────────────────────── */
+  const handleRequiredQuestionSubmit = useCallback(() => {
+    const q = activeLesson.requiredMidLessonQuestion;
+    const normalized = requiredQuestionAnswer.toLowerCase().trim();
+    const isCorrect = q.acceptableAnswers.some((a) => a.toLowerCase().trim() === normalized);
+
+    setRequiredQuestionResult(isCorrect ? "correct" : "incorrect");
+    setCompletion((prev) => ({
+      ...prev,
+      middleQuestionAnswered: true,
+      middleQuestionCorrect: isCorrect,
+      weakAreas: isCorrect ? prev.weakAreas : [...prev.weakAreas, "Factoring number pairs"],
+    }));
+
+    trackEvent({ type: "required_question_answered", questionId: q.id, correct: isCorrect, timestamp: new Date().toISOString() });
+
+    if (isCorrect) {
+      speakText(q.feedbackCorrect).then(() => {
+        dispatch({ type: "SET_TEACHER_STATE", state: "encouraging" });
+        setTimeout(() => {
+          setShowRequiredQuestion(false);
+          setIsPaused(false);
+          isPlayingRef.current = true;
+          setRequiredQuestionAnswer("");
+          setRequiredQuestionResult(null);
+          playLessonRef.current();
+        }, 1500);
+      });
+    } else {
+      speakText(q.feedbackIncorrect).then(() => {
+        dispatch({ type: "SET_TEACHER_STATE", state: "correcting" });
+        // Show board correction - cast to types.BoardWriteItem
+        q.boardCorrection.forEach((item) => {
+          dispatch({ type: "FINISH_ITEM", item: item as BoardWriteItem });
+        });
+        setTimeout(() => {
+          setShowRequiredQuestion(false);
+          setIsPaused(false);
+          isPlayingRef.current = true;
+          setRequiredQuestionAnswer("");
+          setRequiredQuestionResult(null);
+          playLessonRef.current();
+        }, 3000);
+      });
+    }
+  }, [requiredQuestionAnswer, activeLesson, speakText]);
+
+  /* ── Practice handling ─────────────────────────────────────── */
+  const startPractice = useCallback(
+    (type: "guided" | "independent") => {
+      const stepIndex = type === "guided" ? 3 : 4; // guided_practice or independent_question
+      const stepKey = STEP_ORDER[stepIndex];
+      const practiceStep = activeLesson.steps.find((s) => s.key === stepKey || s.id === `step_${stepIndex + 1}`);
+      if (!practiceStep?.practice) return;
+
+      setShowPractice(true);
+      setPracticeResult(null);
+      setPracticeAnswer("");
+      isPlayingRef.current = false;
+      setIsPaused(true);
+      dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
+
+      if (type === "guided") {
+        trackEvent({ type: "guided_practice_started", practiceId: practiceStep.practice.id, timestamp: new Date().toISOString() });
+      } else {
+        trackEvent({ type: "independent_practice_started", practiceId: practiceStep.practice.id, timestamp: new Date().toISOString() });
+      }
+
+      speakText(type === "guided"
+        ? `Let's practice together. ${practiceStep.practice.problemText}`
+        : `Now it's your turn. ${practiceStep.practice.problemText}`
+      );
+    },
+    [activeLesson, speakText],
+  );
+
+  const handlePracticeSubmit = useCallback(() => {
+    const stepIndex = practiceAnswer ? 3 : 4;
+    // Find current practice
+    const guidedStep = activeLesson.steps.find((s) => s.practice?.type === "guided");
+    const independentStep = activeLesson.steps.find((s) => s.practice?.type === "independent");
+    const currentPractice = showPractice ? guidedStep?.practice || independentStep?.practice : null;
+
+    if (!currentPractice) return;
+
+    const normalized = practiceAnswer.toLowerCase().trim();
+    const isCorrect = currentPractice.acceptableAnswers.some((a) => a.toLowerCase().trim() === normalized);
+
+    setPracticeResult(isCorrect ? "correct" : "incorrect");
+
+    const isGuided = currentPractice.type === "guided";
+    setCompletion((prev) => ({
+      ...prev,
+      guidedPracticeAttempted: isGuided ? true : prev.guidedPracticeAttempted,
+      guidedPracticeCorrect: isGuided && isCorrect ? true : prev.guidedPracticeCorrect,
+      independentPracticeAttempted: !isGuided ? true : prev.independentPracticeAttempted,
+      independentPracticeCorrect: !isGuided && isCorrect ? true : prev.independentPracticeCorrect,
+      weakAreas: isCorrect ? prev.weakAreas : [...prev.weakAreas, currentPractice.type === "guided" ? "Guided practice" : "Independent practice"],
+    }));
+
+    trackEvent({ type: "practice_answer_submitted", practiceId: currentPractice.id, correct: isCorrect, timestamp: new Date().toISOString() });
+
+    if (isCorrect) {
+      dispatch({ type: "SET_TEACHER_STATE", state: "encouraging" });
+      speakText("Correct! Well done.").then(() => {
+        setTimeout(() => {
+          setShowPractice(false);
+          setPracticeAnswer("");
+          setPracticeResult(null);
+          setIsPaused(false);
+          isPlayingRef.current = true;
+        }, 2000);
+      });
+    } else {
+      dispatch({ type: "SET_TEACHER_STATE", state: "correcting" });
+      speakText(currentPractice.hintOnIncorrect || "Let me show you the solution.").then(() => {
+        // Show solution on board
+        currentPractice.boardSolution.forEach((item) => {
+          dispatch({ type: "FINISH_ITEM", item });
+        });
+        setTimeout(() => {
+          setShowPractice(false);
+          setPracticeAnswer("");
+          setPracticeResult(null);
+          setIsPaused(false);
+          isPlayingRef.current = true;
+        }, 3000);
+      });
+    }
+  }, [practiceAnswer, activeLesson, speakText, showPractice]);
+
+  /* ── Exit ticket handling ──────────────────────────────────── */
+  const triggerExitTicket = useCallback(() => {
+    if (!activeLesson.exitTicket) return;
+    setShowExitTicket(true);
+    setExitTicketAnswer("");
+    setExitTicketResult(null);
+    isPlayingRef.current = false;
+    setIsPaused(true);
+    dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
+    speakText(activeLesson.exitTicket.questionText);
+  }, [activeLesson, speakText]);
+
+  const handleExitTicketSubmit = useCallback(() => {
+    if (!activeLesson.exitTicket) return;
+    const normalized = exitTicketAnswer.toLowerCase().trim();
+    const isCorrect = activeLesson.exitTicket.acceptableAnswers.some((a) => a.toLowerCase().trim() === normalized);
+
+    setExitTicketResult(isCorrect ? "correct" : "incorrect");
+    setCompletion((prev) => ({
+      ...prev,
+      exitTicketAnswered: true,
+      exitTicketCorrect: isCorrect,
+    }));
+
+    trackEvent({ type: "exit_ticket_submitted", correct: isCorrect, timestamp: new Date().toISOString() });
+
+    speakText(isCorrect ? activeLesson.exitTicket.feedback : "Not quite. Remember: the numbers must multiply to c and add to b.").then(() => {
+      setTimeout(() => {
+        setShowExitTicket(false);
+        completeLesson();
+      }, 2000);
+    });
+  }, [exitTicketAnswer, activeLesson, speakText]);
+
+  /* ── Complete lesson ────────────────────────────────────────── */
+  const completeLesson = useCallback(() => {
+    setCompletion((prev) => ({ ...prev, lessonCompleted: true }));
+    setShowCompletionSummary(true);
+    dispatch({ type: "SET_TEACHER_STATE", state: "encouraging" });
+
+    const summary: LessonCompletionSummary = {
+      sessionId,
+      lessonId: activeLesson.id,
+      timeSpentMinutes: Math.round(elapsedSeconds / 60),
+      completedAt: new Date().toISOString(),
+      middleQuestionAnswered: completion.middleQuestionAnswered,
+      middleQuestionCorrect: completion.middleQuestionCorrect,
+      guidedPracticeCompleted: completion.guidedPracticeAttempted,
+      guidedPracticeCorrect: completion.guidedPracticeCorrect,
+      independentPracticeCompleted: completion.independentPracticeAttempted,
+      independentPracticeCorrect: completion.independentPracticeCorrect,
+      exitTicketAnswered: completion.exitTicketAnswered,
+      exitTicketCorrect: completion.exitTicketCorrect,
+      questionsAskedCount: completion.questionsAskedCount,
+      weakAreas: completion.weakAreas,
+      recommendedNext: ["Practice factor signs", "Try equations with negative coefficients"],
+      notesSaved: completion.notesSaved,
+      transcriptGenerated: true,
+    };
+
+    trackEvent({ type: "lesson_completed", summary, timestamp: new Date().toISOString() });
+
+    speakText("Congratulations! You have completed this lesson. Great work today!");
+  }, [elapsedSeconds, completion, activeLesson, sessionId, speakText]);
+
   /* ── Play entire lesson from current index ───────────────── */
   const playLesson = useCallback(async () => {
     isPlayingRef.current = true;
@@ -479,7 +860,6 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       if (idx < items.length && (items[idx - 1].type === "answer" || items[idx - 1].type === "calculation")) {
         dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
         dispatch({ type: "OPEN_QUESTION" });
-        // For demo: auto-close after showing, or let user interact
         if (state.learningMode !== "blind") {
           await new Promise<void>((r) => setTimeout(r, 1500));
           dispatch({ type: "CLOSE_QUESTION" });
@@ -490,8 +870,16 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     if (idx >= items.length) {
       dispatch({ type: "SET_TEACHER_STATE", state: "encouraging" });
       await speakText("Great job! That is the end of this section.");
+
+      // Check if we should trigger exit ticket at end
+      if (state.progress.stepIndex >= STEP_ORDER.length - 1 && !completion.exitTicketAnswered && activeLesson.exitTicket) {
+        triggerExitTicket();
+      }
     }
-  }, [playBoardItem, state.boardState.items, state.boardState.currentItemIndex, state.learningMode]);
+  }, [playBoardItem, state.boardState.items, state.boardState.currentItemIndex, state.learningMode, state.progress.stepIndex, completion.exitTicketAnswered, activeLesson.exitTicket, triggerExitTicket]);
+
+  // Wire up the ref so handlers defined before playLesson can call it
+  playLessonRef.current = playLesson;
 
   /* ── Pause / Resume ──────────────────────────────────────── */
   const handlePause = () => {
@@ -526,19 +914,30 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
 
   /* ── Replay ──────────────────────────────────────────────── */
   const replayFromStart = () => {
+    trackEvent({ type: "lesson_replayed", fromStep: 0, timestamp: new Date().toISOString() });
     dispatch({ type: "START_REPLAY", fromIndex: 0 });
     setTimeout(() => playLesson(), 300);
   };
 
   const replayCurrentStep = () => {
+    trackEvent({ type: "lesson_replayed", fromStep: state.boardState.currentItemIndex, timestamp: new Date().toISOString() });
     dispatch({ type: "START_REPLAY", fromIndex: state.boardState.currentItemIndex });
     setTimeout(() => playLesson(), 300);
   };
 
   const replayFromPrevious = () => {
     const prev = Math.max(0, state.boardState.currentItemIndex - 1);
+    trackEvent({ type: "lesson_replayed", fromStep: prev, timestamp: new Date().toISOString() });
     dispatch({ type: "START_REPLAY", fromIndex: prev });
     setTimeout(() => playLesson(), 300);
+  };
+
+  const replayLastExplanation = () => {
+    dispatch({ type: "SET_TEACHER_STATE", state: "speaking" });
+    const lastTranscript = state.transcript.filter((t) => t.role === "teacher").pop();
+    if (lastTranscript) {
+      speakText(lastTranscript.text);
+    }
   };
 
   /* ── Question handling ───────────────────────────────────── */
@@ -566,12 +965,16 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
 
   const submitQuestion = (question: string) => {
     if (!question.trim()) return;
+    setCompletion((prev) => ({ ...prev, questionsAskedCount: prev.questionsAskedCount + 1 }));
+
     dispatch({
       type: "ADD_TRANSCRIPT",
       entry: { id: crypto.randomUUID(), role: "student", text: question, timestamp: new Date().toISOString() },
     });
     dispatch({ type: "CLOSE_QUESTION" });
     stopVoiceListening(recognitionRef.current);
+
+    trackEvent({ type: "learner_asked_question", question, timestamp: new Date().toISOString() });
 
     // Simulate teacher answer
     dispatch({ type: "SET_TEACHER_STATE", state: "answering" });
@@ -581,6 +984,7 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
         type: "ADD_TRANSCRIPT",
         entry: { id: crypto.randomUUID(), role: "teacher", text: answer, timestamp: new Date().toISOString() },
       });
+      trackEvent({ type: "teacher_answered_question", answer, timestamp: new Date().toISOString() });
       dispatch({ type: "SET_TEACHER_STATE", state: "speaking" });
     });
     setQuestionInput("");
@@ -627,6 +1031,12 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     }
   };
 
+  /* ── Save notes ──────────────────────────────────────────── */
+  const handleSaveNotes = () => {
+    setCompletion((prev) => ({ ...prev, notesSaved: true }));
+    trackEvent({ type: "lesson_completed", summary: {} as any, timestamp: new Date().toISOString() });
+  };
+
   /* ── Mode defaults ───────────────────────────────────────── */
   const isDeafMode = state.learningMode === "deaf" || state.learningMode === "deaf_blind";
   const isBlindMode = state.learningMode === "blind";
@@ -635,19 +1045,28 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   const isMotorSupport = state.learningMode === "motor_support";
   const showChatPanel = !isFocusMode;
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
   /* ── Render ──────────────────────────────────────────────── */
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-slate-50">
       {/* ═══ TOP BAR ═══════════════════════════════════════════ */}
       <ClassroomTopBar
-        institutionName={institution?.name ?? "Klassruum Academy"}
-        courseName={course?.title ?? "Mathematics"}
-        lessonTitle={lesson?.title ?? "Solving Quadratic Equations"}
+        institutionName={institution?.name ?? "Klassruum Demo Academy"}
+        courseName={course?.title ?? "Mathematics Form 2"}
+        lessonTitle={lesson?.title ?? activeLesson.title}
         progress={state.progress.percentage}
         liveStatus={isPlayingRef.current ? "live" : isPaused ? "paused" : "ready"}
         learningMode={state.learningMode}
+        elapsedSeconds={elapsedSeconds}
+        currentStep={currentStepLabel}
         onOpenModeSwitcher={() => setShowModeSwitcher(true)}
         onOpenTranscript={() => setShowTranscript(true)}
+        onOpenNotes={() => setShowNotesDrawer(true)}
         onEndLesson={onEndLesson ?? (() => {})}
       />
 
@@ -661,11 +1080,14 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
             isSpeaking={state.audioState.playing}
             audioEnabled={state.audioState.enabled}
             currentCaption={state.captions.currentText}
+            currentStep={currentStepLabel}
+            elapsedSeconds={elapsedSeconds}
             onToggleAudio={() => {
               if (state.audioState.lockedOnForBlindMode) return;
               dispatch({ type: "SET_AUDIO_ENABLED", enabled: !state.audioState.enabled });
             }}
             onAskQuestion={handleAskQuestion}
+            onReplayExplanation={replayLastExplanation}
             learningMode={state.learningMode}
           />
         )}
@@ -691,9 +1113,25 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
             <button onClick={replayCurrentStep} className="replay-button" title="Replay step">
               <RotateCcw className="h-3.5 w-3.5" /> Replay Step
             </button>
+            <button onClick={replayLastExplanation} className="replay-button" title="Replay last explanation">
+              <Volume2 className="h-3.5 w-3.5" /> Replay Explanation
+            </button>
             <button onClick={replayFromStart} className="replay-button" title="Replay all">
               <RefreshCw className="h-3.5 w-3.5" /> Replay All
             </button>
+
+            {/* Practice triggers */}
+            {!completion.guidedPracticeAttempted && state.progress.stepIndex >= 3 && (
+              <button onClick={() => startPractice("guided")} className="replay-button text-blue-600 border-blue-200" title="Guided practice">
+                <Target className="h-3.5 w-3.5" /> Guided Practice
+              </button>
+            )}
+            {!completion.independentPracticeAttempted && state.progress.stepIndex >= 4 && (
+              <button onClick={() => startPractice("independent")} className="replay-button text-purple-600 border-purple-200" title="Independent practice">
+                <Brain className="h-3.5 w-3.5" /> Independent Practice
+              </button>
+            )}
+
             <div className="ml-auto flex items-center gap-1 text-xs text-slate-400">
               <PenTool className="h-3 w-3" />
               {state.boardState.writtenItems.length} / {state.boardState.items.length} items
@@ -738,10 +1176,12 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
         onEndLesson={onEndLesson ?? (() => {})}
         onPrevStep={() => goToStep(state.progress.stepIndex - 1)}
         onNextStep={() => goToStep(state.progress.stepIndex + 1)}
+        onOpenNotes={() => setShowNotesDrawer(true)}
+        onOpenTimeline={() => setShowLessonTimeline(true)}
       />
 
       {/* ═══ QUESTION PROMPT ══════════════════════════════════ */}
-      {state.questionState.isPromptOpen && (
+      {state.questionState.isPromptOpen && !showRequiredQuestion && !showPractice && (
         <QuestionPromptOverlay
           learningMode={state.learningMode}
           questionInput={questionInput}
@@ -758,12 +1198,78 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
         />
       )}
 
+      {/* ═══ REQUIRED MIDDLE QUESTION ═════════════════════════ */}
+      {showRequiredQuestion && (
+        <RequiredQuestionPrompt
+          question={activeLesson.requiredMidLessonQuestion}
+          answer={requiredQuestionAnswer}
+          setAnswer={setRequiredQuestionAnswer}
+          result={requiredQuestionResult}
+          onSubmit={handleRequiredQuestionSubmit}
+          learningMode={state.learningMode}
+        />
+      )}
+
+      {/* ═══ PRACTICE PANEL ═══════════════════════════════════ */}
+      {showPractice && (
+        <PracticePrompt
+          activeLesson={activeLesson}
+          answer={practiceAnswer}
+          setAnswer={setPracticeAnswer}
+          result={practiceResult}
+          onSubmit={handlePracticeSubmit}
+          learningMode={state.learningMode}
+        />
+      )}
+
+      {/* ═══ EXIT TICKET ══════════════════════════════════════ */}
+      {showExitTicket && (
+        <ExitTicketPrompt
+          exitTicket={activeLesson.exitTicket!}
+          answer={exitTicketAnswer}
+          setAnswer={setExitTicketAnswer}
+          result={exitTicketResult}
+          onSubmit={handleExitTicketSubmit}
+          learningMode={state.learningMode}
+        />
+      )}
+
       {/* ═══ TRANSCRIPT DRAWER ════════════════════════════════ */}
       <TranscriptDrawer
         entries={state.transcript}
         isOpen={showTranscript}
         onClose={() => setShowTranscript(false)}
       />
+
+      {/* ═══ NOTES DRAWER ═════════════════════════════════════ */}
+      <NotesDrawer
+        isOpen={showNotesDrawer}
+        onClose={() => setShowNotesDrawer(false)}
+        lesson={activeLesson}
+        currentStepIndex={state.progress.stepIndex}
+        userNotes={userNotes}
+        onAddNote={(note) => {
+          setUserNotes((prev) => [...prev, note]);
+          setUserNoteInput("");
+        }}
+        onSaveNotes={handleSaveNotes}
+        userNoteInput={userNoteInput}
+        setUserNoteInput={setUserNoteInput}
+      />
+
+      {/* ═══ LESSON TIMELINE ══════════════════════════════════ */}
+      {showLessonTimeline && (
+        <LessonTimelineOverlay
+          currentStepIndex={state.progress.stepIndex}
+          steps={STEP_ORDER}
+          completion={completion}
+          onSelect={(idx) => {
+            goToStep(idx);
+            setShowLessonTimeline(false);
+          }}
+          onClose={() => setShowLessonTimeline(false)}
+        />
+      )}
 
       {/* ═══ MODE SWITCHER ════════════════════════════════════ */}
       {showModeSwitcher && (
@@ -774,6 +1280,20 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
             setShowModeSwitcher(false);
           }}
           onClose={() => setShowModeSwitcher(false)}
+        />
+      )}
+
+      {/* ═══ COMPLETION SUMMARY ═══════════════════════════════ */}
+      {showCompletionSummary && (
+        <LessonCompletionSummaryPanel
+          completion={completion}
+          elapsedSeconds={elapsedSeconds}
+          onReplay={() => {
+            setShowCompletionSummary(false);
+            goToStep(0);
+            setTimeout(() => playLesson(), 500);
+          }}
+          onClose={() => setShowCompletionSummary(false)}
         />
       )}
 
@@ -791,8 +1311,15 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
             <p className="mt-3 text-sm text-muted-foreground">
               This lesson includes voice, whiteboard with handwriting, captions, and full accessibility support.
             </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              <Clock className="mr-1 inline h-3 w-3" />
+              Estimated duration: {activeLesson.estimatedDurationMinutes} minutes
+            </p>
             <div className="mt-6 flex items-center justify-center gap-3">
-              <Button onClick={() => playLesson()} size="lg">
+              <Button onClick={() => {
+                trackEvent({ type: "session_started", timestamp: new Date().toISOString() });
+                playLesson();
+              }} size="lg">
                 <Play className="mr-2 h-5 w-5" />
                 Start Lesson
               </Button>
@@ -821,8 +1348,11 @@ function ClassroomTopBar({
   progress,
   liveStatus,
   learningMode,
+  elapsedSeconds,
+  currentStep,
   onOpenModeSwitcher,
   onOpenTranscript,
+  onOpenNotes,
   onEndLesson,
 }: {
   institutionName: string;
@@ -831,8 +1361,11 @@ function ClassroomTopBar({
   progress: number;
   liveStatus: "live" | "paused" | "ready";
   learningMode: LearningMode;
+  elapsedSeconds: number;
+  currentStep: string;
   onOpenModeSwitcher: () => void;
   onOpenTranscript: () => void;
+  onOpenNotes: () => void;
   onEndLesson: () => void;
 }) {
   return (
@@ -842,12 +1375,15 @@ function ClassroomTopBar({
         Exit
       </Link>
 
+      {/* Klassruum logo area */}
       <div className="ml-4 flex items-center gap-2 text-sm">
-        <span className="text-muted-foreground">{institutionName}</span>
-        <span className="text-muted-foreground/50">/</span>
-        <span className="text-muted-foreground">{courseName}</span>
-        <span className="text-muted-foreground/50">/</span>
-        <span className="font-semibold text-foreground">{lessonTitle}</span>
+        <span className="text-xs font-bold text-primary">Klassruum</span>
+        <span className="text-muted-foreground/50">|</span>
+        <span className="text-muted-foreground text-xs">{institutionName}</span>
+        <span className="text-muted-foreground/50">|</span>
+        <span className="text-muted-foreground text-xs">{courseName}</span>
+        <span className="text-muted-foreground/50">|</span>
+        <span className="font-semibold text-foreground text-xs">{lessonTitle}</span>
       </div>
 
       <div className="ml-auto flex items-center gap-3">
@@ -859,9 +1395,26 @@ function ClassroomTopBar({
           {liveStatus === "live" ? "Live" : liveStatus === "paused" ? "Paused" : "Ready"}
         </div>
 
+        {/* AI Teacher badge */}
+        <div className="flex items-center gap-1.5 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-600">
+          <Sparkles className="h-3 w-3" />
+          AI Teacher
+        </div>
+
+        {/* Current step */}
+        <div className="hidden items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600 lg:flex">
+          <Target className="h-3 w-3" />
+          {currentStep}
+        </div>
+
+        {/* Timer */}
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Clock className="h-3 w-3" />
+          {Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, "0")}
+        </div>
+
         {/* Progress */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Progress</span>
           <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-200">
             <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
           </div>
@@ -872,6 +1425,12 @@ function ClassroomTopBar({
         <button onClick={onOpenModeSwitcher} className="learning-mode-badge" aria-label="Change learning mode">
           <Accessibility className="h-3.5 w-3.5" />
           {LEARNING_MODES.find((m) => m.key === learningMode)?.label ?? "Standard"}
+        </button>
+
+        {/* Notes */}
+        <button onClick={onOpenNotes} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground" aria-label="Open notes">
+          <FileText className="h-3.5 w-3.5" />
+          Notes
         </button>
 
         {/* Transcript */}
@@ -897,8 +1456,11 @@ function TeacherVideoPanel({
   isSpeaking,
   audioEnabled,
   currentCaption,
+  currentStep,
+  elapsedSeconds,
   onToggleAudio,
   onAskQuestion,
+  onReplayExplanation,
   learningMode,
 }: {
   teacherState: TeacherVideoState;
@@ -906,8 +1468,11 @@ function TeacherVideoPanel({
   isSpeaking: boolean;
   audioEnabled: boolean;
   currentCaption: string;
+  currentStep: string;
+  elapsedSeconds: number;
   onToggleAudio: () => void;
   onAskQuestion: () => void;
+  onReplayExplanation: () => void;
   learningMode: LearningMode;
 }) {
   const stateLabel = teacherState.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -920,40 +1485,116 @@ function TeacherVideoPanel({
       case "answering": return "bg-cyan-100 text-cyan-700";
       case "encouraging": return "bg-pink-100 text-pink-700";
       case "paused": return "bg-yellow-100 text-yellow-700";
+      case "explaining": return "bg-indigo-100 text-indigo-700";
+      case "asking_question": return "bg-amber-100 text-amber-700";
+      case "preparing": return "bg-slate-100 text-slate-600";
       default: return "bg-slate-100 text-slate-600";
+    }
+  })();
+
+  // Dynamic activity description based on state
+  const activityDescription = (() => {
+    switch (teacherState) {
+      case "writing": return "Writing on board...";
+      case "speaking": return "Explaining the lesson...";
+      case "listening": return "Listening for questions...";
+      case "thinking": return "Thinking...";
+      case "answering": return "Answering your question...";
+      case "encouraging": return "Great work!";
+      case "paused": return "Paused";
+      case "preparing": return "Preparing lesson...";
+      case "explaining": return "Giving deeper explanation...";
+      case "asking_question": return "Asking a question...";
+      default: return "Ready";
     }
   })();
 
   return (
     <aside className="teacher-video-panel flex w-[280px] min-w-[240px] max-w-[320px] flex-shrink-0 flex-col" role="complementary" aria-label="Teacher video panel">
-      {/* Header */}
+      {/* Header with teacher name and connection status */}
       <div className="flex items-center justify-between px-4 pt-4">
-        <span className="text-sm font-bold text-foreground">AI Teacher</span>
-        <div className="flex items-center gap-1.5 text-xs font-medium text-green-600">
+        <span className="text-sm font-bold text-foreground">
+          {teacherMode === "ai_teacher" ? "AI Teacher" : teacherMode === "human_teacher" ? "Teacher" : "Teacher"}
+        </span>
+        {/* Connection status */}
+        <div className="flex items-center gap-1.5 text-xs font-medium text-green-600" title="Connected">
+          <Wifi className="h-3 w-3" />
           <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           Online
         </div>
       </div>
 
-      {/* Avatar */}
-      <div className="flex flex-col items-center px-4 py-5">
-        <div className={`relative h-28 w-28 rounded-full border-4 ${isSpeaking ? "border-blue-300 shadow-lg shadow-blue-200/50" : "border-slate-200"}`}>
-          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-100 to-purple-100" />
-          <div className="absolute inset-4 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-200 to-purple-200">
-            <div className={`h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 ${isSpeaking ? "animate-pulse" : ""}`} />
+      {/* ── Video Frame / Avatar Area (Phase 1 placeholder) ── */}
+      <div className="relative mx-4 mt-3 overflow-hidden rounded-xl bg-gradient-to-br from-slate-800 to-slate-900" style={{ aspectRatio: "16/10" }}>
+        {/* Teacher name overlay */}
+        <div className="absolute left-2 top-2 z-10 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
+          <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+          Mr. Klass
+        </div>
+
+        {/* Role badge overlay */}
+        <div className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full bg-purple-500/80 px-2 py-0.5 text-[10px] font-semibold text-white">
+          <Sparkles className="h-2.5 w-2.5" />
+          {teacherMode === "ai_teacher" ? "AI" : teacherMode === "human_teacher" ? "Live" : "Hybrid"}
+        </div>
+
+        {/* Avatar with speaking ring */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className={`relative h-20 w-20 rounded-full border-4 ${isSpeaking ? "border-blue-400 shadow-lg shadow-blue-400/30" : "border-slate-600"}`}>
+            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30" />
+            <div className="absolute inset-3 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500/60 to-purple-500/60">
+              <div className={`h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 ${isSpeaking ? "animate-pulse" : ""}`} />
+            </div>
+            {isSpeaking && (
+              <div className="absolute inset-0 animate-ping rounded-full border-2 border-blue-400/20" />
+            )}
+            {teacherState === "writing" && (
+              <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs shadow-md">✍️</div>
+            )}
+            {teacherState === "thinking" && (
+              <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 shadow-md">
+                <Loader2 className="h-3 w-3 animate-spin text-white" />
+              </div>
+            )}
           </div>
-          {/* Speaking ring */}
+
+          {/* Audio waveform */}
           {isSpeaking && (
-            <div className="absolute inset-0 animate-ping rounded-full border-2 border-blue-400/30" />
+            <div className="mt-2 flex items-center gap-[2px]">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="w-[2px] rounded-full bg-blue-400" style={{ height: `${4 + Math.random() * 10}px`, animation: `waveform 0.6s ease-in-out infinite alternate`, animationDelay: `${i * 0.08}s` }} />
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Teacher state */}
+        {/* Mic/Camera status overlay */}
+        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-2">
+          <div className={`flex h-6 w-6 items-center justify-center rounded-full ${audioEnabled ? "bg-green-500/80" : "bg-red-500/80"}`}>
+            {audioEnabled ? <Mic className="h-3 w-3 text-white" /> : <MicOff className="h-3 w-3 text-white" />}
+          </div>
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80">
+            <VideoOff className="h-3 w-3 text-white" />
+          </div>
+        </div>
+
+        {/* "Video coming soon" label */}
+        <div className="absolute bottom-2 right-2 z-10 rounded bg-black/40 px-1.5 py-0.5 text-[8px] text-slate-300">
+          Video Phase 2
+        </div>
+      </div>
+
+      {/* Teacher state badge */}
+      <div className="flex flex-col items-center px-4 pt-3">
         <div className={`teacher-state-badge ${stateColor} mt-3`}>
           {teacherState === "writing" && <PenTool className="h-3 w-3" />}
           {teacherState === "speaking" && <Volume2 className="h-3 w-3" />}
           {teacherState === "listening" && <Mic className="h-3 w-3" />}
           {teacherState === "thinking" && <Loader2 className="h-3 w-3 animate-spin" />}
+          {teacherState === "explaining" && <BookOpen className="h-3 w-3" />}
+          {teacherState === "asking_question" && <HelpCircle className="h-3 w-3" />}
+          {teacherState === "answering" && <MessageSquare className="h-3 w-3" />}
+          {teacherState === "encouraging" && <Award className="h-3 w-3" />}
           {stateLabel}
         </div>
         <p className="mt-1 text-xs text-muted-foreground">Mr. Klass is your AI teacher</p>
@@ -977,17 +1618,20 @@ function TeacherVideoPanel({
       {/* Current activity */}
       <div className="px-4 py-2">
         <div className="text-xs text-muted-foreground">Current Activity</div>
+        <p className="mt-1 text-sm font-medium text-foreground">{activityDescription}</p>
+      </div>
+
+      {/* Current step */}
+      <div className="px-4 py-2">
+        <div className="text-xs text-muted-foreground">Current Step</div>
+        <p className="mt-1 text-sm font-medium text-foreground">{currentStep}</p>
+      </div>
+
+      {/* Time spent */}
+      <div className="px-4 py-2">
+        <div className="text-xs text-muted-foreground">Time Spent</div>
         <p className="mt-1 text-sm font-medium text-foreground">
-          {teacherState === "writing" && "Writing on board..."}
-          {teacherState === "speaking" && "Explaining the lesson..."}
-          {teacherState === "listening" && "Listening for questions..."}
-          {teacherState === "thinking" && "Thinking..."}
-          {teacherState === "answering" && "Answering your question..."}
-          {teacherState === "encouraging" && "Great work!"}
-          {teacherState === "paused" && "Paused"}
-          {teacherState === "preparing" && "Preparing lesson..."}
-          {teacherState === "explaining" && "Giving explanation..."}
-          {teacherState === "asking_question" && "Asking a question..."}
+          {Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, "0")}
         </p>
       </div>
 
@@ -1000,6 +1644,16 @@ function TeacherVideoPanel({
       )}
 
       <div className="mt-auto px-4 pb-4 space-y-2">
+        {/* Replay last explanation */}
+        <button
+          onClick={onReplayExplanation}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2 text-sm font-medium text-purple-600 hover:bg-purple-100"
+          aria-label="Replay last explanation"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Replay Explanation
+        </button>
+
         {/* Ask question */}
         <button
           onClick={onAskQuestion}
@@ -1040,6 +1694,7 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
   ref,
 ) {
   const fontSize = learningMode === "low_vision" || learningMode === "deaf_blind" ? "text-3xl" : learningMode === "dyslexia" ? "text-2xl" : "";
+  const fontFamily = learningMode === "dyslexia" ? "font-sans" : "";
 
   return (
     <div
@@ -1062,28 +1717,21 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
       <div className="relative">
         {/* Written items */}
         {writtenItems.map((item) => (
-          <div key={item.id} className={`board-writing-line ${item.type} ${fontSize}`}>
-            {item.type === "bullet" && "• "}
-            {item.type === "equation" && "  "}
-            {item.type === "calculation" && "  "}
-            {item.type === "answer" && "→ "}
-            {item.type === "question" && "? "}
-            {item.text}
+          <div key={item.id} className={`board-writing-line ${item.type} ${fontSize} ${fontFamily}`}>
+            {item.type === "heading" && <span className="font-bold">{item.text}</span>}
+            {item.type === "bullet" && <span>• {item.text}</span>}
+            {item.type === "equation" && <span className="text-center block text-lg">{item.text}</span>}
+            {item.type === "calculation" && <span>  {item.text}</span>}
+            {item.type === "answer" && <span className="text-green-600 font-semibold">→ {item.text}</span>}
+            {item.type === "question" && <span className="text-orange-600">? {item.text}</span>}
+            {!["heading", "bullet", "equation", "calculation", "answer", "question"].includes(item.type) && item.text}
           </div>
         ))}
 
         {/* Currently writing item */}
         {isWriting && currentItem && (
-          <div className={`board-writing-line ${currentItem.type} ${fontSize}`}>
+          <div className={`board-writing-line ${currentItem.type} ${fontSize} ${fontFamily}`}>
             {currentItem.type === "bullet" && "• "}
-            {currentItem.type === "equation" && "  "}
-            {currentItem.type === "calculation" && "  "}
-            {currentItem.type === "answer" && "→ "}
-            {currentItem.type === "question" && "? "}
-            <span>{currentWrittenText}</span>
-            {/* Writing cursor / hand */}
-            {!reducedMotion && (
-              <span className="writing-cursor inline-block w-[2px] animate-pulse bg-blue-500" style={{ height: "1em", verticalAlign: "
             {currentItem.type === "equation" && "  "}
             {currentItem.type === "calculation" && "  "}
             {currentItem.type === "answer" && "→ "}
@@ -1093,7 +1741,7 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
             {!reducedMotion && (
               <span className="writing-cursor inline-block w-[2px] animate-pulse bg-blue-500" style={{ height: "1em", verticalAlign: "text-bottom", marginLeft: "2px" }} />
             )}
-            {/* Hand cursor emoji */}
+            {/* Hand cursor emoji following text */}
             {!reducedMotion && (
               <span className="writing-hand ml-1" style={{ position: "relative", top: "-2px" }} aria-hidden="true">
                 ✍️
@@ -1104,15 +1752,12 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
       </div>
     </div>
   );
-};
+});
 
 (LearningWhiteboard as any).displayName = "LearningWhiteboard";
 
 // Forward ref wrapper
 const LearningWhiteboardWithRef = React.forwardRef(LearningWhiteboard as any);
-
-// Need to import React for forwardRef
-import React from "react";
 
 /* ─── Classroom Controls (Bottom Bar) ────────────────────────── */
 
@@ -1133,6 +1778,8 @@ function ClassroomControls({
   onEndLesson,
   onPrevStep,
   onNextStep,
+  onOpenNotes,
+  onOpenTimeline,
 }: {
   isPlaying: boolean;
   isPaused: boolean;
@@ -1150,18 +1797,19 @@ function ClassroomControls({
   onEndLesson: () => void;
   onPrevStep: () => void;
   onNextStep: () => void;
+  onOpenNotes: () => void;
+  onOpenTimeline: () => void;
 }) {
   const isLargeButtons = learningMode === "motor_support" || learningMode === "low_vision";
   const btnClass = isLargeButtons ? "h-12 w-12" : "h-10 w-10";
 
   return (
     <div className="flex h-16 items-center justify-center gap-2 border-t border-border bg-white px-4 shadow-inner" role="toolbar" aria-label="Classroom controls">
-      {/* Step nav */}
+      {/* Lesson controls group */}
       <button onClick={onPrevStep} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Previous step">
         <SkipBack className="h-4 w-4" />
       </button>
 
-      {/* Play / Pause */}
       {!isPlaying && !isPaused && (
         <button onClick={onPlay} className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`} aria-label="Start lesson">
           <Play className="h-5 w-5" />
@@ -1182,38 +1830,269 @@ function ClassroomControls({
         <SkipForward className="h-4 w-4" />
       </button>
 
-      <div className="mx-2 h-8 w-px bg-border" />
+      <div className="mx-1 h-8 w-px bg-border" />
 
-      {/* Audio */}
-      {learningMode !== "blind" && (
-        <button onClick={onToggleAudio} className={`${btnClass} flex items-center justify-center rounded-full ${audioEnabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-muted-foreground"}`} aria-label={audioEnabled ? "Mute audio" : "Unmute audio"}>
-          {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-        </button>
-      )}
-
-      {/* Captions */}
-      <button onClick={onToggleCaptions} className={`${btnClass} flex items-center justify-center rounded-full ${captionsEnabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-muted-foreground"}`} aria-label={captionsEnabled ? "Hide captions" : "Show captions"}>
-        <Subtitles className="h-4 w-4" />
-      </button>
-
-      {/* Ask Question */}
+      {/* Question controls group */}
       <button onClick={onAskQuestion} className={`${btnClass} flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-200`} aria-label="Ask question">
         <MessageSquare className="h-4 w-4" />
       </button>
 
-      {/* Mic */}
       {learningMode !== "speech_difficulty" && (
         <button onClick={onToggleListening} className={`${btnClass} flex items-center justify-center rounded-full ${isListening ? "bg-red-100 text-red-600 animate-pulse" : "bg-slate-100 text-muted-foreground"}`} aria-label={isListening ? "Stop listening" : "Start voice input"}>
           {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         </button>
       )}
 
-      <div className="mx-2 h-8 w-px bg-border" />
+      <div className="mx-1 h-8 w-px bg-border" />
 
-      {/* End Lesson */}
-      <button onClick={onEndLesson} className="rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-white hover:bg-destructive/90" aria-label="End lesson">
+      {/* Accessibility controls group */}
+      {learningMode !== "blind" && (
+        <button onClick={onToggleAudio} className={`${btnClass} flex items-center justify-center rounded-full ${audioEnabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-muted-foreground"}`} aria-label={audioEnabled ? "Mute audio" : "Unmute audio"}>
+          {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+        </button>
+      )}
+
+      <button onClick={onToggleCaptions} className={`${btnClass} flex items-center justify-center rounded-full ${captionsEnabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-muted-foreground"}`} aria-label={captionsEnabled ? "Hide captions" : "Show captions"}>
+        <Subtitles className="h-4 w-4" />
+      </button>
+
+      <button onClick={onOpenNotes} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Open notes">
+        <FileText className="h-4 w-4" />
+      </button>
+
+      <button onClick={onOpenTimeline} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Lesson timeline">
+        <Target className="h-4 w-4" />
+      </button>
+
+      <div className="mx-1 h-8 w-px bg-border" />
+
+      {/* Future video controls (disabled - Phase 2/3) */}
+      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Camera (coming soon)" title="Camera — Coming in Phase 2">
+        <Video className="h-4 w-4" />
+      </button>
+      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Raise hand (coming soon)" title="Raise Hand — Coming in Phase 2">
+        <HandMetal className="h-4 w-4" />
+      </button>
+      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Participants (coming soon)" title="Participants — Coming in Phase 2">
+        <Users className="h-4 w-4" />
+      </button>
+      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Screen share (coming soon)" title="Screen Share — Coming in Phase 2">
+        <MonitorUp className="h-4 w-4" />
+      </button>
+
+      <div className="mx-1 h-8 w-px bg-border" />
+
+      {/* Session controls */}
+      <button onClick={onEndLesson} className="rounded-lg border-2 border-destructive/30 bg-white px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive hover:text-white" aria-label="End lesson">
         End Lesson
       </button>
+    </div>
+  );
+}
+
+/* ─── Required Question Prompt ───────────────────────────────── */
+
+function RequiredQuestionPrompt({
+  question,
+  answer,
+  setAnswer,
+  result,
+  onSubmit,
+  learningMode,
+}: {
+  question: RequiredLessonQuestion;
+  answer: string;
+  setAnswer: (v: string) => void;
+  result: "correct" | "incorrect" | null;
+  onSubmit: () => void;
+  learningMode: LearningMode;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  return (
+    <div className="question-prompt-wrapper" role="dialog" aria-label="Required question">
+      <div className="question-prompt-content max-w-md">
+        <div className="flex items-center gap-2 mb-3">
+          <AlertCircle className="h-5 w-5 text-amber-500" />
+          <h3 className="question-prompt-title text-amber-600">Required Question</h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-1">You must answer before continuing.</p>
+        <p className="text-lg font-semibold text-foreground mb-4">{question.questionText}</p>
+
+        {result === null ? (
+          <>
+            <div className="flex gap-2">
+              <input
+                ref={inputRef}
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && answer.trim() && onSubmit()}
+                placeholder="Type your answer..."
+                className="question-prompt-input flex-1"
+                autoComplete="off"
+              />
+              <button
+                onClick={onSubmit}
+                disabled={!answer.trim()}
+                className="question-prompt-button primary disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
+            {question.hint && (
+              <p className="mt-3 text-xs text-muted-foreground italic">
+                💡 Hint: {question.hint}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}>
+            {result === "correct" ? (
+              <><Check className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{question.feedbackCorrect}</p></>
+            ) : (
+              <><AlertCircle className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{question.feedbackIncorrect}</p></>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Practice Prompt ────────────────────────────────────────── */
+
+function PracticePrompt({
+  activeLesson,
+  answer,
+  setAnswer,
+  result,
+  onSubmit,
+  learningMode,
+}: {
+  activeLesson: Lesson;
+  answer: string;
+  setAnswer: (v: string) => void;
+  result: "correct" | "incorrect" | null;
+  onSubmit: () => void;
+  learningMode: LearningMode;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const guidedPractice = activeLesson.steps.find((s) => s.practice?.type === "guided")?.practice;
+  const independentPractice = activeLesson.steps.find((s) => s.practice?.type === "independent")?.practice;
+  const currentPractice = guidedPractice || independentPractice;
+  const isGuided = currentPractice?.type === "guided";
+
+  if (!currentPractice) return null;
+
+  return (
+    <div className="question-prompt-wrapper" role="dialog" aria-label="Practice problem">
+      <div className="question-prompt-content max-w-md">
+        <div className="flex items-center gap-2 mb-3">
+          <Brain className="h-5 w-5 text-purple-500" />
+          <h3 className="question-prompt-title text-purple-600">
+            {isGuided ? "Guided Practice" : "Independent Practice"}
+          </h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-1">
+          {isGuided ? "Let's work on this together." : "Now try this on your own!"}
+        </p>
+        <p className="text-lg font-semibold text-foreground mb-4">{currentPractice.problemText}</p>
+
+        {result === null ? (
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && answer.trim() && onSubmit()}
+              placeholder="Type your answer..."
+              className="question-prompt-input flex-1"
+              autoComplete="off"
+            />
+            <button
+              onClick={onSubmit}
+              disabled={!answer.trim()}
+              className="question-prompt-button primary disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}>
+            {result === "correct" ? (
+              <><Check className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">Correct! Well done.</p></>
+            ) : (
+              <><AlertCircle className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{currentPractice.hintOnIncorrect || "Let me show you the solution."}</p></>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Exit Ticket Prompt ─────────────────────────────────────── */
+
+function ExitTicketPrompt({
+  exitTicket,
+  answer,
+  setAnswer,
+  result,
+  onSubmit,
+  learningMode,
+}: {
+  exitTicket: ExitTicket;
+  answer: string;
+  setAnswer: (v: string) => void;
+  result: "correct" | "incorrect" | null;
+  onSubmit: () => void;
+  learningMode: LearningMode;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  return (
+    <div className="question-prompt-wrapper" role="dialog" aria-label="Exit ticket">
+      <div className="question-prompt-content max-w-md">
+        <div className="flex items-center gap-2 mb-3">
+          <Award className="h-5 w-5 text-green-500" />
+          <h3 className="question-prompt-title text-green-600">Exit Ticket</h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-1">One final check before you finish.</p>
+        <p className="text-lg font-semibold text-foreground mb-4">{exitTicket.questionText}</p>
+
+        {result === null ? (
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && answer.trim() && onSubmit()}
+              placeholder="Type your answer..."
+              className="question-prompt-input flex-1"
+              autoComplete="off"
+            />
+            <button
+              onClick={onSubmit}
+              disabled={!answer.trim()}
+              className="question-prompt-button primary disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}>
+            {result === "correct" ? (
+              <><Check className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{exitTicket.feedback}</p></>
+            ) : (
+              <><AlertCircle className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">Not quite. The key is: numbers must multiply to c and add to b.</p></>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1255,6 +2134,7 @@ function QuestionPromptOverlay({
       <div className="question-prompt-wrapper" role="dialog" aria-label="Ask a question">
         <div className="question-prompt-content max-w-md">
           <h3 className="question-prompt-title">Any question?</h3>
+          <p className="text-sm text-muted-foreground mb-3">Do you have any question before we continue?</p>
           <div className="flex gap-2">
             <input
               ref={inputRef}
@@ -1341,6 +2221,7 @@ function QuestionPromptOverlay({
       <div className="question-prompt-wrapper" role="dialog" aria-label="Voice question prompt">
         <div className="question-prompt-content max-w-md text-center" aria-live="assertive">
           <h3 className="question-prompt-title">Any question before we continue?</h3>
+          <p className="text-sm text-muted-foreground mb-3">You can ask now, or say no question.</p>
           <div className="my-4">
             {isListening ? (
               <>
@@ -1448,6 +2329,333 @@ function QuestionPromptOverlay({
           <button onClick={() => onQuickAction("continue")} className="question-prompt-button secondary">Continue</button>
         </div>
         <button onClick={onClose} className="mt-3 text-xs text-muted-foreground hover:text-foreground">Close</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Notes Drawer ───────────────────────────────────────────── */
+
+function NotesDrawer({
+  isOpen,
+  onClose,
+  lesson,
+  currentStepIndex,
+  userNotes,
+  onAddNote,
+  onSaveNotes,
+  userNoteInput,
+  setUserNoteInput,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  lesson: Lesson;
+  currentStepIndex: number;
+  userNotes: string[];
+  onAddNote: (note: string) => void;
+  onSaveNotes: () => void;
+  userNoteInput: string;
+  setUserNoteInput: (v: string) => void;
+}) {
+  const currentStep = lesson.steps[currentStepIndex];
+
+  return (
+    <div
+      className={`transcript-drawer ${isOpen ? "open" : "closed"}`}
+      role="dialog"
+      aria-label="Lesson notes"
+      aria-hidden={!isOpen}
+    >
+      <div className="transcript-content">
+        <div className="transcript-header">
+          <h3 className="flex items-center gap-2 text-sm font-bold text-foreground">
+            <FileText className="h-4 w-4" />
+            Lesson Notes
+          </h3>
+          <div className="flex items-center gap-2">
+            <button onClick={onSaveNotes} className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90" aria-label="Save notes">
+              <Save className="h-3.5 w-3.5" /> Save
+            </button>
+            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100" aria-label="Close notes">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="transcript-body">
+          {/* Lesson objective */}
+          <div className="mb-4">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Lesson Objective</h4>
+            <p className="text-sm text-foreground bg-blue-50 rounded-lg p-3">{lesson.objective}</p>
+          </div>
+
+          {/* Key ideas from current step */}
+          {currentStep?.learnerNotes && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Key Ideas</h4>
+              {currentStep.learnerNotes.keyPoints.map((point, i) => (
+                <p key={i} className="text-sm text-foreground py-1">• {point}</p>
+              ))}
+            </div>
+          )}
+
+          {/* Detailed explanation */}
+          {currentStep?.learnerNotes?.summary && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Detailed Explanation</h4>
+              <p className="text-sm text-foreground bg-slate-50 rounded-lg p-3">{currentStep.learnerNotes.summary}</p>
+            </div>
+          )}
+
+          {/* Examples */}
+          {currentStep?.learnerNotes?.examples && currentStep.learnerNotes.examples.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Examples</h4>
+              {currentStep.learnerNotes.examples.map((example, i) => (
+                <p key={i} className="text-sm text-foreground py-1 font-mono bg-slate-50 rounded-lg p-2 mb-1">{example}</p>
+              ))}
+            </div>
+          )}
+
+          {/* Formulas */}
+          {currentStep?.learnerNotes?.formulas && currentStep.learnerNotes.formulas.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Formulas</h4>
+              {currentStep.learnerNotes.formulas.map((formula, i) => (
+                <p key={i} className="text-sm text-foreground py-1 font-mono bg-purple-50 rounded-lg p-2 mb-1">{formula}</p>
+              ))}
+            </div>
+          )}
+
+          {/* Common mistakes */}
+          {currentStep?.learnerNotes?.commonMistakes && currentStep.learnerNotes.commonMistakes.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Common Mistakes</h4>
+              {currentStep.learnerNotes.commonMistakes.map((mistake, i) => (
+                <p key={i} className="text-sm text-orange-700 py-1 bg-orange-50 rounded-lg p-2 mb-1">⚠️ {mistake}</p>
+              ))}
+            </div>
+          )}
+
+          {/* Homework */}
+          {lesson.homework && lesson.homework.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Homework</h4>
+              {lesson.homework.map((hw, i) => (
+                <p key={i} className="text-sm text-foreground py-1">• {hw}</p>
+              ))}
+            </div>
+          )}
+
+          {/* Teacher notes */}
+          {currentStep?.teacherNotes && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Teacher's Explanation</h4>
+              <p className="text-sm text-foreground bg-green-50 rounded-lg p-3">{currentStep.teacherNotes}</p>
+            </div>
+          )}
+
+          {/* Accessibility notes */}
+          {currentStep?.accessibility?.simplifiedExplanation && (
+            <div className="mb-4">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Simpler Explanation</h4>
+              <p className="text-sm text-foreground bg-amber-50 rounded-lg p-3">{currentStep.accessibility.simplifiedExplanation}</p>
+            </div>
+          )}
+
+          {/* User notes */}
+          <div className="mb-4">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">My Notes</h4>
+            {userNotes.map((note, i) => (
+              <p key={i} className="text-sm text-foreground py-1 bg-yellow-50 rounded-lg p-2 mb-1">📝 {note}</p>
+            ))}
+            <div className="flex gap-2 mt-2">
+              <input
+                value={userNoteInput}
+                onChange={(e) => setUserNoteInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && userNoteInput.trim() && onAddNote(userNoteInput)}
+                placeholder="Add your note..."
+                className="question-prompt-input flex-1 text-sm"
+                autoComplete="off"
+              />
+              <button
+                onClick={() => userNoteInput.trim() && onAddNote(userNoteInput)}
+                className="question-prompt-button primary"
+                aria-label="Add note"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Lesson Timeline Overlay ────────────────────────────────── */
+
+function LessonTimelineOverlay({
+  currentStepIndex,
+  steps,
+  completion,
+  onSelect,
+  onClose,
+}: {
+  currentStepIndex: number;
+  steps: readonly string[];
+  completion: CompletionTracking;
+  onSelect: (index: number) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="question-prompt-wrapper" role="dialog" aria-label="Lesson timeline">
+      <div className="question-prompt-content max-w-lg">
+        <h3 className="question-prompt-title flex items-center gap-2">
+          <Target className="h-5 w-5" />
+          Lesson Timeline
+        </h3>
+        <p className="mb-4 text-sm text-muted-foreground">Click any completed step to review it.</p>
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          {steps.map((step, idx) => {
+            const label = step.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+            const isCurrent = idx === currentStepIndex;
+            const isPast = idx < currentStepIndex;
+            return (
+              <button
+                key={step}
+                onClick={() => onSelect(idx)}
+                className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                  isCurrent ? "border-primary bg-primary/5" : isPast ? "border-green-200 bg-green-50/50" : "border-border bg-white"
+                }`}
+              >
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                  isCurrent ? "bg-primary text-white" : isPast ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+                }`}>
+                  {isPast ? <Check className="h-4 w-4" /> : idx + 1}
+                </div>
+                <div className="flex-1">
+                  <p className={`text-sm font-medium ${isCurrent ? "text-primary" : isPast ? "text-green-700" : "text-muted-foreground"}`}>
+                    {label}
+                  </p>
+                </div>
+                {isCurrent && <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full">Current</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Completion status */}
+        <div className="mt-4 rounded-lg bg-slate-50 p-3">
+          <p className="text-xs font-bold text-muted-foreground mb-2">Completion Status</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className={completion.middleQuestionAnswered ? "text-green-600" : "text-slate-400"}>
+              {completion.middleQuestionAnswered ? "✅" : "⬜"} Middle Question
+            </div>
+            <div className={completion.guidedPracticeAttempted ? "text-green-600" : "text-slate-400"}>
+              {completion.guidedPracticeAttempted ? "✅" : "⬜"} Guided Practice
+            </div>
+            <div className={completion.independentPracticeAttempted ? "text-green-600" : "text-slate-400"}>
+              {completion.independentPracticeAttempted ? "✅" : "⬜"} Independent Practice
+            </div>
+            <div className={completion.exitTicketAnswered ? "text-green-600" : "text-slate-400"}>
+              {completion.exitTicketAnswered ? "✅" : "⬜"} Exit Ticket
+            </div>
+          </div>
+        </div>
+
+        <button onClick={onClose} className="mt-4 text-sm text-muted-foreground hover:text-foreground">
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Lesson Completion Summary Panel ────────────────────────── */
+
+function LessonCompletionSummaryPanel({
+  completion,
+  elapsedSeconds,
+  onReplay,
+  onClose,
+}: {
+  completion: CompletionTracking;
+  elapsedSeconds: number;
+  onReplay: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="question-prompt-wrapper" role="dialog" aria-label="Lesson completed">
+      <div className="question-prompt-content max-w-lg text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <Award className="h-8 w-8 text-green-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Lesson Completed!</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Great work today. Here is your summary.</p>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 text-left">
+          <div className="rounded-lg bg-slate-50 p-3">
+            <p className="text-xs text-muted-foreground">Time Spent</p>
+            <p className="text-lg font-bold text-foreground">{Math.floor(elapsedSeconds / 60)} min</p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-3">
+            <p className="text-xs text-muted-foreground">Questions Asked</p>
+            <p className="text-lg font-bold text-foreground">{completion.questionsAskedCount}</p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-3">
+            <p className="text-xs text-muted-foreground">Middle Question</p>
+            <p className={`text-sm font-bold ${completion.middleQuestionCorrect ? "text-green-600" : completion.middleQuestionAnswered ? "text-orange-600" : "text-slate-400"}`}>
+              {completion.middleQuestionCorrect ? "✅ Correct" : completion.middleQuestionAnswered ? "⚠️ Incorrect" : "Not answered"}
+            </p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-3">
+            <p className="text-xs text-muted-foreground">Guided Practice</p>
+            <p className={`text-sm font-bold ${completion.guidedPracticeCorrect ? "text-green-600" : completion.guidedPracticeAttempted ? "text-orange-600" : "text-slate-400"}`}>
+              {completion.guidedPracticeAttempted ? completion.guidedPracticeCorrect ? "✅ Completed" : "⚠️ Needs review" : "Not attempted"}
+            </p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-3">
+            <p className="text-xs text-muted-foreground">Independent Practice</p>
+            <p className={`text-sm font-bold ${completion.independentPracticeCorrect ? "text-green-600" : completion.independentPracticeAttempted ? "text-orange-600" : "text-slate-400"}`}>
+              {completion.independentPracticeAttempted ? completion.independentPracticeCorrect ? "✅ Completed" : "⚠️ Needs review" : "Not attempted"}
+            </p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-3">
+            <p className="text-xs text-muted-foreground">Exit Ticket</p>
+            <p className={`text-sm font-bold ${completion.exitTicketCorrect ? "text-green-600" : completion.exitTicketAnswered ? "text-orange-600" : "text-slate-400"}`}>
+              {completion.exitTicketAnswered ? completion.exitTicketCorrect ? "✅ Correct" : "⚠️ Review needed" : "Not answered"}
+            </p>
+          </div>
+        </div>
+
+        {/* Weak areas */}
+        {completion.weakAreas.length > 0 && (
+          <div className="mt-4 rounded-lg bg-orange-50 p-3 text-left">
+            <p className="text-xs font-bold text-orange-600 mb-1">Areas to Review</p>
+            {completion.weakAreas.map((area, i) => (
+              <p key={i} className="text-sm text-orange-700">• {area}</p>
+            ))}
+          </div>
+        )}
+
+        {/* Recommended next steps */}
+        <div className="mt-4 rounded-lg bg-blue-50 p-3 text-left">
+          <p className="text-xs font-bold text-blue-600 mb-1">Recommended Next Steps</p>
+          <p className="text-sm text-blue-700">• Practice factor signs</p>
+          <p className="text-sm text-blue-700">• Try equations with negative coefficients</p>
+        </div>
+
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <Button onClick={onReplay} variant="outline">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Replay Lesson
+          </Button>
+          <Button onClick={onClose}>
+            <Home className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </div>
       </div>
     </div>
   );

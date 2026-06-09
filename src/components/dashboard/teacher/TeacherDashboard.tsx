@@ -127,21 +127,24 @@ function TeachingTodayHero() {
         </div>
         <div className="flex flex-col gap-2 lg:items-end">
           <Link
-            to="/classroom/session_demo_math"
+            to="/classroom/$lessonId"
+            params={{ lessonId: "session_demo_math" }}
             className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-green-600 px-6 text-sm font-bold text-white shadow-lg shadow-green-600/25 transition-all hover:bg-green-700 lg:w-auto"
           >
             <Video className="h-4 w-4" />
             Start Class
           </Link>
           <Link
-            to="/teacher/lessons/lesson_quadratic_001/edit"
+            to="/teacher/lessons/$lessonId/edit"
+            params={{ lessonId: "lesson_quadratic_001" }}
             className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-green-200 bg-white px-6 text-sm font-bold text-green-700 transition-all hover:bg-green-50 lg:w-auto"
           >
             <FileText className="h-4 w-4" />
             Preview Lesson
           </Link>
           <Link
-            to="/teacher/courses/course_math_form_2/students"
+            to="/teacher/courses/$courseId/students"
+            params={{ courseId: "course_math_form_2" }}
             className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-green-200 bg-white px-6 text-sm font-bold text-green-700 transition-all hover:bg-green-50 lg:w-auto"
           >
             <Users className="h-4 w-4" />
@@ -215,7 +218,8 @@ function MyCoursesPanel() {
               </div>
             </div>
             <Link
-              to={`/teacher/courses/course_${c.title.toLowerCase().replace(/\s+/g, "_")}`}
+              to="/teacher/courses/$courseId"
+              params={{ courseId: `course_${c.title.toLowerCase().replace(/\s+/g, "_")}` }}
               className="inline-flex h-9 items-center rounded-xl border border-[var(--primary)]/20 px-4 text-xs font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]"
             >
               Open
@@ -236,7 +240,8 @@ function LessonPreparationPanel() {
         {lessonPreps.map((l) => (
           <Link
             key={l.title}
-            to={`/teacher/lessons/${l.title.toLowerCase().replace(/\s+/g, "_")}/edit`}
+            to="/teacher/lessons/$lessonId/edit"
+            params={{ lessonId: l.title.toLowerCase().replace(/\s+/g, "_") }}
             className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
           >
             <div className="min-w-0 flex-1">

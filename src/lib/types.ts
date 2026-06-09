@@ -10,7 +10,12 @@ export type TeacherState =
   | "speaking"
   | "explaining"
   | "correcting"
-  | "encouraging";
+  | "encouraging"
+  | "writing"
+  | "reading"
+  | "warning"
+  | "checking"
+  | "paused";
 
 export type ClassroomMode =
   | "intro"
@@ -431,13 +436,14 @@ export type TeacherVideoState =
   | "thinking"
   | "answering"
   | "encouraging"
-  | "paused";
+  | "paused"
+  | "correcting";
 
 export type WritingSpeed = "slow" | "normal" | "fast";
 
 export type BoardWriteItem = {
   id: string;
-  type: "heading" | "bullet" | "equation" | "calculation" | "question" | "answer";
+  type: "heading" | "bullet" | "equation" | "calculation" | "question" | "answer" | "diagram_label" | "step_number";
   text: string;
   readExactly: boolean;
   explanation?: string;
@@ -509,4 +515,109 @@ export type TranscriptEntry = {
   text: string;
   timestamp: string;
   boardItemId?: string;
+};
+
+/* ─── Video Provider Types (Phase 1–3) ───────────────────────── */
+
+export type VideoProvider = "livekit" | "daily" | "agora";
+
+export type VideoConnectionStatus =
+  | "disconnected"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "failed";
+
+export type VideoRoom = {
+  provider: VideoProvider;
+  roomId: string;
+  joinUrl?: string;
+  token?: string;
+};
+
+export type VideoParticipantRole = "teacher" | "student" | "observer";
+
+export type VideoParticipantState = {
+  userId: string;
+  displayName: string;
+  role: VideoParticipantRole;
+  cameraEnabled: boolean;
+  micEnabled: boolean;
+  isSpeaking: boolean;
+  connectionStatus: VideoConnectionStatus;
+  joinedAt?: string;
+};
+
+export type VideoSessionState = {
+  sessionId: string;
+  videoSessionId?: string;
+  provider?: VideoProvider;
+  roomStatus: "inactive" | "creating" | "active" | "ending" | "ended";
+  connectionStatus: VideoConnectionStatus;
+  localParticipant: {
+    cameraEnabled: boolean;
+    micEnabled: boolean;
+    isSpeaking: boolean;
+  };
+  remoteParticipants: VideoParticipantState[];
+  participantsVisible: boolean;
+  recordingEnabled: boolean;
+  recordingActive: boolean;
+};
+
+/* ─── Video Service Interface ────────────────────────────────── */
+
+export interface VideoService {
+  createRoom(sessionId: string): Promise<VideoRoom>;
+  createToken(params: {
+    roomId: string;
+    userId: string;
+    role: VideoParticipantRole;
+  }): Promise<string>;
+  endRoom(roomId: string): Promise<void>;
+}
+
+/* ─── Video Session DB Types ─────────────────────────────────── */
+
+export type VideoSession = {
+  id: string;
+  classroomSessionId: string;
+  provider: VideoProvider;
+  providerRoomId: string;
+  status: "creating" | "active" | "ended" | "failed";
+  startedAt?: string;
+  endedAt?: string;
+  recordingUrl?: string;
+  createdAt: string;
+};
+
+export type VideoParticipant = {
+  id: string;
+  videoSessionId: string;
+  userId: string;
+  role: VideoParticipantRole;
+  cameraEnabled: boolean;
+  micEnabled: boolean;
+  joinedAt?: string;
+  leftAt?: string;
+};
+
+export type SessionRecording = {
+  id: string;
+  classroomSessionId: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  transcriptUrl?: string;
+  durationSeconds: number;
+  status: "recording" | "processing" | "ready" | "failed";
+  createdAt: string;
+};
+
+/* ─── Camera / Mic Permission State ──────────────────────────── */
+
+export type PermissionState = "unknown" | "granted" | "denied" | "prompt";
+
+export type MediaPermissionState = {
+  camera: PermissionState;
+  microphone: PermissionState;
 };

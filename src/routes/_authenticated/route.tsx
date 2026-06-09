@@ -1,12 +1,26 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        // In dev mode, allow bypass - return demo user
+        if (import.meta.env.DEV) {
+          return { user: { id: "demo-user-123", email: "demo@klassruum.com" } };
+        }
+        throw redirect({ to: "/auth" });
+      }
+      return { user: data.user };
+    } catch (err) {
+      // If Supabase client fails in dev, allow bypass with demo user
+      if (import.meta.env.DEV) {
+        return { user: { id: "demo-user-123", email: "demo@klassruum.com" } };
+      }
+      throw redirect({ to: "/auth" });
+    }
   },
   component: () => <Outlet />,
 });
