@@ -20,6 +20,32 @@
 }
 
 /* =============================================================================
+   Accessibility — global text scaling (low vision / dyslexia) + high contrast.
+   Driven by data-attributes on <html> set in src/lib/accessibility.ts.
+   Uses rem-based scaling so the whole UI grows proportionally.
+   ============================================================================= */
+html[data-text-scale="large"]  { font-size: 18px; }
+html[data-text-scale="xlarge"] { font-size: 20px; }
+
+html[data-high-contrast] {
+  --foreground: #000000;
+  --muted-foreground: #1e293b;
+  --border: #94a3b8;
+  --primary: #0033cc;
+}
+html[data-high-contrast] body { color: #000; }
+html[data-high-contrast] .text-\[var\(--gray-500\)\],
+html[data-high-contrast] .text-\[var\(--gray-400\)\] { color: #1e293b !important; }
+
+html[data-reduced-motion] *,
+html[data-reduced-motion] *::before,
+html[data-reduced-motion] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* =============================================================================
    Student Calendar + Notes page primitives
    ============================================================================= */
 .kr-cal-nav {
@@ -217,6 +243,45 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
   html { scroll-behavior: auto; }
   .kr-float, .kr-blob, .kr-gradient-text,
   .kr-fade-up, .kr-fade-up-1, .kr-fade-up-2, .kr-fade-up-3, .kr-pop { animation: none !important; }
+}
+
+/* ---- Lesson Takeaway Score Card ---- */
+.vc-takeaway-card {
+  background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(59,130,246,0.12) 100%);
+  border: 2px solid rgba(34,197,94,0.3);
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.vc-takeaway-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.vc-takeaway-score {
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(120deg, #34d399, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.vc-takeaway-max {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+.vc-takeaway-note {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 10px;
+  line-height: 1.5;
 }
 
 /* ---- Media frames ------------------------------------------------------ */

@@ -417,9 +417,9 @@
   flex-direction: column;
   margin: 12px 12px 0 0;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 0;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
   overflow: hidden;
   position: relative;
 }
@@ -468,21 +468,22 @@
 /* ── Whiteboard Content Area ─────────────────────────── */
 .vc-whiteboard-content {
   flex: 1;
-  padding: 20px 28px;
+  padding: 24px 32px;
   overflow-y: auto;
   position: relative;
   min-height: 0;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
 }
 
-/* Grid background */
+/* Premium gridline backdrop */
 .vc-whiteboard-content::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+    linear-gradient(rgba(203, 213, 225, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(203, 213, 225, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
   pointer-events: none;
 }
 
@@ -1446,7 +1447,7 @@
   max-width: 560px;
   background: #1e293b;
   border: 1px solid #334155;
-  border-radius: 16px;
+  border-radius: 0;
   padding: 24px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
@@ -1569,8 +1570,8 @@
   max-width: 600px;
   background: #1e293b;
   border: 1px solid #334155;
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: 0;
+  padding: 40px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   text-align: center;
 }
@@ -1610,7 +1611,7 @@
 .vc-completion-stat {
   padding: 12px;
   background: #0f172a;
-  border-radius: 10px;
+  border-radius: 0;
   border: 1px solid #334155;
 }
 

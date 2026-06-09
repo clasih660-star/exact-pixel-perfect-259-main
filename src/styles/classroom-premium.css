@@ -5,6 +5,34 @@
    right info rail. Dark chrome, white board (matches reference).
    ============================================================================= */
 
+/* ---- Lesson plan: clickable section navigation ---- */
+.vc-lesson-plan-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  cursor: default;
+}
+.vc-lesson-plan-item-jumpable { cursor: pointer; }
+.vc-lesson-plan-item-jumpable:hover {
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
+  transform: translateX(2px);
+}
+.vc-lesson-plan-item:disabled { cursor: not-allowed; }
+
+/* ---- "Next lesson" control in the bottom bar ---- */
+.vc-next-lesson-btn {
+  background: rgba(34, 197, 94, 0.14) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+  color: #4ade80 !important;
+}
+.vc-next-lesson-btn:hover {
+  background: rgba(34, 197, 94, 0.24) !important;
+  color: #86efac !important;
+}
+
 /* ---- Top bar: back, brand, settings ---- */
 .vc-back-btn {
   display: inline-flex; align-items: center; gap: 6px;
@@ -46,7 +74,11 @@
   height: auto;
   padding: 18px 16px 8px;
   background: transparent;
+  flex-shrink: 0; /* never squeeze the photo */
 }
+/* Push the panel content (lesson plan / nav) down so the photo always shows */
+.vc-teacher-panel { padding-top: 4px; }
+.vc-lesson-plan { margin-top: 6px; }
 .vc-teacher-frame-inner {
   width: 130px; height: 156px;
   flex: none;
@@ -63,8 +95,8 @@
 .vc-teacher-frame .vc-teacher-voice-indicator { bottom: 8px; right: 8px; font-size: 0.58rem; padding: 3px 7px; }
 .vc-teacher-frame .vc-speaking-ring { border-radius: 18px; }
 
-/* ---- Main layout: teacher | board+visual | info rail ---- */
-.vc-whiteboard-area { display: flex; flex-direction: column; min-width: 0; }
+/* ---- Main layout: teacher | board+visual (no right rail) ---- */
+.vc-whiteboard-area { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .vc-board-row { display: flex; gap: 16px; flex: 1; min-height: 0; }
 .vc-board-row > .vc-whiteboard { flex: 1; min-width: 0; }
 
@@ -110,39 +142,5 @@
   background: #f0fdf4; color: #15803d; font-weight: 700; font-size: 0.8rem; text-align: center;
 }
 
-/* ---- Right info rail (dark, matches chrome) ---- */
-.vc-info-rail {
-  width: 248px; flex-shrink: 0;
-  display: flex; flex-direction: column; gap: 12px;
-  padding: 16px 14px;
-  background: #1e293b;
-  border-left: 1px solid #334155;
-  overflow-y: auto;
-}
-.vc-rail-card { background: #0f172a; border: 1px solid #283449; border-radius: 14px; padding: 14px; }
-.vc-rail-title {
-  font-size: 0.66rem; font-weight: 800; color: #93c5fd;
-  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
-}
-.vc-rail-progress-big {
-  font-size: 1.9rem; font-weight: 800; line-height: 1;
-  background: linear-gradient(120deg, #60a5fa, #818cf8);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.vc-rail-bar { height: 7px; border-radius: 99px; background: #1e293b; margin-top: 10px; overflow: hidden; }
-.vc-rail-bar > div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3b82f6, #6366f1); transition: width .4s ease; }
-.vc-rail-current { margin-top: 10px; font-size: 0.76rem; color: #94a3b8; }
-.vc-rail-current strong { color: #e2e8f0; }
-.vc-rail-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
-.vc-rail-stats li { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: #94a3b8; }
-.vc-rail-stats strong { color: #f1f5f9; font-size: 0.9rem; }
-.vc-rail-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.vc-rail-links li {
-  font-size: 0.78rem; color: #cbd5e1; padding: 9px 10px; border-radius: 10px;
-  background: #1e293b; border: 1px solid #283449; cursor: pointer; transition: all .15s ease;
-}
-.vc-rail-links li:hover { background: rgba(59,130,246,0.16); color: #fff; border-color: rgba(59,130,246,0.35); }
-
-/* ---- Responsive: collapse rails on smaller screens ---- */
-@media (max-width: 1320px) { .vc-info-rail { display: none; } }
+/* ---- Responsive: subject visual collapses on smaller screens ---- */
 @media (max-width: 1080px) { .vc-subject-visual { display: none; } }

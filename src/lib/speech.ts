@@ -19,7 +19,34 @@ export function speakText(text: string, rate = 1): void {
   window.speechSynthesis.speak(utterance);
 }
 
-export function speak(text: string, onEnd?: () => void, onError?: () => void): void {
+/** Heuristically pick a system voice matching the requested gender. */
+function pickVoiceByGender(gender: "female" | "male"): SpeechSynthesisVoice | undefined {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return undefined;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return undefined;
+
+  const femaleHints = ["female", "woman", "samantha", "victoria", "zira", "susan", "karen", "moira", "tessa", "fiona", "serena", "aria", "jenny"];
+  const maleHints = ["male", "man", "david", "daniel", "alex", "fred", "george", "mark", "guy", "rishi", "thomas", "oliver"];
+  const hints = gender === "female" ? femaleHints : maleHints;
+  const opposite = gender === "female" ? maleHints : femaleHints;
+
+  const enVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("en"));
+  const pool = enVoices.length ? enVoices : voices;
+
+  // Prefer an explicit gender-name match, then avoid the opposite gender.
+  return (
+    pool.find((v) => hints.some((h) => v.name.toLowerCase().includes(h))) ??
+    pool.find((v) => !opposite.some((h) => v.name.toLowerCase().includes(h))) ??
+    pool[0]
+  );
+}
+
+export function speak(
+  text: string,
+  onEnd?: () => void,
+  onError?: () => void,
+  gender?: "female" | "male",
+): void {
   if (typeof window === "undefined") return;
   if (!("speechSynthesis" in window)) {
     console.warn("Speech synthesis is not supported in this browser.");
@@ -31,8 +58,16 @@ export function speak(text: string, onEnd?: () => void, onError?: () => void): v
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 1;
-  utterance.pitch = 1;
   utterance.volume = 1;
+
+  if (gender) {
+    const voice = pickVoiceByGender(gender);
+    if (voice) utterance.voice = voice;
+    // Nudge pitch to reinforce the perceived gender on generic voices.
+    utterance.pitch = gender === "female" ? 1.15 : 0.85;
+  } else {
+    utterance.pitch = 1;
+  }
 
   if (onEnd) {
     utterance.onend = onEnd;

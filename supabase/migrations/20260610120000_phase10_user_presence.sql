@@ -5,6 +5,9 @@
 -- KingPin course source type for platform-owned courses.
 --
 -- This migration is ADDITIVE and idempotent.
+-- Depends on: profiles, institutions, institution_members, courses, lessons,
+--             classroom_sessions, programmes, set_updated_at(), is_institution_member(),
+--             has_institution_role()
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1. User Presence (realtime online tracking)
@@ -100,6 +103,21 @@ DROP POLICY IF EXISTS "lesson_generation_jobs update staff" ON public.lesson_gen
 CREATE POLICY "lesson_generation_jobs update staff" ON public.lesson_generation_jobs FOR UPDATE TO authenticated
 USING (public.has_institution_role(institution_id, auth.uid(), ARRAY['owner','admin','teacher']::member_role[]))
 WITH CHECK (public.has_institution_role(institution_id, auth.uid(), ARRAY['owner','admin','teacher']::member_role[]));
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 2b. Add role column to profiles (needed for platform_admin role checks)
+-- ─────────────────────────────────────────────────────────────────────────────
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'role'
+  ) THEN
+    ALTER TABLE public.profiles
+      ADD COLUMN role text NOT NULL DEFAULT 'student'
+        CHECK (role IN ('platform_admin','institution_admin','teacher','student','parent'));
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3. Add KingPin source type to courses

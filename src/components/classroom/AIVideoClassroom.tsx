@@ -37,6 +37,7 @@ import type { MathTeachingItem } from "@/lib/lesson-models";
 import type { LearningMode, TeacherVideoState, TranscriptEntry } from "@/lib/types";
 import { speak } from "@/lib/speech";
 import { answerLearnerQuestion } from "@/lib/classroom-ai.functions";
+import { applyAccessibility, loadAccessibility, prefsForMode } from "@/lib/accessibility";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -81,6 +82,7 @@ interface LearningResults {
   middleQuestionCorrect: boolean | null;
   misconceptionsDetected: number;
   events: string[];
+  score?: number; // out of 100
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -89,6 +91,9 @@ interface LearningResults {
 
 const TEACHER_NAME = "Ms. Ada";
 const TEACHER_IMAGE = "/images/teachers/woman.png";
+/** The AI teacher's gender drives the speech voice (female teacher → female
+ *  voice, male teacher → male voice). Ms. Ada is female. */
+const TEACHER_VOICE: "female" | "male" = "female";
 const INSTITUTION = "Demo Academy";
 const COURSE = "Mathematics Form 2";
 const LESSON_SUBJECT = "Quadratic Equations";
@@ -135,6 +140,15 @@ const LESSON_PLAN_SECTIONS = [
 ] as const;
 
 type LessonSectionKey = (typeof LESSON_PLAN_SECTIONS)[number]["key"];
+
+/** First board index that belongs to each teaching section, for jump-to-section
+ *  navigation from the sidebar lesson plan. */
+const SECTION_START_INDEX: Partial<Record<LessonSectionKey, number>> = {
+  welcome: 0,
+  concept: 1,
+  worked_example: 3,
+  summary: 7,
+};
 
 const SPEED_MAP: Record<string, number> = {
   slow: 40,
@@ -217,6 +231,12 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const [learningMode, setLearningMode] = useState<LearningMode>("standard");
   const [isPaused, setIsPaused] = useState(false);
 
+  // Apply text scaling / contrast when an accessibility-oriented mode is chosen.
+  useEffect(() => {
+    const base = loadAccessibility();
+    applyAccessibility({ ...base, ...prefsForMode(learningMode) });
+  }, [learningMode]);
+
   // ── Board State ───────────────────────────────────────
   const [currentIndex, setCurrentIndex] = useState(0);
   const [writtenLines, setWrittenLines] = useState<MathTeachingItem[]>([]);
@@ -260,10 +280,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
   // ── Completion State ──────────────────────────────────
   const [completionOpen, setCompletionOpen] = useState(false);
-
-  // ── Replay State ──────────────────────────────────────
-  const [replayMode, setReplayMode] = useState(false);
-  const [replayIndex, setReplayIndex] = useState(0);
+  const [takeawayScore, setTakeawayScore] = useState<number | null>(null);
 
   // ── Mode Selector State ───────────────────────────────
   const [modeSelectorOpen, setModeSelectorOpen] = useState(false);
@@ -275,7 +292,6 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const [currentSection, setCurrentSection] = useState<LessonSectionKey>("welcome");
 
   // ── Teaching Moments State ────────────────────────────
-  const [prereqOpen, setPrereqOpen] = useState(false);
   const [recapOpen, setRecapOpen] = useState<string | null>(null);
   const [thinkingPauseText, setThinkingPauseText] = useState<string | null>(null);
   const [confidenceOpen, setConfidenceOpen] = useState(false);
@@ -387,6 +403,14 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const writingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sequenceRef = useRef(0);
+  // Always-fresh index + function refs so the teaching chain never runs on a
+  // stale closure (this is what caused the lesson to repeat one section).
+  const currentIndexRef = useRef(0);
+  const readBoardRef = useRef<(item: MathTeachingItem, seq: number, idx: number) => void>(() => {});
+  const explainStepRef = useRef<(item: MathTeachingItem, seq: number, idx: number) => void>(() => {});
+  const showWarningRef = useRef<(item: MathTeachingItem, seq: number, idx: number) => void>(() => {});
+  const advanceRef = useRef<(seq: number, idx: number) => void>(() => {});
+  const resumeAfterInterjectionRef = useRef<() => void>(() => {});
 
   // ── Cleanup ───────────────────────────────────────────
   useEffect(() => {
@@ -437,11 +461,14 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
   }, []);
 
-  /** Write text letter by letter onto the board */
+  /** Write text letter by letter onto the board. `idx` is threaded through the
+   *  whole teaching chain so flow control never reads stale `currentIndex`. */
   const writeOnBoard = useCallback(
-    (item: MathTeachingItem, seq: number) => {
+    (item: MathTeachingItem, seq: number, idx: number) => {
       if (seq !== sequenceRef.current) return;
 
+      currentIndexRef.current = idx;
+      setCurrentIndex(idx);
       setPhase("writing");
       setTeacherState("writing");
       setIsWriting(true);
@@ -462,12 +489,12 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         } else {
           // Writing complete
           setIsWriting(false);
-          setWrittenLines((prev) => [...prev, item]);
+          setWrittenLines((prev) => (prev.some((l) => l.id === item.id) ? prev : [...prev, item]));
           setCurrentWritingText("");
           addTranscript("board", item.boardText, item.id);
 
           // Move to reading phase
-          phaseTimerRef.current = setTimeout(() => readBoard(item, seq), 600);
+          phaseTimerRef.current = setTimeout(() => readBoardRef.current(item, seq, idx), 600);
         }
       };
 
@@ -478,7 +505,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
   /** Teacher reads the board text exactly */
   const readBoard = useCallback(
-    (item: MathTeachingItem, seq: number) => {
+    (item: MathTeachingItem, seq: number, idx: number) => {
       if (seq !== sequenceRef.current) return;
 
       setPhase("reading");
@@ -490,18 +517,18 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       addTranscript("teacher", item.exactSpokenText, item.id);
 
       if (learningMode !== "deaf") {
-        speak(item.exactSpokenText);
+        speak(item.exactSpokenText, undefined, undefined, TEACHER_VOICE);
       }
 
       const readDuration = Math.max(item.exactSpokenText.length * 60, 2000);
-      phaseTimerRef.current = setTimeout(() => explainStep(item, seq), readDuration);
+      phaseTimerRef.current = setTimeout(() => explainStepRef.current(item, seq, idx), readDuration);
     },
     [addTranscript, learningMode],
   );
 
   /** Teacher gives deeper narrative explanation */
   const explainStep = useCallback(
-    (item: MathTeachingItem, seq: number) => {
+    (item: MathTeachingItem, seq: number, idx: number) => {
       if (seq !== sequenceRef.current) return;
 
       setPhase("explaining");
@@ -513,16 +540,17 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       addTranscript("teacher", item.teacherExplanation, item.id);
 
       if (learningMode !== "deaf") {
-        speak(item.teacherExplanation);
+        speak(item.teacherExplanation, undefined, undefined, TEACHER_VOICE);
       }
 
       // Show warning if there's a common mistake
       const delay = Math.max(item.teacherExplanation.length * 50, 3000);
       phaseTimerRef.current = setTimeout(() => {
-        if (item.commonMistake && seq === sequenceRef.current) {
-          showWarningPhase(item, seq);
-        } else if (seq === sequenceRef.current) {
-          advanceToNext(seq);
+        if (seq !== sequenceRef.current) return;
+        if (item.commonMistake) {
+          showWarningRef.current(item, seq, idx);
+        } else {
+          advanceRef.current(seq, idx);
         }
       }, delay);
     },
@@ -531,7 +559,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
   /** Show common mistake warning */
   const showWarningPhase = useCallback(
-    (item: MathTeachingItem, seq: number) => {
+    (item: MathTeachingItem, seq: number, idx: number) => {
       if (seq !== sequenceRef.current) return;
 
       setPhase("warning");
@@ -541,7 +569,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       setCaptionSpeaker("AI Teacher");
       addTranscript("teacher", `Warning: ${item.commonMistake}`, item.id);
 
-      phaseTimerRef.current = setTimeout(() => advanceToNext(seq), 4000);
+      phaseTimerRef.current = setTimeout(() => advanceRef.current(seq, idx), 4000);
     },
     [addTranscript],
   );
@@ -576,33 +604,56 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       clearTimers();
       pendingNextIndexRef.current = nextIdx;
       setIsPaused(false);
+      const seqAtOpen = sequenceRef.current;
 
       if (kind === "recap" && recapKey) {
-        setRecapOpen(recapKey);
+        // Vision mode: no popup overlay
+        if (learningMode !== "blind") {
+          setRecapOpen(recapKey);
+        }
         setTeacherState("explaining");
-        setCaptionText("Let's quickly recap what we just covered.");
+        const recap = SECTION_RECAPS[recapKey];
+        const spoken = recap ? `${recap.title}. ${recap.points.join(". ")}.` : "Let's quickly recap what we just covered.";
+        setCaptionText(spoken);
+        if (learningMode !== "deaf") speak(spoken, undefined, undefined, TEACHER_VOICE);
         logEvent(`Section recap shown: ${recapKey}`);
+        // Auto-continue so the lesson never stalls on a click.
+        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 6500);
       } else if (kind === "thinking_pause") {
         const text =
           THINKING_PAUSES[nextIdx] ??
           "Take a moment to think about what we've seen so far.";
-        setThinkingPauseText(text);
+        if (learningMode !== "blind") {
+          setThinkingPauseText(text);
+        }
         setTeacherState("thinking");
         setCaptionText(text);
-        if (learningMode !== "deaf") speak(text);
+        if (learningMode !== "deaf") speak(text, undefined, undefined, TEACHER_VOICE);
         logEvent("Thinking pause");
+        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 6000);
       } else if (kind === "middle_question") {
-        setMiddleQuestionOpen(true);
+        if (learningMode !== "blind") {
+          setMiddleQuestionOpen(true);
+        }
         setMiddleFeedback(null);
         setTeacherState("asking_question");
         setCaptionText(MIDDLE_QUESTION.question);
-        if (learningMode !== "deaf") speak(MIDDLE_QUESTION.question);
+        if (learningMode !== "deaf") speak(MIDDLE_QUESTION.question, undefined, undefined, TEACHER_VOICE);
         logEvent("Required middle question asked");
+        // Auto-resume after timer for vision modes
+        phaseTimerRef.current = setTimeout(() => {
+          if (sequenceRef.current === seqAtOpen) resumeAfterInterjectionRef.current();
+        }, 22000);
       } else if (kind === "confidence") {
-        setConfidenceOpen(true);
+        if (learningMode !== "blind") {
+          setConfidenceOpen(true);
+        }
         setTeacherState("asking_question");
-        setCaptionText("How confident are you with this so far?");
+        const c = "How confident are you with this so far?";
+        setCaptionText(c);
+        if (learningMode !== "deaf") speak(c, undefined, undefined, TEACHER_VOICE);
         logEvent("Confidence check shown");
+        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 7000);
       }
     },
     [clearTimers, learningMode, logEvent],
@@ -629,17 +680,18 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     }
     phaseTimerRef.current = setTimeout(() => {
       if (seq === sequenceRef.current) {
-        writeOnBoard(quadraticTeachingSequence[pending], seq);
+        writeOnBoard(quadraticTeachingSequence[pending], seq, pending);
       }
     }, 500);
   }, [writeOnBoard, startPractice]);
 
-  /** Advance to next board item, inserting teaching moments at boundaries */
+  /** Advance to next board item, inserting teaching moments at boundaries.
+   *  `idx` is the index that just finished (threaded, never stale). */
   const advanceToNext = useCallback(
-    (seq: number) => {
+    (seq: number, idx: number) => {
       if (seq !== sequenceRef.current) return;
 
-      const nextIdx = currentIndex + 1;
+      const nextIdx = idx + 1;
       setShowExplanation(false);
       setShowWarning(false);
 
@@ -654,16 +706,13 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         return;
       }
 
-      setCurrentIndex(nextIdx);
-
-      // ── Teaching-moment schedule (each fires once) ──────────────────
-      // Concept recap before entering the worked example
+      // ── Teaching-moment schedule (each fires once). When auto-mode is on
+      // (default, accessibility-friendly), non-blocking moments self-resume. ──
       if (nextIdx === 3 && !firedInterjectionsRef.current.has("recap_concept")) {
         firedInterjectionsRef.current.add("recap_concept");
         openInterjection("recap", nextIdx, "concept");
         return;
       }
-      // Thinking pause where one is defined for this index
       if (
         THINKING_PAUSES[nextIdx] &&
         !firedInterjectionsRef.current.has(`pause_${nextIdx}`)
@@ -672,7 +721,6 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         openInterjection("thinking_pause", nextIdx);
         return;
       }
-      // Required middle question around the midpoint
       if (nextIdx === 6 && !firedInterjectionsRef.current.has("middle_question")) {
         firedInterjectionsRef.current.add("middle_question");
         openInterjection("middle_question", nextIdx);
@@ -682,44 +730,42 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       const pause = quadraticTeachingSequence[nextIdx].pauseAfter ?? 800;
       phaseTimerRef.current = setTimeout(() => {
         if (seq === sequenceRef.current) {
-          writeOnBoard(quadraticTeachingSequence[nextIdx], seq);
+          writeOnBoard(quadraticTeachingSequence[nextIdx], seq, nextIdx);
         }
       }, pause);
     },
-    [currentIndex, writeOnBoard, openInterjection, startPractice],
+    [writeOnBoard, openInterjection, startPractice],
   );
+
+  // Keep the function refs fresh so the timer-driven chain always calls the
+  // latest version (prevents stale closures / repeated sections).
+  useEffect(() => {
+    readBoardRef.current = readBoard;
+    explainStepRef.current = explainStep;
+    showWarningRef.current = showWarningPhase;
+    advanceRef.current = advanceToNext;
+    resumeAfterInterjectionRef.current = resumeAfterInterjection;
+  });
 
   // ──────────────────────────────────────────────────────
   // Teaching-moment resolvers
   // ──────────────────────────────────────────────────────
 
-  /** Prerequisite check answered → give a quick review if needed, then teach. */
-  const handlePrereqAnswer = useCallback(
-    (opt: (typeof PREREQUISITE_CHECK.options)[number]) => {
-      setPrereqOpen(false);
-      addTranscript("student", opt.label);
-      logEvent(`Prerequisite check: ${opt.label}`);
-      const seq = ++sequenceRef.current;
-
-      if (opt.needsReview) {
-        setTeacherState("explaining");
-        setCaptionText(PREREQUISITE_CHECK.review);
-        setCaptionSpeaker("AI Teacher");
-        addTranscript("teacher", PREREQUISITE_CHECK.review);
-        if (learningMode !== "deaf") speak(PREREQUISITE_CHECK.review);
-        phaseTimerRef.current = setTimeout(() => {
-          if (seq === sequenceRef.current) writeOnBoard(quadraticTeachingSequence[0], seq);
-        }, 6500);
-      } else {
-        setTeacherState("preparing");
-        setCaptionText("Great — let's begin!");
-        phaseTimerRef.current = setTimeout(() => {
-          if (seq === sequenceRef.current) writeOnBoard(quadraticTeachingSequence[0], seq);
-        }, 1500);
-      }
-    },
-    [addTranscript, learningMode, logEvent, writeOnBoard],
-  );
+  /** Auto-start teaching with a short spoken prerequisite reminder — no blocking
+   *  popup, so blind learners are never stuck waiting for a click. */
+  const beginTeaching = useCallback(() => {
+    const seq = ++sequenceRef.current;
+    const intro = PREREQUISITE_CHECK.review;
+    setTeacherState("explaining");
+    setCaptionText(intro);
+    setCaptionSpeaker("AI Teacher");
+    addTranscript("teacher", intro);
+    if (learningMode !== "deaf") speak(intro, undefined, undefined, TEACHER_VOICE);
+    logEvent("Prerequisite reminder (auto)");
+    phaseTimerRef.current = setTimeout(() => {
+      if (seq === sequenceRef.current) writeOnBoard(quadraticTeachingSequence[0], seq, 0);
+    }, 6000);
+  }, [addTranscript, learningMode, logEvent, writeOnBoard]);
 
   /** Thinking pause buttons (Continue / Read again / I need help). */
   const handleThinkingPause = useCallback(
@@ -803,21 +849,22 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     addTranscript("teacher", LESSON_OPENING_NARRATIVE);
 
     if (learningMode !== "deaf") {
-      speak(LESSON_OPENING_NARRATIVE);
+      speak(LESSON_OPENING_NARRATIVE, undefined, undefined, TEACHER_VOICE);
     }
 
     ++sequenceRef.current;
     startTimeRef.current = Date.now();
     firedInterjectionsRef.current = new Set();
     pendingNextIndexRef.current = null;
+    currentIndexRef.current = 0;
     setCurrentIndex(0);
     setWrittenLines([]);
     setCurrentWritingText("");
     logEvent("Lesson started");
 
-    // Prerequisite check before any teaching begins
-    phaseTimerRef.current = setTimeout(() => setPrereqOpen(true), 4000);
-  }, [addTranscript, learningMode, logEvent]);
+    // Auto-start teaching (no blocking popup — accessible for blind learners)
+    phaseTimerRef.current = setTimeout(() => beginTeaching(), 4000);
+  }, [addTranscript, learningMode, logEvent, beginTeaching]);
 
   const handlePause = useCallback(() => {
     if (isPaused) {
@@ -836,8 +883,6 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const handleReplay = useCallback(() => {
     clearTimers();
     const seq = ++sequenceRef.current;
-    setReplayMode(true);
-    setReplayIndex(0);
     setWrittenLines([]);
     setCurrentWritingText("");
     setShowExplanation(false);
@@ -848,7 +893,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setCaptionText("Replaying lesson from the beginning...");
     setCaptionSpeaker("AI Teacher");
 
-    writeOnBoard(quadraticTeachingSequence[0], seq);
+    writeOnBoard(quadraticTeachingSequence[0], seq, 0);
   }, [clearTimers, writeOnBoard]);
 
   const handleReplayStep = useCallback(() => {
@@ -863,8 +908,36 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setCaptionText("Replaying current step...");
     setCaptionSpeaker("AI Teacher");
 
-    writeOnBoard(quadraticTeachingSequence[currentIndex], seq);
+    writeOnBoard(quadraticTeachingSequence[currentIndex], seq, currentIndex);
   }, [currentIndex, clearTimers, writeOnBoard]);
+
+  /** Jump to a section from the sidebar lesson plan. Completed and the current
+   *  section are navigable; the immediate next is allowed (procedural), but you
+   *  cannot skip far ahead. */
+  const jumpToSection = useCallback(
+    (key: LessonSectionKey) => {
+      const targetIdx = SECTION_START_INDEX[key];
+      if (targetIdx === undefined) return; // practice/exit handled by their own flow
+      const sectionOrder = LESSON_PLAN_SECTIONS.findIndex((s) => s.key === key);
+      const currentOrder = LESSON_PLAN_SECTIONS.findIndex((s) => s.key === currentSection);
+      if (sectionOrder > currentOrder + 1) return; // no skipping ahead
+
+      clearTimers();
+      const seq = ++sequenceRef.current;
+      // Rebuild the board up to (but not including) the target, then teach it.
+      setWrittenLines(quadraticTeachingSequence.slice(0, targetIdx));
+      setCurrentWritingText("");
+      setShowExplanation(false);
+      setShowWarning(false);
+      setIsPaused(false);
+      setTeacherState("preparing");
+      setCaptionText(`Going to ${LESSON_PLAN_SECTIONS[sectionOrder].label}…`);
+      setCaptionSpeaker("AI Teacher");
+      logEvent(`Jumped to section: ${key}`);
+      writeOnBoard(quadraticTeachingSequence[targetIdx], seq, targetIdx);
+    },
+    [currentSection, clearTimers, writeOnBoard, logEvent],
+  );
 
   const handleEndLesson = useCallback(() => {
     clearTimers();
@@ -872,9 +945,31 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setPhase("complete");
     setTeacherState("paused");
     setCaptionText("");
+
+    // Calculate takeaway score (0-100)
+    const timeMinutes = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 60000));
+    const practiceAccuracy = results.practiceAttempts > 0 ? (results.practiceCorrect / results.practiceAttempts) * 100 : 0;
+    const confidenceCount = results.confidenceChecks.length;
+
+    // Scoring formula:
+    // - Practice accuracy: 50 points max
+    // - Hints penalty: -2 per hint (to -20 max)
+    // - Misconceptions penalty: -5 per misconception (to -25 max)
+    // - Engagement: questions + raised hands give bonus (up to 20)
+    // - Time bonus: efficient time gives +10 (under 15 min)
+    let score = 0;
+    score += (practiceAccuracy / 100) * 50; // practice score
+    score += Math.max(0, 20 - results.hintsUsed * 2); // hint penalty
+    score += Math.max(0, 25 - results.misconceptionsDetected * 5); // misconception penalty
+    score += Math.min(20, results.questionsAsked * 3 + results.raisedHands * 2); // engagement
+    score += timeMinutes < 15 ? 10 : 5; // time bonus
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    setTakeawayScore(score);
+    setResults((prev) => ({ ...prev, score }));
     setCompletionOpen(true);
-    addTranscript("system", "Lesson ended");
-  }, [clearTimers, addTranscript]);
+    addTranscript("system", `Lesson ended with score: ${score}/100`);
+  }, [clearTimers, addTranscript, results, startTimeRef]);
 
   // ── Question handlers ─────────────────────────────────
   const handleAskQuestion = useCallback(() => {
@@ -1100,7 +1195,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
     phaseTimerRef.current = setTimeout(() => {
       if (seq === sequenceRef.current) {
-        writeOnBoard(quadraticTeachingSequence[0], seq);
+        writeOnBoard(quadraticTeachingSequence[0], seq, 0);
       }
     }, 3000);
   }, [addTranscript, learningMode, writeOnBoard]);
@@ -1363,12 +1458,24 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                 const isCompleted = idx < sectionIdx;
                 const isCurrent = sec.key === currentSection;
                 const isLocked = idx > sectionIdx + 1;
+                const canJump = (SECTION_START_INDEX[sec.key] !== undefined) && idx <= sectionIdx + 1;
                 return (
-                  <div key={sec.key} className={`vc-lesson-plan-item ${isCompleted ? "vc-lesson-plan-item-completed" : isCurrent ? "vc-lesson-plan-item-current" : isLocked ? "vc-lesson-plan-item-locked" : ""}`}>
+                  <button
+                    key={sec.key}
+                    type="button"
+                    disabled={!canJump}
+                    onClick={() => canJump && jumpToSection(sec.key)}
+                    className={`vc-lesson-plan-item ${isCompleted ? "vc-lesson-plan-item-completed" : isCurrent ? "vc-lesson-plan-item-current" : isLocked ? "vc-lesson-plan-item-locked" : ""} ${canJump ? "vc-lesson-plan-item-jumpable" : ""}`}
+                    title={canJump ? `Go to ${sec.label}` : "Complete the current section first"}
+                  >
                     <span className="vc-lesson-plan-dot" />
                     <span>{sec.icon} {sec.label}</span>
-                    {isCompleted && <span style={{ marginLeft: "auto", fontSize: "0.65rem" }}>✓</span>}
-                  </div>
+                    {isCompleted ? (
+                      <span style={{ marginLeft: "auto", fontSize: "0.65rem" }}>✓</span>
+                    ) : isLocked ? (
+                      <span style={{ marginLeft: "auto", fontSize: "0.62rem", opacity: 0.6 }}>🔒</span>
+                    ) : null}
+                  </button>
                 );
               })}
             </div>
@@ -1544,7 +1651,6 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
           )}
           </div>
         </div>
-        <ClassroomInfoRail progress={progress} results={results} currentSection={currentSection} />
       </div>
 
       {/* ── Caption Bar ──────────────────────────────────── */}
@@ -1685,8 +1791,15 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
         <div className="vc-controls-divider" />
 
-        {/* End Session */}
+        {/* Next lesson + End Session */}
         <div className="vc-controls-group">
+          <Link to="/student/courses/$courseId/lessons" params={{ courseId: "course_math_form2" }} className="vc-control-btn vc-next-lesson-btn">
+            Next Lesson
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14" />
+              <path d="M12 5l7 7-7 7" />
+            </svg>
+          </Link>
           <button className="vc-control-btn vc-control-btn-danger" onClick={handleEndLesson}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -1920,6 +2033,36 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
             </div>
             <div className="vc-completion-title">Lesson Complete!</div>
             <div className="vc-completion-subtitle">{LESSON_TITLE}</div>
+
+            {/* Takeaway Score Card */}
+            {takeawayScore !== null && (
+              <div style={{
+                background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(59,130,246,0.15) 100%)",
+                border: "2px solid rgba(34,197,94,0.3)",
+                borderRadius: 0,
+                padding: "16px",
+                marginBottom: "16px",
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Lesson Takeaway</div>
+                <div style={{
+                  fontSize: "2.2rem",
+                  fontWeight: 800,
+                  background: "linear-gradient(120deg, #34d399, #60a5fa)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  marginBottom: 4,
+                }}>
+                  {takeawayScore}
+                </div>
+                <div style={{ fontSize: "0.8rem", color: "#cbd5e1", fontWeight: 500 }}>out of 100</div>
+                <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 8, lineHeight: 1.4 }}>
+                  Based on practice accuracy, engagement, and efficiency.
+                </div>
+              </div>
+            )}
+
             <div className="vc-completion-stats">
               <div className="vc-completion-stat">
                 <div className="vc-completion-stat-value">{writtenLines.length}</div>
@@ -2024,30 +2167,6 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
               {mode.icon} {mode.label}
             </button>
           ))}
-        </div>
-      )}
-
-      {/* ── Prerequisite Check ───────────────────────────── */}
-      {prereqOpen && (
-        <div className="vc-question-overlay">
-          <div className="vc-moment-card">
-            <div className="vc-moment-badge vc-moment-badge-prereq">✅ Quick check before we start</div>
-            <div className="vc-moment-title">{PREREQUISITE_CHECK.question}</div>
-            <div className="vc-moment-options">
-              {PREREQUISITE_CHECK.options.map((opt) => (
-                <button
-                  key={opt.value}
-                  className="vc-moment-option"
-                  onClick={() => handlePrereqAnswer(opt)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <div className="vc-moment-note">
-              This isn't a test — it just helps the teacher pitch the lesson right.
-            </div>
-          </div>
         </div>
       )}
 
@@ -2345,55 +2464,6 @@ function MathGraph() {
   );
 }
 
-/** Right info rail — progress, live session activity, and resources. */
-function ClassroomInfoRail({
-  progress,
-  results,
-  currentSection,
-}: {
-  progress: number;
-  results: LearningResults;
-  currentSection: LessonSectionKey;
-}) {
-  const sectionLabel = LESSON_PLAN_SECTIONS.find((s) => s.key === currentSection)?.label ?? "—";
-  const activity = [
-    { label: "Questions asked", value: results.questionsAsked, icon: "💬" },
-    { label: "Hands raised", value: results.raisedHands, icon: "✋" },
-    { label: "Practice attempts", value: results.practiceAttempts, icon: "✍️" },
-    { label: "Hints used", value: results.hintsUsed, icon: "💡" },
-  ];
-  return (
-    <aside className="vc-info-rail">
-      <div className="vc-rail-card">
-        <div className="vc-rail-title">Lesson Progress</div>
-        <div className="vc-rail-progress-big">{progress}%</div>
-        <div className="vc-rail-bar"><div style={{ width: `${progress}%` }} /></div>
-        <div className="vc-rail-current">Now: <strong>{sectionLabel}</strong></div>
-      </div>
-
-      <div className="vc-rail-card">
-        <div className="vc-rail-title">Session Activity</div>
-        <ul className="vc-rail-stats">
-          {activity.map((a) => (
-            <li key={a.label}>
-              <span>{a.icon} {a.label}</span>
-              <strong>{a.value}</strong>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="vc-rail-card">
-        <div className="vc-rail-title">Resources</div>
-        <ul className="vc-rail-links">
-          <li>📄 Lesson notes</li>
-          <li>📝 Transcript</li>
-          <li>📐 Formula reference</li>
-        </ul>
-      </div>
-    </aside>
-  );
-}
 
 /** Board Line */
 function BoardLine({
