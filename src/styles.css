@@ -1,8 +1,11 @@
-@import "tailwindcss" source(none);
+@import "tailwindcss";
 @import "tw-animate-css";
 @import "./styles/design-system.css";
 @import "./styles/classroom.css";
 @import "./styles/dashboard.css";
+
+/* Scan source files for Tailwind utility classes */
+@source "../src/**/*.{ts,tsx,js,jsx}";
 
 /* ─── Klassruum Classroom Whiteboard Styles ─────────────────────────────── */
 
