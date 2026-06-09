@@ -1,0 +1,148 @@
+/* =============================================================================
+   PREMIUM CLASSROOM REFRESH
+   Back button + uniform logo, small fully-visible teacher photo, accessible
+   settings, course-type subject visual (math graph / illustration), and a
+   right info rail. Dark chrome, white board (matches reference).
+   ============================================================================= */
+
+/* ---- Top bar: back, brand, settings ---- */
+.vc-back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 10px;
+  font-size: 0.78rem; font-weight: 700; color: #cbd5e1;
+  background: rgba(148,163,184,0.12);
+  border: 1px solid rgba(148,163,184,0.18);
+  text-decoration: none; transition: all .16s ease; flex-shrink: 0;
+}
+.vc-back-btn:hover { background: rgba(59,130,246,0.18); color: #fff; border-color: rgba(59,130,246,0.4); transform: translateX(-1px); }
+.vc-top-bar-divider { width: 1px; height: 22px; background: #334155; margin: 0 4px; }
+.vc-top-bar-brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
+.vc-top-bar-brand .vc-top-bar-logo { font-weight: 800; letter-spacing: -0.02em; }
+.vc-top-bar-crumb-active { color: #e2e8f0; font-weight: 700; }
+
+.vc-course-type-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; color: #93c5fd;
+  background: rgba(59,130,246,0.14); border: 1px solid rgba(59,130,246,0.28);
+  white-space: nowrap;
+}
+.vc-autosave {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; font-weight: 600; color: #4ade80;
+}
+.vc-top-bar-progress-wrap { display: flex; align-items: center; gap: 8px; }
+.vc-icon-btn {
+  display: grid; place-items: center; width: 34px; height: 34px;
+  border-radius: 10px; color: #cbd5e1; cursor: pointer;
+  background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.18);
+  transition: all .16s ease;
+}
+.vc-icon-btn:hover { background: rgba(59,130,246,0.18); color: #fff; border-color: rgba(59,130,246,0.4); transform: translateY(-1px) rotate(20deg); }
+
+/* ---- Teacher photo: small, fully visible (≈ passport) ---- */
+.vc-teacher-frame {
+  aspect-ratio: auto;
+  height: auto;
+  padding: 18px 16px 8px;
+  background: transparent;
+}
+.vc-teacher-frame-inner {
+  width: 130px; height: 156px;
+  flex: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+}
+.vc-teacher-image-real {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: top center;
+  border-radius: 16px;
+  box-shadow: none;
+}
+.vc-teacher-frame .vc-teacher-badge { top: 8px; left: 8px; font-size: 0.6rem; padding: 3px 7px; }
+.vc-teacher-frame .vc-teacher-voice-indicator { bottom: 8px; right: 8px; font-size: 0.58rem; padding: 3px 7px; }
+.vc-teacher-frame .vc-speaking-ring { border-radius: 18px; }
+
+/* ---- Main layout: teacher | board+visual | info rail ---- */
+.vc-whiteboard-area { display: flex; flex-direction: column; min-width: 0; }
+.vc-board-row { display: flex; gap: 16px; flex: 1; min-height: 0; }
+.vc-board-row > .vc-whiteboard { flex: 1; min-width: 0; }
+
+/* ---- Subject visual (light card) ---- */
+.vc-subject-visual {
+  width: 256px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e6ebf5;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgba(15,23,42,.10);
+  overflow-y: auto;
+}
+.vc-visual-header {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.78rem; font-weight: 800; color: #1e3a8a;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.vc-visual-icon { font-size: 0.95rem; }
+.vc-math-graph { width: 100%; height: auto; background: #f8fafc; border-radius: 12px; border: 1px solid #eef2f8; }
+.vc-graph-grid { stroke: #e2e8f0; stroke-width: 1; }
+.vc-graph-axis { stroke: #94a3b8; stroke-width: 1.3; }
+.vc-graph-curve { stroke: #2563eb; stroke-width: 2.6; stroke-linecap: round; }
+.vc-graph-root { fill: #ef4444; stroke: #fff; stroke-width: 1.5; }
+.vc-graph-label { fill: #475569; font-size: 11px; font-weight: 700; }
+.vc-visual-illustration img { width: 100%; border-radius: 12px; display: block; }
+.vc-visual-illustration p { margin: 8px 0 0; font-size: 0.74rem; color: #64748b; }
+.vc-visual-note { font-size: 0.8rem; color: #334155; line-height: 1.5; }
+.vc-visual-note-label {
+  display: inline-block; margin-right: 6px; padding: 2px 8px; border-radius: 999px;
+  background: #eff6ff; color: #1d4ed8; font-size: 0.66rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.vc-visual-chips { display: flex; gap: 8px; margin-top: 8px; }
+.vc-visual-chips span {
+  flex: 1; text-align: center; padding: 8px; border-radius: 10px;
+  background: #f1f5f9; font-weight: 800; color: #0f172a; font-size: 0.82rem;
+  font-family: "Caveat", cursive;
+}
+.vc-visual-solution {
+  margin-top: 10px; padding: 8px 10px; border-radius: 10px;
+  background: #f0fdf4; color: #15803d; font-weight: 700; font-size: 0.8rem; text-align: center;
+}
+
+/* ---- Right info rail (dark, matches chrome) ---- */
+.vc-info-rail {
+  width: 248px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 16px 14px;
+  background: #1e293b;
+  border-left: 1px solid #334155;
+  overflow-y: auto;
+}
+.vc-rail-card { background: #0f172a; border: 1px solid #283449; border-radius: 14px; padding: 14px; }
+.vc-rail-title {
+  font-size: 0.66rem; font-weight: 800; color: #93c5fd;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+}
+.vc-rail-progress-big {
+  font-size: 1.9rem; font-weight: 800; line-height: 1;
+  background: linear-gradient(120deg, #60a5fa, #818cf8);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.vc-rail-bar { height: 7px; border-radius: 99px; background: #1e293b; margin-top: 10px; overflow: hidden; }
+.vc-rail-bar > div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3b82f6, #6366f1); transition: width .4s ease; }
+.vc-rail-current { margin-top: 10px; font-size: 0.76rem; color: #94a3b8; }
+.vc-rail-current strong { color: #e2e8f0; }
+.vc-rail-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.vc-rail-stats li { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: #94a3b8; }
+.vc-rail-stats strong { color: #f1f5f9; font-size: 0.9rem; }
+.vc-rail-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.vc-rail-links li {
+  font-size: 0.78rem; color: #cbd5e1; padding: 9px 10px; border-radius: 10px;
+  background: #1e293b; border: 1px solid #283449; cursor: pointer; transition: all .15s ease;
+}
+.vc-rail-links li:hover { background: rgba(59,130,246,0.16); color: #fff; border-color: rgba(59,130,246,0.35); }
+
+/* ---- Responsive: collapse rails on smaller screens ---- */
+@media (max-width: 1320px) { .vc-info-rail { display: none; } }
+@media (max-width: 1080px) { .vc-subject-visual { display: none; } }

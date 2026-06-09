@@ -949,3 +949,129 @@
     print-color-adjust: exact;
   }
 }
+
+/* =============================================================================
+   PREMIUM ELEVATION (Phase: high-end refresh)
+   Layered on top of the base dashboard styles above. Light, blue & white with
+   navy accents, richer depth, gradient icons, and smoother interactions.
+   ============================================================================= */
+
+/* Ambient, premium page background for every role dashboard */
+.kr-dashboard-shell {
+  background:
+    radial-gradient(60% 50% at 100% 0%, rgba(59,130,246,.07), transparent 60%),
+    radial-gradient(45% 40% at 0% 100%, rgba(99,102,241,.06), transparent 60%),
+    #f6f9ff;
+}
+.kr-dashboard-main {
+  background-image: radial-gradient(rgba(37, 99, 235, .05) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* Sidebar — frosted white with a hairline blue edge */
+.kr-sidebar {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border-right: 1px solid #e8eefb;
+  box-shadow: 1px 0 0 rgba(37,99,235,.04), 12px 0 40px rgba(15,23,42,.03);
+}
+.kr-brand-mark {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  box-shadow: 0 8px 18px rgba(30, 58, 138, .35);
+}
+.kr-nav-item { transition: transform .16s var(--kr-ease), background .16s ease, color .16s ease, box-shadow .16s ease; }
+.kr-nav-item:hover { transform: translateX(2px); }
+.kr-nav-item.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, .35);
+}
+
+/* KPI cards — top accent, gradient icon, confident hover */
+.kr-kpi-card {
+  position: relative;
+  border-radius: 20px;
+  border-color: #e9eef9;
+  overflow: hidden;
+  transition: transform .22s var(--kr-ease), box-shadow .22s var(--kr-ease), border-color .22s ease;
+}
+.kr-kpi-card::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  opacity: 0; transition: opacity .22s ease;
+}
+.kr-kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 44px rgba(37,99,235,.16); border-color: #cdddff; }
+.kr-kpi-card:hover::before { opacity: 1; }
+.kr-kpi-icon {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px rgba(37,99,235,.08);
+}
+
+/* Headline KPI value gets a subtle gradient */
+.kr-kpi-value {
+  background: linear-gradient(120deg, #0f172a, #1e3a8a);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* Cards — softer radius, layered shadow, gentle hover */
+.kr-card {
+  border-radius: 22px;
+  border-color: #e9eef9;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 30px rgba(37,99,235,.05);
+  transition: box-shadow .25s var(--kr-ease), transform .25s var(--kr-ease), border-color .25s ease;
+}
+.kr-card:hover { box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 22px 50px rgba(37,99,235,.10); }
+
+/* "Continue learning" hero — richer brand gradient + soft glow */
+.kr-continue-hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+  box-shadow: 0 24px 60px rgba(37, 99, 235, .30);
+  position: relative;
+  overflow: hidden;
+}
+.kr-continue-hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(40% 60% at 90% 10%, rgba(255,255,255,.18), transparent 60%),
+    radial-gradient(40% 60% at 10% 100%, rgba(255,255,255,.10), transparent 60%);
+  pointer-events: none;
+}
+.kr-continue-hero.teacher { background: linear-gradient(135deg, #0f766e, #0ea5e9 55%, #38bdf8); }
+.kr-continue-hero.parent { background: linear-gradient(135deg, #6d28d9, #7c3aed 55%, #a78bfa); }
+
+/* Primary / secondary dashboard buttons */
+.kr-primary-button {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 10px 24px rgba(37,99,235,.30);
+  transition: transform .16s var(--kr-ease), box-shadow .2s var(--kr-ease), filter .2s ease;
+}
+.kr-primary-button:hover { transform: translateY(-1.5px); box-shadow: 0 16px 32px rgba(37,99,235,.40); filter: saturate(1.05); }
+.kr-primary-button:active { transform: translateY(0) scale(.98); }
+.kr-secondary-button { transition: transform .16s var(--kr-ease), background .18s ease, border-color .18s ease; }
+.kr-secondary-button:hover { transform: translateY(-1.5px); }
+
+/* Search field focus glow */
+.kr-search input:focus { box-shadow: 0 0 0 4px rgba(59,130,246,.18); border-color: #2563eb; }
+
+/* Topbar action buttons */
+.kr-topbar-actions button { transition: transform .15s var(--kr-ease), background .15s ease, color .15s ease; }
+.kr-topbar-actions button:hover { transform: translateY(-1px); }
+
+/* Classroom rows lift on hover */
+.kr-classroom-row { border-radius: 16px; transition: transform .18s var(--kr-ease), border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+.kr-classroom-row:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(37,99,235,.10); }
+
+/* Avatars get a soft ring */
+.kr-avatar { box-shadow: inset 0 0 0 2px rgba(37,99,235,.10); }
+
+/* Status pill: live gets a pulse dot via existing markup */
+.kr-status-pill.live { box-shadow: 0 0 0 1px rgba(34,197,94,.25), 0 6px 16px rgba(34,197,94,.18); }
+
+@media (max-width: 900px) {
+  .kr-dashboard-shell { grid-template-columns: 1fr; }
+  .kr-sidebar { transform: translateX(-100%); transition: transform .25s var(--kr-ease); }
+  .kr-dashboard-main { margin-left: 0; padding: 18px 16px 32px; }
+  .kr-kpi-grid, .kr-kpi-grid.five, .kr-kpi-grid.six { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .kr-dashboard-grid { grid-template-columns: 1fr; }
+}

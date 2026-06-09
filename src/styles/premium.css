@@ -1,0 +1,268 @@
+/* =============================================================================
+   Student Calendar + Notes page primitives
+   ============================================================================= */
+.kr-cal-nav {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border-radius: 9px; border: 1px solid #e6ebf5; background: #fff; color: #475569; cursor: pointer;
+  transition: all .15s ease;
+}
+.kr-cal-nav:hover { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.kr-cal-cell {
+  position: relative; aspect-ratio: 1 / 1; min-height: 52px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding-top: 8px; border-radius: 12px; border: 1px solid transparent;
+  background: #f8fafc; cursor: pointer; transition: all .15s ease;
+}
+.kr-cal-cell:hover { background: #eff6ff; border-color: #bfdbfe; }
+.kr-cal-cell-selected { background: #2563eb !important; border-color: #2563eb !important; }
+.kr-cal-cell-selected .kr-cal-num { color: #fff; }
+.kr-cal-num { font-size: 13px; font-weight: 700; color: #334155; }
+.kr-cal-dots { display: flex; gap: 3px; margin-top: 6px; }
+.kr-cal-dot { width: 6px; height: 6px; border-radius: 99px; }
+.kr-cal-cell-selected .kr-cal-dot { box-shadow: 0 0 0 1px rgba(255,255,255,.6); }
+
+/* Notes page */
+.kr-note-card { transition: transform .18s var(--kr-ease), box-shadow .2s var(--kr-ease), border-color .2s ease; cursor: pointer; }
+.kr-note-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(37,99,235,.12); border-color: #bfdbfe; }
+
+/* =============================================================================
+   KLASSRUUM — Premium polish layer
+   Light, blue & white, navy accents. Adds depth, motion, refined interactions,
+   color blending, custom cursors, and the classroom pen — without overriding
+   the Tailwind/shadcn component layer destructively.
+   ============================================================================= */
+
+:root {
+  --kr-blue-50:  #eff6ff;
+  --kr-blue-100: #dbeafe;
+  --kr-blue-200: #bfdbfe;
+  --kr-blue-400: #60a5fa;
+  --kr-blue-500: #3b82f6;
+  --kr-blue-600: #2563eb;
+  --kr-blue-700: #1d4ed8;
+  --kr-navy:     #0f172a;
+  --kr-navy-700: #1e293b;
+  --kr-ink:      #1e3a8a;
+
+  --kr-shadow-soft: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(37, 99, 235, .06);
+  --kr-shadow-lift: 0 2px 6px rgba(15, 23, 42, .06), 0 18px 40px rgba(37, 99, 235, .14);
+  --kr-ring: 0 0 0 4px rgba(59, 130, 246, .28);
+
+  --kr-ease: cubic-bezier(.21, .8, .36, 1);
+}
+
+/* ---- Base rendering ---------------------------------------------------- */
+html { scroll-behavior: smooth; }
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Premium blue text selection */
+::selection { background: rgba(37, 99, 235, .18); color: #0f172a; }
+
+/* Accessible, branded focus ring everywhere */
+:where(a, button, [role="button"], input, textarea, select, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--kr-ring);
+  border-radius: 10px;
+}
+
+/* Refined, branded scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c7d7f5, #aebfe6);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, var(--kr-blue-400), var(--kr-blue-600)); background-clip: padding-box; }
+
+/* ---- Cursor language --------------------------------------------------- */
+/* Everything interactive shows the hand; disabled shows not-allowed. */
+a, button, [role="button"], summary, label[for], .cursor-pointer,
+[data-slot="button"], .kr-pcard[role="button"] { cursor: pointer; }
+button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allowed; }
+
+/* ---- Buttons: lift + sheen (non-destructive enhancement) --------------- */
+[data-slot="button"], .btn, .kr-btn {
+  transition: transform .18s var(--kr-ease), box-shadow .22s var(--kr-ease),
+              background-color .18s ease, border-color .18s ease, color .18s ease, filter .18s ease;
+  will-change: transform;
+}
+[data-slot="button"]:hover, .btn:hover, .kr-btn:hover { transform: translateY(-1.5px); }
+[data-slot="button"]:active, .btn:active, .kr-btn:active { transform: translateY(0) scale(.985); }
+
+/* Primary CTA — gradient + animated sheen */
+.kr-btn-primary {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, var(--kr-blue-500), var(--kr-blue-700));
+  box-shadow: 0 10px 26px rgba(37, 99, 235, .32);
+}
+.kr-btn-primary:hover { box-shadow: 0 16px 34px rgba(37, 99, 235, .42); }
+.kr-btn-primary::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%);
+  transform: translateX(-130%);
+  transition: transform .7s var(--kr-ease);
+}
+.kr-btn-primary:hover::after { transform: translateX(130%); }
+
+/* ---- Cards ------------------------------------------------------------- */
+.kr-pcard {
+  background: #fff;
+  border: 1px solid #e9eef6;
+  border-radius: 18px;
+  box-shadow: var(--kr-shadow-soft);
+  transition: transform .25s var(--kr-ease), box-shadow .25s var(--kr-ease), border-color .25s ease;
+}
+.kr-pcard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--kr-shadow-lift);
+  border-color: var(--kr-blue-200);
+}
+
+/* Glass surface for overlays/floating chips */
+.kr-glass {
+  background: rgba(255, 255, 255, .72);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, .65);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .12);
+}
+
+/* ---- Color blends ------------------------------------------------------ */
+.kr-gradient-text {
+  background: linear-gradient(115deg, var(--kr-blue-600), #6366f1 55%, var(--kr-blue-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: kr-gradient-pan 6s ease infinite;
+}
+
+/* Soft light hero/section backdrop with blue/white blend */
+.kr-aurora {
+  position: relative;
+  background:
+    radial-gradient(60% 60% at 15% 10%, rgba(59,130,246,.12), transparent 60%),
+    radial-gradient(50% 50% at 90% 20%, rgba(99,102,241,.12), transparent 60%),
+    radial-gradient(60% 60% at 70% 95%, rgba(96,165,250,.12), transparent 60%),
+    linear-gradient(180deg, #ffffff, #f6f9ff 55%, #eef3ff);
+  overflow: hidden;
+}
+.kr-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: .55;
+  pointer-events: none;
+  animation: kr-drift 16s ease-in-out infinite;
+}
+.kr-blob-1 { width: 420px; height: 420px; background: #93c5fd; top: -120px; left: -80px; }
+.kr-blob-2 { width: 360px; height: 360px; background: #c7d2fe; bottom: -120px; right: -60px; animation-delay: -6s; }
+.kr-blob-3 { width: 300px; height: 300px; background: #bfdbfe; top: 40%; left: 55%; animation-delay: -11s; }
+
+/* Subtle dotted grid texture for backgrounds */
+.kr-grid {
+  background-image: radial-gradient(rgba(37, 99, 235, .10) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ---- Motion ------------------------------------------------------------ */
+@keyframes kr-gradient-pan { 0%,100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+@keyframes kr-drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(30px,-20px) scale(1.06); }
+  66% { transform: translate(-20px,25px) scale(.96); }
+}
+@keyframes kr-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes kr-fade-up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes kr-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+
+.kr-float { animation: kr-float 6s ease-in-out infinite; }
+.kr-fade-up { animation: kr-fade-up .8s var(--kr-ease) both; }
+.kr-fade-up-1 { animation: kr-fade-up .8s var(--kr-ease) .08s both; }
+.kr-fade-up-2 { animation: kr-fade-up .8s var(--kr-ease) .16s both; }
+.kr-fade-up-3 { animation: kr-fade-up .8s var(--kr-ease) .24s both; }
+.kr-pop { animation: kr-pop .6s var(--kr-ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .kr-float, .kr-blob, .kr-gradient-text,
+  .kr-fade-up, .kr-fade-up-1, .kr-fade-up-2, .kr-fade-up-3, .kr-pop { animation: none !important; }
+}
+
+/* ---- Media frames ------------------------------------------------------ */
+.kr-media {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #0b1220;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, .28), 0 0 0 1px rgba(255,255,255,.6);
+}
+.kr-media video, .kr-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.kr-media-ring {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+  pointer-events: none;
+}
+
+/* Floating stat chip used on hero media */
+.kr-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 14px;
+  font-weight: 700; font-size: 13px; color: #0f172a;
+}
+
+/* =============================================================================
+   CLASSROOM — real pen cursor + handwriting
+   ============================================================================= */
+
+/* A navy fountain-pen cursor over the writable board surface. Hotspot at nib. */
+.vc-whiteboard-content,
+.learning-whiteboard,
+.kr-pen {
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cg transform='translate(2 2)'%3E%3Cpath d='M22 2l6 6-3 3-6-6z' fill='%231e3a8a'/%3E%3Cpath d='M19 5l6 6L10 26l-7 2 2-7z' fill='%232563eb'/%3E%3Cpath d='M3 28l2-7 5 5z' fill='%23f8fafc' stroke='%231e293b' stroke-width='.6'/%3E%3Cpath d='M3 28l1-3.2 2.2 2.2z' fill='%230f172a'/%3E%3C/g%3E%3C/svg%3E")
+    2 30, crosshair;
+}
+
+/* Use a genuine handwriting font on the live writing layer */
+.vc-handwriting-text,
+.vc-board-line-text {
+  font-family: "Caveat", "Patrick Hand", "Segoe Script", cursive;
+  letter-spacing: .3px;
+}
+.vc-handwriting-text { font-size: 1.18em; }
+
+/* The moving "hand + pen" while the AI writes */
+.vc-hand-cursor {
+  font-size: 0 !important; /* hide any emoji fallback text */
+  width: 26px; height: 26px;
+  display: inline-block;
+  margin-left: 2px;
+  background: no-repeat center/contain
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 34 34'%3E%3Cg transform='translate(2 2)'%3E%3Cpath d='M22 2l6 6-3 3-6-6z' fill='%231e3a8a'/%3E%3Cpath d='M19 5l6 6L10 26l-7 2 2-7z' fill='%232563eb'/%3E%3Cpath d='M3 28l2-7 5 5z' fill='%23f8fafc' stroke='%231e293b' stroke-width='.6'/%3E%3Cpath d='M3 28l1-3.2 2.2 2.2z' fill='%230f172a'/%3E%3C/g%3E%3C/svg%3E");
+  filter: drop-shadow(0 3px 4px rgba(15, 23, 42, .25));
+  animation: kr-pen-wobble 1.1s ease-in-out infinite;
+  transform-origin: 2px 28px;
+  vertical-align: bottom;
+}
+@keyframes kr-pen-wobble {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-4deg) translateY(-1px); }
+}
+
+/* Blinking ink caret that trails the handwriting */
+.vc-handwriting-container { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-hand-cursor { animation: none; }
+}

@@ -1,5 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
+import { AppShell } from "@/components/layout/AppShell";
 import {
   Accessibility,
   Bell,
@@ -10,12 +11,12 @@ import {
   Menu,
   Search,
   Settings,
-  Star,
   User,
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { LogoMark } from "@/components/brand/Logo";
 import type { DashboardConfig } from "@/lib/dashboard-config";
 
 type Props = {
@@ -60,10 +61,8 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
         }`}
       >
         <div className="flex items-center justify-between gap-3 border-b border-[var(--gray-100)] px-5 py-4">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)] text-white shadow-md shadow-[var(--primary)]/20">
-              <Star className="h-4 w-4" />
-            </div>
+          <Link to="/" className="flex items-center gap-2.5">
+            <LogoMark size={34} />
             <span className="text-lg font-extrabold tracking-tight text-[var(--gray-900)]">
               Klassruum
             </span>

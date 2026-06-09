@@ -13,35 +13,75 @@ import {
   Target,
   Zap,
 } from "lucide-react";
+import type { ComponentType } from "react";
+import { LogoMark } from "@/components/brand/Logo";
 
-const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/courses", label: "My Courses", icon: BookOpen },
-  { to: "/progress", label: "Progress", icon: TrendingUp },
-  { to: "/schedule", label: "Schedule", icon: Calendar },
-  { to: "/messages", label: "Messages", icon: MessageSquare },
-] as const;
+type NavItem = {
+  to: string;
+  label: string;
+  icon: ComponentType<{ size?: number }>;
+};
+
+// Determine nav items based on role from path, default to student
+function getNavItems(): NavItem[] {
+  if (typeof window === "undefined") {
+    return [
+      { to: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/student/courses", label: "My Courses", icon: BookOpen },
+      { to: "/student/progress", label: "Progress", icon: TrendingUp },
+      { to: "/student/schedule", label: "Schedule", icon: Calendar },
+      { to: "/student/messages", label: "Messages", icon: MessageSquare },
+    ];
+  }
+  const path = window.location.pathname;
+  const parts = path.split("/");
+  const role = parts[1];
+  const base = role === "teacher" || role === "institution" ? `/${role}` : "/student";
+  return [
+    { to: `${base}/dashboard`, label: "Dashboard", icon: LayoutDashboard },
+    { to: `${base}/courses`, label: "My Courses", icon: BookOpen },
+    { to: `${base}/progress`, label: "Progress", icon: TrendingUp },
+    { to: `${base}/schedule`, label: "Schedule", icon: Calendar },
+    { to: `${base}/messages`, label: "Messages", icon: MessageSquare },
+  ];
+}
 
 export function Sidebar() {
+  const navItems = getNavItems();
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <div className="logo-icon">K</div>
+    <aside
+      className="sidebar"
+      aria-hidden="false"
+      style={{
+        position: "fixed",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 260,
+        overflowY: "auto",
+        zIndex: 50,
+      }}
+    >
+      <Link to="/" className="sidebar-logo" style={{ textDecoration: "none" }}>
+        <LogoMark size={34} />
         <div className="logo-text">Klassruum</div>
-      </div>
+      </Link>
 
       <nav className="sidebar-nav">
-        {navItems.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className="nav-item"
-            activeProps={{ className: "nav-item active" }}
-          >
-            <item.icon size={18} />
-            <span>{item.label}</span>
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.to}
+              to={item.to as any}
+              className="nav-item"
+              activeProps={{ className: "nav-item active" }}
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
 
         <div className="learning-access-card">
           <div className="title">Learning Access</div>
@@ -78,11 +118,7 @@ export function Sidebar() {
           <ChevronRight size={16} className="text-gray-400" />
         </div>
 
-        <Link
-          to="/settings"
-          className="nav-item mt-4"
-          activeProps={{ className: "nav-item active" }}
-        >
+        <Link to={"/settings" as any} className="nav-item mt-4" activeProps={{ className: "nav-item active" }}>
           <Settings size={18} />
           <span>Settings</span>
         </Link>

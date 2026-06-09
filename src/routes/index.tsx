@@ -90,7 +90,7 @@ function Nav() {
             </Button>
           </Link>
           <Link to="/student/dashboard">
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md">
+            <Button size="sm" className="kr-btn-primary border-0 shadow-md">
               Try Demo
             </Button>
           </Link>
@@ -102,109 +102,111 @@ function Nav() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50">
-      {/* Animated background gradient orbs */}
-      <div className="absolute -top-40 left-1/3 h-96 w-96 rounded-full bg-blue-200/20 blur-3xl" />
-      <div className="absolute -bottom-20 right-1/4 h-80 w-80 rounded-full bg-indigo-200/15 blur-3xl" />
-      
-      <div className="relative mx-auto max-w-7xl px-6 pt-24 pb-32">
-        {/* Badge */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+    <section className="kr-aurora relative">
+      <div className="kr-blob kr-blob-1" />
+      <div className="kr-blob kr-blob-2" />
+      <div className="kr-blob kr-blob-3" />
+      <div className="absolute inset-0 kr-grid opacity-60" />
+
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 pt-20 pb-24 lg:grid-cols-2 lg:gap-10 lg:pt-28 lg:pb-32">
+        {/* Left — copy */}
+        <div className="kr-fade-up">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/70 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm backdrop-blur">
             <Sparkles className="h-4 w-4" />
-            AI-Powered Education Platform
+            AI-Powered Virtual Classrooms
+          </div>
+
+          <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] tracking-tight text-gray-900 sm:text-6xl">
+            The future of{" "}
+            <span className="kr-gradient-text">smart learning</span>{" "}
+            is here
+          </h1>
+
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-gray-600">
+            A real AI teacher that writes on the board, explains deeply, checks understanding,
+            and adapts to every learner — with voice, live captions, and accessibility built in.
+          </p>
+
+          <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+            <Link to="/student/dashboard">
+              <Button size="lg" className="kr-btn-primary border-0 px-8 py-6 text-base gap-2">
+                <Play className="h-5 w-5" />
+                Try Demo Classroom
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/institutions/register">
+              <Button size="lg" variant="outline" className="border-blue-200 bg-white/70 px-8 py-6 text-base text-blue-700 backdrop-blur hover:bg-white">
+                Register Your School
+              </Button>
+            </Link>
+          </div>
+
+          <div className="mt-9 flex items-center gap-4">
+            <div className="flex -space-x-3">
+              {["#2563eb", "#6366f1", "#0ea5e9", "#22c55e"].map((c, i) => (
+                <span
+                  key={i}
+                  className="h-10 w-10 rounded-full border-2 border-white text-sm font-bold text-white shadow-md grid place-items-center"
+                  style={{ background: c }}
+                >
+                  {["A", "M", "S", "J"][i]}
+                </span>
+              ))}
+            </div>
+            <div className="text-sm text-gray-600">
+              <div className="flex items-center gap-1 text-amber-500">★★★★★</div>
+              <span className="font-medium">Joined by 50,000+ learners worldwide</span>
+            </div>
           </div>
         </div>
 
-        {/* Main Headline */}
-        <h1 className="mx-auto max-w-5xl text-center text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-gray-900 mb-8">
-          The Future of{" "}
-          <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
-            Smart Learning
-          </span>
-        </h1>
+        {/* Right — live video showcase */}
+        <div className="relative kr-fade-up-2">
+          <div className="kr-media aspect-[4/5] sm:aspect-[16/12]">
+            <video
+              src="/media/learning-tablet.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/images/scenes/scene-1.png"
+            />
+            <div className="kr-media-ring" />
+            {/* gradient veil for legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/45 via-transparent to-transparent" />
 
-        {/* Subheadline */}
-        <p className="mx-auto max-w-3xl text-center text-lg sm:text-xl text-gray-600 leading-relaxed mb-10">
-          Klassruum transforms education through AI-powered virtual classrooms. Voice-first teaching, 
-          interactive learning, and adaptive content—all designed for accessibility and engagement.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-          <Link to="/student/dashboard">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base gap-2 shadow-xl hover:shadow-2xl">
-              <Play className="h-5 w-5" />
-              Try Demo Classroom
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link to="/institutions/register">
-            <Button size="lg" variant="outline" className="px-8 py-6 text-base gap-2 border-gray-300 hover:bg-gray-50">
-              Register Your School
-            </Button>
-          </Link>
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600 mb-16">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span className="font-medium">14-day free trial</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span className="font-medium">No credit card required</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span className="font-medium">Setup in 5 minutes</span>
-          </div>
-        </div>
-
-        {/* Hero Image */}
-        <div className="mx-auto max-w-5xl">
-          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
-            {/* Browser Frame */}
-            <div className="flex items-center gap-2 bg-gray-100 px-4 py-3 border-b border-gray-200">
-              <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-red-400" />
-                <div className="h-3 w-3 rounded-full bg-yellow-400" />
-                <div className="h-3 w-3 rounded-full bg-green-400" />
-              </div>
-              <span className="ml-4 text-xs text-gray-400">classroom.klassruum.com</span>
+            {/* top-left live badge */}
+            <div className="absolute left-4 top-4 kr-glass kr-chip">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              </span>
+              Live AI lesson
             </div>
 
-            {/* Preview Content */}
-            <div className="aspect-[16/9] w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center relative overflow-hidden">
-              <div className="text-center text-white z-10">
-                <div className="relative mx-auto mb-8">
-                  <div className="absolute inset-0 animate-pulse rounded-full bg-blue-500/20 blur-2xl" />
-                  <div className="relative inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-2xl">
-                    <GraduationCap className="h-12 w-12" />
-                  </div>
-                </div>
-                <p className="text-2xl font-semibold mb-2">AI Teacher Active</p>
-                <p className="text-gray-300">Real-time interactive lesson in progress</p>
-              </div>
-
-              {/* UI Elements */}
-              <div className="absolute bottom-4 left-4 rounded-lg border border-white/20 bg-slate-900/90 px-4 py-2 backdrop-blur">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <Volume2 className="h-4 w-4 text-green-400" />
-                  <span>Speaking: "Let's master quadratic equations..."</span>
-                </div>
-              </div>
-              <div className="absolute bottom-4 right-4 flex gap-3">
-                <div className="rounded-lg border border-white/20 bg-slate-900/90 px-4 py-2 text-sm text-white backdrop-blur flex items-center gap-2">
-                  <Subtitles className="h-4 w-4 text-blue-400" />
-                  Captions On
-                </div>
-                <div className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
-                  42% Progress
-                </div>
+            {/* bottom caption chip */}
+            <div className="absolute bottom-4 left-4 right-4 kr-glass rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                <Volume2 className="h-4 w-4 text-blue-600" />
+                AI Teacher: “Let’s factor x² + 5x + 6 together…”
               </div>
             </div>
+          </div>
+
+          {/* floating progress card */}
+          <div className="absolute -right-3 top-10 hidden kr-glass rounded-2xl px-4 py-3 shadow-xl sm:block kr-float">
+            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Lesson progress</div>
+            <div className="mt-1 text-2xl font-extrabold text-slate-900">42%</div>
+            <div className="mt-2 h-2 w-32 overflow-hidden rounded-full bg-blue-100">
+              <div className="h-full w-[42%] rounded-full bg-gradient-to-r from-blue-500 to-indigo-600" />
+            </div>
+          </div>
+
+          {/* floating captions chip */}
+          <div className="absolute -left-3 bottom-24 hidden kr-glass kr-chip shadow-xl sm:inline-flex kr-float" style={{ animationDelay: "-3s" }}>
+            <Subtitles className="h-4 w-4 text-indigo-600" />
+            Captions On
           </div>
         </div>
       </div>
@@ -406,29 +408,61 @@ function ClassroomPreview() {
           </p>
         </div>
 
-        <div className="mt-12 flex justify-center mb-12">
-          <Link to="/demo/classroom">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 gap-2 px-8 py-6 text-base shadow-xl">
-              <Play className="h-5 w-5" />
-              Launch Demo Classroom
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
+        <div className="mt-12 grid items-center gap-8 lg:grid-cols-2">
+          {/* Real classroom video */}
+          <div className="kr-media aspect-video kr-fade-up">
+            <video
+              src="/media/student-smiling.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/images/scenes/scene-2.png"
+            />
+            <div className="kr-media-ring" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
+            <div className="absolute bottom-4 left-4 kr-glass kr-chip">
+              <Play className="h-4 w-4 text-blue-600" /> Watch a real session
+            </div>
+          </div>
+
+          {/* Feature checklist */}
+          <div className="kr-fade-up-1">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                { icon: Volume2, text: "Real-time voice AI" },
+                { icon: Subtitles, text: "Live captions (10+ languages)" },
+                { icon: PencilRuler, text: "Interactive whiteboard" },
+                { icon: Brain, text: "Adaptive learning engine" },
+                { icon: Accessibility, text: "Accessibility modes built-in" },
+                { icon: Trophy, text: "Practice, hints & progress" },
+              ].map((item, idx) => (
+                <div key={idx} className="kr-pcard flex items-center gap-3 p-4">
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100">
+                    <item.icon className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">{item.text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link to="/demo/ai-video">
+                <Button size="lg" className="kr-btn-primary border-0 gap-2 px-8 py-6 text-base">
+                  <Play className="h-5 w-5" />
+                  Launch Demo Classroom
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Key Features Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { icon: Volume2, text: "Real-time voice AI", color: "text-blue-600" },
-            { icon: Subtitles, text: "Live captions (10+ languages)" },
-            { icon: PencilRuler, text: "Interactive whiteboard" },
-            { icon: Brain, text: "Adaptive learning engine" },
-          ].map((item, idx) => (
-            <div key={idx} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:shadow-md transition-shadow">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-100 flex-shrink-0">
-                <item.icon className={`h-5 w-5 ${item.color || "text-blue-600"}`} />
-              </div>
-              <span className="text-sm font-semibold text-gray-900">{item.text}</span>
+        {/* Scene gallery — the virtual learning space */}
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {["scene-1.png", "scene-3.png", "scene-2.png"].map((s, i) => (
+            <div key={s} className="kr-media aspect-[4/3] kr-fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
+              <img src={`/images/scenes/${s}`} alt="Klassruum virtual learning space" loading="lazy" />
+              <div className="kr-media-ring" />
             </div>
           ))}
         </div>

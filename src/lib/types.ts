@@ -430,6 +430,7 @@ export type TeacherVideoState =
   | "preparing"
   | "speaking"
   | "writing"
+  | "reading"
   | "explaining"
   | "asking_question"
   | "listening"
@@ -437,6 +438,7 @@ export type TeacherVideoState =
   | "answering"
   | "encouraging"
   | "paused"
+  | "warning"
   | "correcting";
 
 export type WritingSpeed = "slow" | "normal" | "fast";

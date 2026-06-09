@@ -54,41 +54,54 @@ function AuthPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div
-        className="relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex"
-        style={{ background: "var(--gradient-brand)" }}
-      >
+      <div className="relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
+        {/* Real classroom photo */}
+        <img
+          src="/images/auth-side.png"
+          alt="Students learning together with Klassruum"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Brand blue overlay for legibility */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(29,78,216,0.92) 0%, rgba(37,99,235,0.78) 42%, rgba(37,99,235,0.30) 100%)",
+          }}
+        />
         {/* Decorative overlay circles */}
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/5" />
-        <div className="pointer-events-none absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full bg-white/5" />
-        <div className="pointer-events-none absolute right-1/4 top-1/3 h-64 w-64 rounded-full bg-white/5" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[520px] w-[520px] rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute right-1/4 top-1/3 h-64 w-64 rounded-full bg-white/10" />
 
         <Link to="/" className="relative z-10 flex items-center gap-2">
           <Logo />
         </Link>
         <div className="relative z-10">
-          <h2 className="max-w-md text-3xl font-extrabold leading-tight tracking-tight">
+          <h2 className="max-w-md text-4xl font-extrabold leading-[1.1] tracking-tight">
             Virtual classrooms for every learner.
           </h2>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-white/80">
+          <p className="mt-5 max-w-md text-base leading-relaxed text-white/85">
             AI-powered lessons that speak, write, explain, and adapt to each student's needs. Sign in to manage your institution, classrooms, and resources.
           </p>
-          <div className="mt-8 flex gap-6">
+          <div className="mt-10 flex items-center gap-8">
             <div>
-              <p className="text-2xl font-extrabold">10k+</p>
-              <p className="mt-0.5 text-xs text-white/60">Active Learners</p>
+              <p className="text-3xl font-extrabold">10k+</p>
+              <p className="mt-0.5 text-xs font-medium text-white/70">Active Learners</p>
             </div>
+            <div className="h-10 w-px bg-white/25" />
             <div>
-              <p className="text-2xl font-extrabold">500+</p>
-              <p className="mt-0.5 text-xs text-white/60">Institutions</p>
+              <p className="text-3xl font-extrabold">500+</p>
+              <p className="mt-0.5 text-xs font-medium text-white/70">Institutions</p>
             </div>
+            <div className="h-10 w-px bg-white/25" />
             <div>
-              <p className="text-2xl font-extrabold">98%</p>
-              <p className="mt-0.5 text-xs text-white/60">Satisfaction</p>
+              <p className="text-3xl font-extrabold">98%</p>
+              <p className="mt-0.5 text-xs font-medium text-white/70">Satisfaction</p>
             </div>
           </div>
         </div>
-        <p className="relative z-10 text-xs text-white/50">
+        <p className="relative z-10 text-xs text-white/60">
           © {new Date().getFullYear()} Klassruum. Built for every learner.
         </p>
       </div>
@@ -96,9 +109,13 @@ function AuthPage() {
       <div className="flex items-center justify-center bg-background p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8">
-            <Link to="/">
-              <Logo />
-            </Link>
+                <Link to="/">
+                  <Logo size={40} />
+                </Link>
+              </div>
+          {/* Brand name above the welcome text for quick recognition on the right */}
+          <div className="mb-2 hidden lg:block">
+            <span className="text-sm font-semibold text-muted-foreground">Klassruum</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {mode === "signin" ? "Welcome back" : "Create your account"}
@@ -156,10 +173,22 @@ function AuthPage() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <Button variant="outline" className="w-full" type="button">
+            <Button variant="outline" className="w-full gap-2" type="button">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8a12 12 0 1 1 0-24c3 0 5.8 1.2 7.9 3l5.7-5.7A20 20 0 1 0 24 44c11 0 20-8 20-20 0-1.3-.1-2.3-.4-3.5z" />
+                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0 1 24 12c3 0 5.8 1.2 7.9 3l5.7-5.7A20 20 0 0 0 6.3 14.7z" />
+                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2A12 12 0 0 1 12.7 28l-6.6 5.1A20 20 0 0 0 24 44z" />
+                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2C39.9 35.8 44 30.4 44 24c0-1.3-.1-2.3-.4-3.5z" />
+              </svg>
               Google
             </Button>
-            <Button variant="outline" className="w-full" type="button">
+            <Button variant="outline" className="w-full gap-2" type="button">
+              <svg width="16" height="16" viewBox="0 0 23 23" aria-hidden="true">
+                <path fill="#F25022" d="M1 1h10v10H1z" />
+                <path fill="#7FBA00" d="M12 1h10v10H12z" />
+                <path fill="#00A4EF" d="M1 12h10v10H1z" />
+                <path fill="#FFB900" d="M12 12h10v10H12z" />
+              </svg>
               Microsoft
             </Button>
           </div>

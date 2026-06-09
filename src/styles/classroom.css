@@ -1782,3 +1782,669 @@
     gap: 8px;
   }
 }
+
+/* =============================================
+   AI VIDEO PANEL — Level 1 Animated Avatar
+   ============================================= */
+
+/* ---- Panel Container ---- */
+.ai-video-panel {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ai-video-panel-focus {
+  width: 220px;
+}
+
+/* ---- Panel Header ---- */
+.ai-video-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-video-panel-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-video-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ai-video-panel-mode {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.ai-video-panel-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ---- Connection Status ---- */
+.ai-video-connection {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- Avatar Stage ---- */
+.ai-video-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 16px;
+  background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* ---- Avatar Container ---- */
+.ai-video-avatar-container {
+  position: relative;
+  width: 140px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Speaking Ring ---- */
+.ai-video-speaking-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ai-video-speaking-ring-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.ai-video-speaking-ring-active .ai-video-speaking-ring-inner {
+  border-color: var(--ring-color, rgba(37, 99, 235, 0.4));
+  animation: speakingRingPulseInner 1.5s ease-in-out infinite;
+}
+
+.ai-video-speaking-ring-outer {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.ai-video-speaking-ring-active .ai-video-speaking-ring-outer {
+  border-color: var(--ring-color, rgba(37, 99, 235, 0.2));
+  animation: speakingRingPulseOuter 2s ease-in-out infinite;
+}
+
+@keyframes speakingRingPulseInner {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes speakingRingPulseOuter {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.7;
+  }
+}
+
+/* ---- Avatar Body ---- */
+.ai-video-avatar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.ai-video-avatar-active {
+  transform: scale(1.02);
+}
+
+.ai-video-avatar-speaking {
+  animation: avatarBobbing 2s ease-in-out infinite;
+}
+
+@keyframes avatarBobbing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* ---- Avatar Head ---- */
+.ai-video-avatar-head {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* ---- Avatar Eyes ---- */
+.ai-video-avatar-eyes {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.ai-video-avatar-eye {
+  width: 10px;
+  height: 10px;
+  background: #1e293b;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.ai-video-eye-looking-up {
+  transform: translateY(-3px);
+}
+
+.ai-video-eye-looking-side {
+  transform: translateX(3px);
+}
+
+/* ---- Avatar Mouth ---- */
+.ai-video-avatar-mouth {
+  width: 16px;
+  height: 4px;
+  background: #92400e;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.ai-video-mouth-speaking {
+  animation: mouthTalk 0.3s ease-in-out infinite;
+}
+
+.ai-video-mouth-smile {
+  width: 20px;
+  height: 10px;
+  border-radius: 0 0 10px 10px;
+  background: transparent;
+  border-bottom: 3px solid #92400e;
+  border-left: 3px solid #92400e;
+  border-right: 3px solid #92400e;
+  animation: none;
+}
+
+.ai-video-mouth-question {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid #92400e;
+  background: transparent;
+  animation: none;
+}
+
+@keyframes mouthTalk {
+  0%, 100% {
+    height: 4px;
+    width: 16px;
+    border-radius: 4px;
+  }
+  25% {
+    height: 10px;
+    width: 14px;
+    border-radius: 6px 6px 8px 8px;
+  }
+  50% {
+    height: 6px;
+    width: 18px;
+    border-radius: 5px;
+  }
+  75% {
+    height: 12px;
+    width: 12px;
+    border-radius: 5px 5px 7px 7px;
+  }
+}
+
+/* ---- Avatar Cap ---- */
+.ai-video-avatar-cap {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ---- Avatar Body / Torso ---- */
+.ai-video-avatar-body {
+  margin-top: -4px;
+}
+
+.ai-video-avatar-torso {
+  width: 60px;
+  height: 50px;
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
+  border-radius: 8px 8px 16px 16px;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+}
+
+/* ---- Avatar Glow ---- */
+.ai-video-avatar-glow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 20px;
+  border-radius: 50%;
+  filter: blur(12px);
+  opacity: 0.5;
+  animation: glowPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+/* ---- Audio Waveform ---- */
+.ai-video-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 32px;
+  margin-top: 12px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.ai-video-waveform-bar {
+  display: block;
+  width: 3px;
+  height: 4px;
+  background: #94a3b8;
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.ai-video-waveform-active .ai-video-waveform-bar {
+  background: linear-gradient(180deg, #2563eb, #7c3aed);
+  animation: waveformBounce 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes waveformBounce {
+  0% {
+    height: 4px;
+  }
+  100% {
+    height: 24px;
+  }
+}
+
+/* ---- State Badge ---- */
+.ai-video-state-badge-container {
+  position: absolute;
+  bottom: 52px;
+  right: 8px;
+}
+
+.ai-video-state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.ai-video-state-label {
+  line-height: 1;
+}
+
+/* ---- Spin animation ---- */
+.ai-video-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Caption Bar ---- */
+.ai-video-caption-bar {
+  padding: 10px 16px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.ai-video-caption-text {
+  color: #f8fafc;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ---- Info Section ---- */
+.ai-video-info-section {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-video-phase-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.ai-video-phase-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ai-video-phase-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ai-video-step-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-video-step-bar {
+  flex: 1;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ai-video-step-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.ai-video-step-text {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ---- Controls ---- */
+.ai-video-controls {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-video-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-video-control-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.ai-video-control-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ai-video-control-btn-primary {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.ai-video-control-btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* ---- Question Input ---- */
+.ai-video-question-input {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.ai-video-question-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1e293b;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.ai-video-question-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.ai-video-question-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ai-video-question-send {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ai-video-question-send:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.ai-video-question-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-video-question-cancel {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-video-question-cancel:hover {
+  background: #f1f5f9;
+}
+
+/* ---- Learning Mode Indicator ---- */
+.ai-video-mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fef3c7;
+  border-bottom: 1px solid #fde68a;
+  font-size: 11px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* ---- Video Clip Container (Level 2) ---- */
+.ai-video-clip-container {
+  position: relative;
+  background: #000;
+}
+
+.ai-video-clip-player {
+  width: 100%;
+  display: block;
+  border-radius: 0;
+}
+
+.ai-video-clip-container .ai-video-caption-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* ---- Integrated Classroom Layout ---- */
+.ai-video-classroom-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ai-video-classroom-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .ai-video-panel {
+    width: 240px;
+  }
+
+  .ai-video-avatar-head {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ai-video-avatar-torso {
+    width: 48px;
+    height: 40px;
+  }
+
+  .ai-video-waveform {
+    gap: 1px;
+    padding: 4px 8px;
+  }
+
+  .ai-video-waveform-bar {
+    width: 2px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ai-video-classroom-layout {
+    flex-direction: column;
+  }
+
+  .ai-video-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    max-height: 280px;
+  }
+
+  .ai-video-stage {
+    padding: 12px 8px 8px;
+  }
+
+  .ai-video-avatar-head {
+    width: 50px;
+    height: 50px;
+  }
+
+  .ai-video-avatar-torso {
+    width: 40px;
+    height: 32px;
+  }
+}

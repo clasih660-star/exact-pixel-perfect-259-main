@@ -1,5 +1,9 @@
 import { cn } from "@/lib/utils";
 
+/**
+ * Klassruum logo mark — a bold "K" in a blue gradient wearing a navy-blue
+ * graduation cap, with a navy tassel and a blue bead.
+ */
 export function LogoMark({ className, size = 32 }: { className?: string; size?: number }) {
   return (
     <svg
@@ -12,33 +16,37 @@ export function LogoMark({ className, size = 32 }: { className?: string; size?: 
       aria-hidden="true"
     >
       <defs>
-        <linearGradient
-          id="klass-grad"
-          x1="0"
-          y1="0"
-          x2="48"
-          y2="48"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0%" stopColor="#1D4ED8" />
-          <stop offset="100%" stopColor="#3B82F6" />
+        <linearGradient id="klass-k" x1="10" y1="20" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#3B82F6" />
+          <stop offset="55%" stopColor="#2563EB" />
+          <stop offset="100%" stopColor="#1D4ED8" />
+        </linearGradient>
+        <linearGradient id="klass-cap" x1="6" y1="9" x2="42" y2="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#1E3A8A" />
+          <stop offset="100%" stopColor="#0F172A" />
         </linearGradient>
       </defs>
-      {/* K letter */}
+
+      {/* K letter (blue) */}
       <path
-        d="M14 18 V42 H19 V32 L21 30 L29 42 H35 L24 26 L34 18 H27 L19 25 V18 Z"
-        fill="url(#klass-grad)"
+        d="M14 19 V42 H19.4 V33.2 L21.1 31.3 L29.4 42 H36 L24.6 27.2 L35 19 H27.6 L19.4 25.8 V19 Z"
+        fill="url(#klass-k)"
       />
-      {/* Graduation cap */}
-      <path d="M5 16 L24 9 L43 16 L24 23 Z" fill="#1D4ED8" />
+
+      {/* Graduation cap — navy blue mortarboard */}
+      <path d="M4.5 16 L24 8.2 L43.5 16 L24 23.8 Z" fill="url(#klass-cap)" />
+      {/* Cap band under the board */}
       <path
-        d="M14 19.5 V25 C14 27.5 18.5 29 24 29 C29.5 29 34 27.5 34 25 V19.5 L24 23 Z"
-        fill="#1D4ED8"
-        opacity="0.85"
+        d="M15 19.6 V25.4 C15 27.9 19 29.4 24 29.4 C29 29.4 33 27.9 33 25.4 V19.6 L24 23.2 Z"
+        fill="#1E3A8A"
+        opacity="0.92"
       />
-      {/* Tassel */}
-      <path d="M41 16 V22" stroke="#1D4ED8" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="41" cy="23.5" r="1.5" fill="#3B82F6" />
+      {/* Subtle top highlight on the board */}
+      <path d="M24 8.2 L43.5 16 L24 18.1 L4.5 16 Z" fill="#FFFFFF" opacity="0.12" />
+
+      {/* Navy tassel + blue bead */}
+      <path d="M42.4 16.2 V22.2" stroke="#1E3A8A" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="42.4" cy="23.8" r="1.8" fill="#3B82F6" />
     </svg>
   );
 }
@@ -46,15 +54,19 @@ export function LogoMark({ className, size = 32 }: { className?: string; size?: 
 export function Logo({
   className,
   showWordmark = true,
+  size = 36,
 }: {
   className?: string;
   showWordmark?: boolean;
+  size?: number;
 }) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <LogoMark size={36} />
+      <LogoMark size={size} />
       {showWordmark && (
-        <span className="text-xl font-bold tracking-tight text-foreground">Klassruum</span>
+        <span className="text-xl font-extrabold tracking-tight text-foreground">
+          Klass<span className="text-[var(--primary,#2563eb)]">ruum</span>
+        </span>
       )}
     </div>
   );

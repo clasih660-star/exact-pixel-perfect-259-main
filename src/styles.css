@@ -3,6 +3,7 @@
 @import "./styles/design-system.css";
 @import "./styles/classroom.css";
 @import "./styles/dashboard.css";
+@import "./styles/premium.css";
 
 /* Scan source files for Tailwind utility classes */
 @source "../src/**/*.{ts,tsx,js,jsx}";

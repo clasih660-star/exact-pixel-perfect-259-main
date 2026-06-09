@@ -16,6 +16,7 @@ import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
 import { Route as DemoTeachingRouteImport } from './routes/demo.teaching'
 import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
+import { Route as DemoAiVideoRouteImport } from './routes/demo.ai-video'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
@@ -129,6 +130,11 @@ const DemoTeachingRoute = DemoTeachingRouteImport.update({
 const DemoClassroomRoute = DemoClassroomRouteImport.update({
   id: '/demo/classroom',
   path: '/demo/classroom',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoAiVideoRoute = DemoAiVideoRouteImport.update({
+  id: '/demo/ai-video',
+  path: '/demo/ai-video',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassroomLessonIdRoute = ClassroomLessonIdRouteImport.update({
@@ -613,6 +619,7 @@ export interface FileRoutesByFullPath {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/teaching': typeof DemoTeachingRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
@@ -701,6 +708,7 @@ export interface FileRoutesByTo {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/teaching': typeof DemoTeachingRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
@@ -791,6 +799,7 @@ export interface FileRoutesById {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/teaching': typeof DemoTeachingRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
@@ -881,6 +890,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/ai-video'
     | '/demo/classroom'
     | '/demo/teaching'
     | '/institutions/register'
@@ -969,6 +979,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/ai-video'
     | '/demo/classroom'
     | '/demo/teaching'
     | '/institutions/register'
@@ -1058,6 +1069,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/demo/ai-video'
     | '/demo/classroom'
     | '/demo/teaching'
     | '/institutions/register'
@@ -1146,6 +1158,7 @@ export interface RootRouteChildren {
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
+  DemoAiVideoRoute: typeof DemoAiVideoRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
   DemoTeachingRoute: typeof DemoTeachingRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
@@ -1203,6 +1216,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/classroom'
       fullPath: '/demo/classroom'
       preLoaderRoute: typeof DemoClassroomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/ai-video': {
+      id: '/demo/ai-video'
+      path: '/demo/ai-video'
+      fullPath: '/demo/ai-video'
+      preLoaderRoute: typeof DemoAiVideoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classroom/$lessonId': {
@@ -2162,6 +2182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   ClassroomLessonIdRoute: ClassroomLessonIdRoute,
+  DemoAiVideoRoute: DemoAiVideoRoute,
   DemoClassroomRoute: DemoClassroomRoute,
   DemoTeachingRoute: DemoTeachingRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
