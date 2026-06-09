@@ -9,6 +9,8 @@ import {
   Settings,
   X,
   Gauge,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 interface AudioControlBarProps {
@@ -81,7 +83,7 @@ export function AudioControlBar({
           aria-label="Slower"
           title="Slower"
         >
-          <span className="ico">🐢</span>
+          <ChevronDown className="ico h-5 w-5" />
           <span>Slower</span>
         </button>
 
@@ -91,17 +93,17 @@ export function AudioControlBar({
           aria-label="Faster"
           title="Faster"
         >
-          <span className="ico">🐇</span>
+          <ChevronUp className="ico h-5 w-5" />
           <span>Faster</span>
         </button>
 
         <button className="audio-icon-btn" aria-label="Skip ahead" title="Skip ahead">
-          <span className="ico">⏭️</span>
+          <SkipForward className="ico h-5 w-5" />
           <span>Skip</span>
         </button>
 
         <button className="audio-icon-btn" aria-label="Settings" title="Settings">
-          <span className="ico">⚙️</span>
+          <Settings className="ico h-5 w-5" />
           <span>Settings</span>
         </button>
       </div>

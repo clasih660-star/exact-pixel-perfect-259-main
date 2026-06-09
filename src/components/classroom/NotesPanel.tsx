@@ -4,20 +4,23 @@ import type { ClassroomContext } from "@/lib/types";
 
 interface NotesPanelProps {
   classroomContext: ClassroomContext;
+  initialNotes?: string;
+  onNotesSave?: (notes: string) => void;
 }
 
-export function NotesPanel({ classroomContext }: NotesPanelProps) {
+export function NotesPanel({ classroomContext, initialNotes, onNotesSave }: NotesPanelProps) {
   const [notes, setNotes] = useState<string>(
-    classroomContext.lesson.progress.confusionScore > 0.5
-      ? `Notes for ${classroomContext.lesson.title}:\n\n• Key concepts learned:\n• Questions to review:\n• Practice problems:`
-      : "",
+    initialNotes ||
+      (classroomContext.progress.confusionScore > 0.5
+        ? `Notes for ${classroomContext.lesson.title}:\n\n• Key concepts learned:\n• Questions to review:\n• Practice problems:`
+        : ""),
   );
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulate save
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    onNotesSave?.(notes);
     setIsSaving(false);
   };
 

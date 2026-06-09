@@ -1,5 +1,6 @@
 import type { TeacherState, LessonStep } from "@/lib/types";
 import { LogoMark } from "@/components/brand/Logo";
+import { Info, RotateCcw, GraduationCap } from "lucide-react";
 
 interface AITeacherPanelProps {
   teacherState: TeacherState;
@@ -36,7 +37,9 @@ export function AITeacherPanel({
 
       <div className="ai-avatar-wrap">
         <div className="ai-avatar">
-          <div className="ai-avatar-placeholder">👨‍🏫</div>
+          <div className="ai-avatar-placeholder">
+            <GraduationCap size={48} className="text-blue-600" />
+          </div>
         </div>
         <div className="ai-speaking">
           <div className="flex items-center gap-2">
@@ -67,8 +70,8 @@ export function AITeacherPanel({
       <div className="divider" />
 
       <div className="last-explanation-box">
-        <div className="last-exp-label">
-          <span>ℹ️</span> What we're learning
+        <div className="last-exp-label flex items-center gap-1.5">
+          <Info size={14} className="text-[var(--gray-400)]" /> What we're learning
         </div>
         <div className="last-exp-text">
           Understanding how to solve quadratic equations using the factoring method. This technique
@@ -77,7 +80,7 @@ export function AITeacherPanel({
       </div>
 
       <button className="replay-btn">
-        <span>🔁</span> Replay last explanation
+        <RotateCcw size={14} /> Replay last explanation
       </button>
     </aside>
   );

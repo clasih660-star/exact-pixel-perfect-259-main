@@ -1,3 +1,5 @@
+import { Subtitles, Bot } from "lucide-react";
+
 interface CaptionBarProps {
   message: string;
   speaker?: "teacher" | "student" | "system";
@@ -19,7 +21,7 @@ export function CaptionBar({ message, speaker = "teacher" }: CaptionBarProps) {
   return (
     <div className="ai-speaking-bar">
       <div className="flex items-center gap-2 text-blue-400">
-        <span className="text-lg">👨‍🏫</span>
+        <Bot size={18} />
       </div>
       <div className="speaking-text">
         <strong>{speakerLabels[speaker]}:</strong> {message}
@@ -34,23 +36,5 @@ export function CaptionBar({ message, speaker = "teacher" }: CaptionBarProps) {
         </button>
       </div>
     </div>
-  );
-}
-
-function Subtitles({ size }: { size: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-      <line x1="4" y1="22" x2="4" y2="15" />
-    </svg>
   );
 }

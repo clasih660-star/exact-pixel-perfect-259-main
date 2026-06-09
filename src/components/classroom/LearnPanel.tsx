@@ -4,16 +4,35 @@ import { StepsPanel } from "./StepsPanel";
 import { ChatPanel } from "./ChatPanel";
 import { NotesPanel } from "./NotesPanel";
 import { AccessPanel } from "./AccessPanel";
-import type { ClassroomContext } from "@/lib/types";
+import type { ClassroomContext, LearnerAccessProfile, LessonStepKey, ChatMessage } from "@/lib/types";
 
 type TabType = "steps" | "chat" | "notes" | "access";
 
 interface LearnPanelProps {
   classroomContext: ClassroomContext;
+  messages?: ChatMessage[];
+  isLoading?: boolean;
+  initialNotes?: string;
+  onStepChange?: (step: LessonStepKey) => void;
+  onSendMessage?: (message: string) => void;
+  onQuickAction?: (action: string) => void;
+  onNotesSave?: (notes: string) => void;
+  onAccessChange?: (profile: Partial<LearnerAccessProfile>) => void;
   children?: React.ReactNode;
 }
 
-export function LearnPanel({ classroomContext, children }: LearnPanelProps) {
+export function LearnPanel({
+  classroomContext,
+  messages,
+  isLoading = false,
+  initialNotes,
+  onStepChange,
+  onSendMessage,
+  onQuickAction,
+  onNotesSave,
+  onAccessChange,
+  children,
+}: LearnPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>("chat");
 
   const tabs = [
@@ -41,12 +60,24 @@ export function LearnPanel({ classroomContext, children }: LearnPanelProps) {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === "steps" && <StepsPanel classroomContext={classroomContext} />}
+        {activeTab === "steps" && <StepsPanel classroomContext={classroomContext} onStepChange={onStepChange} />}
         {activeTab === "chat" && (
-          <ChatPanel classroomContext={classroomContext}>{children}</ChatPanel>
+          <ChatPanel
+            classroomContext={classroomContext}
+            messages={messages}
+            isLoading={isLoading}
+            onSendMessage={onSendMessage}
+            onQuickAction={onQuickAction}
+          >
+            {children}
+          </ChatPanel>
         )}
-        {activeTab === "notes" && <NotesPanel classroomContext={classroomContext} />}
-        {activeTab === "access" && <AccessPanel classroomContext={classroomContext} />}
+        {activeTab === "notes" && (
+          <NotesPanel classroomContext={classroomContext} initialNotes={initialNotes} onNotesSave={onNotesSave} />
+        )}
+        {activeTab === "access" && (
+          <AccessPanel classroomContext={classroomContext} onAccessChange={onAccessChange} />
+        )}
       </div>
     </div>
   );

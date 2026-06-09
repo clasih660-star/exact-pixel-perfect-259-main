@@ -1,12 +1,13 @@
-import type { ClassroomContext } from "@/lib/types";
+import type { ClassroomContext, LessonStepKey } from "@/lib/types";
 import { CheckCircle, Circle, Target } from "lucide-react";
 import { LESSON_STEPS } from "@/lib/teacher-types";
 
 interface StepsPanelProps {
   classroomContext: ClassroomContext;
+  onStepChange?: (step: LessonStepKey) => void;
 }
 
-export function StepsPanel({ classroomContext }: StepsPanelProps) {
+export function StepsPanel({ classroomContext, onStepChange }: StepsPanelProps) {
   const { progress, lesson } = classroomContext;
   const currentStepIndex = LESSON_STEPS.indexOf(progress.currentStep as any);
 
@@ -25,11 +26,14 @@ export function StepsPanel({ classroomContext }: StepsPanelProps) {
             const isCompleted = index < currentStepIndex;
             const isCurrent = index === currentStepIndex;
             const stepData = lesson.steps[index];
+            const isLocked = index > currentStepIndex + 1;
 
             return (
-              <div
+              <button
                 key={step}
-                className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
+                onClick={() => !isLocked && onStepChange?.(step as LessonStepKey)}
+                disabled={isLocked}
+                className={`w-full flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
                   isCurrent
                     ? "bg-blue-50 border border-blue-200"
                     : isCompleted
@@ -47,7 +51,7 @@ export function StepsPanel({ classroomContext }: StepsPanelProps) {
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 text-left">
                   <div
                     className={`text-sm font-medium ${
                       isCurrent ? "text-blue-900" : isCompleted ? "text-green-900" : "text-gray-700"
@@ -67,7 +71,7 @@ export function StepsPanel({ classroomContext }: StepsPanelProps) {
                     <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>

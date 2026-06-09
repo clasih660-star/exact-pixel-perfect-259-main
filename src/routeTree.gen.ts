@@ -18,7 +18,6 @@ import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
 import { Route as AuthenticatedTeacherStudentsRouteImport } from './routes/_authenticated/teacher.students'
@@ -46,6 +45,7 @@ import { Route as AuthenticatedStudentCalendarRouteImport } from './routes/_auth
 import { Route as AuthenticatedStudentAssignmentsRouteImport } from './routes/_authenticated/student.assignments'
 import { Route as AuthenticatedStudentAchievementsRouteImport } from './routes/_authenticated/student.achievements'
 import { Route as AuthenticatedStudentAccessRouteImport } from './routes/_authenticated/student.access'
+import { Route as AuthenticatedParentDashboardRouteImport } from './routes/_authenticated/parent.dashboard'
 import { Route as AuthenticatedInstitutionTeachersRouteImport } from './routes/_authenticated/institution.teachers'
 import { Route as AuthenticatedInstitutionStudentsRouteImport } from './routes/_authenticated/institution.students'
 import { Route as AuthenticatedInstitutionSettingsRouteImport } from './routes/_authenticated/institution.settings'
@@ -57,6 +57,7 @@ import { Route as AuthenticatedInstitutionCoursesRouteImport } from './routes/_a
 import { Route as AuthenticatedInstitutionClassroomsRouteImport } from './routes/_authenticated/institution.classrooms'
 import { Route as AuthenticatedInstitutionAnalyticsRouteImport } from './routes/_authenticated/institution.analytics'
 import { Route as AuthenticatedInstitutionActivityRouteImport } from './routes/_authenticated/institution.activity'
+import { Route as AuthenticatedAdminPlatformRouteImport } from './routes/_authenticated/admin.platform'
 import { Route as AuthenticatedTeacherCoursesCourseIdRouteImport } from './routes/_authenticated/teacher.courses.$courseId'
 import { Route as AuthenticatedStudentSettingsProfileRouteImport } from './routes/_authenticated/student.settings.profile'
 import { Route as AuthenticatedStudentResourcesResourceIdRouteImport } from './routes/_authenticated/student.resources.$resourceId'
@@ -118,11 +119,6 @@ const ClassroomDesignLessonIdRoute = ClassroomDesignLessonIdRouteImport.update({
   id: '/classroom-design/$lessonId',
   path: '/classroom-design/$lessonId',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ClassroomSessionSessionIdRoute =
   ClassroomSessionSessionIdRouteImport.update({
@@ -286,6 +282,12 @@ const AuthenticatedStudentAccessRoute =
     path: '/student/access',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedParentDashboardRoute =
+  AuthenticatedParentDashboardRouteImport.update({
+    id: '/parent/dashboard',
+    path: '/parent/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInstitutionTeachersRoute =
   AuthenticatedInstitutionTeachersRouteImport.update({
     id: '/institution/teachers',
@@ -350,6 +352,12 @@ const AuthenticatedInstitutionActivityRoute =
   AuthenticatedInstitutionActivityRouteImport.update({
     id: '/institution/activity',
     path: '/institution/activity',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminPlatformRoute =
+  AuthenticatedAdminPlatformRouteImport.update({
+    id: '/admin/platform',
+    path: '/admin/platform',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeacherCoursesCourseIdRoute =
@@ -452,13 +460,13 @@ const AuthenticatedStudentCoursesCourseIdLessonsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/admin/platform': typeof AuthenticatedAdminPlatformRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
   '/institution/classrooms': typeof AuthenticatedInstitutionClassroomsRoute
@@ -470,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
   '/institution/students': typeof AuthenticatedInstitutionStudentsRoute
   '/institution/teachers': typeof AuthenticatedInstitutionTeachersRoute
+  '/parent/dashboard': typeof AuthenticatedParentDashboardRoute
   '/student/access': typeof AuthenticatedStudentAccessRoute
   '/student/achievements': typeof AuthenticatedStudentAchievementsRoute
   '/student/assignments': typeof AuthenticatedStudentAssignmentsRoute
@@ -517,13 +526,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/admin/platform': typeof AuthenticatedAdminPlatformRoute
   '/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
   '/institution/classrooms': typeof AuthenticatedInstitutionClassroomsRoute
@@ -535,6 +544,7 @@ export interface FileRoutesByTo {
   '/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
   '/institution/students': typeof AuthenticatedInstitutionStudentsRoute
   '/institution/teachers': typeof AuthenticatedInstitutionTeachersRoute
+  '/parent/dashboard': typeof AuthenticatedParentDashboardRoute
   '/student/access': typeof AuthenticatedStudentAccessRoute
   '/student/achievements': typeof AuthenticatedStudentAchievementsRoute
   '/student/assignments': typeof AuthenticatedStudentAssignmentsRoute
@@ -584,13 +594,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/student/progress': typeof StudentProgressRoute
+  '/_authenticated/admin/platform': typeof AuthenticatedAdminPlatformRoute
   '/_authenticated/institution/activity': typeof AuthenticatedInstitutionActivityRoute
   '/_authenticated/institution/analytics': typeof AuthenticatedInstitutionAnalyticsRoute
   '/_authenticated/institution/classrooms': typeof AuthenticatedInstitutionClassroomsRoute
@@ -602,6 +612,7 @@ export interface FileRoutesById {
   '/_authenticated/institution/settings': typeof AuthenticatedInstitutionSettingsRoute
   '/_authenticated/institution/students': typeof AuthenticatedInstitutionStudentsRoute
   '/_authenticated/institution/teachers': typeof AuthenticatedInstitutionTeachersRoute
+  '/_authenticated/parent/dashboard': typeof AuthenticatedParentDashboardRoute
   '/_authenticated/student/access': typeof AuthenticatedStudentAccessRoute
   '/_authenticated/student/achievements': typeof AuthenticatedStudentAchievementsRoute
   '/_authenticated/student/assignments': typeof AuthenticatedStudentAssignmentsRoute
@@ -651,13 +662,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/dashboard'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
     | '/demo/classroom'
     | '/institutions/register'
     | '/student/progress'
+    | '/admin/platform'
     | '/institution/activity'
     | '/institution/analytics'
     | '/institution/classrooms'
@@ -669,6 +680,7 @@ export interface FileRouteTypes {
     | '/institution/settings'
     | '/institution/students'
     | '/institution/teachers'
+    | '/parent/dashboard'
     | '/student/access'
     | '/student/achievements'
     | '/student/assignments'
@@ -716,13 +728,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/dashboard'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
     | '/demo/classroom'
     | '/institutions/register'
     | '/student/progress'
+    | '/admin/platform'
     | '/institution/activity'
     | '/institution/analytics'
     | '/institution/classrooms'
@@ -734,6 +746,7 @@ export interface FileRouteTypes {
     | '/institution/settings'
     | '/institution/students'
     | '/institution/teachers'
+    | '/parent/dashboard'
     | '/student/access'
     | '/student/achievements'
     | '/student/assignments'
@@ -782,13 +795,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/_authenticated/dashboard'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
     | '/demo/classroom'
     | '/institutions/register'
     | '/student/progress'
+    | '/_authenticated/admin/platform'
     | '/_authenticated/institution/activity'
     | '/_authenticated/institution/analytics'
     | '/_authenticated/institution/classrooms'
@@ -800,6 +813,7 @@ export interface FileRouteTypes {
     | '/_authenticated/institution/settings'
     | '/_authenticated/institution/students'
     | '/_authenticated/institution/teachers'
+    | '/_authenticated/parent/dashboard'
     | '/_authenticated/student/access'
     | '/_authenticated/student/achievements'
     | '/_authenticated/student/assignments'
@@ -923,13 +937,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/classroom-design/$lessonId'
       preLoaderRoute: typeof ClassroomDesignLessonIdRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/classroom/session/$sessionId': {
       id: '/classroom/session/$sessionId'
@@ -1120,6 +1127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentAccessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/parent/dashboard': {
+      id: '/_authenticated/parent/dashboard'
+      path: '/parent/dashboard'
+      fullPath: '/parent/dashboard'
+      preLoaderRoute: typeof AuthenticatedParentDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/institution/teachers': {
       id: '/_authenticated/institution/teachers'
       path: '/institution/teachers'
@@ -1195,6 +1209,13 @@ declare module '@tanstack/react-router' {
       path: '/institution/activity'
       fullPath: '/institution/activity'
       preLoaderRoute: typeof AuthenticatedInstitutionActivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/platform': {
+      id: '/_authenticated/admin/platform'
+      path: '/admin/platform'
+      fullPath: '/admin/platform'
+      preLoaderRoute: typeof AuthenticatedAdminPlatformRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teacher/courses/$courseId': {
@@ -1513,7 +1534,7 @@ const AuthenticatedTeacherLessonsRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAdminPlatformRoute: typeof AuthenticatedAdminPlatformRoute
   AuthenticatedInstitutionActivityRoute: typeof AuthenticatedInstitutionActivityRoute
   AuthenticatedInstitutionAnalyticsRoute: typeof AuthenticatedInstitutionAnalyticsRoute
   AuthenticatedInstitutionClassroomsRoute: typeof AuthenticatedInstitutionClassroomsRoute
@@ -1525,6 +1546,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInstitutionSettingsRoute: typeof AuthenticatedInstitutionSettingsRoute
   AuthenticatedInstitutionStudentsRoute: typeof AuthenticatedInstitutionStudentsRoute
   AuthenticatedInstitutionTeachersRoute: typeof AuthenticatedInstitutionTeachersRoute
+  AuthenticatedParentDashboardRoute: typeof AuthenticatedParentDashboardRoute
   AuthenticatedStudentAccessRoute: typeof AuthenticatedStudentAccessRoute
   AuthenticatedStudentAchievementsRoute: typeof AuthenticatedStudentAchievementsRoute
   AuthenticatedStudentAssignmentsRoute: typeof AuthenticatedStudentAssignmentsRoute
@@ -1554,7 +1576,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAdminPlatformRoute: AuthenticatedAdminPlatformRoute,
   AuthenticatedInstitutionActivityRoute: AuthenticatedInstitutionActivityRoute,
   AuthenticatedInstitutionAnalyticsRoute:
     AuthenticatedInstitutionAnalyticsRoute,
@@ -1572,6 +1594,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInstitutionSettingsRoute: AuthenticatedInstitutionSettingsRoute,
   AuthenticatedInstitutionStudentsRoute: AuthenticatedInstitutionStudentsRoute,
   AuthenticatedInstitutionTeachersRoute: AuthenticatedInstitutionTeachersRoute,
+  AuthenticatedParentDashboardRoute: AuthenticatedParentDashboardRoute,
   AuthenticatedStudentAccessRoute: AuthenticatedStudentAccessRoute,
   AuthenticatedStudentAchievementsRoute: AuthenticatedStudentAchievementsRoute,
   AuthenticatedStudentAssignmentsRoute: AuthenticatedStudentAssignmentsRoute,

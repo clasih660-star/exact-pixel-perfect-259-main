@@ -10,18 +10,21 @@ import {
   Gauge,
   Accessibility,
 } from "lucide-react";
-import type { ClassroomContext } from "@/lib/types";
+import type { ClassroomContext, LearnerAccessProfile } from "@/lib/types";
 
 interface AccessPanelProps {
   classroomContext: ClassroomContext;
+  onAccessChange?: (profile: Partial<LearnerAccessProfile>) => void;
 }
 
-export function AccessPanel({ classroomContext }: AccessPanelProps) {
+export function AccessPanel({ classroomContext, onAccessChange }: AccessPanelProps) {
   const { learnerAccessProfile } = classroomContext;
 
-  const toggleSetting = (setting: keyof typeof learnerAccessProfile) => {
-    // In real implementation, update profile
-    console.log(`Toggle ${setting}`);
+  const toggleSetting = (setting: keyof typeof learnerAccessProfile, value?: any) => {
+    const newProfile: Partial<LearnerAccessProfile> = {
+      [setting]: value ?? !(learnerAccessProfile[setting] as any),
+    };
+    onAccessChange?.(newProfile);
   };
 
   const settings = [
@@ -157,7 +160,7 @@ export function AccessPanel({ classroomContext }: AccessPanelProps) {
                 {["slow", "normal", "fast"].map((pace) => (
                   <button
                     key={pace}
-                    onClick={() => toggleSetting("lessonPace" as any)}
+                    onClick={() => toggleSetting("lessonPace" as any, pace)}
                     className={`py-2 px-3 text-xs font-medium rounded-lg border transition-colors ${
                       learnerAccessProfile.lessonPace === pace
                         ? "bg-blue-600 text-white border-blue-600"
@@ -178,7 +181,7 @@ export function AccessPanel({ classroomContext }: AccessPanelProps) {
                 {["simple", "standard", "detailed"].map((style) => (
                   <button
                     key={style}
-                    onClick={() => toggleSetting("explanationStyle" as any)}
+                    onClick={() => toggleSetting("explanationStyle" as any, style)}
                     className={`py-2 px-3 text-xs font-medium rounded-lg border transition-colors ${
                       learnerAccessProfile.explanationStyle === style
                         ? "bg-blue-600 text-white border-blue-600"

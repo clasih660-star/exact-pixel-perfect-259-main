@@ -201,7 +201,7 @@ function ClassroomLesson() {
         {/* Top Bar */}
         <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="p-2 hover:bg-gray-100 rounded-lg">
+            <Link to="/student/dashboard" className="p-2 hover:bg-gray-100 rounded-lg">
               <ArrowLeft size={20} className="text-gray-600" />
             </Link>
             <div>
@@ -299,7 +299,7 @@ function ClassroomLesson() {
       {/* Top Bar */}
       <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="p-2 hover:bg-gray-100 rounded-lg">
+          <Link to="/student/dashboard" className="p-2 hover:bg-gray-100 rounded-lg">
             <ArrowLeft size={20} className="text-gray-600" />
           </Link>
           <div>

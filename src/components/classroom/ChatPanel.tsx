@@ -1,20 +1,32 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Mic, Loader2 } from "lucide-react";
-import type { ClassroomContext, QuickAction } from "@/lib/types";
+import type { ClassroomContext } from "@/lib/types";
+import type { ChatMessage } from "@/lib/types";
 import { DEMO_QUICK_ACTIONS } from "@/lib/demo-data";
 
 interface ChatPanelProps {
   classroomContext: ClassroomContext;
+  messages?: ChatMessage[];
+  isLoading?: boolean;
+  onSendMessage?: (message: string) => void;
+  onQuickAction?: (action: string) => void;
   children?: React.ReactNode;
 }
 
-export function ChatPanel({ classroomContext, children }: ChatPanelProps) {
+export function ChatPanel({
+  classroomContext,
+  messages: messageProp,
+  isLoading = false,
+  onSendMessage,
+  onQuickAction,
+  children,
+}: ChatPanelProps) {
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, learnerAccessProfile } = classroomContext;
+  const { learnerAccessProfile } = classroomContext;
+  const messages = messageProp || classroomContext.messages;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,13 +38,12 @@ export function ChatPanel({ classroomContext, children }: ChatPanelProps) {
 
   const handleSend = () => {
     if (!input.trim()) return;
+    onSendMessage?.(input.trim());
     setInput("");
-    // In real implementation, send message to backend
   };
 
-  const handleQuickAction = (action: QuickAction) => {
-    setInput(action.message);
-    // In real implementation, send quick action
+  const handleQuickAction = (action: string) => {
+    onQuickAction?.(action);
   };
 
   const toggleListening = () => {
@@ -48,7 +59,7 @@ export function ChatPanel({ classroomContext, children }: ChatPanelProps) {
           <div className="text-center py-8">
             <div className="text-4xl mb-2">👋</div>
             <p className="text-sm text-gray-600">Say hello to start learning!</p>
-            <p className="text-xs text-gray-400 mt-1">Mr. Klass is ready to help you learn</p>
+            <p className="text-xs text-gray-400 mt-1">Your AI teacher is ready to help you learn</p>
           </div>
         ) : (
           messages.map((message) => (
@@ -86,7 +97,7 @@ export function ChatPanel({ classroomContext, children }: ChatPanelProps) {
           {DEMO_QUICK_ACTIONS.slice(0, 6).map((action) => (
             <button
               key={action.label}
-              onClick={() => handleQuickAction(action)}
+              onClick={() => handleQuickAction(action.label)}
               disabled={isLoading}
               className="text-left px-3 py-2 text-xs font-medium rounded-lg border border-gray-200 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 transition-colors"
             >
@@ -108,7 +119,7 @@ export function ChatPanel({ classroomContext, children }: ChatPanelProps) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Mr. Klass…"
+            placeholder="Ask a question…"
             disabled={isLoading}
             className="flex-1 px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 disabled:opacity-50"
           />

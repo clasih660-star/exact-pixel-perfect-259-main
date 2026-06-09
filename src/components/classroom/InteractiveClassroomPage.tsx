@@ -36,6 +36,7 @@ import { generateTeacherResponse } from "@/lib/ai-teacher";
 import type { ClassroomContext, ClassroomMode, TeacherState, AudioState, BoardState } from "@/lib/types";
 import type { LessonState as MachineLessonState } from "@/lib/teacher-types";
 import { QuizCard, type QuizQuestion } from "@/components/QuizCard";
+import { AccessPanel } from "./AccessPanel";
 
 type Panel = "steps" | "chat" | "quiz" | "notes" | "access";
 
@@ -521,9 +522,9 @@ export function InteractiveClassroomPage({
       </header>
 
       {/* Main Layout */}
-      <div className="lesson-layout mt-14 flex flex-1">
+      <div className="lesson-layout-inner flex flex-1">
         {/* AI Teacher Panel */}
-        <aside className="ai-panel w-[265px] flex-shrink-0 border-r border-[var(--gray-200)] bg-white">
+        <aside className="ai-panel w-[23%] min-w-[220px] max-w-[300px] flex-shrink-0 border-r border-[var(--gray-200)] bg-white">
           <div className="ai-panel-header flex items-center justify-between px-4 pt-4">
             <span className="ai-panel-title text-sm font-bold text-[var(--gray-800)]">AI Teacher</span>
             <div className="online-badge flex items-center gap-1.5 text-xs text-green-600">
@@ -705,10 +706,10 @@ export function InteractiveClassroomPage({
         </main>
 
         {/* Chat Panel */}
-        <aside className="chat-panel w-[300px] flex-shrink-0 border-l border-[var(--gray-200)] bg-white">
+        <aside className="chat-panel w-[25%] min-w-[240px] max-w-[360px] flex-shrink-0 border-l border-[var(--gray-200)] bg-white">
           {/* Chat Tabs */}
-          <div className="chat-tabs grid grid-cols-4 border-b border-[var(--gray-200)]">
-            {(["steps", "chat", "quiz", "notes"] as Panel[]).map((panel) => (
+          <div className="chat-tabs grid grid-cols-5 border-b border-[var(--gray-200)]">
+            {(["steps", "chat", "quiz", "notes", "access"] as Panel[]).map((panel) => (
               <button
                 key={panel}
                 onClick={() => dispatch({ type: "SET_PANEL", panel })}
@@ -722,13 +723,14 @@ export function InteractiveClassroomPage({
                 {panel === "chat" && <Send className="h-4 w-4" />}
                 {panel === "quiz" && <Brain className="h-4 w-4" />}
                 {panel === "notes" && <Notebook className="h-4 w-4" />}
+                {panel === "access" && <Accessibility className="h-4 w-4" />}
                 <span className="capitalize">{panel}</span>
               </button>
             ))}
           </div>
 
           {/* Panel Content */}
-          <div className="h-[calc(100vh-220px)] overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4">
             {state.activePanel === "steps" && (
               <div className="space-y-2">
                 {STEP_ORDER.map((stepKey, index) => {
@@ -759,8 +761,8 @@ export function InteractiveClassroomPage({
                   {messages.slice(-8).map((message) => (
                     <div key={message.id} className={message.sender === "student" ? "msg-user flex justify-end" : "msg-ai flex gap-2"}>
                       {message.sender === "ai_teacher" && (
-                        <div className="msg-ai-avatar flex h-7 w-7 items-end justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-100 to-purple-100 text-lg">
-                          🤖
+                        <div className="msg-ai-avatar flex h-7 w-7 items-center justify-center rounded-full bg-blue-100">
+                          <Brain className="h-4 w-4 text-blue-600" />
                         </div>
                       )}
                       <div className={message.sender === "student" ? "msg-bubble-user rounded-xl bg-[var(--primary)] px-4 py-2 text-sm text-white" : "msg-bubble-ai rounded-xl border border-[var(--gray-200)] bg-[var(--gray-50)] px-4 py-2 text-sm text-[var(--gray-700)]"}>
@@ -787,6 +789,15 @@ export function InteractiveClassroomPage({
                   Save Notes
                 </Button>
               </div>
+            )}
+
+            {state.activePanel === "access" && (
+              <AccessPanel
+                classroomContext={classroomContext}
+                onAccessChange={(profile) => {
+                  dispatch({ type: "UPDATE_ACCESS", profile: profile as any });
+                }}
+              />
             )}
           </div>
 
@@ -839,7 +850,7 @@ export function InteractiveClassroomPage({
       </div>
 
       {/* Audio Bar */}
-      <div className="audio-bar fixed bottom-0 left-[265px] right-[300px] flex h-16 items-center justify-center gap-3 border-t border-[var(--gray-200)] bg-white px-6 shadow-sm">
+      <div className="audio-bar items-center justify-center gap-3 border-t border-[var(--gray-200)] bg-white px-6 shadow-sm">
         <button className="audio-btn flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gray-100)] text-[var(--gray-700)] hover:bg-[var(--gray-200)]">
           {state.audio.playing ? <div className="h-3 w-3 rounded-sm bg-[var(--primary)]" /> : <Play className="h-4 w-4" />}
         </button>

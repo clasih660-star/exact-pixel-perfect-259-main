@@ -405,3 +405,108 @@ export type LearningGoal = {
   deadline: string;
   completed: boolean;
 };
+
+/* ─── Klassruum Video Classroom Types ───────────────────────────── */
+
+export type LearningMode =
+  | "standard"
+  | "deaf"
+  | "blind"
+  | "low_vision"
+  | "deaf_blind"
+  | "dyslexia"
+  | "adhd_focus"
+  | "motor_support"
+  | "speech_difficulty"
+  | "extra_support"
+  | "challenge";
+
+export type TeacherVideoState =
+  | "preparing"
+  | "speaking"
+  | "writing"
+  | "explaining"
+  | "asking_question"
+  | "listening"
+  | "thinking"
+  | "answering"
+  | "encouraging"
+  | "paused";
+
+export type WritingSpeed = "slow" | "normal" | "fast";
+
+export type BoardWriteItem = {
+  id: string;
+  type: "heading" | "bullet" | "equation" | "calculation" | "question" | "answer";
+  text: string;
+  readExactly: boolean;
+  explanation?: string;
+  accessibleDescription: string;
+  writingSpeed?: WritingSpeed;
+};
+
+export type BlindQuestionState =
+  | "teacher_asking"
+  | "mic_listening"
+  | "transcribing"
+  | "answering"
+  | "continuing";
+
+export type QuestionPrompt = {
+  id: string;
+  promptText: string;
+  promptAudio: string;
+  allowedInputModes: Array<"text" | "voice" | "quick_action">;
+  timeoutSeconds?: number;
+  defaultAction: "continue" | "wait";
+};
+
+export type VideoClassroomState = {
+  sessionId: string;
+  learningMode: LearningMode;
+  teacherState: TeacherVideoState;
+  teacherMode: "ai_teacher" | "human_teacher" | "hybrid";
+  boardState: {
+    items: BoardWriteItem[];
+    currentItemIndex: number;
+    writtenItems: BoardWriteItem[];
+    isWriting: boolean;
+    autoScroll: boolean;
+    currentWrittenText: string;
+  };
+  audioState: {
+    enabled: boolean;
+    playing: boolean;
+    rate: number;
+    lockedOnForBlindMode: boolean;
+  };
+  questionState: {
+    isPromptOpen: boolean;
+    inputMode: "text" | "voice" | "quick_action";
+    isListening: boolean;
+    transcript: string;
+    blindState?: BlindQuestionState;
+  };
+  replayState: {
+    isReplayMode: boolean;
+    replayFromIndex?: number;
+  };
+  captions: {
+    enabled: boolean;
+    currentText: string;
+  };
+  transcript: TranscriptEntry[];
+  progress: {
+    stepIndex: number;
+    totalSteps: number;
+    percentage: number;
+  };
+};
+
+export type TranscriptEntry = {
+  id: string;
+  role: "student" | "teacher" | "board" | "system";
+  text: string;
+  timestamp: string;
+  boardItemId?: string;
+};

@@ -46,6 +46,9 @@ import {
   Subtitles,
 } from "lucide-react";
 
+// Local typing for handwriting speed (MVP future per-item speed)
+type WritingSpeed = "slow" | "normal" | "fast";
+
 export const Route = createFileRoute("/classroom/$lessonId")({
   loader: ({ params }) => {
     const lesson = getLesson(params.lessonId);
@@ -62,7 +65,7 @@ export const Route = createFileRoute("/classroom/$lessonId")({
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <h1 className="text-2xl font-semibold">Lesson not found</h1>
-        <Link to="/dashboard" className="mt-4 inline-block text-primary hover:underline">
+        <Link to="/student/dashboard" className="mt-4 inline-block text-primary hover:underline">
           Back to dashboard
         </Link>
       </div>
@@ -71,7 +74,14 @@ export const Route = createFileRoute("/classroom/$lessonId")({
   component: Classroom,
 });
 
-type BoardState = { title: string; lines: string[]; highlight?: string };
+type BoardState = {
+  title: string;
+  lines: string[];
+  highlight?: string;
+  // Optional collection of board items (for future per-item writing speed, etc.)
+  items?: import("@/lib/classroom-video-types").BoardWriteItem[];
+  currentItemIndex?: number;
+};
 const INITIAL_BOARD: BoardState = {
   title: "Ready to start",
   lines: ['Click "Begin lesson" or say hello to Mr. Klass.'],
@@ -302,7 +312,7 @@ function Classroom() {
         >
           <div className="grid min-h-0 flex-1 grid-rows-[auto_1fr] gap-4 p-4">
             <Avatar teacherState={state.teacherState} />
-            <Whiteboard board={board} step={state.step} />
+            <Whiteboard board={board} step={state.step} setTeacherState={setTeacherState} />
           </div>
 
           <div className="border-t border-border bg-card p-4">
@@ -467,7 +477,7 @@ function TopBar({
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4">
       <div className="flex items-center gap-3 min-w-0">
-        <Link to="/dashboard" className="rounded-lg p-2 hover:bg-accent">
+        <Link to="/student/dashboard" className="rounded-lg p-2 hover:bg-accent">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <LogoMark size={28} />
@@ -495,7 +505,7 @@ function TopBar({
         <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /> Live
         </div>
-        <Link to="/dashboard">
+        <Link to="/student/dashboard">
           <Button size="sm" variant="outline">
             End
           </Button>
@@ -581,7 +591,7 @@ function Avatar({ teacherState }: { teacherState: TeacherState }) {
   );
 }
 
-function Whiteboard({ board, step }: { board: BoardState; step: LessonStep }) {
+function Whiteboard({ board, step, setTeacherState }: { board: BoardState; step: LessonStep; setTeacherState?: (s: TeacherState) => void }) {
   return (
     <div className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)]">
       <div className="flex h-10 items-center justify-between border-b border-border px-4 text-xs font-medium text-muted-foreground">
@@ -605,27 +615,138 @@ function Whiteboard({ board, step }: { board: BoardState; step: LessonStep }) {
 
         <div className="relative mx-auto max-w-2xl">
           <h2 className="text-2xl font-bold tracking-tight">{board.title}</h2>
-          <div className="mt-5 space-y-2 font-mono text-base sm:text-lg">
-            {board.lines.map((line, i) => {
-              const isHighlight = board.highlight && line === board.highlight;
-              const isStep = i < LESSON_STEPS.indexOf(step);
-              return (
-                <div
-                  key={i}
-                  className={`rounded-md px-3 py-1.5 transition-colors ${
-                    isHighlight
-                      ? "bg-primary/10 text-primary font-semibold border-l-4 border-primary"
-                      : isStep
-                        ? "bg-green-50/50 text-green-800 border-l-4 border-green-400"
-                        : "text-foreground"
-                  }`}
-                >
-                  {line || "\u00A0"}
-                </div>
-              );
-            })}
+          <div className="mt-5">
+            <HandwritingArea
+              lines={board.lines}
+              readExactly={true}
+              setTeacherState={setTeacherState}
+            />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function HandwritingArea({
+  lines,
+  readExactly,
+  setTeacherState,
+  writingSpeed,
+}: {
+  lines: string[];
+  readExactly?: boolean;
+  setTeacherState?: (s: TeacherState) => void;
+  writingSpeed?: WritingSpeed;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [displayed, setDisplayed] = useState<string[]>([]);
+  const [currentReveal, setCurrentReveal] = useState<string>("");
+  const prefersReduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    let cancelled = false;
+    async function playNewLines() {
+      // If lines shorter (reset), replace immediately
+      if (lines.length < displayed.length) {
+        setDisplayed(lines.slice());
+        setCurrentReveal("");
+        return;
+      }
+      const newLines = lines.slice(displayed.length);
+      for (const line of newLines) {
+        if (cancelled) return;
+        await animateLine(line);
+      }
+    }
+    playNewLines();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lines]);
+
+  function scrollToBottomIfNeeded() {
+    const el = containerRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 180;
+    if (nearBottom) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+  }
+
+  function animateLine(text: string) {
+    return new Promise<void>((resolve) => {
+      if (prefersReduced || !text) {
+        setDisplayed((d) => [...d, text]);
+        setCurrentReveal("");
+        scrollToBottomIfNeeded();
+        // read exactly if requested
+        if (readExactly && typeof speak === "function") {
+          setTeacherState?.("speaking");
+          speak(text, () => {
+            setTeacherState?.("listening");
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+        return;
+      }
+
+      // Determine writing speed in ms per character (basic MVP)
+      const speed =
+        writingSpeed === "slow" ? 55 : writingSpeed === "fast" ? 12 : 28;
+      let i = 0;
+      setCurrentReveal("");
+      setTeacherState?.("writing");
+      const handle = setInterval(() => {
+        i += 1;
+        setCurrentReveal(text.slice(0, i));
+        scrollToBottomIfNeeded();
+        if (i >= text.length) {
+          clearInterval(handle);
+          // commit final line
+          setDisplayed((d) => [...d, text]);
+          setCurrentReveal("");
+          // after writing, teacher reads exactly if required
+          if (readExactly && typeof speak === "function") {
+            setTeacherState?.("speaking");
+            speak(text, () => {
+              setTeacherState?.("listening");
+              resolve();
+            });
+          } else {
+            resolve();
+          }
+        }
+      }, speed);
+    });
+  }
+
+  return (
+    <div ref={containerRef} className="relative max-w-full">
+      <div style={{ fontFamily: 'Patrick Hand, Caveat, Arial' }} className="space-y-3 text-2xl leading-[1.45] text-foreground">
+        {displayed.map((l, idx) => (
+          <div key={idx} className="rounded-md px-3 py-1.5">
+            {l || "\u00A0"}
+          </div>
+        ))}
+        {/* current reveal */}
+        {currentReveal !== "" && (
+          <div className="rounded-md px-3 py-1.5 text-foreground">{currentReveal}</div>
+        )}
+      </div>
+      {/* writing hand — positioned bottom-right of last line */}
+      <div
+        aria-hidden
+        className="writing-hand pointer-events-none absolute right-6 bottom-6 opacity-90"
+        style={{ width: 44, height: 44 }}
+      >
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 22c0-5 6-9 12-11s8-3 8-3-4 0-8 3S2 22 2 22z" fill="#111827" opacity="0.06" />
+          <path d="M7 16c1.5-1 3.5-1.5 5-1 2 .6 4 0 5-1" stroke="#111827" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </div>
     </div>
   );

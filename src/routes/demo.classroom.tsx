@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { InteractiveClassroomPage } from "@/components/classroom/InteractiveClassroomPage";
+import { VideoClassroomPage } from "@/components/classroom/VideoClassroomPage";
 import { CirclePlay as PlayCircle, Sparkles, Accessibility, Captions as CaptionIcon, Volume2, Brain, Video } from "lucide-react";
 
 export const Route = createFileRoute("/demo/classroom")({
@@ -73,7 +73,7 @@ function DemoClassroomPage() {
             <PlayCircle className="mr-2 h-5 w-5" />
             Launch Demo Classroom
           </Button>
-          <Link to="/dashboard">
+          <Link to="/student/dashboard">
             <Button size="lg" variant="outline" className="h-14 px-8 text-base">
               Full Dashboard Demo
             </Button>
@@ -279,8 +279,8 @@ function ClassroomWrapper({ onEnd }: { onEnd: () => void }) {
         <span className="h-2 w-2 rounded-full bg-red-500" />
         Exit Demo
       </button>
-      <InteractiveClassroomPage
-        classroomContext={demoContext}
+      <VideoClassroomPage
+        classroomContext={demoContext as any}
         sessionId="demo-session"
         onEndLesson={onEnd}
       />
