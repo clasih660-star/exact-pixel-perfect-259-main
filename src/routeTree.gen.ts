@@ -18,6 +18,8 @@ import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
+import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
+import { Route as AuthenticatedSimpleTestRouteImport } from './routes/_authenticated/simple-test'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
 import { Route as AuthenticatedTeacherStudentsRouteImport } from './routes/_authenticated/teacher.students'
@@ -119,6 +121,16 @@ const ClassroomDesignLessonIdRoute = ClassroomDesignLessonIdRouteImport.update({
   id: '/classroom-design/$lessonId',
   path: '/classroom-design/$lessonId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSimpleTestRoute = AuthenticatedSimpleTestRouteImport.update({
+  id: '/simple-test',
+  path: '/simple-test',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ClassroomSessionSessionIdRoute =
   ClassroomSessionSessionIdRouteImport.update({
@@ -460,6 +472,8 @@ const AuthenticatedStudentCoursesCourseIdLessonsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/simple-test': typeof AuthenticatedSimpleTestRoute
+  '/test': typeof AuthenticatedTestRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -526,6 +540,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/simple-test': typeof AuthenticatedSimpleTestRoute
+  '/test': typeof AuthenticatedTestRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -594,6 +610,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/simple-test': typeof AuthenticatedSimpleTestRoute
+  '/_authenticated/test': typeof AuthenticatedTestRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -662,6 +680,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/simple-test'
+    | '/test'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -728,6 +748,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/simple-test'
+    | '/test'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -795,6 +817,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/simple-test'
+    | '/_authenticated/test'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -937,6 +961,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/classroom-design/$lessonId'
       preLoaderRoute: typeof ClassroomDesignLessonIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/test': {
+      id: '/_authenticated/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof AuthenticatedTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/simple-test': {
+      id: '/_authenticated/simple-test'
+      path: '/simple-test'
+      fullPath: '/simple-test'
+      preLoaderRoute: typeof AuthenticatedSimpleTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/classroom/session/$sessionId': {
       id: '/classroom/session/$sessionId'
@@ -1534,6 +1572,8 @@ const AuthenticatedTeacherLessonsRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSimpleTestRoute: typeof AuthenticatedSimpleTestRoute
+  AuthenticatedTestRoute: typeof AuthenticatedTestRoute
   AuthenticatedAdminPlatformRoute: typeof AuthenticatedAdminPlatformRoute
   AuthenticatedInstitutionActivityRoute: typeof AuthenticatedInstitutionActivityRoute
   AuthenticatedInstitutionAnalyticsRoute: typeof AuthenticatedInstitutionAnalyticsRoute
@@ -1576,6 +1616,8 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSimpleTestRoute: AuthenticatedSimpleTestRoute,
+  AuthenticatedTestRoute: AuthenticatedTestRoute,
   AuthenticatedAdminPlatformRoute: AuthenticatedAdminPlatformRoute,
   AuthenticatedInstitutionActivityRoute: AuthenticatedInstitutionActivityRoute,
   AuthenticatedInstitutionAnalyticsRoute:

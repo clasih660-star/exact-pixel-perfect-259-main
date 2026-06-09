@@ -1083,6 +1083,14 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
             <span>{currentWrittenText}</span>
             {/* Writing cursor / hand */}
             {!reducedMotion && (
+              <span className="writing-cursor inline-block w-[2px] animate-pulse bg-blue-500" style={{ height: "1em", verticalAlign: "
+            {currentItem.type === "equation" && "  "}
+            {currentItem.type === "calculation" && "  "}
+            {currentItem.type === "answer" && "→ "}
+            {currentItem.type === "question" && "? "}
+            <span>{currentWrittenText}</span>
+            {/* Writing cursor / hand */}
+            {!reducedMotion && (
               <span className="writing-cursor inline-block w-[2px] animate-pulse bg-blue-500" style={{ height: "1em", verticalAlign: "text-bottom", marginLeft: "2px" }} />
             )}
             {/* Hand cursor emoji */}
@@ -1096,7 +1104,15 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
       </div>
     </div>
   );
-});
+};
+
+(LearningWhiteboard as any).displayName = "LearningWhiteboard";
+
+// Forward ref wrapper
+const LearningWhiteboardWithRef = React.forwardRef(LearningWhiteboard as any);
+
+// Need to import React for forwardRef
+import React from "react";
 
 /* ─── Classroom Controls (Bottom Bar) ────────────────────────── */
 
@@ -1543,4 +1559,4 @@ function ModeSwitcherOverlay({
   );
 }
 
-export { LearningWhiteboard };
+export { LearningWhiteboardWithRef as LearningWhiteboard };
