@@ -1,362 +1,40 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Brain,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  Copy,
-  Eye,
-  EyeOff,
-  HelpCircle,
-  Lightbulb,
-  Loader2,
-  Mic,
-  MicOff,
-  Notebook,
-  Play,
-  PlayCircle,
-  Send,
-  Settings,
-  Sparkles,
-  Subtitles,
-  Target,
-  Volume2,
-  VolumeX,
-  Zap,
-  Accessibility,
-} from "lucide-react";
+import { ArrowLeft, Brain, CircleCheck as CheckCircle2, ChevronRight, Clock3, Eye, EyeOff, Circle as HelpCircle, Lightbulb, Mic, MicOff, Notebook, Play, Send, Sparkles, Bubbles as Subtitles, Target, Volume2, VolumeX, Zap, Accessibility, BookOpen, Settings, MessageSquare, Repeat, SkipForward, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { speak, stopSpeech } from "@/lib/speech";
-import { generateTeacherResponse } from "@/lib/ai-teacher";
-import type { ClassroomContext, ClassroomMode, TeacherState, AudioState, BoardState } from "@/lib/types";
-import type { LessonState as MachineLessonState } from "@/lib/teacher-types";
-import { QuizCard, type QuizQuestion } from "@/components/QuizCard";
-import { AccessPanel } from "./AccessPanel";
+import { speak, stopSpeech, startListening, stopListening } from "@/lib/speech";
+import { DEMO_LESSON, type BoardWriteItem, type QuestionCheckpoint } from "@/lib/lesson-models";
+import { startOrResumeClassroom } from "@/lib/sessions.functions";
+import type { ClassroomContext } from "@/lib/types";
+import "@/styles/classroom.css";
 
-type Panel = "steps" | "chat" | "quiz" | "notes" | "access";
+type Panel = "steps" | "chat" | "notes" | "settings";
 
-type UIState = MachineLessonState & {
-  mode: ClassroomMode;
-  audio: AudioState;
-  board: BoardState;
-  activePanel: Panel;
-  focusMode: boolean;
-  welcomeOpen: boolean;
+type ClassroomState = {
+  mode: "intro" | "teaching" | "question" | "practice" | "summary" | "complete";
+  stepIndex: number;
+  boardItemIndex: number;
+  visibleBoardItems: BoardWriteItem[];
+  currentSpeech: string;
+  isTeacherSpeaking: boolean;
+  elapsedSeconds: number;
+  progressPercent: number;
+  questionPrompt: string | null;
+  isWaitingForAnswer: boolean;
+  isRequiredQuestion: boolean;
+  isMicActive: boolean;
+  autoPlay: boolean;
+  speechRate: number;
   showCaptions: boolean;
-  currentTranscript: string;
-  lessonPace: "slow" | "normal" | "fast";
-  quizQuestion: QuizQuestion | null;
-  quizAnswered: number | null;
-  quizScore: { correct: number; total: number } | null;
+  messages: Array<{ id: string; sender: "student" | "teacher" | "system"; message: string }>;
+  practiceMode: "guided" | "independent" | null;
+  practiceResult: "correct" | "incorrect" | null;
 };
 
-type Action =
-  | { type: "START_AUDIO" }
-  | { type: "AUDIO_ENDED" }
-  | { type: "SEND_MESSAGE"; message: string }
-  | { type: "RECEIVE_TEACHER_RESPONSE"; response: ReturnType<typeof generateTeacherResponse> }
-  | { type: "QUICK_ACTION"; action: string }
-  | { type: "CHANGE_STEP"; stepKey: MachineLessonState["step"] }
-  | { type: "UPDATE_BOARD"; content: string[]; description?: string; mode?: BoardState["mode"] }
-  | { type: "UPDATE_ACCESS"; profile: Partial<UIState> }
-  | { type: "ENTER_FOCUS_MODE" }
-  | { type: "EXIT_FOCUS_MODE" }
-  | { type: "SHOW_OVERLAY" }
-  | { type: "HIDE_OVERLAY" }
-  | { type: "SET_PANEL"; panel: Panel }
-  | { type: "SET_TRANSCRIPT"; transcript: string }
-  | { type: "SET_QUIZ"; quiz: QuizQuestion | null }
-  | { type: "ANSWER_QUIZ"; index: number }
-  | { type: "SET_RATE"; rate: number };
-
-const STEP_ORDER: MachineLessonState["step"][] = [
-  "hook",
-  "concept",
-  "worked_example",
-  "guided_practice",
-  "independent_question",
-  "correction",
-  "quiz",
-  "summary",
-];
-
-const BASE_BOARDS: Record<MachineLessonState["step"], BoardState> = {
-  hook: {
-    items: ["Welcome to Quadratic Equations", "", "We will move from big idea to worked example", "Then practice, quiz, and summary"],
-    activeLineIndex: 0,
-    description: "Big picture of the lesson",
-    mode: "lesson",
-  },
-  concept: {
-    items: ["Quadratic form:", "ax² + bx + c = 0", "", "a cannot be 0"],
-    activeLineIndex: 0,
-    description: "Definition and standard form",
-    mode: "lesson",
-  },
-  worked_example: {
-    items: ["Example:", "x² - 5x + 6 = 0", "", "(x - 2)(x - 3) = 0", "x = 2 or x = 3"],
-    activeLineIndex: 0,
-    description: "Factoring the example",
-    mode: "example",
-  },
-  guided_practice: {
-    items: ["Practice together:", "x² + 7x + 12 = 0", "", "Which pair works?", "3 and 4"],
-    activeLineIndex: 0,
-    description: "Guided practice",
-    mode: "example",
-  },
-  independent_question: {
-    items: ["Your turn:", "x² - 8x + 15 = 0", "", "Think of the pair", "Write your answer"],
-    activeLineIndex: 0,
-    description: "Independent attempt",
-    mode: "lesson",
-  },
-  correction: {
-    items: ["Let's review the mistake", "", "We need numbers that multiply to 15", "and add to -8"],
-    activeLineIndex: 0,
-    description: "Corrective feedback",
-    mode: "correction",
-  },
-  quiz: {
-    items: ["Quiz Time", "", "Find the solutions to x² - 9x + 20 = 0", "", "Choose carefully"],
-    activeLineIndex: 0,
-    description: "In-class quiz",
-    mode: "quiz",
-  },
-  summary: {
-    items: ["Summary", "1. Write in standard form", "2. Find the right pair", "3. Factor and solve"],
-    activeLineIndex: 0,
-    description: "Lesson recap",
-    mode: "summary",
-  },
-};
-
-function reducer(state: UIState, action: Action): UIState {
-  switch (action.type) {
-    case "START_AUDIO":
-      return {
-        ...state,
-        welcomeOpen: false,
-        mode: "teaching",
-        teacherState: "speaking",
-        audio: { ...state.audio, playing: true, paused: false },
-        currentTranscript: state.currentTranscript || "Your AI teacher is ready.",
-      };
-    case "AUDIO_ENDED":
-      return {
-        ...state,
-        mode: "listening",
-        teacherState: "listening",
-        audio: { ...state.audio, playing: false, paused: false },
-        currentTranscript: "Your teacher is listening. Ask a question, continue, or try an example.",
-      };
-    case "SEND_MESSAGE":
-      return {
-        ...state,
-        mode: "answering",
-        teacherState: "thinking",
-        audio: { ...state.audio, playing: false },
-        currentTranscript: action.message,
-      };
-    case "RECEIVE_TEACHER_RESPONSE":
-      return {
-        ...state,
-        teacherState: action.response.evaluation === "incorrect" ? "correcting" : "speaking",
-        mode: action.response.quiz ? "quiz" : state.mode,
-        audio: { ...state.audio, playing: true },
-        board: {
-          items: action.response.board.lines,
-          activeLineIndex: 0,
-          description: action.response.board.title,
-          mode: action.response.quiz
-            ? "quiz"
-            : action.response.evaluation === "incorrect"
-              ? "correction"
-              : state.board.mode,
-        },
-        step: action.response.nextStep,
-        confusionScore: Math.max(0, Math.min(1, state.confusionScore + action.response.confusionDelta)),
-        currentTranscript: action.response.speak,
-        correct: action.response.evaluation === "correct" ? state.correct + 1 : state.correct,
-        mistakes: action.response.evaluation === "incorrect" ? state.mistakes + 1 : state.mistakes,
-        quizQuestion: action.response.quiz ?? state.quizQuestion,
-      };
-    case "QUICK_ACTION":
-      if (action.action === "dont_understand") {
-        return {
-          ...state,
-          mode: "teaching",
-          teacherState: "encouraging",
-          board: {
-            items: ["Need two numbers", "Multiply to 6", "Add to 5", "Answer: 2 and 3"],
-            activeLineIndex: 0,
-            description: "Simpler explanation",
-            mode: "correction",
-          },
-          currentTranscript: "No problem. Let us slow down. We only need two numbers: one pair that multiplies to 6 and adds to 5.",
-          confusionScore: Math.min(1, state.confusionScore + 0.05),
-          notes: [...state.notes, "Needs more support"],
-          showCaptions: true,
-        };
-      }
-      if (action.action === "give_example") {
-        return {
-          ...state,
-          mode: "teaching",
-          teacherState: "explaining",
-          board: {
-            items: ["Another example:", "x² + 4x + 3 = 0", "", "Factored: (x + 1)(x + 3) = 0", "Answer: x = -1 or x = -3"],
-            activeLineIndex: 0,
-            description: "Example mode",
-            mode: "example",
-          },
-          currentTranscript: "Another example: x² + 4x + 3 = 0. We get the numbers 1 and 3.",
-          notes: [...state.notes, "Example added"],
-          activePanel: "notes",
-        };
-      }
-      if (action.action === "slow_down") {
-        return {
-          ...state,
-          lessonPace: "slow",
-          audio: { ...state.audio, rate: 0.75 },
-          currentTranscript: "Okay. I will slow down and explain one step at a time.",
-          board: { ...state.board, items: state.board.items.slice(0, 4) },
-        };
-      }
-      if (action.action === "next_step") {
-        const nextIndex = Math.min(STEP_ORDER.length - 1, state.stepIndex + 1);
-        return {
-          ...state,
-          step: STEP_ORDER[nextIndex],
-          stepIndex: nextIndex,
-          board: BASE_BOARDS[STEP_ORDER[nextIndex]],
-          progressPercentage: Math.min(100, Math.round(((nextIndex + 1) / STEP_ORDER.length) * 100)),
-          teacherState: "speaking",
-          mode: nextIndex === STEP_ORDER.length - 1 ? "summary" : "teaching",
-          currentTranscript: `Great. Let us move to ${STEP_ORDER[nextIndex].replaceAll("_", " ")}.`,
-          notes: [...state.notes, `Moved to ${STEP_ORDER[nextIndex]}`],
-        } as UIState;
-      }
-      if (action.action === "quiz_me") {
-        return {
-          ...state,
-          mode: "quiz",
-          activePanel: "quiz",
-          teacherState: "speaking",
-          board: {
-            items: ["Quiz Time", "", "Let's test your understanding", "Choose the correct answer below"],
-            activeLineIndex: 0,
-            description: "Quiz mode",
-            mode: "quiz",
-          },
-          currentTranscript: "Here is a quick quiz to check your understanding.",
-          quizQuestion: {
-            question: "What are the solutions to x² - 9x + 20 = 0?",
-            options: ["x = 2 and x = 10", "x = 4 and x = 5", "x = -4 and x = -5", "x = -2 and x = -10"],
-            correctIndex: 1,
-          },
-        };
-      }
-      return state;
-    case "CHANGE_STEP": {
-      const nextIndex = STEP_ORDER.indexOf(action.stepKey);
-      return {
-        ...state,
-        step: action.stepKey,
-        stepIndex: nextIndex,
-        board: BASE_BOARDS[action.stepKey],
-        progressPercentage: Math.min(100, Math.round(((nextIndex + 1) / STEP_ORDER.length) * 100)),
-        activePanel: "steps",
-        currentTranscript: `Jumped to ${action.stepKey.replaceAll("_", " ")}.`,
-      };
-    }
-    case "UPDATE_BOARD":
-      return {
-        ...state,
-        board: {
-          items: action.content,
-          activeLineIndex: 0,
-          description: action.description ?? state.board.description,
-          mode: action.mode ?? state.board.mode,
-        },
-      };
-    case "UPDATE_ACCESS":
-      return { ...state, ...(action.profile as Partial<UIState>) };
-    case "ENTER_FOCUS_MODE":
-      return { ...state, focusMode: true, mode: "focus", activePanel: "access" };
-    case "EXIT_FOCUS_MODE":
-      return { ...state, focusMode: false, mode: "listening" };
-    case "SHOW_OVERLAY":
-      return { ...state, welcomeOpen: true };
-    case "HIDE_OVERLAY":
-      return { ...state, welcomeOpen: false };
-    case "SET_PANEL":
-      return { ...state, activePanel: action.panel };
-    case "SET_TRANSCRIPT":
-      return { ...state, currentTranscript: action.transcript };
-    case "SET_QUIZ":
-      return { ...state, quizQuestion: action.quiz, activePanel: action.quiz ? "quiz" : state.activePanel };
-    case "ANSWER_QUIZ": {
-      if (!state.quizQuestion || state.quizAnswered !== null) return state;
-      const isCorrect = action.index === state.quizQuestion.correctIndex;
-      return {
-        ...state,
-        quizAnswered: action.index,
-        quizScore: { correct: isCorrect ? 1 : 0, total: 1 },
-        teacherState: isCorrect ? "encouraging" : "correcting",
-        mode: "summary",
-        board: isCorrect
-          ? { items: ["Correct!", "", "You found the right pair.", "Review the summary when ready."], activeLineIndex: 0, description: "Quiz correct", mode: "summary" }
-          : { items: ["Let's correct the answer", "", "Review the factor pair again.", "Try one more time."], activeLineIndex: 0, description: "Quiz correction", mode: "correction" },
-      };
-    }
-    case "SET_RATE":
-      return { ...state, audio: { ...state.audio, rate: action.rate }, lessonPace: action.rate <= 0.8 ? "slow" : action.rate >= 1.25 ? "fast" : "normal" };
-    default:
-      return state;
-  }
-}
-
-function createInitialState(context: ClassroomContext): UIState {
-  const stepIndex = Math.max(0, STEP_ORDER.indexOf(context.progress.currentStep as MachineLessonState["step"]));
-  return {
-    step: context.progress.currentStep as MachineLessonState["step"],
-    studentLevel: context.progress.studentLevel as MachineLessonState["studentLevel"],
-    confusionScore: context.progress.confusionScore,
-    correct: 0,
-    mistakes: 0,
-    notes: [],
-    teacherState: context.progress.teacherState as TeacherState,
-    timeSpentMinutes: context.progress.timeSpentMinutes,
-    mode: "intro",
-    audio: {
-      enabled: context.learnerAccessProfile.audioEnabled,
-      playing: false,
-      paused: false,
-      muted: false,
-      rate: context.learnerAccessProfile.speechRate || 1,
-      currentTranscript: "",
-    },
-    board: BASE_BOARDS[context.progress.currentStep as MachineLessonState["step"]] ?? BASE_BOARDS.hook,
-    activePanel: "chat",
-    focusMode: context.learnerAccessProfile.focusModeEnabled,
-    welcomeOpen: true,
-    showCaptions: context.learnerAccessProfile.captionsEnabled,
-    currentTranscript: "",
-    lessonPace: (context.learnerAccessProfile.lessonPace as UIState["lessonPace"]) || "normal",
-    quizQuestion: null,
-    quizAnswered: null,
-    quizScore: null,
-    stepIndex,
-    progressPercentage: context.progress.progressPercentage,
-  };
-}
+const STEP_ORDER = ["welcome", "concept", "worked_example", "guided_practice", "independent_practice", "summary"];
 
 export function InteractiveClassroomPage({
   classroomContext,
@@ -367,592 +45,1091 @@ export function InteractiveClassroomPage({
   sessionId: string;
   onEndLesson: () => void;
 }) {
-  const [state, dispatch] = useReducer(reducer, createInitialState(classroomContext));
-  const [messages, setMessages] = useState(
-    classroomContext.messages.map((message) => ({
-      ...message,
-      sender: message.sender as "student" | "ai_teacher" | "system",
-    }))
-  );
+  const router = useRouter();
+  const lesson = DEMO_LESSON;
+
+  const [state, setState] = useState<ClassroomState>({
+    mode: "intro",
+    stepIndex: 0,
+    boardItemIndex: -1,
+    visibleBoardItems: [],
+    currentSpeech: "",
+    isTeacherSpeaking: false,
+    elapsedSeconds: 0,
+    progressPercent: 0,
+    questionPrompt: null,
+    isWaitingForAnswer: false,
+    isRequiredQuestion: false,
+    isMicActive: false,
+    autoPlay: true,
+    speechRate: 1,
+    showCaptions: true,
+    messages: [],
+    practiceMode: null,
+    practiceResult: null,
+  });
+
+  const currentStep = lesson.steps[state.stepIndex];
+
   const [chatInput, setChatInput] = useState("");
-  const [quickActions] = useState([
-    "I don't understand",
-    "Give me a real-world example.",
-    "Please slow down.",
-    "Can you repeat that?",
-    "Test me with a question.",
-    "Why is this important?",
-  ]);
+  const [activePanel, setActivePanel] = useState<Panel>("chat");
   const [isListening, setIsListening] = useState(false);
+  const [welcomeOpen, setWelcomeOpen] = useState(true);
+
+  const timerRef = useRef<number | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const boardTimerRef = useRef<number | null>(null);
+  const autoPlayRef = useRef(state.autoPlay);
 
-  const lesson = classroomContext.lesson;
-  const currentStepData = lesson.steps[state.stepIndex] ?? lesson.steps[0];
+  // Keep autoPlayRef in sync
+  useEffect(() => {
+    autoPlayRef.current = state.autoPlay;
+  }, [state.autoPlay]);
 
+  // Start timer for lesson progress
+  useEffect(() => {
+    if (!welcomeOpen && state.mode !== "complete") {
+      timerRef.current = window.setInterval(() => {
+        setState(prev => ({
+          ...prev,
+          elapsedSeconds: prev.elapsedSeconds + 1,
+          progressPercent: Math.round((prev.stepIndex / lesson.steps.length) * 100),
+        }));
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [welcomeOpen, state.mode, lesson.steps.length]);
+
+  // Cleanup
   useEffect(() => {
     return () => {
       stopSpeech();
+      if (timerRef.current) clearInterval(timerRef.current);
       if (recognitionRef.current) stopListening(recognitionRef.current);
-      if (boardTimerRef.current) window.clearInterval(boardTimerRef.current);
     };
   }, []);
 
-  const startLessonAudio = () => {
-    dispatch({ type: "START_AUDIO" });
-    const transcript = currentStepData.spokenScript;
-    setMessages((prev) => [
+  // Speak and await completion
+  const speakAndWait = useCallback((text: string, onComplete?: () => void) => {
+    stopSpeech();
+    setState(prev => ({
       ...prev,
-      { id: crypto.randomUUID(), sender: "ai_teacher", message: transcript, createdAt: new Date().toISOString() },
-    ]);
-    speak(transcript, () => dispatch({ type: "AUDIO_ENDED" }));
-    dispatch({ type: "SET_TRANSCRIPT", transcript });
-  };
+      isTeacherSpeaking: true,
+      currentSpeech: text,
+    }));
 
-  const handleTeacherResponse = (message: string) => {
-    dispatch({ type: "SEND_MESSAGE", message });
-    setMessages((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), sender: "student", message, createdAt: new Date().toISOString() },
-    ]);
-    window.setTimeout(() => {
-      const response = generateTeacherResponse(message, state, lesson);
-      dispatch({ type: "RECEIVE_TEACHER_RESPONSE", response });
-      dispatch({ type: "SET_TRANSCRIPT", transcript: response.speak });
-      setMessages((prev) => [
+    speak(text, () => {
+      setState(prev => ({
         ...prev,
-        { id: crypto.randomUUID(), sender: "ai_teacher", message: response.speak, createdAt: new Date().toISOString() },
-      ]);
-      speak(response.speak, () => dispatch({ type: "AUDIO_ENDED" }));
-    }, 650);
-  };
+        isTeacherSpeaking: false,
+      }));
+      onComplete?.();
+    }, state.speechRate);
+  }, [state.speechRate]);
 
-  const handleQuickAction = (action: string) => {
-    dispatch({ type: "QUICK_ACTION", action: mapQuickAction(action) });
-    if (action === "I don't understand") {
-      setMessages((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), sender: "system", message: "Needs more support", createdAt: new Date().toISOString() },
-      ]);
-      speak("No problem. Let us slow down and break it into smaller steps.", () => dispatch({ type: "AUDIO_ENDED" }));
+  // Show next board item
+  const showNextBoardItem = useCallback(() => {
+    const step = lesson.steps[state.stepIndex];
+    if (!step) return;
+
+    const nextIndex = state.boardItemIndex + 1;
+    if (nextIndex >= step.boardItems.length) {
+      // Move to next step
+      goToNextStep();
       return;
     }
-    if (action === "Give me a real-world example.") {
-      setMessages((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), sender: "ai_teacher", message: "Let me show you another example using the same factoring pattern.", createdAt: new Date().toISOString() },
-      ]);
-      speak("Let me show you another example using the same factoring pattern.", () => dispatch({ type: "AUDIO_ENDED" }));
-      return;
-    }
-    if (action === "Test me with a question.") {
-      dispatch({
-        type: "SET_QUIZ",
-        quiz: {
-          question: "What are the solutions to x² - 9x + 20 = 0?",
-          options: ["x = 2 and x = 10", "x = 4 and x = 5", "x = -4 and x = -5", "x = -2 and x = -10"],
-          correctIndex: 1,
-        },
+
+    const item = step.boardItems[nextIndex];
+    setState(prev => ({
+      ...prev,
+      boardItemIndex: nextIndex,
+      visibleBoardItems: [...prev.visibleBoardItems, item],
+    }));
+
+    // Teacher reads the item
+    if (item.readExactly) {
+      speakAndWait(item.text, () => {
+        if (item.explanation) {
+          speakAndWait(item.explanation, () => {
+            // Continue after pause
+            if (autoPlayRef.current && !state.questionPrompt) {
+              setTimeout(() => showNextBoardItem(), item.pauseAfter || 1000);
+            }
+          });
+        } else if (autoPlayRef.current && !state.questionPrompt) {
+          setTimeout(() => showNextBoardItem(), item.pauseAfter || 800);
+        }
       });
-      speak("Great. Let us test your understanding with a quick quiz.", () => dispatch({ type: "AUDIO_ENDED" }));
+    } else if (item.explanation) {
+      speakAndWait(item.explanation, () => {
+        if (autoPlayRef.current && !state.questionPrompt) {
+          setTimeout(() => showNextBoardItem(), item.pauseAfter || 500);
+        }
+      });
+    } else if (autoPlayRef.current && !state.questionPrompt) {
+      setTimeout(() => showNextBoardItem(), item.pauseAfter || 500);
+    }
+  }, [state.stepIndex, state.boardItemIndex, state.questionPrompt, lesson, speakAndWait]);
+
+  // Go to next step
+  const goToNextStep = useCallback(() => {
+    const nextIndex = state.stepIndex + 1;
+    if (nextIndex >= lesson.steps.length) {
+      // Lesson complete
+      completeLesson();
       return;
     }
-    handleTeacherResponse(action);
-  };
 
-  const handleQuizAnswer = (index: number) => {
-    if (!state.quizQuestion || state.quizAnswered !== null) return;
-    dispatch({ type: "ANSWER_QUIZ", index });
-    const correct = index === state.quizQuestion.correctIndex;
-    setMessages((prev) => [
+    const step = lesson.steps[nextIndex];
+    setState(prev => ({
       ...prev,
-      { id: crypto.randomUUID(), sender: "student", message: state.quizQuestion?.options[index] ?? "", createdAt: new Date().toISOString() },
-      {
-        id: crypto.randomUUID(),
-        sender: "ai_teacher",
-        message: correct ? "Excellent. That answer is correct." : "Not quite. Let us review the factor pair again.",
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-    speak(correct ? "Excellent. That answer is correct." : "Not quite. Let us review the factor pair again.", () => dispatch({ type: "AUDIO_ENDED" }));
+      stepIndex: nextIndex,
+      boardItemIndex: -1,
+      visibleBoardItems: [],
+      mode: "teaching",
+    }));
+
+    // Check for required mid-lesson question
+    if (nextIndex === 2 && lesson.requiredMidLessonQuestion) {
+      // At 50% point
+      setTimeout(() => {
+        triggerRequiredQuestion();
+      }, 1000);
+      return;
+    }
+
+    // Check for practice
+    if (step.practice) {
+      startPractice(step.practice.type);
+      return;
+    }
+
+    // Speak step intro and start board items
+    speakAndWait(`Now, ${step.title.toLowerCase()}.`, () => {
+      if (autoPlayRef.current) {
+        setTimeout(() => showNextBoardItem(), 500);
+      }
+    });
+  }, [state.stepIndex, lesson, speakAndWait, showNextBoardItem]);
+
+  // Trigger required question
+  const triggerRequiredQuestion = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      questionPrompt: lesson.requiredMidLessonQuestion.questionText,
+      isWaitingForAnswer: true,
+      isRequiredQuestion: true,
+      isMicActive: true,
+      mode: "question",
+    }));
+
+    speakAndWait(lesson.requiredMidLessonQuestion.questionText, () => {
+      // Mic is now active, listening
+      startMicListening();
+    });
+  }, [lesson, speakAndWait]);
+
+  // Start practice
+  const startPractice = useCallback((type: "guided" | "independent") => {
+    const step = lesson.steps[state.stepIndex];
+    if (!step?.practice) return;
+
+    setState(prev => ({
+      ...prev,
+      mode: "practice",
+      practiceMode: type,
+      questionPrompt: step.practice!.problemText,
+      isWaitingForAnswer: true,
+      isMicActive: true,
+    }));
+
+    speakAndWait(
+      type === "guided"
+        ? `Let's practice together. ${step.practice.problemText}`
+        : `Now it's your turn. ${step.practice.problemText}`,
+      () => {
+        startMicListening();
+      }
+    );
+  }, [state.stepIndex, lesson, speakAndWait]);
+
+  // Start mic listening for answer
+  const startMicListening = useCallback(() => {
+    setIsListening(true);
+    // Note: In production, this would use Web Speech API
+    // For now, we'll use text input
+  }, []);
+
+  // Stop mic listening
+  const stopMicListening = useCallback(() => {
+    setIsListening(false);
+  }, []);
+
+  // Process answer
+  const processAnswer = useCallback((answer: string) => {
+    const normalized = answer.toLowerCase().trim();
+
+    if (state.isRequiredQuestion) {
+      const isCorrect = lesson.requiredMidLessonQuestion.acceptableAnswers.some(
+        a => a.toLowerCase().trim() === normalized
+      );
+
+      const feedback = isCorrect
+        ? lesson.requiredMidLessonQuestion.feedbackCorrect
+        : lesson.requiredMidLessonQuestion.feedbackIncorrect;
+
+      speakAndWait(feedback, () => {
+        if (!isCorrect && lesson.requiredMidLessonQuestion.boardCorrection.length > 0) {
+          setState(prev => ({
+            ...prev,
+            visibleBoardItems: lesson.requiredMidLessonQuestion.boardCorrection,
+            questionPrompt: null,
+            isWaitingForAnswer: false,
+            isRequiredQuestion: false,
+            isMicActive: false,
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            questionPrompt: null,
+            isWaitingForAnswer: false,
+            isRequiredQuestion: false,
+            isMicActive: false,
+          }));
+        }
+
+        if (autoPlayRef.current) {
+          setTimeout(() => showNextBoardItem(), 1000);
+        }
+      });
+    } else if (state.practiceMode) {
+      const step = lesson.steps[state.stepIndex];
+      if (!step?.practice) return;
+
+      const isCorrect = step.practice.acceptableAnswers.some(
+        a => a.toLowerCase().trim() === normalized
+      );
+
+      setState(prev => ({
+        ...prev,
+        practiceResult: isCorrect ? "correct" : "incorrect",
+      }));
+
+      speakAndWait(
+        isCorrect ? "Correct! Well done." : step.practice.hintOnIncorrect || "Let me show you the solution.",
+        () => {
+          if (!isCorrect) {
+            setState(prev => ({
+              ...prev,
+              visibleBoardItems: step.practice!.boardSolution,
+              questionPrompt: null,
+              isWaitingForAnswer: false,
+              isMicActive: false,
+            }));
+          } else {
+            setState(prev => ({
+              ...prev,
+              questionPrompt: null,
+              isWaitingForAnswer: false,
+              practiceMode: null,
+              isMicActive: false,
+            }));
+          }
+
+          if (autoPlayRef.current) {
+            setTimeout(() => goToNextStep(), 1000);
+          }
+        }
+      );
+    }
+  }, [state.isRequiredQuestion, state.practiceMode, state.stepIndex, lesson, speakAndWait, showNextBoardItem, goToNextStep]);
+
+  // Complete lesson
+  const completeLesson = useCallback(() => {
+    stopSpeech();
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    setState(prev => ({
+      ...prev,
+      mode: "complete",
+    }));
+
+    speakAndWait("Congratulations! You have completed this lesson. Great work today!");
+  }, [speakAndWait]);
+
+  // Start lesson
+  const startLesson = useCallback(() => {
+    setWelcomeOpen(false);
+    setState(prev => ({
+      ...prev,
+      mode: "teaching",
+    }));
+
+    speakAndWait(
+      `Welcome to today's lesson. Our goal is: ${lesson.objective}. Let's begin.`,
+      () => {
+        if (autoPlayRef.current) {
+          setTimeout(() => showNextBoardItem(), 1000);
+        }
+      }
+    );
+  }, [lesson, speakAndWait, showNextBoardItem]);
+
+  // Ask question
+  const askQuestion = useCallback((question: string) => {
+    setState(prev => ({
+      ...prev,
+      messages: [
+        ...prev.messages,
+        { id: crypto.randomUUID(), sender: "student", message: question },
+      ],
+    }));
+
+    // Pause auto-play for question
+    setState(prev => ({ ...prev, autoPlay: false, isMicActive: true, isWaitingForAnswer: true }));
+
+    speakAndWait(`That's a great question. Let me explain. ${question}`, () => {
+      // Generate an answer based on current context
+      speakAndWait(
+        "That's an important point. In quadratic equations, we always look for two numbers that satisfy both conditions simultaneously - their product and their sum.",
+        () => {
+          setState(prev => ({
+            ...prev,
+            autoPlay: autoPlayRef.current,
+            isMicActive: false,
+            isWaitingForAnswer: false,
+            messages: [
+              ...prev.messages,
+              {
+                id: crypto.randomUUID(),
+                sender: "teacher",
+                message: "That's an important point. In quadratic equations, we always look for two numbers that satisfy both conditions simultaneously - their product and their sum.",
+              },
+            ],
+          }));
+
+          if (autoPlayRef.current) {
+            setTimeout(() => showNextBoardItem(), 500);
+          }
+        }
+      );
+    });
+  }, [speakAndWait, showNextBoardItem]);
+
+  // Handle chat input submit
+  const handleChatSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    if (state.isWaitingForAnswer) {
+      processAnswer(chatInput.trim());
+      setChatInput("");
+      return;
+    }
+
+    askQuestion(chatInput.trim());
+    setChatInput("");
+  }, [chatInput, state.isWaitingForAnswer, processAnswer, askQuestion]);
+
+  // Quick action handlers
+  const handleQuickAction = useCallback((action: string) => {
+    switch (action) {
+      case "no_question":
+        setState(prev => ({
+          ...prev,
+          questionPrompt: null,
+          isWaitingForAnswer: false,
+          isRequiredQuestion: false,
+          isMicActive: false,
+        }));
+        speakAndWait("Alright, let's continue.", () => {
+          if (autoPlayRef.current) {
+            showNextBoardItem();
+          }
+        });
+        break;
+
+      case "repeat":
+        speakAndWait(currentStep?.teacherNotes || "Let me repeat this.", () => {
+          if (autoPlayRef.current) {
+            showNextBoardItem();
+          }
+        });
+        break;
+
+      case "simpler":
+        speakAndWait(
+          currentStep?.accessibility?.simplifiedExplanation || "Let me explain this more simply.",
+          () => {
+            if (autoPlayRef.current) {
+              showNextBoardItem();
+            }
+          }
+        );
+        break;
+
+      case "slower":
+        setState(prev => ({ ...prev, speechRate: 0.75 }));
+        speakAndWait("I'll slow down now.");
+        break;
+
+      case "faster":
+        setState(prev => ({ ...prev, speechRate: 1.25 }));
+        speakAndWait("I'll speed up now.");
+        break;
+
+      default:
+        askQuestion(action);
+    }
+  }, [currentStep, speakAndWait, showNextBoardItem, askQuestion]);
+
+  // Format time
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
-    <div className="lesson-layout flex h-screen flex-col bg-[var(--gray-50)]">
-      {/* Lesson Top Bar */}
-      <header className="lesson-topbar fixed top-0 left-0 right-0 z-50 flex h-14 items-center border-b border-[var(--gray-200)] bg-white px-4">
-        <div className="logo-wrap flex items-center gap-3">
-          <Link to="/student/dashboard" className="btn btn-outline flex items-center gap-2 px-3 py-2 text-xs">
-            <ArrowLeft className="h-4 w-4" />
-            Exit
+    <div className="classroom-root">
+      {/* Header */}
+      <header className="classroom-header">
+        <Link
+          to="/student/dashboard"
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Exit
+        </Link>
+
+        <div className="ml-4 flex-1">
+          <p className="text-xs text-gray-400">{lesson.subject}</p>
+          <h1 className="text-sm font-bold text-gray-900">{lesson.title}</h1>
+        </div>
+
+        <div className="ml-auto flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-xs text-gray-400">Progress</p>
+            <p className="text-sm font-bold text-gray-900">{state.progressPercent}%</p>
+          </div>
+
+          <div className="h-8 w-px bg-gray-200" />
+
+          <div className="text-right">
+            <p className="text-xs text-gray-400">Time</p>
+            <p className="text-sm font-bold text-gray-900">{formatTime(state.elapsedSeconds)}</p>
+          </div>
+
+          <div className="h-8 w-px bg-gray-200" />
+
+          <button
+            onClick={() => setState(prev => ({ ...prev, showCaptions: !prev.showCaptions }))}
+            className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100"
+          >
+            <Subtitles className="h-4 w-4" />
+            CC
+          </button>
+
+          <Link
+            to="/student/access"
+            className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-100"
+          >
+            <Accessibility className="h-4 w-4" />
+            Access
           </Link>
         </div>
-        <div className="breadcrumb ml-4 flex items-center gap-2 text-sm">
-          <span className="text-[var(--gray-400)]">{classroomContext.institution.name}</span>
-          <span className="sep text-[var(--gray-300)]">/</span>
-          <span className="text-[var(--gray-500)]">{classroomContext.course.title}</span>
-          <span className="sep text-[var(--gray-300)]">/</span>
-          <span className="current font-semibold text-[var(--gray-900)]">{lesson.title}</span>
-        </div>
-        <div className="lesson-progress-wrap ml-auto flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className={`flex h-6 w-6 items-center justify-center rounded-full ${state.teacherState === "speaking" ? "bg-green-500" : "bg-[var(--gray-300)]"}`}>
-              {state.teacherState === "speaking" ? (
-                <Volume2 className="h-3.5 w-3.5 text-white" />
-              ) : (
-                <VolumeX className="h-3.5 w-3.5 text-[var(--gray-600)]" />
-              )}
-            </div>
-            <span className="text-xs font-medium text-[var(--gray-600)]">
-              {state.teacherState === "speaking" ? "Speaking" : state.teacherState === "thinking" ? "Thinking..." : "Listening"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="lesson-progress-label text-xs text-[var(--gray-500)]">Progress</span>
-            <div className="lesson-progress-bar w-20 rounded-full bg-[var(--gray-200)]">
-              <div className="h-full rounded-full bg-[var(--primary)]" style={{ width: `${state.progressPercentage}%` }} />
-            </div>
-            <span className="lesson-progress-pct text-xs font-bold text-[var(--gray-800)]">{state.progressPercentage}%</span>
-          </div>
-          <Link to="/student/access" className="learning-access-btn flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[var(--primary)]">
-            <Accessibility className="h-3.5 w-3.5" />
-            Learning Access
-          </Link>
+
+        {/* Progress bar under header */}
+        <div className="classroom-progress-bar">
+          <div className="classroom-progress-fill" style={{ width: `${state.progressPercent}%` }} />
         </div>
       </header>
 
       {/* Main Layout */}
-      <div className="lesson-layout-inner flex flex-1">
-        {/* AI Teacher Panel */}
-        <aside className="ai-panel w-[23%] min-w-[220px] max-w-[300px] flex-shrink-0 border-r border-[var(--gray-200)] bg-white">
-          <div className="ai-panel-header flex items-center justify-between px-4 pt-4">
-            <span className="ai-panel-title text-sm font-bold text-[var(--gray-800)]">AI Teacher</span>
-            <div className="online-badge flex items-center gap-1.5 text-xs text-green-600">
-              <span className="online-dot h-2 w-2 rounded-full bg-green-500" />
+      <div className="classroom-layout">
+        {/* Left: Teacher Panel */}
+        <aside className="classroom-teacher-panel">
+          <div className="teacher-header">
+            <span className="teacher-title">AI Teacher</span>
+            <div className="teacher-status">
+              <span className="teacher-status-dot" />
               Online
             </div>
           </div>
 
-          {/* AI Avatar */}
-          <div className="ai-avatar-wrap flex flex-col items-center px-4 py-4">
-            <div className="ai-avatar relative h-[120px] w-[120px] rounded-full border-4 border-[var(--gray-200)] bg-gradient-to-br from-blue-100 to-purple-100">
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-200 to-purple-200" />
-              <div className="absolute inset-4 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-300 to-purple-300">
-                <div className={`h-12 w-12 rounded-full ${state.teacherState === "speaking" ? "animate-pulse" : ""} bg-gradient-to-br from-blue-400 to-purple-400`} />
+          {/* Avatar */}
+          <div className="teacher-avatar-container">
+            <div className="teacher-avatar">
+              {state.isTeacherSpeaking && <div className="teacher-avatar-speaking-ring" />}
+              <div className="teacher-avatar-inner">
+                <BookOpen className="h-8 w-8 text-white" />
               </div>
-              {state.teacherState === "speaking" && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-                  <div className="sound-bars flex items-end gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className="block w-1 rounded-full bg-[var(--primary)]" style={{ height: `${6 + Math.random() * 10}px`, animationDelay: `${i * 0.1}s` }} />
+            </div>
+
+            <div className="teacher-speaking-indicator">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="teacher-speaking-bar" style={{ height: `${6 + Math.random() * 10}px` }} />
+              ))}
+            </div>
+
+            <p className="teacher-state-label">
+              {state.isTeacherSpeaking ? "Speaking..." : state.mode === "question" ? "Listening..." : "Ready"}
+            </p>
+          </div>
+
+          {/* Current Step */}
+          <div className="current-step-card">
+            <div className="current-step-label">
+              <span>Current Step</span>
+              <span className="current-step-number">{state.stepIndex + 1} of {lesson.steps.length}</span>
+            </div>
+            <p className="current-step-title">{currentStep?.title}</p>
+            <p className="current-step-desc">{currentStep?.accessibility?.boardDescription}</p>
+          </div>
+
+          {/* Transcript */}
+          <div className="transcript-box">
+            <div className="transcript-label">
+              <MessageSquare className="h-3.5 w-3.5" />
+              What teacher said
+            </div>
+            <div className="transcript-content">
+              {state.currentSpeech || "Waiting for lesson to start..."}
+            </div>
+          </div>
+
+          {/* Speed Controls */}
+          <div className="p-4 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-500 mb-2">Speech Speed</p>
+            <div className="flex gap-1">
+              {[0.75, 1, 1.25].map(rate => (
+                <button
+                  key={rate}
+                  onClick={() => setState(prev => ({ ...prev, speechRate: rate }))}
+                  className={`flex-1 py-2 text-xs font-semibold rounded ${
+                    state.speechRate === rate
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {rate}x
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Auto-play toggle */}
+          <div className="p-4 border-t border-gray-100">
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-xs font-semibold text-gray-600">Auto-play</span>
+              <div
+                className={`w-10 h-5 rounded-full transition-colors ${
+                  state.autoPlay ? "bg-green-500" : "bg-gray-300"
+                }`}
+                onClick={() => setState(prev => ({ ...prev, autoPlay: !prev.autoPlay }))}
+              >
+                <div
+                  className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                    state.autoPlay ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
+              </div>
+            </label>
+          </div>
+        </aside>
+
+        {/* Center: Whiteboard */}
+        <div className="classroom-content-panel">
+          <div className="whiteboard-container">
+            {/* Header */}
+            <div className="whiteboard-header">
+              <div>
+                <h2 className="whiteboard-title">{currentStep?.title || "Lesson"}</h2>
+              </div>
+              <div className="whiteboard-step-badge">
+                <Target className="h-3.5 w-3.5" />
+                {currentStep?.key?.replace(/_/g, " ") || "Step"}
+              </div>
+            </div>
+
+            {/* Whiteboard Content */}
+            <div className="whiteboard-content">
+              <div className="whiteboard-grid-pattern" />
+
+              {/* Render board items */}
+              {state.visibleBoardItems.map((item, index) => (
+                <div
+                  key={`${item.id}-${index}`}
+                  className={`whiteboard-item whiteboard-item-${item.type} ${
+                    index === state.visibleBoardItems.length - 1 ? "whiteboard-item-active" : ""
+                  }`}
+                >
+                  {item.type === "heading" && <h3 className="font-bold">{item.text}</h3>}
+                  {item.type === "bullet" && <p>• {item.text}</p>}
+                  {item.type === "equation" && <p className="text-center text-xl">{item.text}</p>}
+                  {item.type === "calculation" && <p>{item.text}</p>}
+                  {item.type === "step_number" && <p className="font-bold text-blue-600">{item.text}</p>}
+                  {item.type === "question" && <p className="text-orange-600 font-semibold">{item.text}</p>}
+                  {item.type === "answer" && <p className="text-green-600 font-bold">{item.text}</p>}
+                </div>
+              ))}
+
+              {/* Key Concept Card */}
+              {currentStep?.learnerNotes && state.visibleBoardItems.length > 2 && (
+                <div className="key-concept-card">
+                  <div className="key-concept-header">
+                    <Lightbulb className="h-4 w-4" />
+                    Key Concepts
+                  </div>
+                  <div className="key-concept-text">
+                    {currentStep.learnerNotes.keyPoints.map((point, i) => (
+                      <p key={i}>• {point}</p>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
-            <div className="ai-speaking mt-3 flex items-center gap-2 text-sm font-semibold text-[var(--gray-800)]">
-              {state.teacherState === "speaking" ? "Speaking..." : state.teacherState === "thinking" ? "Thinking..." : "Listening..."}
-            </div>
-            <p className="ai-desc mt-1 text-xs text-[var(--gray-500)]">Mr. Klass is your AI teacher</p>
-          </div>
 
-          {/* AI Tags */}
-          <div className="ai-tags flex flex-wrap justify-center gap-2 px-4">
-            <span className={`ai-tag rounded-full px-3 py-1 text-[10px] font-semibold ${state.mode === "quiz" ? "bg-orange-100 text-orange-600" : "bg-[var(--gray-100)] text-[var(--gray-600)]"}`}>
-              {state.mode.toUpperCase()}
-            </span>
-            <span className="ai-tag rounded-full bg-[var(--primary-light)] px-3 py-1 text-[10px] font-semibold text-[var(--primary)]">
-              {state.lessonPace.toUpperCase()} PACE
-            </span>
-          </div>
-
-          <div className="divider mx-4 my-3 h-px bg-[var(--gray-100)]" />
-
-          {/* Current Step */}
-          <div className="current-step-box px-4 py-3">
-            <div className="current-step-label flex justify-between text-xs text-[var(--gray-400)]">
-              <span>Current Step</span>
-              <span className="current-step-num font-semibold text-orange-500">
-                {state.stepIndex + 1} of {STEP_ORDER.length}
-              </span>
-            </div>
-            <p className="current-step-name mt-2 text-sm font-bold text-[var(--gray-800)]">{currentStepData.title}</p>
-            <p className="current-step-desc mt-1 text-xs leading-relaxed text-[var(--gray-500)]">
-              {currentStepData.simpleExplanation}
-            </p>
-          </div>
-
-          <div className="divider mx-4 h-px bg-[var(--gray-100)]" />
-
-          {/* Last Explanation */}
-          <div className="last-explanation-box flex-1 px-4 py-3">
-            <div className="last-exp-label flex items-center gap-1.5 text-xs text-[var(--gray-400)]">
-              <Lightbulb className="h-3.5 w-3.5" />
-              Last Explanation
-            </div>
-            <p className="last-exp-text mt-2 text-xs leading-relaxed text-[var(--gray-600)]">
-              {state.currentTranscript || "No speech yet. Start the lesson audio."}
-            </p>
-          </div>
-
-          {/* Replay Button */}
-          <button
-            className="replay-btn mx-4 mb-4 flex items-center justify-center gap-2 rounded-lg border border-[var(--gray-200)] bg-white py-2.5 text-xs font-medium text-[var(--gray-600)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
-            onClick={startLessonAudio}
-          >
-            <Play className="h-4 w-4" />
-            Replay Last Audio
-          </button>
-        </aside>
-
-        {/* Main Content */}
-        <main className="lesson-main flex-1 overflow-y-auto">
-          <div className="lesson-content p-6">
-            {/* Lesson Title Bar */}
-            <div className="lesson-title-bar mb-6 flex items-center justify-between">
-              <h2 className="lesson-title text-xl font-bold text-[var(--gray-900)]">{lesson.title}</h2>
-              <div className="lesson-actions flex items-center gap-2">
-                <button className="lesson-action-btn flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] bg-white px-3 py-1.5 text-xs text-[var(--gray-600)] hover:border-[var(--primary)] hover:text-[var(--primary)]">
-                  <Notebook className="h-3.5 w-3.5" />
-                  Notes
-                </button>
-                <button className="lesson-action-btn flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] bg-white px-3 py-1.5 text-xs text-[var(--gray-600)] hover:border-[var(--primary)] hover:text-[var(--primary)]">
-                  <Copy className="h-3.5 w-3.5" />
-                  Copy Board
-                </button>
-              </div>
-            </div>
-
-            {/* Equation Box */}
-            <div className="equation-box mb-6 rounded-lg border border-[var(--gray-200)] bg-white p-6 text-center font-serif text-2xl italic text-[var(--gray-800)]">
-              {state.board.items[0] || "ax² + bx + c = 0"}
-            </div>
-
-            {/* Steps Row */}
-            <div className="steps-row grid gap-6 lg:grid-cols-[1fr_240px]">
-              {/* Main Steps Content */}
-              <div className="steps-col space-y-4">
-                {state.board.items.map((line, index) => (
-                  <div
-                    key={`${line}-${index}`}
-                    className={`step-block rounded-lg p-3 transition-all ${
-                      index === state.board.activeLineIndex
-                        ? "border-l-4 border-[var(--primary)] bg-[var(--primary-light)]"
-                        : "border border-[var(--gray-200)] bg-white"
-                    }`}
-                  >
-                    <p className="step-text font-serif text-base text-[var(--gray-700)]">{line || "\u00A0"}</p>
+              {/* Notes Card */}
+              {currentStep?.teacherNotes && state.visibleBoardItems.length > 3 && (
+                <div className="notes-card">
+                  <div className="notes-header">
+                    <Notebook className="h-4 w-4" />
+                    Teacher's Explanation
                   </div>
-                ))}
-
-                {/* Key Concept Card */}
-                <div className="key-concept-card rounded-lg border border-green-200 bg-green-50 p-5">
-                  <div className="key-concept-header flex items-center gap-2 font-bold text-green-600">
-                    <Lightbulb className="h-4 w-4" />
-                    Key Concept
-                  </div>
-                  <p className="key-concept-text mt-2 font-serif text-sm leading-relaxed text-[var(--gray-600)]">
-                    {currentStepData.simpleExplanation}
-                  </p>
+                  <div className="notes-text">{currentStep.teacherNotes}</div>
                 </div>
-              </div>
-
-              {/* Step Navigator */}
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[var(--gray-400)]">Lesson Steps</p>
-                {STEP_ORDER.map((stepKey, index) => {
-                  const done = index < state.stepIndex;
-                  const current = index === state.stepIndex;
-                  const locked = index > state.stepIndex + 1;
-                  return (
-                    <button
-                      key={stepKey}
-                      disabled={locked}
-                      onClick={() => dispatch({ type: "CHANGE_STEP", stepKey })}
-                      className={`w-full rounded-lg border p-3 text-left text-xs font-medium transition-all ${
-                        current
-                          ? "border-[var(--primary)] bg-[var(--primary)] text-white"
-                          : done
-                            ? "border-green-200 bg-green-50 text-green-700"
-                            : "border-[var(--gray-200)] bg-white text-[var(--gray-500)]"
-                      } ${locked ? "opacity-50" : "hover:shadow-md"}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {done ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        ) : current ? (
-                          <Play className="h-4 w-4 text-white" />
-                        ) : (
-                          <div className="h-4 w-4 rounded-full border border-[var(--gray-300)]" />
-                        )}
-                        <span className={current ? "font-bold" : ""}>
-                          {stepKey.replaceAll("_", " ")}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Speaking Bar */}
-          <div className="ai-speaking-bar flex items-center gap-3 bg-[var(--gray-900)] px-5 py-4 text-sm text-white">
-            <Subtitles className="speaking-icon h-5 w-5 text-[var(--primary)]" />
-            <div className="speaking-text flex-1">
-              <strong className="text-[var(--primary)]">Mr. Klass:</strong> {state.currentTranscript || "Ready to begin."}
-            </div>
-          </div>
-        </main>
-
-        {/* Chat Panel */}
-        <aside className="chat-panel w-[25%] min-w-[240px] max-w-[360px] flex-shrink-0 border-l border-[var(--gray-200)] bg-white">
-          {/* Chat Tabs */}
-          <div className="chat-tabs grid grid-cols-5 border-b border-[var(--gray-200)]">
-            {(["steps", "chat", "quiz", "notes", "access"] as Panel[]).map((panel) => (
+        {/* Right: Chat & Settings */}
+        <aside className="classroom-side-panel">
+          {/* Tabs */}
+          <div className="side-panel-tabs">
+            {(["steps", "chat", "notes", "settings"] as Panel[]).map(panel => (
               <button
                 key={panel}
-                onClick={() => dispatch({ type: "SET_PANEL", panel })}
-                className={`chat-tab flex flex-col items-center gap-1 px-2 py-3 text-[10px] font-medium ${
-                  state.activePanel === panel
-                    ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
-                    : "text-[var(--gray-400)] hover:text-[var(--gray-600)]"
-                }`}
+                onClick={() => setActivePanel(panel)}
+                className={`side-panel-tab ${activePanel === panel ? "side-panel-tab-active" : ""}`}
               >
                 {panel === "steps" && <Target className="h-4 w-4" />}
-                {panel === "chat" && <Send className="h-4 w-4" />}
-                {panel === "quiz" && <Brain className="h-4 w-4" />}
+                {panel === "chat" && <MessageSquare className="h-4 w-4" />}
                 {panel === "notes" && <Notebook className="h-4 w-4" />}
-                {panel === "access" && <Accessibility className="h-4 w-4" />}
+                {panel === "settings" && <Settings className="h-4 w-4" />}
                 <span className="capitalize">{panel}</span>
               </button>
             ))}
           </div>
 
-          {/* Panel Content */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {state.activePanel === "steps" && (
-              <div className="space-y-2">
-                {STEP_ORDER.map((stepKey, index) => {
-                  const done = index < state.stepIndex;
-                  const current = index === state.stepIndex;
-                  return (
-                    <button
-                      key={stepKey}
-                      onClick={() => dispatch({ type: "CHANGE_STEP", stepKey })}
-                      className={`w-full rounded-lg border p-3 text-left text-xs font-medium transition-all ${
-                        current
-                          ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]"
-                          : done
-                            ? "border-green-200 bg-green-50 text-green-700"
-                            : "border-[var(--gray-200)] bg-white text-[var(--gray-600)]"
+          {/* Content */}
+          <div className="side-panel-content">
+            {activePanel === "steps" && (
+              <div className="steps-timeline">
+                {lesson.steps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={`step-item ${
+                      index < state.stepIndex
+                        ? "step-item-completed"
+                        : index === state.stepIndex
+                        ? "step-item-active"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (index < state.stepIndex) {
+                        setState(prev => ({
+                          ...prev,
+                          stepIndex: index,
+                          boardItemIndex: -1,
+                          visibleBoardItems: [],
+                        }));
+                      }
+                    }}
+                  >
+                    <div
+                      className={`step-check ${
+                        index < state.stepIndex
+                          ? "step-check-completed"
+                          : index === state.stepIndex
+                          ? "step-check-active"
+                          : "step-check-pending"
                       }`}
                     >
-                      {stepKey.replaceAll("_", " ")}
-                    </button>
-                  );
-                })}
+                      {index < state.stepIndex ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        index + 1
+                      )}
+                    </div>
+                    <span
+                      className={`step-label ${
+                        index === state.stepIndex ? "step-label-active" : ""
+                      }`}
+                    >
+                      {step.title}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
 
-            {state.activePanel === "chat" && (
-              <div className="flex h-full flex-col">
-                <div className="chat-messages flex-1 space-y-3 overflow-y-auto">
-                  {messages.slice(-8).map((message) => (
-                    <div key={message.id} className={message.sender === "student" ? "msg-user flex justify-end" : "msg-ai flex gap-2"}>
-                      {message.sender === "ai_teacher" && (
-                        <div className="msg-ai-avatar flex h-7 w-7 items-center justify-center rounded-full bg-blue-100">
-                          <Brain className="h-4 w-4 text-blue-600" />
-                        </div>
-                      )}
-                      <div className={message.sender === "student" ? "msg-bubble-user rounded-xl bg-[var(--primary)] px-4 py-2 text-sm text-white" : "msg-bubble-ai rounded-xl border border-[var(--gray-200)] bg-[var(--gray-50)] px-4 py-2 text-sm text-[var(--gray-700)]"}>
-                        <p>{message.message}</p>
-                      </div>
+            {activePanel === "chat" && (
+              <div className="chat-messages-container">
+                {state.messages.map(msg => (
+                  <div
+                    key={msg.id}
+                    className={`chat-message ${
+                      msg.sender === "student" ? "chat-message-user" : "chat-message-ai"
+                    }`}
+                  >
+                    {msg.sender !== "student" && (
+                      <div className="chat-message-avatar">AI</div>
+                    )}
+                    <div
+                      className={`chat-message-bubble ${
+                        msg.sender === "student"
+                          ? "chat-message-bubble-user"
+                          : "chat-message-bubble-ai"
+                      }`}
+                    >
+                      <p>{msg.message}</p>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activePanel === "notes" && (
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 mb-4">Lesson Notes</h3>
+                <div className="prose prose-sm">
+                  <h4>Summary</h4>
+                  <p className="text-gray-600">{currentStep?.learnerNotes?.summary}</p>
+
+                  <h4 className="mt-4">Key Points</h4>
+                  <ul>
+                    {currentStep?.learnerNotes?.keyPoints.map((point, i) => (
+                      <li key={i}>{point}</li>
+                    ))}
+                  </ul>
+
+                  {currentStep?.learnerNotes?.formulas && (
+                    <>
+                      <h4 className="mt-4">Formulas</h4>
+                      {currentStep.learnerNotes.formulas.map((formula, i) => (
+                        <p key={i} className="font-mono text-sm">{formula}</p>
+                      ))}
+                    </>
+                  )}
+
+                  <h4 className="mt-4">Common Mistakes</h4>
+                  <ul>
+                    {currentStep?.learnerNotes?.commonMistakes.map((mistake, i) => (
+                      <li key={i}>{mistake}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             )}
 
-            {state.activePanel === "quiz" && state.quizQuestion && (
-              <QuizCard quiz={state.quizQuestion} answered={state.quizAnswered} onAnswer={handleQuizAnswer} />
-            )}
+            {activePanel === "settings" && (
+              <div>
+                <div className="settings-section">
+                  <div className="settings-section-title">Accessibility</div>
+                  <div className="settings-item">
+                    <div>
+                      <p className="settings-item-label">Captions</p>
+                      <p className="settings-item-desc">Show live transcript</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={state.showCaptions}
+                      onChange={e => setState(prev => ({ ...prev, showCaptions: e.target.checked }))}
+                    />
+                  </div>
+                  <div className="settings-item">
+                    <div>
+                      <p className="settings-item-label">Speech Rate</p>
+                      <p className="settings-item-desc">Teacher speaking speed</p>
+                    </div>
+                    <p className="text-sm font-bold">{state.speechRate}x</p>
+                  </div>
+                </div>
 
-            {state.activePanel === "notes" && (
-              <div className="space-y-3">
-                <textarea
-                  className="min-h-[200px] w-full resize-none rounded-lg border border-[var(--gray-200)] p-3 text-sm outline-none focus:border-[var(--primary)]"
-                  placeholder="Take notes here..."
-                  defaultValue={state.notes.join("\n")}
-                />
-                <Button size="sm" className="w-full">
-                  Save Notes
-                </Button>
+                <div className="settings-section">
+                  <div className="settings-section-title">Lesson</div>
+                  <div className="settings-item">
+                    <div>
+                      <p className="settings-item-label">Auto-play</p>
+                      <p className="settings-item-desc">Continue automatically</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={state.autoPlay}
+                      onChange={e => setState(prev => ({ ...prev, autoPlay: e.target.checked }))}
+                    />
+                  </div>
+                </div>
               </div>
-            )}
-
-            {state.activePanel === "access" && (
-              <AccessPanel
-                classroomContext={classroomContext}
-                onAccessChange={(profile) => {
-                  dispatch({ type: "UPDATE_ACCESS", profile: profile as any });
-                }}
-              />
             )}
           </div>
 
           {/* Quick Actions */}
-          <div className="chat-quick-btns grid grid-cols-3 gap-2 border-t border-[var(--gray-100)] px-3 py-3">
-            {quickActions.slice(0, 3).map((action) => (
-              <button
-                key={action}
-                onClick={() => handleQuickAction(action)}
-                className="quick-btn rounded-lg border border-[var(--gray-200)] bg-white px-2 py-2 text-[10px] font-medium text-[var(--gray-600)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
-              >
-                {action.length > 18 ? action.slice(0, 18) + "..." : action}
-              </button>
-            ))}
+          <div className="quick-actions-bar">
+            {state.isWaitingForAnswer ? (
+              <>
+                <button
+                  className="quick-action-btn quick-action-btn-primary"
+                  onClick={() => handleQuickAction("no_question")}
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Done
+                </button>
+                <button
+                  className="quick-action-btn"
+                  onClick={() => handleQuickAction("repeat")}
+                >
+                  <Repeat className="h-4 w-4" />
+                  Repeat
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="quick-action-btn"
+                  onClick={() => handleQuickAction("simpler")}
+                >
+                  <HelpCircle className="h-4 w-4" />
+                  Simpler
+                </button>
+                <button
+                  className="quick-action-btn"
+                  onClick={() => handleQuickAction("repeat")}
+                >
+                  <Repeat className="h-4 w-4" />
+                  Repeat
+                </button>
+                <button
+                  className="quick-action-btn"
+                  onClick={() => setState(prev => ({ ...prev, speechRate: prev.speechRate === 1 ? 0.75 : prev.speechRate - 0.25 }))}
+                >
+                  <Zap className="h-4 w-4" />
+                  {state.speechRate === 0.75 ? "Normal" : "Slower"}
+                </button>
+                <button
+                  className="quick-action-btn"
+                  onClick={() => setChatInput("I have a question: ")}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Ask
+                </button>
+              </>
+            )}
           </div>
 
           {/* Chat Input */}
-          <div className="chat-input-row flex items-center gap-2 border-t border-[var(--gray-200)] px-4 py-3">
-            <input
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && chatInput.trim()) {
-                  handleTeacherResponse(chatInput.trim());
-                  setChatInput("");
+          <div className="chat-input-container">
+            <form onSubmit={handleChatSubmit} className="flex gap-2 w-full">
+              <input
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                placeholder={
+                  state.isWaitingForAnswer
+                    ? "Type your answer..."
+                    : "Type a question..."
                 }
-              }}
-              placeholder="Ask a question..."
-              className="chat-input flex-1 rounded-lg border border-[var(--gray-200)] bg-[var(--gray-50)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)] focus:bg-white"
-            />
-            <button
-              onClick={() => setIsListening(!isListening)}
-              className={`chat-mic-btn flex h-8 w-8 items-center justify-center rounded-full ${isListening ? "bg-green-100 text-green-600" : "text-[var(--gray-400)] hover:text-[var(--primary)]"}`}
-            >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={() => {
-                if (chatInput.trim()) {
-                  handleTeacherResponse(chatInput.trim());
-                  setChatInput("");
-                }
-              }}
-              className="chat-send-btn flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)]"
-            >
-              <Send className="h-4 w-4" />
-            </button>
+                className="chat-input"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (state.isMicActive) {
+                    stopMicListening();
+                    setState(prev => ({ ...prev, isMicActive: false }));
+                  } else {
+                    startMicListening();
+                    setState(prev => ({ ...prev, isMicActive: true }));
+                  }
+                }}
+                className={`chat-mic-btn ${state.isMicActive ? "chat-mic-btn-active" : ""}`}
+              >
+                {state.isMicActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>
+              <button type="submit" className="chat-send-btn">
+                <Send className="h-4 w-4" />
+              </button>
+            </form>
           </div>
         </aside>
       </div>
 
-      {/* Audio Bar */}
-      <div className="audio-bar items-center justify-center gap-3 border-t border-[var(--gray-200)] bg-white px-6 shadow-sm">
-        <button className="audio-btn flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gray-100)] text-[var(--gray-700)] hover:bg-[var(--gray-200)]">
-          {state.audio.playing ? <div className="h-3 w-3 rounded-sm bg-[var(--primary)]" /> : <Play className="h-4 w-4" />}
+      {/* Transcript Bar */}
+      {state.showCaptions && state.currentSpeech && (
+        <div className="transcript-bar">
+          <div className="transcript-bar-inner">
+            <div className="transcript-bar-content">
+              <Subtitles className="transcript-icon h-5 w-5" />
+              <div className="transcript-text">
+                <span className="transcript-speaker">Teacher:</span> {state.currentSpeech}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Audio Control Bar */}
+      <div className="audio-control-bar" style={{ bottom: state.showCaptions ? 60 : 0 }}>
+        <button className="audio-btn" onClick={() => setState(prev => ({ ...prev, autoPlay: !prev.autoPlay }))}>
+          {state.autoPlay ? <VolumeX className="h-5 w-5" /> : <Play className="h-5 w-5" />}
         </button>
 
-        <button className="audio-btn flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gray-100)] text-[var(--gray-700)] hover:bg-[var(--gray-200)]">
-          {state.audio.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-        </button>
-
-        <div className="sep-dot mx-2 h-6 w-px bg-[var(--gray-200)]" />
-
-        <div className="flex items-center gap-1.5 rounded-lg bg-[var(--gray-100)] px-3 py-2">
-          {[0.5, 0.75, 1, 1.25, 1.5].map((rate) => (
+        <div className="audio-speed-group">
+          {[0.5, 0.75, 1, 1.25, 1.5].map(rate => (
             <button
               key={rate}
-              onClick={() => dispatch({ type: "SET_RATE", rate })}
-              className={`rounded px-2 py-1 text-xs font-semibold transition ${
-                state.audio.rate === rate ? "bg-[var(--primary)] text-white" : "text-[var(--gray-600)] hover:bg-[var(--gray-200)]"
-              }`}
+              onClick={() => setState(prev => ({ ...prev, speechRate: rate }))}
+              className={`audio-speed-btn ${state.speechRate === rate ? "audio-speed-btn-active" : ""}`}
             >
               {rate}x
             </button>
           ))}
         </div>
 
-        <div className="sep-dot mx-2 h-6 w-px bg-[var(--gray-200)]" />
+        <div className="audio-divider" />
 
-        <button
-          onClick={() => handleQuickAction("I don't understand")}
-          className="audio-icon-btn flex min-w-[48px] flex-col items-center gap-1 text-[var(--gray-500)] hover:text-[var(--primary)]"
-        >
-          <HelpCircle className="ico h-5 w-5" />
-          <span className="text-[10px]">Help</span>
-        </button>
-
-        <button
-          onClick={() => handleQuickAction("Give me a real-world example.")}
-          className="audio-icon-btn flex min-w-[48px] flex-col items-center gap-1 text-[var(--gray-500)] hover:text-[var(--primary)]"
-        >
-          <Lightbulb className="ico h-5 w-5" />
-          <span className="text-[10px]">Example</span>
-        </button>
-
-        <button
-          onClick={() => handleQuickAction("Test me with a question.")}
-          className="audio-icon-btn flex min-w-[48px] flex-col items-center gap-1 text-[var(--gray-500)] hover:text-[var(--primary)]"
-        >
-          <Target className="ico h-5 w-5" />
-          <span className="text-[10px]">Quiz</span>
-        </button>
-
-        <div className="ml-auto">
-          <button onClick={onEndLesson} className="end-lesson-btn flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">
-            End Lesson
-          </button>
+        <div className="audio-label" onClick={() => handleQuickAction("repeat")}>
+          <Repeat className="audio-label-icon" />
+          <span className="audio-label-text">Repeat</span>
         </div>
+
+        <div className="audio-label" onClick={() => handleQuickAction("simpler")}>
+          <HelpCircle className="audio-label-icon" />
+          <span className="audio-label-text">Simpler</span>
+        </div>
+
+        <button className="audio-btn audio-btn-danger" onClick={onEndLesson}>
+          End Lesson
+        </button>
       </div>
 
       {/* Welcome Overlay */}
-      {state.welcomeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white p-6 shadow-2xl">
-            <div className="inline-flex items-center rounded-full bg-[var(--primary-light)] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
+      {welcomeOpen && (
+        <div className="welcome-overlay">
+          <div className="welcome-card">
+            <div className="welcome-badge">
+              <Sparkles className="h-4 w-4" />
               Welcome to Klassruum
             </div>
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-[var(--gray-900)]">
-              Your AI teacher is ready.
+            <h2 className="welcome-title">
+              {lesson.title}
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-[var(--gray-600)]">
-              This lesson includes voice, captions, whiteboard steps, chat, quiz, and accessibility support.
+            <p className="welcome-subtitle">
+              {lesson.objective}
             </p>
-            <div className="mt-6 flex gap-3">
-              <Button onClick={startLessonAudio}>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Start Lesson Audio
+            <div className="welcome-features">
+              {[
+                { icon: Volume2, text: "Voice Teaching" },
+                { icon: Subtitles, text: "Captions" },
+                { icon: Brain, text: "Adaptive" },
+                { icon: Accessibility, text: "Accessible" },
+              ].map(f => (
+                <div key={f.text} className="welcome-feature">
+                  <f.icon className="welcome-feature-icon h-4 w-4" />
+                  <span className="welcome-feature-text">{f.text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="welcome-actions">
+              <Button size="lg" className="shadow-lg" onClick={startLesson}>
+                <Play className="mr-2 h-4 w-4" />
+                Start Lesson
               </Button>
-              <Button variant="outline" onClick={() => dispatch({ type: "HIDE_OVERLAY" })}>
-                Not now
+              <Button size="lg" variant="outline" onClick={() => setWelcomeOpen(false)}>
+                Preview Content
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Question Prompt */}
+      {state.questionPrompt && state.isWaitingForAnswer && (
+        <div className="question-prompt-overlay">
+          <div className="question-prompt-card">
+            <div className="question-prompt-badge">
+              {state.isRequiredQuestion
+                ? "Required Question"
+                : state.practiceMode
+                ? `${state.practiceMode === "guided" ? "Guided" : "Independent"} Practice`
+                : "Checkpoint"}
+            </div>
+            <h3 className="question-prompt-text">{state.questionPrompt}</h3>
+            <p className="question-prompt-subtext">
+              {state.isRequiredQuestion
+                ? "Answer to continue"
+                : "Type or speak your answer"}
+            </p>
+
+            {/* Mic Active Indicator */}
+            {state.isMicActive && (
+              <div className="mic-active-indicator">
+                <div className="mic-pulse">
+                  <Mic className="h-5 w-5 text-white" />
+                </div>
+                <div className="mic-active-text">
+                  <p className="mic-active-label">Listening for your answer...</p>
+                  <p className="mic-active-sub">Speak now, or type below</p>
+                </div>
+              </div>
+            )}
+
+            <div className="question-input-container">
+              <input
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                placeholder="Type your answer..."
+                className="question-input"
+                onKeyDown={e => {
+                  if (e.key === "Enter" && chatInput.trim()) {
+                    processAnswer(chatInput.trim());
+                    setChatInput("");
+                  }
+                }}
+              />
+            </div>
+
+            <div className="question-actions">
+              <button
+                className="question-action-btn question-action-btn-primary"
+                onClick={() => {
+                  if (chatInput.trim()) {
+                    processAnswer(chatInput.trim());
+                    setChatInput("");
+                  }
+                }}
+              >
+                Submit Answer
+              </button>
+              {!state.isRequiredQuestion && (
+                <button
+                  className="question-action-btn question-action-btn-secondary"
+                  onClick={() => handleQuickAction("no_question")}
+                >
+                  Skip
+                </button>
+              )}
+              <button
+                className="question-action-btn question-action-btn-secondary"
+                onClick={() => handleQuickAction("repeat")}
+              >
+                Repeat
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-}
-
-function stopListening(recognition: SpeechRecognition) {
-  recognition.stop();
-}
-
-function startListening(recognition: SpeechRecognition, onResult: (transcript: string) => void) {
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    onResult(transcript);
-  };
-  recognition.start();
-}
-
-function mapQuickAction(action: string): string {
-  if (action === "I don't understand") return "dont_understand";
-  if (action === "Give me a real-world example.") return "give_example";
-  if (action === "Please slow down.") return "slow_down";
-  if (action === "Test me with a question.") return "quiz_me";
-  return action.toLowerCase();
 }
