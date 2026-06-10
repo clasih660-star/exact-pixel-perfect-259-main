@@ -98,6 +98,11 @@ const INSTITUTION = "Demo Academy";
 const COURSE = "Mathematics Form 2";
 const LESSON_SUBJECT = "Quadratic Equations";
 const STORAGE_KEY = "klassruum_demo_progress";
+/**
+ * Academic level for this classroom — drives the AI teacher's vocabulary,
+ * pacing, depth, and amount of encouragement. "Form 2" maps to secondary.
+ */
+const ACADEMIC_LEVEL = "secondary" as const;
 
 /**
  * Course type drives how a classroom is presented. The system decides this
@@ -264,6 +269,14 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const [questionOpen, setQuestionOpen] = useState(false);
   const [questionText, setQuestionText] = useState("");
   const [isListening, setIsListening] = useState(false);
+  /**
+   * When the teacher asks the learner to clarify an unclear question, we hold the
+   * clarifying prompt + quick options here and remember the original question, so
+   * the learner's next message is treated as the clarification (not a new turn).
+   */
+  const [clarify, setClarify] = useState<{ question: string; original: string; options: string[] } | null>(null);
+  /** A short follow-up offer shown after an answer ("Want an example?"). */
+  const [followUp, setFollowUp] = useState<string | null>(null);
 
   // ── Practice State ────────────────────────────────────
   const [practiceOpen, setPracticeOpen] = useState(false);
@@ -983,16 +996,21 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     const q = questionText.trim();
     if (!q) return;
     addTranscript("student", q);
-    setResults((prev) => ({ ...prev, questionsAsked: prev.questionsAsked + 1 }));
-    logEvent(`Learner asked: ${q}`);
+    // A clarification reply isn't a new question — only count fresh questions.
+    const isClarificationReply = clarify !== null;
+    if (!isClarificationReply) {
+      setResults((prev) => ({ ...prev, questionsAsked: prev.questionsAsked + 1 }));
+    }
+    logEvent(isClarificationReply ? `Learner clarified: ${q}` : `Learner asked: ${q}`);
     setQuestionOpen(false);
     setQuestionText("");
+    setFollowUp(null);
     setTeacherState("thinking");
     setCaptionText("Let me think about that...");
 
-    // Build the current classroom context and ask the AI teacher to answer
-    // using only the lesson/course context (74–150 words). Falls back to a
-    // context-based answer if the AI gateway is unavailable.
+    // Build the current classroom context and ask the AI teacher. The teacher may
+    // either answer (clear) or ask ONE clarifying question (unclear) — just like a
+    // real tutor who won't guess at a vague question.
     const boardItem =
       writtenLines[writtenLines.length - 1]?.boardText ??
       quadraticTeachingSequence[currentIndex]?.boardText;
@@ -1001,9 +1019,15 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       .map((t) => t.text)
       .slice(-5);
 
+    // If this is a clarification round, send the original question + the prior
+    // clarifying prompt so the model answers directly instead of re-asking.
+    const effectiveQuestion = isClarificationReply ? `${clarify!.original} — specifically: ${q}` : q;
+    const priorClarification = isClarificationReply ? clarify!.question : undefined;
+    setClarify(null);
+
     const ask = async () => {
       try {
-        const { answer } = await answerLearnerQuestion({
+        const res = await answerLearnerQuestion({
           data: {
             context: {
               institution: INSTITUTION,
@@ -1016,16 +1040,46 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
               previousQuestions,
               learningMode,
               learnerLevel: COURSE,
+              academicLevel: ACADEMIC_LEVEL,
+              priorClarification,
             },
-            question: q,
+            question: effectiveQuestion,
           },
         });
+
+        // ── Teacher needs the learner to clarify ──────────────────────────
+        if (res.clarity === "unclear" && res.clarificationQuestion) {
+          setTeacherState("clarifying");
+          setCaptionText(res.clarificationQuestion);
+          setCaptionSpeaker("AI Teacher");
+          addTranscript("teacher", res.clarificationQuestion);
+          if (learningMode !== "deaf") speak(res.clarificationQuestion);
+          logEvent("Teacher asked for clarification");
+          setClarify({
+            question: res.clarificationQuestion,
+            original: effectiveQuestion,
+            options: res.clarificationOptions ?? [],
+          });
+          // Re-open the question box so the learner can pick/answer the clarification.
+          phaseTimerRef.current = setTimeout(() => {
+            setTeacherState("listening");
+            setQuestionOpen(true);
+          }, Math.min(res.clarificationQuestion.length * 45, 4000));
+          return;
+        }
+
+        // ── Teacher answers (clear or a steered off-topic reply) ──────────
+        const answer = res.answer;
         setTeacherState("answering");
         setCaptionText(answer);
         setCaptionSpeaker("AI Teacher");
         addTranscript("teacher", answer);
+        if (res.saveToNotes) logEvent("Answer saved to notes");
         if (learningMode !== "deaf") speak(answer);
-        phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), 4000);
+        // Offer a natural next step, exactly like a tutor checking in.
+        setFollowUp(res.suggestedFollowUp || "Does that help, or should I show an example?");
+        const dwell = Math.min(Math.max(answer.length * 38, 3000), 9000);
+        phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), dwell);
       } catch {
         const fallback =
           "That's a great question. The key idea is that factoring means finding two numbers that satisfy BOTH conditions at once: they multiply to the constant term and add to the middle coefficient. Look back at the board and check each step against that rule.";
@@ -1037,7 +1091,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       }
     };
     void ask();
-  }, [questionText, addTranscript, logEvent, transcript, writtenLines, currentIndex, currentSection, currentExplanation, learningMode]);
+  }, [questionText, clarify, addTranscript, logEvent, transcript, writtenLines, currentIndex, currentSection, currentExplanation, learningMode]);
 
   const handleQuickAction = useCallback(
     (action: string) => {
@@ -1667,6 +1721,28 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         </div>
       </div>
 
+      {/* ── Follow-up offer ──────────────────────────────────
+          After answering, the teacher checks in like a real tutor:
+          "Does that help?" with one-tap next steps. */}
+      {followUp && !questionOpen && (
+        <div className="vc-followup-bar">
+          <span className="vc-followup-text">{followUp}</span>
+          <div className="vc-followup-actions">
+            <button className="vc-followup-btn vc-followup-btn-primary" onClick={() => { setFollowUp(null); handleQuickAction("Continue"); }}>
+              Continue
+            </button>
+            <button className="vc-followup-btn" onClick={() => { setFollowUp(null); handleQuickAction("Give example"); }}>
+              Give example
+            </button>
+            <button className="vc-followup-btn" onClick={() => { setFollowUp(null); handleQuickAction("Explain simpler"); }}>
+              Explain simpler
+            </button>
+            <button className="vc-followup-btn" onClick={() => { setFollowUp(null); handleAskQuestion(); }}>
+              Ask again
+            </button>
+          </div>
+        </div>
+      )}
       {/* ── Bottom Controls ──────────────────────────────── */}
       <div className="vc-controls">
         {/* Lesson controls */}
@@ -1912,6 +1988,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
           onSubmit={handleSubmitQuestion}
           onClose={() => setQuestionOpen(false)}
           onQuickAction={handleQuickAction}
+          clarify={clarify}
         />
       )}
 
@@ -2540,6 +2617,7 @@ function QuestionModal({
   onSubmit,
   onClose,
   onQuickAction,
+  clarify,
 }: {
   learningMode: LearningMode;
   questionText: string;
@@ -2549,7 +2627,40 @@ function QuestionModal({
   onSubmit: () => void;
   onClose: () => void;
   onQuickAction: (action: string) => void;
+  /** When set, the teacher is asking the learner to clarify a vague question. */
+  clarify?: { question: string; original: string; options: string[] } | null;
 }) {
+  /**
+   * Clarification banner — shown above any mode's question UI when the teacher
+   * has asked the learner to narrow down a vague question. Clicking an option
+   * fills the box; "Type my question" just lets them type freely.
+   */
+  const clarifyBanner = clarify ? (
+    <div className="vc-clarify-banner">
+      <div className="vc-clarify-title">🤔 {clarify.question}</div>
+      {clarify.options.length > 0 && (
+        <div className="vc-clarify-options">
+          {clarify.options.map((opt) => (
+            <button
+              key={opt}
+              className="vc-clarify-option"
+              onClick={() => {
+                if (/type my question/i.test(opt)) {
+                  setQuestionText("");
+                } else {
+                  setQuestionText(opt);
+                  onSubmit();
+                }
+              }}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  ) : null;
+
   // Deaf mode: text-only with extra options
   if (learningMode === "deaf") {
     return (
@@ -2557,6 +2668,7 @@ function QuestionModal({
         <div className="vc-question-card">
           <div className="vc-question-badge">🤟 Deaf Mode</div>
           <div className="vc-question-title">Any question?</div>
+          {clarifyBanner}
           <textarea
             className="vc-question-input"
             rows={3}
@@ -2682,7 +2794,8 @@ function QuestionModal({
     <div className="vc-question-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="vc-question-card">
         <div className="vc-question-badge">❓ Ask Your Teacher</div>
-        <div className="vc-question-title">What is your question?</div>
+        <div className="vc-question-title">{clarify ? "Help me understand" : "What is your question?"}</div>
+        {clarifyBanner}
         <textarea
           className="vc-question-input"
           rows={2}

@@ -426,6 +426,46 @@ export type LearningMode =
   | "extra_support"
   | "challenge";
 
+/**
+ * Academic level — drives the teaching style the AI teacher adopts (vocabulary,
+ * pacing, depth, amount of encouragement). Set per-learner or per-course.
+ */
+export type AcademicLevel =
+  | "elementary"
+  | "secondary"
+  | "college"
+  | "tertiary"
+  | "adult";
+
+/**
+ * Structured response from the AI teacher when a learner asks a question.
+ *
+ * A real tutor does not blindly answer an unclear question — they ask one
+ * clarifying question first. When the question is clear, they answer in
+ * 74–150 words and decide whether to also show it on the board and whether the
+ * answer is worth saving to the learner's notes.
+ */
+export type TeacherAnswer = {
+  /** Whether the learner's question was clear enough to answer directly. */
+  clarity: "clear" | "unclear" | "off_topic";
+  /** When unclear: a single clarifying question to ask the learner. */
+  clarificationQuestion?: string;
+  /** When unclear: quick-pick options that resolve the ambiguity. */
+  clarificationOptions?: string[];
+  /** When clear: the spoken answer (74–150 words), read aloud + captioned. */
+  answer?: string;
+  /** Whether the teacher should also write supporting items on the board. */
+  shouldShowOnBoard: boolean;
+  /** Optional board items to render when shouldShowOnBoard is true. */
+  boardItems?: Array<{ type: string; text: string }>;
+  /** Whether this answer is worth persisting into the learner's notes. */
+  saveToNotes: boolean;
+  /** A short suggested next step the teacher offers ("see an example?"). */
+  suggestedFollowUp: string;
+  /** Where the answer came from. */
+  source: "ai" | "fallback";
+};
+
 export type TeacherVideoState =
   | "preparing"
   | "speaking"
@@ -436,6 +476,7 @@ export type TeacherVideoState =
   | "listening"
   | "thinking"
   | "answering"
+  | "clarifying"
   | "encouraging"
   | "paused"
   | "warning"

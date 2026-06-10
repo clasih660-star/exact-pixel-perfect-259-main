@@ -1393,6 +1393,99 @@
   border-color: #64748b;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Follow-up offer bar — the teacher's "Does that help?" check-in after an
+   answer, with one-tap next steps. Sits under the caption bar.
+   ───────────────────────────────────────────────────────────────────────── */
+.vc-followup-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.16), rgba(99, 102, 241, 0.12));
+  border-top: 1px solid rgba(96, 165, 250, 0.25);
+  flex-shrink: 0;
+  animation: vc-followup-in 0.3s ease both;
+}
+@keyframes vc-followup-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.vc-followup-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #dbe7ff;
+}
+.vc-followup-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.vc-followup-btn {
+  padding: 7px 14px;
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.vc-followup-btn:hover {
+  background: #334155;
+  color: #fff;
+  border-color: #64748b;
+}
+.vc-followup-btn-primary {
+  background: linear-gradient(135deg, #3b5bff, #1d4ed8);
+  border-color: transparent;
+  color: #fff;
+}
+.vc-followup-btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Clarification banner — shown inside the question modal when the teacher asks
+   the learner to narrow a vague question. Feels like a real tutor saying
+   "which part do you mean?".
+   ───────────────────────────────────────────────────────────────────────── */
+.vc-clarify-banner {
+  margin: 4px 0 14px;
+  padding: 14px 16px;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-left: 3px solid #3b5bff;
+}
+.vc-clarify-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #dbe7ff;
+  line-height: 1.4;
+}
+.vc-clarify-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.vc-clarify-option {
+  padding: 8px 14px;
+  background: #1e293b;
+  border: 1px solid #3b5bff;
+  color: #bfdbfe;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.vc-clarify-option:hover {
+  background: #3b5bff;
+  color: #fff;
+}
+
 /* ── Mic active in question ──────────────────────────── */
 .vc-mic-active {
   display: flex;
