@@ -34,6 +34,20 @@ export const startSession = createServerFn({ method: "POST" })
       role: "student",
     });
 
+    // Audit trail: record that the class began.
+    await context.supabase.from("session_events").insert({
+      institution_id: session.institution_id,
+      course_id: session.course_id,
+      lesson_id: session.lesson_id,
+      session_id: session.id,
+      student_id: context.userId,
+      actor_user_id: context.userId,
+      actor_role: "system",
+      event_type: "session_started",
+      event_source: "sessions.startSession",
+      payload_json: {},
+    });
+
     return { session };
   });
 
@@ -64,6 +78,8 @@ export const startOrResumeClassroom = createServerFn({ method: "POST" })
     const courseId = lesson?.course_id ?? data.courseId;
     const institutionId = lesson?.institution_id ?? null;
 
+    if (!institutionId) throw new Error("Lesson is not linked to an institution.");
+
     const { data: session, error } = await context.supabase
       .from("classroom_sessions")
       .insert({
@@ -78,6 +94,21 @@ export const startOrResumeClassroom = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
+
+    if (institutionId) {
+      await context.supabase.from("session_events").insert({
+        institution_id: institutionId,
+        course_id: courseId,
+        lesson_id: data.lessonId,
+        session_id: session.id,
+        student_id: context.userId,
+        actor_user_id: context.userId,
+        actor_role: "system",
+        event_type: "session_started",
+        event_source: "sessions.startOrResumeClassroom",
+        payload_json: {},
+      });
+    }
 
     return { sessionId: session.id, redirectUrl: `/classroom/session/${session.id}` };
   });
@@ -204,10 +235,32 @@ export const endSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
+    const { data: session } = await context.supabase
+      .from("classroom_sessions")
+      .select("institution_id, course_id, lesson_id")
+      .eq("id", data.session_id)
+      .single();
+
     const { error } = await context.supabase
       .from("classroom_sessions")
       .update({ status: "completed", ended_at: new Date().toISOString() })
       .eq("id", data.session_id);
     if (error) throw new Error(error.message);
+
+    if (session) {
+      await context.supabase.from("session_events").insert({
+        institution_id: session.institution_id,
+        course_id: session.course_id,
+        lesson_id: session.lesson_id,
+        session_id: data.session_id,
+        student_id: context.userId,
+        actor_user_id: context.userId,
+        actor_role: "system",
+        event_type: "session_completed",
+        event_source: "sessions.endSession",
+        payload_json: {},
+      });
+    }
+
     return { ok: true };
   });

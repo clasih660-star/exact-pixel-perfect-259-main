@@ -119,6 +119,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
       { label: "Sessions", href: "/teacher/sessions", icon: Video },
       { label: "Resources", href: "/teacher/resources", icon: Folder },
       { label: "Students", href: "/teacher/students", icon: Users },
+      { label: "Supervision", href: "/teacher/supervision", icon: Monitor },
       { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
       { label: "Messages", href: "/teacher/messages", icon: MessageSquare },
       { label: "Settings", href: "/teacher/settings", icon: Settings },

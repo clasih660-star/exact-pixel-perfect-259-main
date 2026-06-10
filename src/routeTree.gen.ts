@@ -41,6 +41,7 @@ import { Route as AuthCompleteProfileRouteImport } from './routes/auth.complete-
 import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
+import { Route as AuthenticatedTeacherSupervisionRouteImport } from './routes/_authenticated/teacher.supervision'
 import { Route as AuthenticatedTeacherStudentsRouteImport } from './routes/_authenticated/teacher.students'
 import { Route as AuthenticatedTeacherSettingsRouteImport } from './routes/_authenticated/teacher.settings'
 import { Route as AuthenticatedTeacherSessionsRouteImport } from './routes/_authenticated/teacher.sessions'
@@ -335,6 +336,12 @@ const ClassroomPreviewLessonIdRoute =
     id: '/classroom/preview/$lessonId',
     path: '/classroom/preview/$lessonId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedTeacherSupervisionRoute =
+  AuthenticatedTeacherSupervisionRouteImport.update({
+    id: '/teacher/supervision',
+    path: '/teacher/supervision',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeacherStudentsRoute =
   AuthenticatedTeacherStudentsRouteImport.update({
@@ -1224,6 +1231,7 @@ export interface FileRoutesByFullPath {
   '/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
   '/teacher/students': typeof AuthenticatedTeacherStudentsRoute
+  '/teacher/supervision': typeof AuthenticatedTeacherSupervisionRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
   '/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
@@ -1389,6 +1397,7 @@ export interface FileRoutesByTo {
   '/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
   '/teacher/students': typeof AuthenticatedTeacherStudentsRoute
+  '/teacher/supervision': typeof AuthenticatedTeacherSupervisionRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
   '/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
@@ -1556,6 +1565,7 @@ export interface FileRoutesById {
   '/_authenticated/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/_authenticated/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
   '/_authenticated/teacher/students': typeof AuthenticatedTeacherStudentsRoute
+  '/_authenticated/teacher/supervision': typeof AuthenticatedTeacherSupervisionRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
   '/_authenticated/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
@@ -1723,6 +1733,7 @@ export interface FileRouteTypes {
     | '/teacher/sessions'
     | '/teacher/settings'
     | '/teacher/students'
+    | '/teacher/supervision'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
     | '/admin/institutions/$institutionId'
@@ -1888,6 +1899,7 @@ export interface FileRouteTypes {
     | '/teacher/sessions'
     | '/teacher/settings'
     | '/teacher/students'
+    | '/teacher/supervision'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
     | '/admin/institutions/$institutionId'
@@ -2054,6 +2066,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teacher/sessions'
     | '/_authenticated/teacher/settings'
     | '/_authenticated/teacher/students'
+    | '/_authenticated/teacher/supervision'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
     | '/_authenticated/admin/institutions/$institutionId'
@@ -2373,6 +2386,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/classroom/preview/$lessonId'
       preLoaderRoute: typeof ClassroomPreviewLessonIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/teacher/supervision': {
+      id: '/_authenticated/teacher/supervision'
+      path: '/teacher/supervision'
+      fullPath: '/teacher/supervision'
+      preLoaderRoute: typeof AuthenticatedTeacherSupervisionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teacher/students': {
       id: '/_authenticated/teacher/students'
@@ -3975,6 +3995,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeacherSessionsRoute: typeof AuthenticatedTeacherSessionsRouteWithChildren
   AuthenticatedTeacherSettingsRoute: typeof AuthenticatedTeacherSettingsRoute
   AuthenticatedTeacherStudentsRoute: typeof AuthenticatedTeacherStudentsRoute
+  AuthenticatedTeacherSupervisionRoute: typeof AuthenticatedTeacherSupervisionRoute
   AuthenticatedStudentAiLessonNewRoute: typeof AuthenticatedStudentAiLessonNewRoute
 }
 
@@ -4072,6 +4093,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedTeacherSessionsRouteWithChildren,
   AuthenticatedTeacherSettingsRoute: AuthenticatedTeacherSettingsRoute,
   AuthenticatedTeacherStudentsRoute: AuthenticatedTeacherStudentsRoute,
+  AuthenticatedTeacherSupervisionRoute: AuthenticatedTeacherSupervisionRoute,
   AuthenticatedStudentAiLessonNewRoute: AuthenticatedStudentAiLessonNewRoute,
 }
 
