@@ -141,7 +141,7 @@ import { Route as AuthenticatedAdminKingpinCoursesCourseIdRouteImport } from './
 import { Route as AuthenticatedAdminInstitutionsInstitutionIdRouteImport } from './routes/_authenticated/admin.institutions.$institutionId'
 import { Route as AuthenticatedTeacherSessionsSessionIdActivityRouteImport } from './routes/_authenticated/teacher.sessions.$sessionId.activity'
 import { Route as AuthenticatedTeacherLessonsLessonIdPreviewRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId.preview'
-import { Route as AuthenticatedTeacherLessonsLessonIdEditRouteImport } from './routes/_authenticated/teacher.lessons.$lessonId.edit'
+import { Route as AuthenticatedTeacherLessonsLessonIdEditRouteImport } from './routes/_authenticated/teacher/lessons/$lessonId/edit'
 import { Route as AuthenticatedTeacherCoursesCourseIdStudentsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.students'
 import { Route as AuthenticatedTeacherCoursesCourseIdMaterialsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.materials'
 import { Route as AuthenticatedTeacherCoursesCourseIdLessonsRouteImport } from './routes/_authenticated/teacher.courses.$courseId.lessons'

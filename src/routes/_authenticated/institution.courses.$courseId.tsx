@@ -2,11 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, BookOpen, Users, Settings as SettingsIcon, FolderUp } from "lucide-react";
+import { ArrowLeft, BookOpen, Users, Settings as SettingsIcon, FolderUp, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
 import { CreateLessonDialog } from "@/components/institution/CreateLessonDialog";
 import { EnrollStudentDialog } from "@/components/institution/EnrollStudentDialog";
+import { MaterialsTabContent } from "@/components/institution/MaterialsTabContent";
+import { LessonGenerationModal } from "@/components/institution/LessonGenerationModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/institution/courses/$cours
 function CourseDetailPage() {
   const { courseId } = Route.useParams();
   const [tab, setTab] = useState("overview");
+  const [genModalOpen, setGenModalOpen] = useState(false);
   const fn = useServerFn(getCourse);
   const q = useQuery({
     queryKey: ["course", courseId],
@@ -73,6 +76,10 @@ function CourseDetailPage() {
             <BookOpen className="h-4 w-4" />
             Lessons
           </TabsTrigger>
+          <TabsTrigger value="materials">
+            <FileText className="h-4 w-4" />
+            Materials
+          </TabsTrigger>
           <TabsTrigger value="enrollments">
             <Users className="h-4 w-4" />
             Enrollments
@@ -118,6 +125,25 @@ function CourseDetailPage() {
           ) : (
             lessons.map((l) => <LessonRow key={l.id} lesson={l} courseId={courseId} />)
           )}
+        </TabsContent>
+
+        <TabsContent value="materials" className="mt-4">
+          <MaterialsTabContent
+            courseId={courseId}
+            institutionId={course.institution_id}
+            onGenerateLessons={() => setGenModalOpen(true)}
+          />
+          <LessonGenerationModal
+            courseId={courseId}
+            courseTitle={course.title}
+            isOpen={genModalOpen}
+            onOpenChange={setGenModalOpen}
+            onSuccess={() => {
+              setGenModalOpen(false);
+              setTab("lessons");
+              q.refetch();
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="enrollments" className="mt-4">
