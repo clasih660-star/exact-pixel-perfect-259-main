@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, Brain, CircleCheck as CheckCircle2, ChevronRight, Clock3, Eye, EyeOff, Circle as HelpCircle, Lightbulb, Mic, MicOff, Notebook, Play, Send, Sparkles, Bubbles as Subtitles, Target, Volume2, VolumeX, Zap, Accessibility, BookOpen, Settings, MessageSquare, Repeat, SkipForward, X } from "lucide-react";
+import { ArrowLeft, Atom, Brain, Calculator, CircleCheck as CheckCircle2, ChevronRight, Clock3, Eye, EyeOff, Feather, Globe, Circle as HelpCircle, Image, Languages, Lightbulb, Map, Mic, MicOff, Music, Notebook, Palette, Play, Send, Sparkles, Bubbles as Subtitles, Target, Volume2, VolumeX, Zap, Accessibility, BookOpen, Settings, MessageSquare, Repeat, SkipForward, X, Beaker } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { speak, stopSpeech, startListening, stopListening } from "@/lib/speech";
-import { DEMO_LESSON, type BoardWriteItem, type QuestionCheckpoint } from "@/lib/lesson-models";
+import { DEMO_LESSON, type BoardWriteItem, type QuestionCheckpoint, type BoardItemType } from "@/lib/lesson-models";
 import { startOrResumeClassroom } from "@/lib/sessions.functions";
 import type { ClassroomContext } from "@/lib/types";
 import "@/styles/classroom.css";
@@ -35,6 +35,49 @@ type ClassroomState = {
 };
 
 const STEP_ORDER = ["welcome", "concept", "worked_example", "guided_practice", "independent_practice", "summary"];
+
+// Subject type for content adaptation
+type SubjectType = "math" | "science" | "language" | "history" | "geography" | "art" | "music" | "ict" | "general";
+
+// Get subject from lesson data
+function getSubjectType(subject: string): SubjectType {
+  const lowerSubject = subject.toLowerCase();
+  if (lowerSubject.includes("math") || lowerSubject.includes("algebra") || lowerSubject.includes("geometry") || lowerSubject.includes("calculus") || lowerSubject.includes("arithmetic")) return "math";
+  if (lowerSubject.includes("science") || lowerSubject.includes("physics") || lowerSubject.includes("chemistry") || lowerSubject.includes("biology")) return "science";
+  if (lowerSubject.includes("english") || lowerSubject.includes("language") || lowerSubject.includes("french") || lowerSubject.includes("spanish") || lowerSubject.includes("literature")) return "language";
+  if (lowerSubject.includes("history") || lowerSubject.includes("civics")) return "history";
+  if (lowerSubject.includes("geography")) return "geography";
+  if (lowerSubject.includes("art") || lowerSubject.includes("drawing")) return "art";
+  if (lowerSubject.includes("music")) return "music";
+  if (lowerSubject.includes("computer") || lowerSubject.includes("ict") || lowerSubject.includes("coding")) return "ict";
+  return "general";
+}
+
+// Subject icon mapping
+const SUBJECT_ICONS: Record<SubjectType, React.ElementType> = {
+  math: Calculator,
+  science: Beaker,
+  language: Languages,
+  history: BookOpen,
+  geography: Map,
+  art: Palette,
+  music: Music,
+  ict: Settings,
+  general: BookOpen,
+};
+
+// Subject color mapping
+const SUBJECT_COLORS: Record<SubjectType, string> = {
+  math: "#7c3aed",
+  science: "#059669",
+  language: "#ea580c",
+  history: "#b45309",
+  geography: "#0891b2",
+  art: "#db2777",
+  music: "#7c3aed",
+  ict: "#0284c7",
+  general: "#64748b",
+};
 
 export function InteractiveClassroomPage({
   classroomContext,
@@ -491,21 +534,37 @@ export function InteractiveClassroomPage({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const subjectType = getSubjectType(lesson.subject);
+  const SubjectIcon = SUBJECT_ICONS[subjectType];
+  const subjectColor = SUBJECT_COLORS[subjectType];
+
   return (
     <div className="classroom-root">
       {/* Header */}
       <header className="classroom-header">
         <Link
           to="/student/dashboard"
-          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Exit
         </Link>
 
         <div className="ml-4 flex-1">
-          <p className="text-xs text-gray-400">{lesson.subject}</p>
-          <h1 className="text-sm font-bold text-gray-900">{lesson.title}</h1>
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+              style={{
+                backgroundColor: `${subjectColor}15`,
+                color: subjectColor,
+                border: `1px solid ${subjectColor}30`,
+              }}
+            >
+              <SubjectIcon className="h-3.5 w-3.5" />
+              {lesson.subject}
+            </span>
+          </div>
+          <h1 className="text-sm font-bold text-gray-900 mt-1">{lesson.title}</h1>
         </div>
 
         <div className="ml-auto flex items-center gap-4">
@@ -644,8 +703,17 @@ export function InteractiveClassroomPage({
           <div className="whiteboard-container">
             {/* Header */}
             <div className="whiteboard-header">
-              <div>
-                <h2 className="whiteboard-title">{currentStep?.title || "Lesson"}</h2>
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-lg"
+                  style={{ backgroundColor: `${subjectColor}15` }}
+                >
+                  <SubjectIcon className="h-4 w-4" style={{ color: subjectColor }} />
+                </div>
+                <div>
+                  <h2 className="whiteboard-title">{currentStep?.title || "Lesson"}</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">{currentStep?.accessibility?.boardDescription || "Learning content"}</p>
+                </div>
               </div>
               <div className="whiteboard-step-badge">
                 <Target className="h-3.5 w-3.5" />
@@ -666,12 +734,13 @@ export function InteractiveClassroomPage({
                   }`}
                 >
                   {item.type === "heading" && <h3 className="font-bold">{item.text}</h3>}
-                  {item.type === "bullet" && <p>• {item.text}</p>}
-                  {item.type === "equation" && <p className="text-center text-xl">{item.text}</p>}
-                  {item.type === "calculation" && <p>{item.text}</p>}
-                  {item.type === "step_number" && <p className="font-bold text-blue-600">{item.text}</p>}
-                  {item.type === "question" && <p className="text-orange-600 font-semibold">{item.text}</p>}
-                  {item.type === "answer" && <p className="text-green-600 font-bold">{item.text}</p>}
+                  {item.type === "bullet" && <p>{item.text}</p>}
+                  {item.type === "equation" && <span>{item.text}</span>}
+                  {item.type === "calculation" && <span>{item.text}</span>}
+                  {item.type === "step_number" && <span>{item.text}</span>}
+                  {item.type === "question" && <span>{item.text}</span>}
+                  {item.type === "answer" && <span>{item.text}</span>}
+                  {item.type === "diagram_label" && <span className="italic text-gray-500">{item.text}</span>}
                 </div>
               ))}
 
@@ -684,7 +753,7 @@ export function InteractiveClassroomPage({
                   </div>
                   <div className="key-concept-text">
                     {currentStep.learnerNotes.keyPoints.map((point, i) => (
-                      <p key={i}>• {point}</p>
+                      <p key={i}>{point}</p>
                     ))}
                   </div>
                 </div>
@@ -1022,9 +1091,25 @@ export function InteractiveClassroomPage({
               <Sparkles className="h-4 w-4" />
               Welcome to Klassruum
             </div>
-            <h2 className="welcome-title">
-              {lesson.title}
-            </h2>
+            <div className="flex items-center gap-3 mt-6 mb-4">
+              <div
+                className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                style={{ backgroundColor: `${subjectColor}18`, border: `2px solid ${subjectColor}30` }}
+              >
+                <SubjectIcon className="h-7 w-7" style={{ color: subjectColor }} />
+              </div>
+              <div>
+                <p
+                  className="text-xs font-semibold uppercase tracking-wide"
+                  style={{ color: subjectColor }}
+                >
+                  {lesson.subject}
+                </p>
+                <h2 className="welcome-title">
+                  {lesson.title}
+                </h2>
+              </div>
+            </div>
             <p className="welcome-subtitle">
               {lesson.objective}
             </p>
