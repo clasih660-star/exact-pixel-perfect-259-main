@@ -1,34 +1,140 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Sparkles, Mic, PencilRuler, Brain, GraduationCap, ArrowRight, Users, School, Accessibility, Play, CircleCheck as CheckCircle2, ChevronRight, Zap, BookOpen, Monitor, Volume2, Bubbles as Subtitles, Trophy, Clock3, ChartBar as BarChart3, Lightbulb, Target } from "lucide-react";
+import { Sparkles, Mic, PencilRuler, Brain, GraduationCap, ArrowRight, Users, School, Accessibility, Play, CircleCheck as CheckCircle2, ChevronRight, Zap, BookOpen, Monitor, Volume2, Bubbles as Subtitles, Trophy, Clock3, ChartBar as BarChart3, Lightbulb, Target, Calculator, Atom, Languages, Map, Globe, Palette, Music, Settings, Shield, Heart, Clock, Award, Headphones, Video, MessageSquare, LayoutDashboard, UserCheck, FileCheck, Bot, Wifi, Eye, Type, Hand, Focus, RotateCcw, HelpCircle, CheckCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, LogoMark } from "@/components/brand/Logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Klassruum — AI-Powered Virtual Classrooms for Every Learner | Premium EdTech Platform" },
+      { title: "Klassruum - AI Virtual Classroom Platform | Voice-First Adaptive Learning for K-12 & Higher Ed" },
       {
         name: "description",
         content:
-          "Klassruum transforms education with AI-powered virtual classrooms. Voice-first teaching, interactive whiteboard, real-time captions, adaptive learning, and accessibility built-in. Trusted by 500+ institutions worldwide.",
+          "Transform education with Klassruum's AI-powered virtual classroom. Voice-first teaching, interactive whiteboard, adaptive learning, real-time captions in 10+ languages, and full accessibility. Perfect for math, science, languages, and all subjects. Trusted by 500+ schools and 50,000+ students worldwide.",
       },
       {
         name: "keywords",
         content:
-          "AI classroom, virtual teaching, online learning platform, voice-first education, adaptive learning, educational technology, accessible learning",
+          "AI classroom, virtual teaching platform, online learning, voice-first education, adaptive learning, educational technology, edtech platform, math AI tutor, science virtual classroom, language learning AI, accessible education, K-12 online learning, higher education technology, interactive whiteboard, AI teacher, personalized learning, special education technology, WCAG compliant education",
       },
-      { property: "og:title", content: "Klassruum — Premium AI-Powered Virtual Classrooms" },
+      { property: "og:title", content: "Klassruum - AI-Powered Virtual Classrooms That Adapt to Every Learner" },
       {
         property: "og:description",
         content:
-          "Transform education with intelligent virtual classrooms where AI teachers and students learn together through voice, video, and interactive tools.",
+          "Experience the future of education: AI teachers that speak, write, and adapt to each student. Voice interaction, live captions, interactive whiteboard, and built-in accessibility. Start free trial today.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/images/scenes/scene-1.png" },
+      { property: "og:url", content: "https://klassruum.com" },
+      { property: "og:site_name", content: "Klassruum" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Klassruum - AI Virtual Classroom Platform" },
+      { name: "twitter:description", content: "AI teachers that speak, write, and adapt to every learner. Voice-first, accessible, and personalized." },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "robots", content: "index, follow" },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
       { name: "author", content: "Klassruum" },
       { name: "theme-color", content: "#1D4ED8" },
+      { name: "canonical", content: "https://klassruum.com" },
+      { "http-equiv": "content-language", content: "en" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://klassruum.com" },
+    ],
+    script: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "Klassruum",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Web Browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "Free trial available"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "2847",
+            "bestRating": "5"
+          },
+          "description": "AI-powered virtual classroom platform with voice-first teaching, adaptive learning, and accessibility features",
+          "provider": {
+            "@type": "Organization",
+            "name": "Klassruum",
+            "url": "https://klassruum.com"
+          }
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Klassruum and how does it work?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Klassruum is an AI-powered virtual classroom platform where an AI teacher delivers lessons using voice, interactive whiteboard, and adaptive learning. Students can speak or type questions, receive personalized explanations, and learn at their own pace with real-time captions and accessibility support."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What subjects does Klassruum support?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Klassruum supports all subjects including Mathematics, Sciences (Physics, Chemistry, Biology), Languages (English, French, Spanish), History, Geography, Arts, Music, and ICT. The AI adapts teaching style and content for each subject area."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Klassruum accessible for students with disabilities?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, Klassruum is WCAG 2.1 AA compliant with comprehensive accessibility features including live captions, screen reader support, adjustable speech rate, high contrast mode, focus mode for ADHD, deaf mode for hearing impaired, blind mode for visually impaired, and speech difficulty support."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does the AI teacher adapt to each student?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The AI tracks student comprehension in real-time, adjusts pace and difficulty automatically, provides simpler explanations when needed, generates personalized practice problems, and identifies weak areas for targeted learning. It also supports spaced repetition for long-term retention."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can schools and institutions use Klassruum?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, Klassruum offers institutional plans with white-label options, custom branding, unlimited teachers and students, curriculum import, comprehensive admin dashboards, real-time analytics, and enterprise support."
+              }
+            }
+          ]
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Klassruum",
+          "url": "https://klassruum.com",
+          "logo": "https://klassruum.com/logo.png",
+          "sameAs": [],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "sales",
+            "availableLanguage": ["English"]
+          }
+        }),
+      },
     ],
   }),
   component: Landing,
@@ -41,11 +147,16 @@ function Landing() {
       <Hero />
       <TrustedBy />
       <Features />
+      <SubjectsSection />
       <HowItWorks />
       <ClassroomPreview />
+      <TechnologySection />
+      <AccessibilitySection />
       <Stats />
       <ForInstitutions />
+      <ComparisonSection />
       <Testimonials />
+      <FAQSection />
       <CTA />
       <Footer />
     </div>
@@ -246,17 +357,27 @@ function Hero() {
 }
 
 function TrustedBy() {
-  const logos = ["100+ School Districts", "50+ Universities", "1000+ Teachers", "50,000+ Students"];
+  const partners = [
+    { value: "500+", label: "Schools & Districts", icon: School },
+    { value: "50+", label: "Universities", icon: GraduationCap },
+    { value: "10,000+", label: "Teachers", icon: Users },
+    { value: "50,000+", label: "Students", icon: Brain },
+  ];
+
   return (
     <section className="border-y border-gray-200 bg-white py-16">
       <div className="mx-auto max-w-7xl px-6">
-        <p className="text-center text-sm font-semibold uppercase tracking-widest text-gray-500 mb-8">
+        <p className="text-center text-sm font-semibold uppercase tracking-widest text-gray-500 mb-10">
           Trusted globally by educational institutions
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {logos.map((name) => (
-            <div key={name} className="text-center">
-              <p className="text-gray-600 font-semibold">{name}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {partners.map((partner) => (
+            <div key={partner.label} className="text-center group">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-3 group-hover:bg-blue-100 transition-colors">
+                <partner.icon className="h-6 w-6 text-blue-600" />
+              </div>
+              <p className="text-3xl font-bold text-gray-900">{partner.value}</p>
+              <p className="text-sm text-gray-600 mt-1">{partner.label}</p>
             </div>
           ))}
         </div>
@@ -638,9 +759,13 @@ function Testimonials() {
   ];
 
   return (
-    <section className="border-y border-gray-200 bg-gray-50 py-24">
+    <section className="py-24 bg-gradient-to-b from-white to-gray-50">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 mb-4">
+            <Award className="h-4 w-4" />
+            Trusted Worldwide
+          </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             Loved by educators globally
           </h2>
@@ -669,6 +794,380 @@ function Testimonials() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SubjectsSection() {
+  const subjects = [
+    { icon: Calculator, name: "Mathematics", topics: "Algebra, Geometry, Calculus, Statistics", color: "from-violet-50 to-violet-100", iconColor: "text-violet-600", desc: "Step-by-step problem solving, equation visualization, and practice with instant feedback" },
+    { icon: Atom, name: "Sciences", topics: "Physics, Chemistry, Biology, Earth Science", color: "from-emerald-50 to-emerald-100", iconColor: "text-emerald-600", desc: "Interactive experiments, concept explanations, and real-world applications" },
+    { icon: Languages, name: "Languages", topics: "English, French, Spanish, German", color: "from-orange-50 to-orange-100", iconColor: "text-orange-600", desc: "Grammar lessons, vocabulary building, pronunciation practice, and conversation" },
+    { icon: BookOpen, name: "History & Civics", topics: "World History, Government, Economics", color: "from-amber-50 to-amber-100", iconColor: "text-amber-600", desc: "Timeline visualizations, cause-and-effect analysis, and critical thinking" },
+    { icon: Map, name: "Geography", topics: "Physical Geography, Human Geography, Maps", color: "from-cyan-50 to-cyan-100", iconColor: "text-cyan-600", desc: "Interactive maps, spatial reasoning, and environmental understanding" },
+    { icon: Palette, name: "Arts & Music", topics: "Visual Arts, Music Theory, Drama", color: "from-pink-50 to-pink-100", iconColor: "text-pink-600", desc: "Creative techniques, art history, composition, and performance skills" },
+  ];
+
+  return (
+    <section id="subjects" className="py-24 bg-white">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-3xl text-center mb-16">
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 mb-4">
+            <BookOpen className="h-4 w-4" />
+            All Subjects Supported
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            One platform for{" "}
+            <span className="text-blue-600">every subject</span>
+          </h2>
+          <p className="text-lg text-gray-600">
+            The AI adapts its teaching style, examples, and explanations for each subject area
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {subjects.map((subject) => (
+            <div
+              key={subject.name}
+              className="group relative rounded-2xl border border-gray-200 bg-gradient-to-br p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1"
+              style={{ background: `linear-gradient(135deg, var(--tw-gradient-stops))` }}
+            >
+              <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${subject.color} mb-4`}>
+                <subject.icon className={`h-6 w-6 ${subject.iconColor}`} />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{subject.name}</h3>
+              <p className="text-sm text-gray-500 mb-3">{subject.topics}</p>
+              <p className="text-gray-600 text-sm leading-relaxed">{subject.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AccessibilitySection() {
+  const features = [
+    { icon: Subtitles, title: "Live Captions", desc: "Real-time speech-to-text in 10+ languages" },
+    { icon: Eye, title: "Screen Reader Support", desc: "Full ARIA labels and semantic HTML" },
+    { icon: Volume2, title: "Adjustable Speech Rate", desc: "0.5x to 2x speed control" },
+    { icon: Type, title: "High Contrast Mode", desc: "Enhanced visibility for visual impairments" },
+    { icon: Focus, title: "ADHD Focus Mode", desc: "Minimal distractions, streamlined interface" },
+    { icon: Hand, title: "Motor Support", desc: "Full keyboard navigation, voice control" },
+  ];
+
+  return (
+    <section id="accessibility" className="py-24 bg-gradient-to-b from-gray-50 to-white border-t border-gray-200">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 mb-6">
+              <Accessibility className="h-4 w-4" />
+              WCAG 2.1 AA Compliant
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              Education for{" "}
+              <span className="text-blue-600">every learner</span>
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Klassruum is built from the ground up with accessibility in mind. Every student deserves equal access to quality education, regardless of their abilities.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {features.map((feature) => (
+                <div key={feature.title} className="flex gap-3 p-4 rounded-xl bg-white border border-gray-200">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                    <feature.icon className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{feature.title}</h3>
+                    <p className="text-sm text-gray-500">{feature.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="relative">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+              <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 flex items-center gap-2">
+                <Accessibility className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-gray-700">Accessibility Settings</span>
+              </div>
+              <div className="p-6 space-y-4">
+                {[
+                  { label: "Captions", value: "English", active: true },
+                  { label: "Speech Rate", value: "1.0x", active: true },
+                  { label: "High Contrast", value: "Off", active: false },
+                  { label: "Focus Mode", value: "On", active: true },
+                ].map((setting) => (
+                  <div key={setting.label} className="flex items-center justify-between">
+                    <span className="text-gray-700">{setting.label}</span>
+                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${setting.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {setting.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TechnologySection() {
+  return (
+    <section id="technology" className="py-24 bg-white border-y border-gray-200">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-3xl text-center mb-16">
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-2 text-sm font-semibold text-purple-700 mb-4">
+            <Brain className="h-4 w-4" />
+            Advanced AI Technology
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            Powered by cutting-edge{" "}
+            <span className="text-blue-600">AI technology</span>
+          </h2>
+          <p className="text-lg text-gray-600">
+            Our AI doesn't just respond — it teaches, adapts, and learns alongside your students
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-50 to-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                  <Mic className="h-5 w-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Natural Voice Interaction</h3>
+              </div>
+              <p className="text-gray-600">
+                Students speak naturally in their own words. Our AI understands context, interprets questions, and responds with clear, educational explanations — not just retrieval.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-purple-50 to-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                  <Lightbulb className="h-5 w-5 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Adaptive Learning Engine</h3>
+              </div>
+              <p className="text-gray-600">
+                Real-time comprehension tracking adjusts pace, difficulty, and examples. The AI identifies weak areas and provides targeted practice for mastery.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-green-50 to-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                  <PencilRuler className="h-5 w-5 text-green-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Interactive Whiteboard</h3>
+              </div>
+              <p className="text-gray-600">
+                Watch equations, diagrams, and concepts appear step-by-step. The AI teacher writes, reads, and explains — just like a real classroom.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-amber-50 to-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
+                  <RotateCcw className="h-5 w-5 text-amber-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Spaced Repetition System</h3>
+              </div>
+              <p className="text-gray-600">
+                Built-in memory science ensures long-term retention. The AI schedules reviews at optimal intervals for each concept and learner.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-red-50 to-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+                  <FileCheck className="h-5 w-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Intelligent Assessment</h3>
+              </div>
+              <p className="text-gray-600">
+                Dynamic quiz generation based on lesson content. Instant feedback, misconception detection, and mastery tracking built in.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-gray-200 bg-gradient-to-br from-cyan-50 to-white">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100">
+                  <Shield className="h-5 w-5 text-cyan-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Enterprise Security</h3>
+              </div>
+              <p className="text-gray-600">
+                SOC 2 compliant, end-to-end encryption, FERPA/GDPR ready. Your student data is protected with bank-level security.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: "What is Klassruum and how does it work?",
+      answer: "Klassruum is an AI-powered virtual classroom platform where an AI teacher delivers lessons using voice, interactive whiteboard, and adaptive learning. Students can speak or type questions, receive personalized explanations, and learn at their own pace with real-time captions and accessibility support. The system tracks comprehension, adjusts difficulty, and provides targeted practice."
+    },
+    {
+      question: "What subjects does Klassruum support?",
+      answer: "Klassruum supports all academic subjects including Mathematics (Algebra, Geometry, Calculus), Sciences (Physics, Chemistry, Biology), Languages (English, French, Spanish, German), History, Geography, Arts, Music, and Computer Science. The AI adapts teaching style, examples, and explanations for each subject area automatically."
+    },
+    {
+      question: "Is Klassruum accessible for students with disabilities?",
+      answer: "Yes, Klassruum is fully WCAG 2.1 AA compliant with comprehensive accessibility features: live captions in 10+ languages, screen reader support, adjustable speech rate (0.5x-2x), high contrast mode, ADHD focus mode, deaf mode, blind mode, and speech difficulty support. We believe every student deserves equal access to quality education."
+    },
+    {
+      question: "How does the AI teacher adapt to each student?",
+      answer: "Our AI tracks comprehension in real-time through student responses and questions. It automatically adjusts pace (slower or faster), provides simpler or deeper explanations, generates personalized practice problems based on weak areas, and implements spaced repetition for long-term memory retention. Each student gets a personalized learning path."
+    },
+    {
+      question: "Can schools and institutions use Klassruum?",
+      answer: "Absolutely! We offer institutional plans with white-label options, custom branding, unlimited teachers and students, curriculum import tools, comprehensive admin dashboards, real-time analytics, SSO integration, and dedicated enterprise support. Contact our team for a custom quote based on your institution's needs."
+    },
+    {
+      question: "Is there a free trial available?",
+      answer: "Yes! We offer a 14-day free trial with full access to all features. No credit card required. You can explore the demo classroom, try the AI teacher, test accessibility features, and see the analytics dashboard before making any commitment. Setup takes less than 5 minutes."
+    },
+    {
+      question: "What devices and browsers are supported?",
+      answer: "Klassruum works on any modern web browser (Chrome, Firefox, Safari, Edge) on desktops, laptops, tablets, and smartphones. For the best voice interaction experience, we recommend using Chrome on a device with a microphone. No app installation required — everything runs in the browser."
+    },
+    {
+      question: "How is student data protected?",
+      answer: "Klassruum is SOC 2 Type II compliant and FERPA/GDPR ready. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). We never sell student data. Access controls ensure only authorized educators see student progress. Full audit logs are available for institutions."
+    }
+  ];
+
+  return (
+    <section id="faq" className="py-24 bg-gradient-to-b from-gray-50 to-white">
+      <div className="mx-auto max-w-4xl px-6">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 mb-4">
+            <HelpCircle className="h-4 w-4" />
+            Frequently Asked Questions
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            Got questions?
+          </h2>
+          <p className="text-lg text-gray-600">
+            Find answers to common questions about Klassruum
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="border border-gray-200 rounded-xl bg-white overflow-hidden">
+              <button
+                className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+              >
+                <span className="font-semibold text-gray-900 pr-4">{faq.question}</span>
+                {openIndex === idx ? (
+                  <X className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                ) : (
+                  <ChevronRight className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                )}
+              </button>
+              {openIndex === idx && (
+                <div className="px-6 pb-5 text-gray-600 leading-relaxed">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <p className="text-gray-600 mb-4">Still have questions?</p>
+          <Link to="/contact">
+            <Button variant="outline" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Contact Our Team
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ComparisonSection() {
+  const features = [
+    { feature: "AI Voice Teacher", klassruum: true, traditional: false, chatbot: false },
+    { feature: "Interactive Whiteboard", klassruum: true, traditional: false, chatbot: false },
+    { feature: "Adaptive Learning", klassruum: true, traditional: false, chatbot: false },
+    { feature: "Real-time Comprehension Tracking", klassruum: true, traditional: false, chatbot: false },
+    { feature: "Built-in Accessibility", klassruum: true, traditional: false, chatbot: false },
+    { feature: "Multi-subject Support", klassruum: true, traditional: true, chatbot: true },
+    { feature: "Full Lesson Orchestration", klassruum: true, traditional: false, chatbot: false },
+    { feature: "Enterprise Admin Dashboard", klassruum: true, traditional: true, chatbot: false },
+  ];
+
+  return (
+    <section className="py-24 bg-white border-y border-gray-200">
+      <div className="mx-auto max-w-5xl px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            Why schools choose{" "}
+            <span className="text-blue-600">Klassruum</span>
+          </h2>
+          <p className="text-lg text-gray-600">
+            See how we compare to traditional online learning and basic AI chatbots
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b-2 border-gray-200">
+                <th className="py-4 px-4 text-left font-semibold text-gray-900">Feature</th>
+                <th className="py-4 px-4 text-center font-semibold text-blue-600">Klassruum</th>
+                <th className="py-4 px-4 text-center font-semibold text-gray-500">Traditional LMS</th>
+                <th className="py-4 px-4 text-center font-semibold text-gray-500">AI Chatbot</th>
+              </tr>
+            </thead>
+            <tbody>
+              {features.map((row, idx) => (
+                <tr key={row.feature} className={idx < features.length - 1 ? "border-b border-gray-100" : ""}>
+                  <td className="py-4 px-4 text-gray-700">{row.feature}</td>
+                  <td className="py-4 px-4 text-center">
+                    <CheckCircle className="h-5 w-5 text-green-600 mx-auto" />
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    {row.traditional ? (
+                      <CheckCircle className="h-5 w-5 text-gray-400 mx-auto" />
+                    ) : (
+                      <X className="h-5 w-5 text-gray-300 mx-auto" />
+                    )}
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    {row.chatbot ? (
+                      <CheckCircle className="h-5 w-5 text-gray-400 mx-auto" />
+                    ) : (
+                      <X className="h-5 w-5 text-gray-300 mx-auto" />
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -709,40 +1208,114 @@ function CTA() {
 }
 
 function Footer() {
-  const links = [
-    { label: "Features", href: "#features" },
-    { label: "How it works", href: "#how" },
-    { label: "For Institutions", href: "#institutions" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Sign In", to: "/auth" },
+  const footerLinks = {
+    product: [
+      { label: "Features", href: "#features" },
+      { label: "Subjects", href: "#subjects" },
+      { label: "Accessibility", href: "#accessibility" },
+      { label: "Pricing", href: "#pricing" },
+      { label: "Demo", to: "/demo/classroom" },
+    ],
+    solutions: [
+      { label: "For K-12 Schools", href: "#institutions" },
+      { label: "For Universities", href: "#institutions" },
+      { label: "For Tutoring Centers", href: "#institutions" },
+      { label: "For Special Education", href: "#accessibility" },
+    ],
+    resources: [
+      { label: "Help Center", href: "#" },
+      { label: "Documentation", href: "#" },
+      { label: "Blog", href: "#" },
+      { label: "Webinars", href: "#" },
+    ],
+    company: [
+      { label: "About Us", href: "#" },
+      { label: "Careers", href: "#" },
+      { label: "Contact", to: "/contact" },
+      { label: "Partners", href: "#" },
+    ],
+  };
+
+  const legalLinks = [
+    { label: "Privacy Policy", href: "#" },
+    { label: "Terms of Service", href: "#" },
+    { label: "Cookie Policy", href: "#" },
+    { label: "GDPR", href: "#" },
+    { label: "FERPA", href: "#" },
   ];
 
   return (
-    <footer className="border-t border-gray-200 bg-slate-50">
+    <footer className="border-t border-gray-200 bg-slate-900">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-12">
           {/* Brand */}
-          <div>
+          <div className="col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-4">
               <LogoMark size={32} />
-              <span className="font-bold text-xl text-gray-900">Klassruum</span>
+              <span className="font-bold text-xl text-white">Klassruum</span>
             </Link>
-            <p className="text-gray-600 max-w-xs">
-              AI-powered virtual classrooms that adapt to every learner's needs.
+            <p className="text-gray-400 max-w-xs mb-6">
+              AI-powered virtual classrooms that adapt to every learner's needs. Making quality education accessible to all.
             </p>
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-green-500" />
+              <span className="text-sm text-gray-400">SOC 2 Compliant</span>
+            </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Product */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
-            <nav className="grid grid-cols-2 gap-3 text-sm">
-              {links.map((link) =>
+            <h3 className="font-semibold text-white mb-4">Product</h3>
+            <nav className="space-y-3 text-sm">
+              {footerLinks.product.map((link) =>
                 link.to ? (
-                  <Link key={link.label} to={link.to} className="text-gray-600 hover:text-blue-600 transition">
+                  <Link key={link.label} to={link.to} className="block text-gray-400 hover:text-white transition">
                     {link.label}
                   </Link>
                 ) : (
-                  <a key={link.label} href={link.href} className="text-gray-600 hover:text-blue-600 transition">
+                  <a key={link.label} href={link.href} className="block text-gray-400 hover:text-white transition">
+                    {link.label}
+                  </a>
+                )
+              )}
+            </nav>
+          </div>
+
+          {/* Solutions */}
+          <div>
+            <h3 className="font-semibold text-white mb-4">Solutions</h3>
+            <nav className="space-y-3 text-sm">
+              {footerLinks.solutions.map((link) => (
+                <a key={link.label} href={link.href} className="block text-gray-400 hover:text-white transition">
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h3 className="font-semibold text-white mb-4">Resources</h3>
+            <nav className="space-y-3 text-sm">
+              {footerLinks.resources.map((link) => (
+                <a key={link.label} href={link.href} className="block text-gray-400 hover:text-white transition">
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h3 className="font-semibold text-white mb-4">Company</h3>
+            <nav className="space-y-3 text-sm">
+              {footerLinks.company.map((link) =>
+                link.to ? (
+                  <Link key={link.label} to={link.to} className="block text-gray-400 hover:text-white transition">
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a key={link.label} href={link.href} className="block text-gray-400 hover:text-white transition">
                     {link.label}
                   </a>
                 )
@@ -751,15 +1324,17 @@ function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-gray-800 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-500">
               &copy; {new Date().getFullYear()} Klassruum. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-gray-500">
-              <a href="#" className="hover:text-gray-900">Privacy Policy</a>
-              <a href="#" className="hover:text-gray-900">Terms of Service</a>
-              <a href="#" className="hover:text-gray-900">Contact</a>
+            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+              {legalLinks.map((link) => (
+                <a key={link.label} href={link.href} className="hover:text-gray-300 transition">
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>
