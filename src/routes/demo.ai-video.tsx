@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 /**
  * demo.ai-video.tsx
  *
@@ -5,13 +6,17 @@
  * Access at: http://localhost:8081/demo/ai-video
  */
 
-import { createFileRoute } from '@tanstack/react-router'
 import { AIVideoClassroom } from "@/components/classroom/AIVideoClassroom";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export const Route = createFileRoute('/demo/ai-video')({
   component: AIVideoDemoPage,
 })
 
 function AIVideoDemoPage() {
-  return <AIVideoClassroom autoPlay />;
+  return (
+    <ErrorBoundary>
+      <AIVideoClassroom autoPlay />
+    </ErrorBoundary>
+  );
 }

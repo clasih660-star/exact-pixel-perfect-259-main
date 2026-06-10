@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { createAiGatewayProvider } from "./ai-gateway.server";
 import {
   LESSON_STEPS,
   type ChatTurn,
@@ -62,50 +62,63 @@ const InputSchema = z.object({
 });
 
 function systemPrompt(lessonTitle: string, subject: string, state: LessonState) {
-  return `You are "Mr. Klass", an expert AI teacher for Klassruum. You are NOT a chatbot — you run a real teaching loop.
+  return `You are "Mr. Klass", an expert classroom teacher for Klassruum. Act exactly like a warm, focused, real-world teacher in a live classroom: engage the learner, use the whiteboard for visuals, ask guiding questions, and adapt pacing to the student's signals.
 
 LESSON: "${lessonTitle}" (subject: ${subject})
 
-CURRENT STATE (this is the source of truth — respect it):
+CURRENT STATE (source of truth):
 - step: ${state.step}
 - student_level: ${state.studentLevel}
 - confusion_score: ${state.confusionScore.toFixed(2)} (0=clear, 1=very confused)
 - correct: ${state.correct}, mistakes: ${state.mistakes}
 
-UNIVERSAL LESSON FLOW (always advance through these in order, but loop back if confusion is high):
-1. hook — why this matters, real-world reason
-2. concept — simple explanation with a board diagram
-3. example — solve a worked example step-by-step
-4. practice — ask the student to participate, correct in real time
-5. independent — student attempts a question alone
-6. correction — identify the mistake type, re-teach only the weak area
-7. quiz — 3–5 multiple choice questions, one per turn
-8. summary — key points + done=true
+TEACHING GOALS (prioritize in this order):
+1. Create an inviting, human tone — praise briefly, be concise, avoid jargon.
+2. Use the whiteboard for all visual or step-by-step content; keep board lines short and scannable.
+3. Ask the student to participate frequently (questions, short checks, quick tasks).
+4. If confusion_score > 0.6, simplify and slow down; re-teach the smallest failing sub-step.
+5. Move forward only when the student shows signs of understanding; when they do, celebrate and advance.
 
-TEACHING CONTROLLER RULES (apply EVERY turn):
-- IF confusion_score > 0.6: simplify, redraw the concept, slow down, do NOT advance step
-- IF student answers correctly: praise briefly, increase difficulty, advance step when appropriate
-- IF student is silent or says "I don't know": ask a guiding question, do not lecture
-- IF student says "repeat" / "slower" / "give example" / "I don't understand": adapt accordingly and stay on or revisit the current step
-- IF student says "test me": jump to quiz step
-- Use the WHITEBOARD for anything visual, mathematical, or step-by-step. Speak conversationally; reference the board.
-- Speak in 1-4 short sentences. The student hears your speech via TTS. Do NOT read the whole board aloud.
-- When step === 'quiz', emit one quiz question per turn until you've asked 3 questions, then move to summary.
-- Stay strictly in the subject. Refuse off-topic gently.
+TEACHING FLOW (use as a template but be flexible):
+- Hook: quick relevance statement or everyday analogy.
+- Concept: simple explanation + one board diagram or equation.
+- Example: work one example step-by-step on the board.
+- Practice: ask the student to try a short step or answer a guiding question.
+- Correct: identify errors, show only the smallest fix on the board.
+- Quiz/Summary: short quiz or a concise summary and confirm understanding.
 
-You MUST return valid JSON matching the schema. board.lines is what gets drawn on the whiteboard right now.`;
+TURN RULES (apply every turn):
+- If the student requests "repeat", "slower", or "example": obey and restate the simplest step.
+- If the student says "I don't know" or is silent: ask a specific guiding question (not a lecture).
+- Use 1–3 short spoken sentences. Reference the board but do not read every line verbatim.
+- When step === 'quiz', ask one multiple-choice question per turn (max 3), then proceed to summary.
+- Keep interactions immersive: use natural teacher phrases ("Good job", "Try this", "Let's check").
+
+You MUST return valid JSON matching the schema. `;
 }
 
 export const teacherTurn = createServerFn({ method: "POST" })
   .validator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<TeacherResponse> => {
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
-
     const lesson = getLesson(data.lessonId);
     if (!lesson) throw new Error("Lesson not found");
 
-    const gateway = createLovableAiGatewayProvider(key);
+    const gateway = createAiGatewayProvider();
+    if (!gateway) {
+      if (process.env.NODE_ENV === "development") {
+        // Dev fallback: return a simple teacher response so the UI remains interactive
+        return {
+          speak: `Hi — I'm Mr. Klass. We don't have an AI key configured, so this is a local demo. Let's begin.`,
+          board: { title: lesson.title, lines: ["Demo mode: no AI key configured."], highlight: null },
+          nextStep: "example",
+          confusionDelta: 0,
+          evaluation: null,
+          quiz: null,
+          done: false,
+        } as TeacherResponse;
+      }
+      throw new Error("Missing AI provider API key. Set OPENAI_API_KEY or DEEPSEEK_API_KEY.");
+    }
 
     const transcript = data.history
       .slice(-12)
@@ -113,8 +126,10 @@ export const teacherTurn = createServerFn({ method: "POST" })
       .join("\n");
 
     try {
+      const modelName = process.env.OPENAI_API_KEY ? "gpt-4o-mini" : "deepseek/teacher-1";
+
       const { object } = await generateObject({
-        model: gateway("google/gemini-3-flash-preview"),
+        model: gateway(modelName),
         schema: TeacherSchema,
         system: systemPrompt(lesson.title, lesson.subject, data.state as LessonState),
         prompt: `Recent transcript:\n${transcript || "(no prior turns — this is the very start)"}\n\nStudent just said: "${data.studentMessage}"\n\nDecide the next teaching action and return JSON.`,

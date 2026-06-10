@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { RouteStubPage } from "@/components/route/RouteStubPage";
+import { PlatformAdminDashboard } from "@/components/dashboard/platform/PlatformAdminDashboard";
 
 export const Route = createFileRoute("/_authenticated/admin/dashboard")({
-  component: () => (
-    <RouteStubPage
-      title="Platform Dashboard"
-      description="Overview of the Klassruum platform"
-      role="Platform Admin"
-      items={[]}
-    />
-  ),
+  component: PlatformAdminDashboard,
+  head: () => ({
+    meta: [
+      { title: "Platform Dashboard — Klassruum" },
+      { name: "description", content: "Platform administration and monitoring" },
+    ],
+  }),
 });

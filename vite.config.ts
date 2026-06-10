@@ -12,4 +12,36 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Split recharts into its own chunk (it pulls in d3 which is large)
+            if (id.includes("node_modules/recharts") || id.includes("node_modules/d3-") || id.includes("node_modules/victory-")) {
+              return "vendor-charts";
+            }
+            // Split all @radix-ui/* into one chunk
+            if (id.includes("node_modules/@radix-ui")) {
+              return "vendor-radix";
+            }
+            // Split the heavy classroom engine files into their own chunk
+            if (
+              id.includes("AIVideoClassroom") ||
+              id.includes("VideoClassroomPage") ||
+              id.includes("InteractiveClassroomPage") ||
+              id.includes("classroom.engine") ||
+              id.includes("classroom.reducer")
+            ) {
+              return "classroom-engine";
+            }
+            // Supabase client
+            if (id.includes("node_modules/@supabase")) {
+              return "vendor-supabase";
+            }
+          },
+        },
+      },
+    },
+  },
 });

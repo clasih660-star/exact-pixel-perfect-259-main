@@ -14,30 +14,20 @@ import { Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/brand/Logo";
 import "../../styles/video-classroom.css";
 import "../../styles/classroom-premium.css";
-import {
-  quadraticTeachingSequence,
-  LESSON_TITLE,
-  LESSON_OPENING_NARRATIVE,
-  FULL_LEARNER_NOTES,
-  LESSON_EQUATION,
-} from "@/lib/demo-lesson-real-teacher";
-import {
-  LESSON_GOAL,
-  LESSON_WHY_IT_MATTERS,
-  PREREQUISITE_CHECK,
-  SECTION_GOALS,
-  SECTION_RECAPS,
-  THINKING_PAUSES,
-  CONFIDENCE_OPTIONS,
-  MIDDLE_QUESTION,
-  EXIT_REFLECTION,
-  type ConfidenceOption,
-} from "@/lib/lesson-teaching-moments";
 import type { MathTeachingItem } from "@/lib/lesson-models";
 import type { LearningMode, TeacherVideoState, TranscriptEntry } from "@/lib/types";
-import { speak } from "@/lib/speech";
+import type {
+  ClassroomLessonContent,
+  ClassroomConfidenceOption,
+} from "@/lib/classroom-content";
+import { buildDemoLessonContent } from "@/lib/classroom-content.demo";
+import { speak, startListening, stopListening } from "@/lib/speech";
 import { answerLearnerQuestion } from "@/lib/classroom-ai.functions";
+import { recordSessionEvent } from "@/lib/events.functions";
 import { applyAccessibility, loadAccessibility, prefsForMode } from "@/lib/accessibility";
+import { InlineEngagementArea } from "./InlineEngagementArea";
+import { ClassroomNotesPanel } from "./ClassroomNotesPanel";
+import type { EngagementPrompt } from "@/lib/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -89,20 +79,7 @@ interface LearningResults {
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TEACHER_NAME = "Ms. Ada";
-const TEACHER_IMAGE = "/images/teachers/woman.png";
-/** The AI teacher's gender drives the speech voice (female teacher → female
- *  voice, male teacher → male voice). Ms. Ada is female. */
-const TEACHER_VOICE: "female" | "male" = "female";
-const INSTITUTION = "Demo Academy";
-const COURSE = "Mathematics Form 2";
-const LESSON_SUBJECT = "Quadratic Equations";
-const STORAGE_KEY = "klassruum_demo_progress";
-/**
- * Academic level for this classroom — drives the AI teacher's vocabulary,
- * pacing, depth, and amount of encouragement. "Form 2" maps to secondary.
- */
-const ACADEMIC_LEVEL = "secondary" as const;
+const STORAGE_KEY_PREFIX = "klassruum_progress_";
 
 /**
  * Course type drives how a classroom is presented. The system decides this
@@ -124,8 +101,6 @@ function detectCourseType(subject: string, course: string): CourseType {
   return "mathematics";
 }
 
-const LESSON_COURSE_TYPE: CourseType = detectCourseType(LESSON_SUBJECT, COURSE);
-
 const COURSE_TYPE_META: Record<CourseType, { label: string; icon: string; hasVisual: boolean; visualTitle: string }> = {
   mathematics: { label: "Mathematics", icon: "📐", hasVisual: true, visualTitle: "Graph & Strategy" },
   science: { label: "Science", icon: "🔬", hasVisual: true, visualTitle: "Illustration" },
@@ -146,58 +121,10 @@ const LESSON_PLAN_SECTIONS = [
 
 type LessonSectionKey = (typeof LESSON_PLAN_SECTIONS)[number]["key"];
 
-/** First board index that belongs to each teaching section, for jump-to-section
- *  navigation from the sidebar lesson plan. */
-const SECTION_START_INDEX: Partial<Record<LessonSectionKey, number>> = {
-  welcome: 0,
-  concept: 1,
-  worked_example: 3,
-  summary: 7,
-};
-
 const SPEED_MAP: Record<string, number> = {
   slow: 40,
   normal: 25,
   fast: 15,
-};
-
-const PRACTICE_PROBLEMS: PracticeProblem[] = [
-  {
-    equation: "x² + 7x + 10 = 0",
-    question: "What two numbers multiply to 10 and add to 7?",
-    correctAnswer: "2,5",
-    hint: "Think: what pairs multiply to 10? (1,10), (2,5). Which pair adds to 7?",
-    hints: [
-      "Look at the constant term: 10. We need two numbers that multiply to it.",
-      "Factor pairs of 10 are (1, 10) and (2, 5).",
-      "Which pair adds to 7? Check: 2 + 5 = 7.",
-    ],
-    misconception: {
-      answer: "1,10",
-      note: "Good attempt — 1 and 10 multiply to 10, but they add to 11, not 7. We need both conditions to be true.",
-    },
-  },
-  {
-    equation: "x² + 6x + 8 = 0",
-    question: "What two numbers multiply to 8 and add to 6?",
-    correctAnswer: "2,4",
-    hint: "Think: what pairs multiply to 8? (1,8), (2,4). Which pair adds to 6?",
-    hints: [
-      "Look at the constant term: 8. We need two numbers that multiply to it.",
-      "Factor pairs of 8 are (1, 8) and (2, 4).",
-      "Which pair adds to 6? Check: 2 + 4 = 6.",
-    ],
-    misconception: {
-      answer: "1,8",
-      note: "Good attempt — 1 and 8 multiply to 8, but they add to 9, not 6. We need both conditions to be true.",
-    },
-  },
-];
-
-const EXIT_TICKET_QUESTION = {
-  question: "Which two numbers multiply to 6 and add to 5?",
-  correctAnswer: "2,3",
-  options: ["1, 6", "2, 3", "3, 3", "2, 4"],
 };
 
 const QUICK_ACTIONS = [
@@ -226,9 +153,85 @@ const LEARNING_MODES: { value: LearningMode; label: string; icon: string }[] = [
 
 interface Props {
   autoPlay?: boolean;
+  /**
+   * The lesson the classroom teaches. Defaults to the quadratic-equations demo so
+   * existing demo/marketing routes keep working unchanged. Real classroom routes
+   * pass a lesson loaded from the database (see `loadClassroomLesson`).
+   */
+  content?: ClassroomLessonContent;
+  /**
+   * Real classroom_sessions id backing this lesson. When present, key learning
+   * events (started, questions, completion) are persisted to the database so
+   * institutions get real learning evidence. Omitted for the demo.
+   */
+  sessionId?: string;
+  /** Called when the learner ends the lesson (e.g. to navigate away). */
+  onExit?: () => void;
 }
 
-export function AIVideoClassroom({ autoPlay = false }: Props) {
+export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit }: Props) {
+  // The lesson content this classroom teaches. Memoised so the demo bundle is
+  // built once and the teaching sequence reference stays stable across renders.
+  const lesson = useMemo(() => content ?? buildDemoLessonContent(), [content]);
+  const sequence = lesson.sequence;
+  const practiceProblems = lesson.practiceProblems;
+
+  // Per-lesson identity (replaces the old module-level demo constants).
+  const TEACHER_NAME = lesson.teacher.name;
+  const TEACHER_IMAGE = lesson.teacher.image;
+  const TEACHER_VOICE = lesson.teacher.voice;
+  const INSTITUTION = lesson.institution;
+  const COURSE = lesson.course;
+  const LESSON_SUBJECT = lesson.subject;
+  const LESSON_TITLE = lesson.title;
+  const LESSON_EQUATION = lesson.equation ?? "";
+  const LESSON_OPENING_NARRATIVE = lesson.openingNarrative;
+  const FULL_LEARNER_NOTES = lesson.learnerNotes;
+  const ACADEMIC_LEVEL = lesson.academicLevel;
+  const LESSON_COURSE_TYPE = useMemo(
+    () => detectCourseType(lesson.subject, lesson.course),
+    [lesson.subject, lesson.course],
+  );
+  // Per-lesson localStorage key so different lessons don't clobber each other.
+  const STORAGE_KEY = STORAGE_KEY_PREFIX + lesson.lessonId;
+  // Board-index → section key map for the lesson-plan jump navigation.
+  const SECTION_START_INDEX = useMemo(() => {
+    const map: Partial<Record<LessonSectionKey, number>> = {};
+    for (const stop of lesson.sectionStops) {
+      if (map[stop.key as LessonSectionKey] === undefined) {
+        map[stop.key as LessonSectionKey] = stop.startIndex;
+      }
+    }
+    return map;
+  }, [lesson.sectionStops]);
+
+  // Teaching-moment content aliases (was module-level demo constants). Some are
+  // optional for real generated lessons — the flow guards on them being present.
+  const SECTION_GOALS = lesson.sectionGoals;
+  const SECTION_RECAPS = lesson.sectionRecaps;
+  const THINKING_PAUSES = lesson.thinkingPauses;
+  const MIDDLE_QUESTION = lesson.middleQuestion;
+  const EXIT_REFLECTION = lesson.exitReflection;
+  const CONFIDENCE_OPTIONS = lesson.confidenceOptions;
+  const EXIT_TICKET_QUESTION = lesson.exitTicket;
+
+  // Where the timed teaching-moment interjections fire. Derived from the lesson
+  // so real lessons (with arbitrary section boundaries) behave sensibly; for the
+  // demo these resolve to the original hardwired indices (3 and 6).
+  const RECAP_AT_INDEX = useMemo(() => {
+    const we = lesson.sectionStops.find((s) => s.key === "worked_example");
+    return we && we.startIndex > 0 ? we.startIndex : -1;
+  }, [lesson.sectionStops]);
+  const MIDDLE_QUESTION_AT_INDEX = useMemo(
+    () => (lesson.sequence.length >= 4 ? Math.floor(lesson.sequence.length / 2) : -1),
+    [lesson.sequence.length],
+  );
+  // Rough lesson-length estimate for the start screen (teach + practice).
+  const estimatedMinutes = useMemo(
+    () => Math.max(5, Math.round((lesson.sequence.length * 1.2 + lesson.practiceProblems.length * 2 + 3))),
+    [lesson.sequence.length, lesson.practiceProblems.length],
+  );
+
   // ── Core State ────────────────────────────────────────
   const [started, setStarted] = useState(false);
   const [phase, setPhase] = useState<TeachingPhase>("idle");
@@ -249,6 +252,17 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const [isWriting, setIsWriting] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
 
+  // Live "key points" for the right rail — the summary-worthy lines written so
+  // far (headings, concepts, instructions, answers). Most-recent first, capped.
+  // Declared here (before any early return) so hook order stays stable.
+  const boardKeyPoints = useMemo(() => {
+    return writtenLines
+      .filter((l) => ["concept", "instruction", "answer", "question", "equation"].includes(l.type))
+      .map((l) => l.boardText)
+      .filter(Boolean)
+      .slice(-6);
+  }, [writtenLines]);
+
   // ── Explanation State ─────────────────────────────────
   const [currentExplanation, setCurrentExplanation] = useState<MathTeachingItem | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -261,6 +275,8 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   // ── Transcript State ──────────────────────────────────
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [transcriptOpen, setTranscriptOpen] = useState(false);
+  /** Whether the live caption bar is shown (toggled by the CC control). */
+  const [captionsOn, setCaptionsOn] = useState(true);
 
   // ── Notes State ───────────────────────────────────────
   const [notesOpen, setNotesOpen] = useState(false);
@@ -277,6 +293,10 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const [clarify, setClarify] = useState<{ question: string; original: string; options: string[] } | null>(null);
   /** A short follow-up offer shown after an answer ("Want an example?"). */
   const [followUp, setFollowUp] = useState<string | null>(null);
+  /** Active speech recognizer while the learner asks a question by voice. */
+  const recognizerRef = useRef<ReturnType<typeof startListening>>(null);
+  /** Pending raise-hand auto-transition timers (cancelled if the hand is lowered). */
+  const raiseHandTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // ── Practice State ────────────────────────────────────
   const [practiceOpen, setPracticeOpen] = useState(false);
@@ -336,6 +356,20 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     }));
   }, []);
 
+  /** Persist a learning event to the database (best-effort, fire-and-forget).
+   *  No-ops for the demo / when there is no real session backing the lesson. */
+  const recordEvent = useCallback(
+    (eventType: string, payload?: Record<string, unknown>) => {
+      if (!sessionId) return;
+      recordSessionEvent({
+        data: { session_id: sessionId, event_type: eventType, actor_role: "student", payload },
+      }).catch(() => {
+        /* best-effort: never block the lesson on telemetry */
+      });
+    },
+    [sessionId],
+  );
+
   // Index we should resume writing from once an interjection is resolved
   const pendingNextIndexRef = useRef<number | null>(null);
   // Track which one-time interjections have already fired
@@ -345,11 +379,12 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   const progress = useMemo(() => {
     if (phase === "complete" || completionOpen) return 100;
     if (phase === "exit_ticket") return 90;
-    if (phase === "practice") return 70 + (practiceIndex / PRACTICE_PROBLEMS.length) * 20;
-    return Math.round(((currentIndex + 1) / quadraticTeachingSequence.length) * 70);
+    if (phase === "practice") return 70 + (practiceIndex / practiceProblems.length) * 20;
+    return Math.round(((currentIndex + 1) / sequence.length) * 70);
   }, [currentIndex, phase, completionOpen, practiceIndex]);
 
-  // Map board index to lesson section
+  // Map board index to lesson section (driven by the lesson's section stops, so
+  // it works for the demo and any real generated lesson alike).
   useEffect(() => {
     if (phase === "complete" || completionOpen) { setCurrentSection("complete"); return; }
     if (phase === "exit_ticket") { setCurrentSection("exit_ticket"); return; }
@@ -357,12 +392,14 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       setCurrentSection(practiceMode === "guided" ? "guided_practice" : "independent_practice");
       return;
     }
-    if (currentIndex <= 0) { setCurrentSection("welcome"); return; }
-    if (currentIndex <= 2) { setCurrentSection("concept"); return; }
-    if (currentIndex <= 5) { setCurrentSection("worked_example"); return; }
-    if (currentIndex <= 7) { setCurrentSection("summary"); return; }
-    setCurrentSection("worked_example");
-  }, [currentIndex, phase, completionOpen, practiceMode]);
+    // Find the last section stop at or before the current board index.
+    let key: LessonSectionKey = "welcome";
+    for (const stop of lesson.sectionStops) {
+      if (currentIndex >= stop.startIndex) key = stop.key as LessonSectionKey;
+      else break;
+    }
+    setCurrentSection(key);
+  }, [currentIndex, phase, completionOpen, practiceMode, lesson.sectionStops]);
 
   // ── Save/Load Progress ────────────────────────────────
   const saveProgress = useCallback(() => {
@@ -430,6 +467,8 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     return () => {
       if (writingTimerRef.current) clearTimeout(writingTimerRef.current);
       if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+      raiseHandTimersRef.current.forEach(clearTimeout);
+      stopListening(recognizerRef.current);
     };
   }, []);
 
@@ -645,6 +684,11 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         logEvent("Thinking pause");
         phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 6000);
       } else if (kind === "middle_question") {
+        // Only ask if the lesson carries an authored multiple-choice check.
+        if (!MIDDLE_QUESTION) {
+          resumeAfterInterjectionRef.current();
+          return;
+        }
         if (learningMode !== "blind") {
           setMiddleQuestionOpen(true);
         }
@@ -687,16 +731,20 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
     setTeacherState("preparing");
     if (pending === -1) {
-      // Sentinel: proceed to guided practice
-      phaseTimerRef.current = setTimeout(() => startPractice("guided", seq), 800);
+      // Sentinel: proceed to guided practice (or the exit reflection when the
+      // lesson carries no practice problems).
+      phaseTimerRef.current = setTimeout(() => {
+        if (practiceProblems.length > 0) startPractice("guided", seq);
+        else setReflectionOpen(true);
+      }, 800);
       return;
     }
     phaseTimerRef.current = setTimeout(() => {
       if (seq === sequenceRef.current) {
-        writeOnBoard(quadraticTeachingSequence[pending], seq, pending);
+        writeOnBoard(sequence[pending], seq, pending);
       }
     }, 500);
-  }, [writeOnBoard, startPractice]);
+  }, [writeOnBoard, startPractice, practiceProblems.length, sequence]);
 
   /** Advance to next board item, inserting teaching moments at boundaries.
    *  `idx` is the index that just finished (threaded, never stale). */
@@ -708,20 +756,25 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       setShowExplanation(false);
       setShowWarning(false);
 
-      if (nextIdx >= quadraticTeachingSequence.length) {
-        // End of teaching → confidence check, then guided practice
+      if (nextIdx >= sequence.length) {
+        // End of teaching → confidence check, then guided practice (or, when the
+        // lesson has no practice problems, straight to the exit reflection).
         if (!firedInterjectionsRef.current.has("confidence_final")) {
           firedInterjectionsRef.current.add("confidence_final");
           openInterjection("confidence", -1);
           return;
         }
-        phaseTimerRef.current = setTimeout(() => startPractice("guided", seq), 1000);
+        if (practiceProblems.length > 0) {
+          phaseTimerRef.current = setTimeout(() => startPractice("guided", seq), 1000);
+        } else {
+          phaseTimerRef.current = setTimeout(() => setReflectionOpen(true), 1000);
+        }
         return;
       }
 
       // ── Teaching-moment schedule (each fires once). When auto-mode is on
       // (default, accessibility-friendly), non-blocking moments self-resume. ──
-      if (nextIdx === 3 && !firedInterjectionsRef.current.has("recap_concept")) {
+      if (RECAP_AT_INDEX >= 0 && nextIdx === RECAP_AT_INDEX && !firedInterjectionsRef.current.has("recap_concept")) {
         firedInterjectionsRef.current.add("recap_concept");
         openInterjection("recap", nextIdx, "concept");
         return;
@@ -734,16 +787,16 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         openInterjection("thinking_pause", nextIdx);
         return;
       }
-      if (nextIdx === 6 && !firedInterjectionsRef.current.has("middle_question")) {
+      if (MIDDLE_QUESTION && nextIdx === MIDDLE_QUESTION_AT_INDEX && !firedInterjectionsRef.current.has("middle_question")) {
         firedInterjectionsRef.current.add("middle_question");
         openInterjection("middle_question", nextIdx);
         return;
       }
 
-      const pause = quadraticTeachingSequence[nextIdx].pauseAfter ?? 800;
+      const pause = sequence[nextIdx].pauseAfter ?? 800;
       phaseTimerRef.current = setTimeout(() => {
         if (seq === sequenceRef.current) {
-          writeOnBoard(quadraticTeachingSequence[nextIdx], seq, nextIdx);
+          writeOnBoard(sequence[nextIdx], seq, nextIdx);
         }
       }, pause);
     },
@@ -768,17 +821,22 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
    *  popup, so blind learners are never stuck waiting for a click. */
   const beginTeaching = useCallback(() => {
     const seq = ++sequenceRef.current;
-    const intro = PREREQUISITE_CHECK.review;
-    setTeacherState("explaining");
-    setCaptionText(intro);
-    setCaptionSpeaker("AI Teacher");
-    addTranscript("teacher", intro);
-    if (learningMode !== "deaf") speak(intro, undefined, undefined, TEACHER_VOICE);
-    logEvent("Prerequisite reminder (auto)");
-    phaseTimerRef.current = setTimeout(() => {
-      if (seq === sequenceRef.current) writeOnBoard(quadraticTeachingSequence[0], seq, 0);
-    }, 6000);
-  }, [addTranscript, learningMode, logEvent, writeOnBoard]);
+    const intro = lesson.prerequisiteReview;
+    if (intro) {
+      setTeacherState("explaining");
+      setCaptionText(intro);
+      setCaptionSpeaker("AI Teacher");
+      addTranscript("teacher", intro);
+      if (learningMode !== "deaf") speak(intro, undefined, undefined, TEACHER_VOICE);
+      logEvent("Prerequisite reminder (auto)");
+      phaseTimerRef.current = setTimeout(() => {
+        if (seq === sequenceRef.current) writeOnBoard(sequence[0], seq, 0);
+      }, 6000);
+    } else {
+      // No prerequisite review for this lesson → start writing right away.
+      writeOnBoard(sequence[0], seq, 0);
+    }
+  }, [addTranscript, learningMode, logEvent, writeOnBoard, lesson.prerequisiteReview, sequence, TEACHER_VOICE]);
 
   /** Thinking pause buttons (Continue / Read again / I need help). */
   const handleThinkingPause = useCallback(
@@ -803,7 +861,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
   /** Confidence check answered → record learning data, then continue. */
   const handleConfidence = useCallback(
-    (opt: ConfidenceOption) => {
+    (opt: ClassroomConfidenceOption) => {
       setResults((prev) => ({
         ...prev,
         confidenceChecks: [...prev.confidenceChecks, { section: currentSection, level: opt.value }],
@@ -824,12 +882,16 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   /** Required middle question answered → feedback (with misconception watch). */
   const handleMiddleAnswer = useCallback(
     (answer: string) => {
+      if (!MIDDLE_QUESTION) {
+        resumeAfterInterjection();
+        return;
+      }
       const correct = answer === MIDDLE_QUESTION.correct;
-      const isMisconception = answer === MIDDLE_QUESTION.misconception.answer;
+      const isMisconception = answer === MIDDLE_QUESTION.misconception?.answer;
       const text = correct
         ? MIDDLE_QUESTION.feedbackCorrect
         : isMisconception
-          ? MIDDLE_QUESTION.misconception.note
+          ? MIDDLE_QUESTION.misconception!.note
           : MIDDLE_QUESTION.feedbackIncorrect;
 
       setResults((prev) => ({
@@ -874,10 +936,11 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setWrittenLines([]);
     setCurrentWritingText("");
     logEvent("Lesson started");
+    recordEvent("session_started", { lessonTitle: LESSON_TITLE, learningMode });
 
     // Auto-start teaching (no blocking popup — accessible for blind learners)
     phaseTimerRef.current = setTimeout(() => beginTeaching(), 4000);
-  }, [addTranscript, learningMode, logEvent, beginTeaching]);
+  }, [addTranscript, learningMode, logEvent, beginTeaching, recordEvent, LESSON_TITLE]);
 
   const handlePause = useCallback(() => {
     if (isPaused) {
@@ -906,7 +969,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setCaptionText("Replaying lesson from the beginning...");
     setCaptionSpeaker("AI Teacher");
 
-    writeOnBoard(quadraticTeachingSequence[0], seq, 0);
+    writeOnBoard(sequence[0], seq, 0);
   }, [clearTimers, writeOnBoard]);
 
   const handleReplayStep = useCallback(() => {
@@ -921,7 +984,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setCaptionText("Replaying current step...");
     setCaptionSpeaker("AI Teacher");
 
-    writeOnBoard(quadraticTeachingSequence[currentIndex], seq, currentIndex);
+    writeOnBoard(sequence[currentIndex], seq, currentIndex);
   }, [currentIndex, clearTimers, writeOnBoard]);
 
   /** Jump to a section from the sidebar lesson plan. Completed and the current
@@ -938,7 +1001,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       clearTimers();
       const seq = ++sequenceRef.current;
       // Rebuild the board up to (but not including) the target, then teach it.
-      setWrittenLines(quadraticTeachingSequence.slice(0, targetIdx));
+      setWrittenLines(sequence.slice(0, targetIdx));
       setCurrentWritingText("");
       setShowExplanation(false);
       setShowWarning(false);
@@ -947,7 +1010,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       setCaptionText(`Going to ${LESSON_PLAN_SECTIONS[sectionOrder].label}…`);
       setCaptionSpeaker("AI Teacher");
       logEvent(`Jumped to section: ${key}`);
-      writeOnBoard(quadraticTeachingSequence[targetIdx], seq, targetIdx);
+      writeOnBoard(sequence[targetIdx], seq, targetIdx);
     },
     [currentSection, clearTimers, writeOnBoard, logEvent],
   );
@@ -982,7 +1045,21 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setResults((prev) => ({ ...prev, score }));
     setCompletionOpen(true);
     addTranscript("system", `Lesson ended with score: ${score}/100`);
-  }, [clearTimers, addTranscript, results, startTimeRef]);
+
+    // Persist the full learning-evidence summary for this session.
+    recordEvent("session_completed", {
+      score,
+      timeMinutes,
+      questionsAsked: results.questionsAsked,
+      raisedHands: results.raisedHands,
+      practiceAttempts: results.practiceAttempts,
+      practiceCorrect: results.practiceCorrect,
+      hintsUsed: results.hintsUsed,
+      confidenceChecks: results.confidenceChecks.length,
+      misconceptionsDetected: results.misconceptionsDetected,
+      middleQuestionCorrect: results.middleQuestionCorrect,
+    });
+  }, [clearTimers, addTranscript, results, startTimeRef, recordEvent]);
 
   // ── Question handlers ─────────────────────────────────
   const handleAskQuestion = useCallback(() => {
@@ -992,6 +1069,39 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setCaptionSpeaker("AI Teacher");
   }, []);
 
+  /** Toggle voice capture for asking a question. Transcribes speech into the
+   *  question box so the learner can review and send (works in standard and
+   *  blind modes; deaf mode stays text-only). */
+  const toggleMic = useCallback(() => {
+    if (learningMode === "deaf") return;
+    if (isListening) {
+      stopListening(recognizerRef.current);
+      recognizerRef.current = null;
+      setIsListening(false);
+      return;
+    }
+    setQuestionOpen(true);
+    setTeacherState("listening");
+    setCaptionText("Listening… ask your question now.");
+    setCaptionSpeaker("AI Teacher");
+    setIsListening(true);
+    recognizerRef.current = startListening(
+      (transcript, isFinal) => {
+        setQuestionText(transcript);
+        if (isFinal) {
+          stopListening(recognizerRef.current);
+          recognizerRef.current = null;
+          setIsListening(false);
+        }
+      },
+      () => {
+        setIsListening(false);
+        setCaptionText("Voice input isn't available here — please type your question.");
+      },
+      () => setIsListening(false),
+    );
+  }, [isListening, learningMode]);
+
   const handleSubmitQuestion = useCallback(() => {
     const q = questionText.trim();
     if (!q) return;
@@ -1000,6 +1110,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     const isClarificationReply = clarify !== null;
     if (!isClarificationReply) {
       setResults((prev) => ({ ...prev, questionsAsked: prev.questionsAsked + 1 }));
+      recordEvent("question_asked", { question: q });
     }
     logEvent(isClarificationReply ? `Learner clarified: ${q}` : `Learner asked: ${q}`);
     setQuestionOpen(false);
@@ -1013,7 +1124,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     // real tutor who won't guess at a vague question.
     const boardItem =
       writtenLines[writtenLines.length - 1]?.boardText ??
-      quadraticTeachingSequence[currentIndex]?.boardText;
+      sequence[currentIndex]?.boardText;
     const previousQuestions = transcript
       .filter((t) => t.role === "student")
       .map((t) => t.text)
@@ -1038,6 +1149,9 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
               teacherExplanation: currentExplanation?.teacherExplanation,
               learnerNotes: FULL_LEARNER_NOTES.slice(0, 600),
               previousQuestions,
+              // Ground answers in the institution's own approved material (RAG),
+              // so the AI teacher does not drift into general knowledge.
+              materialContext: lesson.materialContext,
               learningMode,
               learnerLevel: COURSE,
               academicLevel: ACADEMIC_LEVEL,
@@ -1082,7 +1196,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), dwell);
       } catch {
         const fallback =
-          "That's a great question. The key idea is that factoring means finding two numbers that satisfy BOTH conditions at once: they multiply to the constant term and add to the middle coefficient. Look back at the board and check each step against that rule.";
+          "That's a great question. Let's connect it back to what we're doing in this step — look carefully at what's currently on the board, and check each part against the idea we just covered. If it still feels unclear, raise your hand and we'll work through another example together.";
         setTeacherState("answering");
         setCaptionText(fallback);
         addTranscript("teacher", fallback);
@@ -1091,7 +1205,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       }
     };
     void ask();
-  }, [questionText, clarify, addTranscript, logEvent, transcript, writtenLines, currentIndex, currentSection, currentExplanation, learningMode]);
+  }, [questionText, clarify, addTranscript, logEvent, transcript, writtenLines, currentIndex, currentSection, currentExplanation, learningMode, recordEvent]);
 
   const handleQuickAction = useCallback(
     (action: string) => {
@@ -1113,22 +1227,81 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         return;
       }
       if (action === "Explain simpler" || action === "Give example" || action === "I don't understand") {
-        setTeacherState("explaining");
-        setCaptionText(
+        // Route through the real, lesson-grounded AI teacher so the response is
+        // correct for ANY subject (not a hardcoded maths example).
+        const mapped =
           action === "Give example"
-            ? "Here's another example: x² + 5x + 6. We need numbers that multiply to 6 (the last number) and add to 5 (the middle number)."
-            : "Let me put it more simply: We need two numbers. They must multiply to give the last number. They must also add to give the middle number.",
-        );
-        addTranscript("teacher", "Simpler explanation provided.");
+            ? "Can you give me another example of what we are doing in this step?"
+            : action === "Explain simpler"
+              ? "Can you explain this current step more simply?"
+              : "I don't understand this step. Can you explain it a different way?";
+        setResults((prev) => ({ ...prev, questionsAsked: prev.questionsAsked + 1 }));
+        setTeacherState("thinking");
+        setCaptionText("Let me think about how best to explain that…");
+        setCaptionSpeaker("AI Teacher");
+        logEvent(`Quick action: ${action}`);
+
+        const boardItem =
+          writtenLines[writtenLines.length - 1]?.boardText ?? sequence[currentIndex]?.boardText;
+        void (async () => {
+          try {
+            const res = await answerLearnerQuestion({
+              data: {
+                context: {
+                  institution: INSTITUTION,
+                  course: COURSE,
+                  lessonTitle: LESSON_TITLE,
+                  currentSection,
+                  currentBoardItem: boardItem,
+                  teacherExplanation: currentExplanation?.teacherExplanation,
+                  learnerNotes: FULL_LEARNER_NOTES.slice(0, 600),
+                  materialContext: lesson.materialContext,
+                  learningMode,
+                  academicLevel: ACADEMIC_LEVEL,
+                },
+                question: mapped,
+              },
+            });
+            const answer = res.answer || res.clarificationQuestion || "Let's look at this step again together.";
+            setTeacherState("answering");
+            setCaptionText(answer);
+            setCaptionSpeaker("AI Teacher");
+            addTranscript("teacher", answer);
+            if (learningMode !== "deaf") speak(answer, undefined, undefined, TEACHER_VOICE);
+            setFollowUp(res.suggestedFollowUp || "Does that help, or should I show another example?");
+            const dwell = Math.min(Math.max(answer.length * 38, 3000), 9000);
+            phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), dwell);
+          } catch {
+            // If the AI is unavailable, simply re-teach the current step.
+            handleReplayStep();
+          }
+        })();
         return;
       }
     },
-    [addTranscript, handleReplayStep],
+    [
+      addTranscript,
+      handleReplayStep,
+      writtenLines,
+      sequence,
+      currentIndex,
+      currentSection,
+      currentExplanation,
+      learningMode,
+      lesson.materialContext,
+      INSTITUTION,
+      COURSE,
+      LESSON_TITLE,
+      FULL_LEARNER_NOTES,
+      ACADEMIC_LEVEL,
+      TEACHER_VOICE,
+      logEvent,
+    ],
   );
 
   // ── Practice handlers ─────────────────────────────────
   const handlePracticeSubmit = useCallback(() => {
-    const problem = PRACTICE_PROBLEMS[practiceIndex];
+    const problem = practiceProblems[practiceIndex];
     if (!problem) return;
 
     const norm = (s: string) =>
@@ -1164,7 +1337,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     }
 
     setTimeout(() => {
-      if (practiceIndex < PRACTICE_PROBLEMS.length - 1) {
+      if (practiceIndex < practiceProblems.length - 1) {
         setPracticeIndex((i) => i + 1);
         setPracticeAnswer("");
         setPracticeFeedback(null);
@@ -1190,17 +1363,22 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   // ── Exit ticket handler ───────────────────────────────
   const handleExitTicketSubmit = useCallback(
     (answer: string) => {
-      const isCorrect = answer.replace(/\s/g, "") === EXIT_TICKET_QUESTION.correctAnswer;
+      if (!EXIT_TICKET_QUESTION) {
+        setExitTicketOpen(false);
+        setReflectionOpen(true);
+        return;
+      }
+      const norm = (s: string) => s.replace(/\s/g, "").toLowerCase();
+      const isCorrect = norm(answer) === norm(EXIT_TICKET_QUESTION.correct);
       setExitTicketAnswer(answer);
       setExitTicketFeedback(isCorrect ? "correct" : "incorrect");
 
       addTranscript("student", answer);
       logEvent(`Exit ticket: ${answer} (${isCorrect ? "correct" : "incorrect"})`);
-      if (isCorrect) {
-        addTranscript("teacher", "Correct! Two and three multiply to six and add to five.");
-      } else {
-        addTranscript("teacher", "Good effort. The correct answer is 2 and 3: 2 × 3 = 6 and 2 + 3 = 5.");
-      }
+      addTranscript(
+        "teacher",
+        isCorrect ? EXIT_TICKET_QUESTION.feedbackCorrect : EXIT_TICKET_QUESTION.feedbackIncorrect,
+      );
 
       // After the exit ticket, ask for a reflection before completing
       setTimeout(() => {
@@ -1249,7 +1427,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
     phaseTimerRef.current = setTimeout(() => {
       if (seq === sequenceRef.current) {
-        writeOnBoard(quadraticTeachingSequence[0], seq, 0);
+        writeOnBoard(sequence[0], seq, 0);
       }
     }, 3000);
   }, [addTranscript, learningMode, writeOnBoard]);
@@ -1259,6 +1437,123 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
     setSavedProgress(null);
     handleStartLesson();
   }, [handleStartLesson]);
+
+  // ── Inline engagement (non-modal) ─────────────────────
+  // Derive a single inline prompt from the existing interjection state. These
+  // used to be modal overlays; now they render in the engagement area under the
+  // whiteboard, so they never trap or interrupt the learner.
+  const engagement = useMemo<EngagementPrompt | null>(() => {
+    if (recapOpen && SECTION_RECAPS[recapOpen]) {
+      return {
+        kind: "recap",
+        title: SECTION_RECAPS[recapOpen].title,
+        bodyList: SECTION_RECAPS[recapOpen].points,
+        actions: [{ id: "recap:resume", label: "Ready to continue →", primary: true }],
+      };
+    }
+    if (thinkingPauseText) {
+      return {
+        kind: "thinking_pause",
+        title: thinkingPauseText,
+        actions: [
+          { id: "pause:continue", label: "Continue", primary: true },
+          { id: "pause:repeat", label: "Read again" },
+          { id: "pause:help", label: "I need help" },
+        ],
+      };
+    }
+    if (middleQuestionOpen && MIDDLE_QUESTION) {
+      return {
+        kind: "middle_question",
+        title: MIDDLE_QUESTION.question,
+        actions: MIDDLE_QUESTION.options.map((opt) => ({ id: `middle:${opt}`, label: opt })),
+        feedback: middleFeedback
+          ? { tone: middleFeedback.correct ? "correct" : "incorrect", text: middleFeedback.text }
+          : undefined,
+      };
+    }
+    if (confidenceOpen) {
+      return {
+        kind: "confidence_check",
+        title: "How confident are you with this so far?",
+        body: "This is learning data, not a grade.",
+        actions: CONFIDENCE_OPTIONS.map((opt) => ({ id: `conf:${opt.value}`, label: `${opt.emoji} ${opt.label}` })),
+      };
+    }
+    if (reflectionOpen) {
+      return {
+        kind: "exit_reflection",
+        title: EXIT_REFLECTION.question,
+        actions: EXIT_REFLECTION.options.map((opt) => ({ id: `reflect:${opt}`, label: opt })),
+      };
+    }
+    if (followUp) {
+      return {
+        kind: "after_answer",
+        title: followUp,
+        actions: [
+          { id: "after:continue", label: "Continue", primary: true },
+          { id: "after:example", label: "Another example" },
+          { id: "after:simpler", label: "Explain simpler" },
+          { id: "after:ask", label: "Ask again" },
+        ],
+      };
+    }
+    return null;
+  }, [
+    recapOpen,
+    thinkingPauseText,
+    middleQuestionOpen,
+    middleFeedback,
+    confidenceOpen,
+    reflectionOpen,
+    followUp,
+    SECTION_RECAPS,
+    MIDDLE_QUESTION,
+    CONFIDENCE_OPTIONS,
+    EXIT_REFLECTION,
+  ]);
+
+  const onEngagementAction = useCallback(
+    (actionId: string) => {
+      const [group, value] = actionId.split(/:(.+)/);
+      switch (group) {
+        case "recap":
+          resumeAfterInterjection();
+          break;
+        case "pause":
+          handleThinkingPause(value as "continue" | "repeat" | "help");
+          break;
+        case "middle":
+          if (!middleFeedback) handleMiddleAnswer(value);
+          break;
+        case "conf": {
+          const opt = CONFIDENCE_OPTIONS.find((o) => o.value === value);
+          if (opt) handleConfidence(opt);
+          break;
+        }
+        case "reflect":
+          handleReflection(value);
+          break;
+        case "after":
+          setFollowUp(null);
+          if (value === "ask") handleAskQuestion();
+          else handleQuickAction(value === "continue" ? "Continue" : value === "example" ? "Give example" : "Explain simpler");
+          break;
+      }
+    },
+    [
+      resumeAfterInterjection,
+      handleThinkingPause,
+      handleMiddleAnswer,
+      middleFeedback,
+      handleConfidence,
+      handleReflection,
+      handleAskQuestion,
+      handleQuickAction,
+      CONFIDENCE_OPTIONS,
+    ],
+  );
 
   if (!started) {
     // Resume prompt if there's saved progress
@@ -1314,14 +1609,14 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
               <span className="vc-start-goal-icon">🎯</span>
               <div>
                 <div className="vc-start-goal-label">Lesson goal</div>
-                <div className="vc-start-goal-text">{LESSON_GOAL}</div>
+                <div className="vc-start-goal-text">{lesson.lessonGoal}</div>
               </div>
             </div>
             <div className="vc-start-goal-row">
               <span className="vc-start-goal-icon">💡</span>
               <div>
                 <div className="vc-start-goal-label">Why this matters</div>
-                <div className="vc-start-goal-text">{LESSON_WHY_IT_MATTERS}</div>
+                <div className="vc-start-goal-text">{lesson.whyItMatters}</div>
               </div>
             </div>
           </div>
@@ -1329,7 +1624,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
             <span className="vc-start-meta-item">{INSTITUTION}</span>
             <span className="vc-start-meta-item">{COURSE}</span>
             <span className="vc-start-meta-item">{LESSON_SUBJECT}</span>
-            <span className="vc-start-meta-item">~25 min</span>
+            <span className="vc-start-meta-item">~{estimatedMinutes} min</span>
           </div>
           <div className="vc-start-meta" style={{ marginBottom: 16 }}>
             {LEARNING_MODES.slice(0, 4).map((m) => (
@@ -1363,7 +1658,8 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
   // Render: Main Classroom
   // ──────────────────────────────────────────────────────
 
-  const currentItem = quadraticTeachingSequence[currentIndex];
+  const currentItem = sequence[currentIndex];
+
   const isSpeaking =
     teacherState === "speaking" ||
     teacherState === "explaining" ||
@@ -1489,7 +1785,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
           <div className="vc-teacher-step-info">
             <span className="vc-teacher-step-label">Current Step</span>
             <span className="vc-teacher-step-value">
-              {currentIndex + 1} of {quadraticTeachingSequence.length}
+              {currentIndex + 1} of {sequence.length}
               {currentItem ? ` — ${currentItem.type.replace(/_/g, " ")}` : ""}
             </span>
             <div className="vc-teacher-step-bar">
@@ -1619,6 +1915,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                   item={item}
                   lineIndex={idx + 1}
                   isActive={idx === writtenLines.length - 1 && !isWriting}
+                  courseType={LESSON_COURSE_TYPE}
                 />
               ))}
 
@@ -1627,87 +1924,60 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                 <div className="vc-board-line vc-board-line-active">
                   <span className="vc-board-line-number">{writtenLines.length + 1}</span>
                   <div className="vc-handwriting-container">
-                    <span className={`vc-handwriting-text ${false ? "vc-handwriting-done" : ""}`}>
+                    <span className="vc-handwriting-text">
                       {currentWritingText}
                     </span>
-                    <span className="vc-hand-cursor">✋</span>
+                    <MarkerPen />
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Explanation Panel */}
-            {showExplanation && currentExplanation && (
-              <div className="vc-explanation-panel">
-                <div className="vc-explanation-section">
-                  <div className="vc-explanation-label">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                    Teacher's Explanation
-                  </div>
-                  <div className="vc-explanation-spoken">
-                    "{currentExplanation.exactSpokenText}"
-                  </div>
-                  <div className="vc-explanation-deep">{currentExplanation.teacherExplanation}</div>
-                  {currentExplanation.whyThisStepMatters && (
-                    <div className="vc-explanation-why">
-                      <strong>Why this matters:</strong> {currentExplanation.whyThisStepMatters}
-                    </div>
-                  )}
-                  <span
-                    className="vc-step-type-badge"
-                    style={{
-                      background:
-                        currentExplanation.type === "equation"
-                          ? "#eff6ff"
-                          : currentExplanation.type === "calculation"
-                            ? "#eef2ff"
-                            : currentExplanation.type === "answer"
-                              ? "#f0fdf4"
-                              : currentExplanation.type === "instruction"
-                                ? "#faf5ff"
-                                : "#f8fafc",
-                      color:
-                        currentExplanation.type === "equation"
-                          ? "#1e40af"
-                          : currentExplanation.type === "calculation"
-                            ? "#4338ca"
-                            : currentExplanation.type === "answer"
-                              ? "#059669"
-                              : currentExplanation.type === "instruction"
-                                ? "#6d28d9"
-                                : "#475569",
-                    }}
-                  >
-                    {currentExplanation.type}
-                  </span>
-                </div>
-
-                {showWarning && currentExplanation.commonMistake && (
-                  <div className="vc-warning-banner">
-                    <div className="vc-warning-header">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                        <line x1="12" y1="9" x2="12" y2="13" />
-                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                      </svg>
-                      Common Mistake
-                    </div>
-                    <div className="vc-warning-text">{currentExplanation.commonMistake}</div>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Markers + eraser resting in the board's tray */}
+            <div className="vc-whiteboard-tray" aria-hidden>
+              <span className="vc-tray-marker vc-tray-marker-blue" />
+              <span className="vc-tray-marker vc-tray-marker-black" />
+              <span className="vc-tray-marker vc-tray-marker-red" />
+              <span className="vc-tray-eraser" />
+            </div>
           </div>
-          {COURSE_TYPE_META[LESSON_COURSE_TYPE].hasVisual && (
-            <SubjectVisual courseType={LESSON_COURSE_TYPE} />
-          )}
+          {/* Right rail — present for every subject:
+              • the demo math lesson shows its live graph + worked strategy
+              • theory / any generated lesson shows live key points as they're written
+              The classroom decides automatically from the course type. */}
+          <ClassroomNotesPanel
+            learnerNotes={FULL_LEARNER_NOTES}
+            keyPoints={boardKeyPoints}
+            transcript={transcript}
+            progress={progress}
+            currentSectionLabel={SECTION_GOALS[currentSection] ?? currentSection}
+            resources={
+              lesson.lessonId === "demo" && LESSON_COURSE_TYPE === "mathematics" ? (
+                <SubjectVisual
+                  courseType={LESSON_COURSE_TYPE}
+                  isDemo
+                  keyPoints={boardKeyPoints}
+                  lessonTitle={LESSON_TITLE}
+                  currentGoal={SECTION_GOALS[currentSection]}
+                />
+              ) : undefined
+            }
+          />
           </div>
         </div>
       </div>
 
+      {/* ── Inline engagement area (replaces engagement popups) ──────────
+          The teacher's checks, recaps, hints, and after-answer prompts render
+          here — non-modal, screen-reader announced, keyboard friendly. */}
+      <InlineEngagementArea
+        prompt={engagement}
+        learningMode={learningMode}
+        onAction={onEngagementAction}
+      />
+
       {/* ── Caption Bar ──────────────────────────────────── */}
+      {(captionsOn || learningMode === "deaf") && (
       <div className="vc-caption-bar">
         <div className="vc-caption-bar-inner">
           {captionText ? (
@@ -1719,30 +1989,19 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
             <span className="vc-caption-empty">Captions will appear here</span>
           )}
         </div>
-      </div>
-
-      {/* ── Follow-up offer ──────────────────────────────────
-          After answering, the teacher checks in like a real tutor:
-          "Does that help?" with one-tap next steps. */}
-      {followUp && !questionOpen && (
-        <div className="vc-followup-bar">
-          <span className="vc-followup-text">{followUp}</span>
-          <div className="vc-followup-actions">
-            <button className="vc-followup-btn vc-followup-btn-primary" onClick={() => { setFollowUp(null); handleQuickAction("Continue"); }}>
-              Continue
-            </button>
-            <button className="vc-followup-btn" onClick={() => { setFollowUp(null); handleQuickAction("Give example"); }}>
-              Give example
-            </button>
-            <button className="vc-followup-btn" onClick={() => { setFollowUp(null); handleQuickAction("Explain simpler"); }}>
-              Explain simpler
-            </button>
-            <button className="vc-followup-btn" onClick={() => { setFollowUp(null); handleAskQuestion(); }}>
-              Ask again
-            </button>
-          </div>
+        <div className="vc-caption-footer">
+          <span>
+            <span className="vc-caption-footer-label">Captions</span>
+            <span className="vc-caption-footer-link">English</span>
+          </span>
+          <span>
+            <span className="vc-caption-footer-label">Speed</span>
+            <span className="vc-caption-footer-link">1.0x</span>
+          </span>
         </div>
+      </div>
       )}
+
       {/* ── Bottom Controls ──────────────────────────────── */}
       <div className="vc-controls">
         {/* Lesson controls */}
@@ -1796,17 +2055,25 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                 setResults((prev) => ({ ...prev, raisedHands: prev.raisedHands + 1 }));
                 logEvent("Learner raised hand");
                 addTranscript("system", "Learner raised hand");
-                // Auto-acknowledge after 3 seconds
-                setTimeout(() => {
-                  setRaiseHand("acknowledged");
-                  setCaptionText("I see your hand! Let me finish this step, then I'll take your question.");
-                  addTranscript("teacher", "I see your hand! What would you like to ask?");
+                // Auto-acknowledge, then open the question box. Track the timers so
+                // lowering the hand cancels them (no state bounce / race).
+                raiseHandTimersRef.current.push(
                   setTimeout(() => {
-                    setRaiseHand("resolved");
-                    handleAskQuestion();
-                  }, 3000);
-                }, 2000);
+                    setRaiseHand("acknowledged");
+                    setCaptionText("I see your hand! Let me finish this step, then I'll take your question.");
+                    addTranscript("teacher", "I see your hand! What would you like to ask?");
+                    raiseHandTimersRef.current.push(
+                      setTimeout(() => {
+                        setRaiseHand("resolved");
+                        handleAskQuestion();
+                      }, 3000),
+                    );
+                  }, 2000),
+                );
               } else {
+                // Lower hand: cancel any pending auto-transitions.
+                raiseHandTimersRef.current.forEach(clearTimeout);
+                raiseHandTimersRef.current = [];
                 setRaiseHand("idle");
               }
             }}
@@ -1814,17 +2081,19 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
             <span style={{ fontSize: "0.85rem" }}>✋</span>
             {raiseHand === "idle" ? "Raise Hand" : raiseHand === "raised" ? "Raised..." : "Hand Seen"}
           </button>
-          <button className="vc-control-btn" onClick={() => {
-            if (learningMode !== "deaf") {
-              setIsListening(!isListening);
-            }
-          }}>
+          <button
+            className={`vc-control-btn ${isListening ? "vc-control-btn-active" : ""}`}
+            onClick={toggleMic}
+            disabled={learningMode === "deaf"}
+            aria-pressed={isListening}
+            aria-label={isListening ? "Stop voice input" : "Ask by voice"}
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
               <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
               <line x1="12" y1="19" x2="12" y2="23" />
             </svg>
-            Mic
+            {isListening ? "Listening…" : "Mic"}
           </button>
         </div>
 
@@ -1832,7 +2101,13 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
         {/* Learning support */}
         <div className="vc-controls-group">
-          <button className={`vc-control-btn ${captionText ? "vc-control-btn-active" : ""}`}>
+          <button
+            className={`vc-control-btn ${captionsOn || learningMode === "deaf" ? "vc-control-btn-active" : ""}`}
+            onClick={() => setCaptionsOn((v) => !v)}
+            disabled={learningMode === "deaf"}
+            aria-pressed={captionsOn || learningMode === "deaf"}
+            title={learningMode === "deaf" ? "Captions are always on in Deaf mode" : captionsOn ? "Hide captions" : "Show captions"}
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="2" y="4" width="20" height="14" rx="2" />
               <line x1="8" y1="21" x2="16" y2="21" />
@@ -1869,7 +2144,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
 
         {/* Next lesson + End Session */}
         <div className="vc-controls-group">
-          <Link to="/student/courses/$courseId/lessons" params={{ courseId: "course_math_form2" }} className="vc-control-btn vc-next-lesson-btn">
+          <Link to="/student/dashboard" className="vc-control-btn vc-next-lesson-btn">
             Next Lesson
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14" />
@@ -1984,7 +2259,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
           questionText={questionText}
           setQuestionText={setQuestionText}
           isListening={isListening}
-          setIsListening={setIsListening}
+          onToggleMic={toggleMic}
           onSubmit={handleSubmitQuestion}
           onClose={() => setQuestionOpen(false)}
           onQuickAction={handleQuickAction}
@@ -2000,10 +2275,10 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
               {practiceMode === "guided" ? "🤝 Guided Practice" : "📝 Independent Practice"}
             </div>
             <div className="vc-practice-problem">
-              {PRACTICE_PROBLEMS[practiceIndex]?.equation ?? ""}
+              {practiceProblems[practiceIndex]?.equation ?? ""}
             </div>
             <div className="vc-practice-question">
-              {PRACTICE_PROBLEMS[practiceIndex]?.question ?? ""}
+              {practiceProblems[practiceIndex]?.question ?? ""}
             </div>
             <input
               className="vc-practice-input"
@@ -2020,7 +2295,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
               <button
                 className="vc-question-action vc-question-action-secondary"
                 onClick={() => {
-                  const problem = PRACTICE_PROBLEMS[practiceIndex];
+                  const problem = practiceProblems[practiceIndex];
                   const max = problem?.hints.length ?? 0;
                   if (hintLevel < max) {
                     setHintLevel((h) => h + 1);
@@ -2028,7 +2303,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                     logEvent(`Hint ${hintLevel + 1} used: ${problem?.equation}`);
                   }
                 }}
-                disabled={hintLevel >= (PRACTICE_PROBLEMS[practiceIndex]?.hints.length ?? 0)}
+                disabled={hintLevel >= (practiceProblems[practiceIndex]?.hints.length ?? 0)}
               >
                 💡 {hintLevel === 0 ? "Show hint" : "Next hint"}
               </button>
@@ -2040,7 +2315,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
             {/* Progressive hints — guidance before answers */}
             {hintLevel > 0 && (
               <div className="vc-hint-box">
-                {PRACTICE_PROBLEMS[practiceIndex]?.hints.slice(0, hintLevel).map((h, i) => (
+                {practiceProblems[practiceIndex]?.hints.slice(0, hintLevel).map((h, i) => (
                   <div key={i} className="vc-hint-item">
                     <span className="vc-hint-level">Hint {i + 1}</span>
                     <span>{h}</span>
@@ -2059,7 +2334,7 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
       )}
 
       {/* ── Exit Ticket ──────────────────────────────────── */}
-      {exitTicketOpen && (
+      {exitTicketOpen && EXIT_TICKET_QUESTION && (
         <div className="vc-question-overlay" onClick={(e) => e.target === e.currentTarget && setExitTicketOpen(false)}>
           <div className="vc-exit-ticket-card">
             <div className="vc-exit-badge">🎫 Exit Ticket</div>
@@ -2091,8 +2366,8 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                 style={{ marginTop: 12 }}
               >
                 {exitTicketFeedback === "correct"
-                  ? "Correct! Two and three multiply to six and add to five. ✅"
-                  : "Good effort! The correct answer is 2 and 3: 2 × 3 = 6 and 2 + 3 = 5."}
+                  ? EXIT_TICKET_QUESTION.feedbackCorrect
+                  : EXIT_TICKET_QUESTION.feedbackIncorrect}
               </div>
             )}
           </div>
@@ -2223,6 +2498,19 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
                 </svg>
                 View Transcript
               </button>
+              {onExit && (
+                <button
+                  className="vc-completion-btn vc-completion-btn-primary"
+                  onClick={onExit}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Finish &amp; exit
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -2247,114 +2535,10 @@ export function AIVideoClassroom({ autoPlay = false }: Props) {
         </div>
       )}
 
-      {/* ── Section Recap ────────────────────────────────── */}
-      {recapOpen && SECTION_RECAPS[recapOpen] && (
-        <div className="vc-question-overlay">
-          <div className="vc-moment-card">
-            <div className="vc-moment-badge vc-moment-badge-recap">📋 {SECTION_RECAPS[recapOpen].title}</div>
-            <ul className="vc-recap-list">
-              {SECTION_RECAPS[recapOpen].points.map((p, i) => (
-                <li key={i}>{p}</li>
-              ))}
-            </ul>
-            <div className="vc-moment-options">
-              <button className="vc-moment-option vc-moment-option-primary" onClick={resumeAfterInterjection}>
-                Ready to continue →
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Thinking Pause ───────────────────────────────── */}
-      {thinkingPauseText && (
-        <div className="vc-question-overlay">
-          <div className="vc-moment-card">
-            <div className="vc-moment-badge vc-moment-badge-pause">💭 Take a moment to think</div>
-            <div className="vc-moment-title vc-moment-title-soft">{thinkingPauseText}</div>
-            <div className="vc-moment-options">
-              <button className="vc-moment-option vc-moment-option-primary" onClick={() => handleThinkingPause("continue")}>
-                Continue
-              </button>
-              <button className="vc-moment-option" onClick={() => handleThinkingPause("repeat")}>
-                Read again
-              </button>
-              <button className="vc-moment-option" onClick={() => handleThinkingPause("help")}>
-                I need help
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Confidence Check ─────────────────────────────── */}
-      {confidenceOpen && (
-        <div className="vc-question-overlay">
-          <div className="vc-moment-card">
-            <div className="vc-moment-badge vc-moment-badge-confidence">📊 How are you feeling?</div>
-            <div className="vc-moment-title">How confident are you with this so far?</div>
-            <div className="vc-moment-options">
-              {CONFIDENCE_OPTIONS.map((opt) => (
-                <button key={opt.value} className="vc-moment-option" onClick={() => handleConfidence(opt)}>
-                  {opt.emoji} {opt.label}
-                </button>
-              ))}
-            </div>
-            <div className="vc-moment-note">This is learning data, not a grade.</div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Required Middle Question ─────────────────────── */}
-      {middleQuestionOpen && (
-        <div className="vc-question-overlay">
-          <div className="vc-moment-card">
-            <div className="vc-moment-badge vc-moment-badge-question">❓ Your turn</div>
-            <div className="vc-moment-title">{MIDDLE_QUESTION.question}</div>
-            <div className="vc-moment-options">
-              {MIDDLE_QUESTION.options.map((opt) => (
-                <button
-                  key={opt}
-                  className={`vc-moment-option ${
-                    middleFeedback && opt === MIDDLE_QUESTION.correct ? "vc-moment-option-correct" : ""
-                  }`}
-                  onClick={() => !middleFeedback && handleMiddleAnswer(opt)}
-                  disabled={!!middleFeedback}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-            {middleFeedback && (
-              <div
-                className={`vc-practice-feedback ${
-                  middleFeedback.correct ? "vc-practice-feedback-correct" : "vc-practice-feedback-incorrect"
-                }`}
-                style={{ marginTop: 12 }}
-              >
-                {middleFeedback.text}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Exit Reflection ──────────────────────────────── */}
-      {reflectionOpen && (
-        <div className="vc-question-overlay">
-          <div className="vc-moment-card">
-            <div className="vc-moment-badge vc-moment-badge-reflection">🪞 One last reflection</div>
-            <div className="vc-moment-title">{EXIT_REFLECTION.question}</div>
-            <div className="vc-moment-options">
-              {EXIT_REFLECTION.options.map((opt) => (
-                <button key={opt} className="vc-moment-option" onClick={() => handleReflection(opt)}>
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Engagement moments (recap, thinking pause, confidence, middle question,
+          exit reflection) are no longer modal overlays — they render inline in
+          the engagement area beneath the whiteboard (see <InlineEngagementArea/>),
+          so they never trap or interrupt the learner. */}
     </div>
   );
 }
@@ -2471,35 +2655,88 @@ function ClassroomTopBar({
   );
 }
 
-/** Subject-aware visual panel. The system shows this automatically based on
- *  the course type: a live graph for mathematics, an illustration for science
- *  and technical subjects, and nothing for theory-only social science. */
-function SubjectVisual({ courseType }: { courseType: CourseType }) {
+/**
+ * Subject-aware right rail — present for every subject. The classroom decides
+ * its content automatically:
+ *   • demo mathematics lesson → a live graph + the worked strategy
+ *   • science / technical      → an illustration slot + live key points
+ *   • theory / everything else → live key points and a running summary
+ * For real (non-demo) lessons the points are built from what the teacher has
+ * actually written on the board, so the rail always reflects the current lesson.
+ */
+function SubjectVisual({
+  courseType,
+  isDemo,
+  keyPoints,
+  lessonTitle,
+  currentGoal,
+}: {
+  courseType: CourseType;
+  isDemo: boolean;
+  keyPoints: string[];
+  lessonTitle: string;
+  currentGoal?: string;
+}) {
   const meta = COURSE_TYPE_META[courseType];
+
+  // ── Demo mathematics lesson: the original graph + worked strategy ──────────
+  if (isDemo && courseType === "mathematics") {
+    return (
+      <aside className="vc-subject-visual">
+        <div className="vc-visual-header">
+          <span className="vc-visual-icon">{meta.icon}</span>
+          {meta.visualTitle}
+        </div>
+        <MathGraph />
+        <div className="vc-visual-note">
+          <span className="vc-visual-note-label">Strategy</span>
+          Two numbers that <strong>multiply to 6</strong> and <strong>add to 5</strong>:
+          <div className="vc-visual-chips">
+            <span>2 × 3 = 6</span>
+            <span>2 + 3 = 5</span>
+          </div>
+          <div className="vc-visual-solution">Solution: x = −2 or x = −3</div>
+        </div>
+      </aside>
+    );
+  }
+
+  // ── Every other lesson: illustration slot (science/technical) + live points ─
+  const showIllustration = courseType === "science" || courseType === "technical";
   return (
     <aside className="vc-subject-visual">
       <div className="vc-visual-header">
         <span className="vc-visual-icon">{meta.icon}</span>
-        {meta.visualTitle}
+        {showIllustration ? "Illustration & Key Points" : "Key Points"}
       </div>
 
-      {courseType === "mathematics" && <MathGraph />}
-
-      {(courseType === "science" || courseType === "technical") && (
+      {showIllustration && (
         <div className="vc-visual-illustration">
-          <img src="/images/scenes/scene-1.png" alt="Lesson illustration auto-attached from course materials" />
-          <p>Illustration auto-attached from the course materials for this step.</p>
+          <img
+            src="/images/scenes/scene-1.png"
+            alt={`Illustration for ${lessonTitle}`}
+            onError={(e) => {
+              const el = e.currentTarget.parentElement;
+              if (el) el.style.display = "none";
+            }}
+          />
+          <p>Illustration attached from the course materials for this step.</p>
         </div>
       )}
 
-      <div className="vc-visual-note">
-        <span className="vc-visual-note-label">Strategy</span>
-        Two numbers that <strong>multiply to 6</strong> and <strong>add to 5</strong>:
-        <div className="vc-visual-chips">
-          <span>2 × 3 = 6</span>
-          <span>2 + 3 = 5</span>
-        </div>
-        <div className="vc-visual-solution">Solution: x = −2 or x = −3</div>
+      <div className="vc-visual-points">
+        <span className="vc-visual-note-label">On the board so far</span>
+        {keyPoints.length > 0 ? (
+          <ul className="vc-visual-point-list">
+            {keyPoints.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="vc-visual-points-empty">
+            {currentGoal ?? "Key points will appear here as the teacher writes."}
+          </p>
+        )}
       </div>
     </aside>
   );
@@ -2542,15 +2779,44 @@ function MathGraph() {
 }
 
 
-/** Board Line */
+/** A realistic marker pen that sits at the end of the line being written. */
+function MarkerPen() {
+  return (
+    <svg className="vc-hand-cursor" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      {/* Writing tip (touching the board, bottom-left) */}
+      <path d="M14 50 L19 45 L23 49 L18 54 Z" fill="#1d4ed8" />
+      {/* Nib holder */}
+      <path d="M18 46 L24 40 L29 45 L23 51 Z" fill="#475569" />
+      {/* Barrel of the marker */}
+      <rect x="24" y="14" width="14" height="30" rx="3" transform="rotate(45 31 29)" fill="#2563eb" />
+      <rect x="27" y="16" width="5" height="26" rx="2.5" transform="rotate(45 31 29)" fill="#1e40af" opacity="0.7" />
+      {/* Cap end */}
+      <path d="M44 14 L52 6 L58 12 L50 20 Z" fill="#1e3a8a" />
+      {/* Highlight along the barrel */}
+      <rect x="26" y="15" width="2" height="26" rx="1" transform="rotate(45 31 29)" fill="#bfdbfe" opacity="0.8" />
+    </svg>
+  );
+}
+
+/** Board Line — the written item PLUS everything the teacher says about it,
+ *  typed permanently beneath it so deaf learners and readers get the full lesson
+ *  in clean, flowing notes (not chat-style messages).
+ *
+ *  • technical / calculation / math / science → the item is a short heading and
+ *    the spoken explanation is written as a small subtitle caption under it.
+ *  • theory / social → the spoken explanation is written as a flowing paragraph,
+ *    the way notes appear in the course content.
+ */
 function BoardLine({
   item,
   lineIndex,
   isActive,
+  courseType,
 }: {
   item: MathTeachingItem;
   lineIndex: number;
   isActive: boolean;
+  courseType: CourseType;
 }) {
   const typeClass =
     item.type === "equation"
@@ -2565,10 +2831,35 @@ function BoardLine({
               ? "vc-board-line-instruction"
               : "";
 
+  const isTheory = courseType === "social";
+  // The spoken explanation, written down. Avoid repeating it when it's just the
+  // board text said back (common for short instruction/heading items).
+  const spoken = (item.teacherExplanation || "").trim();
+  const showNote = spoken.length > 0 && spoken.toLowerCase() !== item.boardText.trim().toLowerCase();
+  const why = (item.whyThisStepMatters || "").trim();
+  const mistake = (item.commonMistake || "").trim();
+
   return (
     <div className={`vc-board-line ${typeClass} ${isActive ? "vc-board-line-active" : ""}`}>
       <span className="vc-board-line-number">{lineIndex}</span>
-      <span className="vc-board-line-text">{item.boardText}</span>
+      <div className="vc-board-line-body">
+        <span className="vc-board-line-text">{item.boardText}</span>
+        {showNote && (
+          <div className={isTheory ? "vc-board-note vc-board-note-paragraph" : "vc-board-note vc-board-note-caption"}>
+            {spoken}
+          </div>
+        )}
+        {why && !isTheory && (
+          <div className="vc-board-note vc-board-note-why">
+            <span className="vc-board-note-why-label">Why:</span> {why}
+          </div>
+        )}
+        {mistake && (
+          <div className="vc-board-note vc-board-note-mistake">
+            <span className="vc-board-note-mistake-label">⚠ Watch out:</span> {mistake}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -2613,7 +2904,7 @@ function QuestionModal({
   questionText,
   setQuestionText,
   isListening,
-  setIsListening,
+  onToggleMic,
   onSubmit,
   onClose,
   onQuickAction,
@@ -2623,7 +2914,7 @@ function QuestionModal({
   questionText: string;
   setQuestionText: (v: string) => void;
   isListening: boolean;
-  setIsListening: (v: boolean) => void;
+  onToggleMic: () => void;
   onSubmit: () => void;
   onClose: () => void;
   onQuickAction: (action: string) => void;
@@ -2709,7 +3000,7 @@ function QuestionModal({
           <div className="vc-mic-active">
             <button
               className="vc-mic-pulse"
-              onClick={() => setIsListening(!isListening)}
+              onClick={onToggleMic}
               style={{ background: isListening ? "#16a34a" : "#334155" }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -2816,7 +3107,7 @@ function QuestionModal({
             </svg>
             Send
           </button>
-          <button className="vc-question-action vc-question-action-secondary" onClick={() => setIsListening(!isListening)}>
+          <button className="vc-question-action vc-question-action-secondary" onClick={onToggleMic}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
               <path d="M19 10v2a7 7 0 0 1-14 0v-2" />

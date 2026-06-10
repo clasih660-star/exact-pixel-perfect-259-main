@@ -877,3 +877,310 @@ export type UserPresence = {
 
 /** KingPin course source type */
 export type CourseSourceType = "institution" | "kingpin";
+
+/* ─── Teacher Mind: signals, decisions & accessible interaction surfaces ─── */
+
+/**
+ * Observed learner state during a lesson. The teacher mind reads these signals
+ * to decide whether to continue, slow down, simplify, give a hint, or check in —
+ * the way a real teacher reads a room.
+ */
+export type LearnerSignals = {
+  replayCountForCurrentStep: number;
+  questionsAskedInSession: number;
+  lastQuestion?: string;
+  clickedIDontUnderstand: boolean;
+  requestedSimplerExplanation: boolean;
+  requestedAnotherExample: boolean;
+  confidenceLevel?: "low" | "medium" | "high";
+  practiceAttempts: number;
+  recentIncorrectAttempts: number;
+  averageResponseTimeSeconds?: number;
+  inactiveSeconds: number;
+  learningMode: LearningMode;
+  academicLevel: AcademicLevel;
+};
+
+/** An intentional decision the AI teacher takes next (not free-form chat). */
+export type TeacherMindDecision =
+  | { type: "continue_lesson"; reason: string }
+  | { type: "repeat_step"; reason: string; style: "same" | "simpler" | "visual" | "slower" }
+  | { type: "ask_checkpoint"; reason: string; question: string; options?: string[] }
+  | { type: "answer_question"; reason: string; answer: TeacherAnswer }
+  | { type: "ask_clarification"; reason: string; clarificationQuestion: string; options?: string[] }
+  | { type: "give_hint"; reason: string; hint: string }
+  | { type: "show_example"; reason: string; exampleBoardItems: Array<{ type: string; text: string }> }
+  | { type: "pause_for_learner"; reason: string };
+
+/**
+ * Where an interaction is shown. Accessibility-first: modals are reserved for
+ * critical actions only; everything else uses non-disruptive surfaces.
+ */
+export type InteractionSurface =
+  | "caption_actions"
+  | "inline_under_board"
+  | "right_drawer"
+  | "bottom_sheet"
+  | "screen_reader_prompt"
+  | "modal_critical_only";
+
+/** The kind of inline engagement prompt currently shown under the whiteboard. */
+export type EngagementKind =
+  | "idle"
+  | "checkpoint"
+  | "clarification"
+  | "hint"
+  | "after_answer"
+  | "confidence_check"
+  | "recap"
+  | "thinking_pause"
+  | "middle_question"
+  | "exit_reflection";
+
+/** A non-modal engagement prompt rendered in the inline engagement area. */
+export type EngagementPrompt = {
+  kind: EngagementKind;
+  /** Short teacher line shown above the actions. */
+  title: string;
+  /** Optional supporting body (recap points, hint text, paragraph). */
+  body?: string;
+  bodyList?: string[];
+  /** Action buttons. Each carries an id the classroom maps to a handler. */
+  actions: Array<{ id: string; label: string; primary?: boolean }>;
+  /** Whether a free-text reply box should be shown inline (e.g. clarification). */
+  allowTextReply?: boolean;
+  /** Feedback line shown after the learner answers (correct/incorrect note). */
+  feedback?: { tone: "correct" | "incorrect" | "neutral"; text: string };
+};
+
+/* ─── Phase 2: Classroom operations ──────────────────────────────────── */
+
+/** The three classroom delivery modes. */
+export type Phase2ClassroomMode = "ai_teacher" | "human_live" | "hybrid";
+
+/** Stage surface shown in the centre of the classroom. */
+export type ClassroomStageMode =
+  | "whiteboard"
+  | "slides"
+  | "screen_share"
+  | "code_editor"
+  | "document"
+  | "video"
+  | "practice"
+  | "assignment"
+  | "poll"
+  | "quiz_check";
+
+/** Institution (optionally per-course) classroom configuration. */
+export type ClassroomSettings = {
+  id: string;
+  institutionId: string;
+  courseId?: string | null;
+  classroomMode: Phase2ClassroomMode;
+  defaultStageMode: ClassroomStageMode;
+  enableAiTeacher: boolean;
+  enableHumanVideo: boolean;
+  enableLearnerCamera: boolean;
+  enableLearnerMic: boolean;
+  enableChat: boolean;
+  enablePrivateQuestions: boolean;
+  enableRaiseHand: boolean;
+  enableCaptions: boolean;
+  enableTranscript: boolean;
+  enableNotes: boolean;
+  enableScreenSharing: boolean;
+  enableRecording: boolean;
+  enablePolls: boolean;
+  enableAssignments: boolean;
+  enableAttendance: boolean;
+  enableReplay: boolean;
+  aiSettings: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A learner waiting in the multi-learner raise-hand / question queue. */
+export type RaiseHandQueueItem = {
+  id: string;
+  sessionId: string;
+  learnerId: string;
+  learnerName?: string | null;
+  reason?: string | null;
+  status: "waiting" | "acknowledged" | "speaking" | "resolved" | "dismissed";
+  createdAt: string;
+};
+
+/** A question recorded in the live classroom question queue. */
+export type ClassroomQuestion = {
+  id: string;
+  sessionId: string;
+  institutionId: string;
+  courseId: string;
+  learnerId: string;
+  learnerName?: string | null;
+  questionText: string;
+  reason?: string | null;
+  visibility: "public" | "private" | "anonymous";
+  status:
+    | "submitted"
+    | "answered_by_ai"
+    | "answered_by_teacher"
+    | "needs_clarification"
+    | "saved_to_notes"
+    | "dismissed"
+    | "speaking"
+    | "resolved";
+  aiSuggestedAnswer?: string | null;
+  answerText?: string | null;
+  answeredBy?: string | null;
+  saveToTranscript: boolean;
+  queuePosition?: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Live/hybrid participant state. */
+export type ClassroomParticipant = {
+  id: string;
+  sessionId: string;
+  userId: string;
+  role: "teacher" | "co_teacher" | "student" | "observer" | "ai_teacher";
+  status: "joined" | "waiting" | "left" | "removed";
+  micEnabled: boolean;
+  cameraEnabled: boolean;
+  handRaised: boolean;
+  joinedAt?: string | null;
+  leftAt?: string | null;
+  metadata: Record<string, unknown>;
+};
+
+/** Per-learner attendance for a live/hybrid session. */
+export type ClassroomAttendance = {
+  id: string;
+  sessionId: string;
+  institutionId: string;
+  userId: string;
+  status: "present" | "late" | "left_early" | "absent" | "partial" | "excused";
+  joinedAt?: string | null;
+  leftAt?: string | null;
+  totalMinutes: number;
+  lateJoin: boolean;
+  earlyLeave: boolean;
+  rejoinCount: number;
+  questionsAsked: number;
+  assignmentsSubmitted: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A live classroom poll / quick check. */
+export type ClassroomPoll = {
+  id: string;
+  sessionId: string;
+  institutionId: string;
+  createdBy?: string | null;
+  type: "multiple_choice" | "true_false" | "yes_no" | "confidence" | "short_answer" | "rating";
+  question: string;
+  options: string[];
+  status: "draft" | "launched" | "closed";
+  resultsVisible: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AssignmentType =
+  | "practice"
+  | "reading"
+  | "reflection"
+  | "short_answer"
+  | "file_upload"
+  | "worksheet"
+  | "coding"
+  | "project";
+
+export type AssignmentSubmissionType =
+  | "text"
+  | "file_upload"
+  | "short_responses"
+  | "worksheet"
+  | "link"
+  | "code";
+
+/** A learning-focused assignment (points off by default — evidence, not grading). */
+export type Assignment = {
+  id: string;
+  institutionId: string;
+  programmeId?: string | null;
+  courseId: string;
+  lessonId?: string | null;
+  title: string;
+  description?: string | null;
+  instructions: string;
+  type: AssignmentType;
+  submissionType: AssignmentSubmissionType;
+  dueAt?: string | null;
+  estimatedMinutes?: number | null;
+  pointsEnabled: boolean;
+  allowLate: boolean;
+  aiAssistanceAllowed: boolean;
+  status: "draft" | "published" | "closed" | "archived";
+  createdBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AssignmentResource = {
+  id: string;
+  assignmentId: string;
+  title: string;
+  type: "link" | "file" | "pdf" | "image" | "document" | "reference";
+  url?: string | null;
+  fileUrl?: string | null;
+  createdAt: string;
+};
+
+export type AssignmentSubmission = {
+  id: string;
+  assignmentId: string;
+  learnerId: string;
+  content: Record<string, unknown>;
+  status:
+    | "not_started"
+    | "in_progress"
+    | "submitted"
+    | "returned"
+    | "needs_revision"
+    | "completed"
+    | "late";
+  submittedAt?: string | null;
+  reviewedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AssignmentFeedback = {
+  id: string;
+  submissionId: string;
+  authorUserId?: string | null;
+  body: string;
+  decision: "comment" | "reviewed" | "needs_revision" | "completed";
+  createdAt: string;
+};
+
+/** A scheduled item on the classroom calendar. */
+export type ClassroomCalendarEvent = {
+  id: string;
+  institutionId: string;
+  courseId?: string | null;
+  lessonId?: string | null;
+  sessionId?: string | null;
+  assignmentId?: string | null;
+  type: "ai_lesson" | "live_session" | "hybrid_session" | "assignment_due" | "teacher_review" | "institution_event";
+  title: string;
+  startAt: string;
+  endAt?: string | null;
+  createdBy?: string | null;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};

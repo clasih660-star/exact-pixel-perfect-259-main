@@ -1,24 +1,144 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Activity, BookOpen, Flame, Monitor, Star, TrendingUp } from "lucide-react";
+import {
+  Monitor,
+  BookOpen,
+  Clock,
+  Star,
+  Zap,
+  Award,
+  MessageSquare,
+  Calendar,
+  FileText,
+  Eye,
+  CheckCircle2,
+} from "lucide-react";
 import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
 import { DashboardEmptyState } from "@/components/dashboard/shared/DashboardEmptyState";
+import { FeaturedActionCard } from "@/components/dashboard/shared/FeaturedActionCard";
+import { CourseCard } from "@/components/dashboard/shared/CourseCard";
+import { SessionCard } from "@/components/dashboard/shared/SessionCard";
+import { PageHeader } from "@/components/dashboard/shared/PageHeader";
+import { ActivityFeed } from "@/components/dashboard/shared/ActivityFeed";
+import { RealtimeMetricCard } from "@/components/dashboard/shared/RealtimeMetricCard";
+import { OnlineStatusDot } from "@/components/dashboard/shared/OnlineStatusDot";
 
 const config = dashboardConfigs.learner;
-const classrooms = [
-  { course: "Mathematics Form 2", institution: "Klassruum Demo Academy", lesson: "Quadratic Equations", step: "Worked Example", progress: 42, mode: "AI Teacher" },
-  { course: "KCSE Chemistry Revision", institution: "Klassruum Demo Academy", lesson: "Chemical Reactions", step: "Guided Practice", progress: 28, mode: "Hybrid" },
-  { course: "English Speaking Practice", institution: "Klassruum Demo Academy", lesson: "Daily Conversation", step: "Independent Work", progress: 65, mode: "Human Teacher" },
+
+const mockContinueLearning = {
+  course: "Mathematics Form 2",
+  institution: "Klassruum Demo Academy",
+  lesson: "Introduction to Quadratic Equations",
+  step: "Worked Example",
+  progress: 42,
+  estimatedTimeLeft: "18 min",
+  mode: "AI Teacher",
+  lessonId: "session_demo_math",
+};
+
+const mockClassrooms = [
+  {
+    title: "Mathematics Form 2",
+    institution: "Klassruum Demo Academy",
+    course: "Quadratic Equations",
+    progress: 42,
+    stats: [
+      { label: "Lessons", value: "12/28" },
+      { label: "Completed", value: "8" },
+    ],
+    href: "/classroom/lesson_math",
+  },
+  {
+    title: "KCSE Chemistry Revision",
+    institution: "Klassruum Demo Academy",
+    course: "Chemical Reactions",
+    progress: 28,
+    stats: [
+      { label: "Lessons", value: "8/24" },
+      { label: "Completed", value: "6" },
+    ],
+    href: "/classroom/lesson_chem",
+  },
+  {
+    title: "English Speaking Practice",
+    institution: "Klassruum Demo Academy",
+    course: "Daily Conversation",
+    progress: 65,
+    stats: [
+      { label: "Lessons", value: "13/20" },
+      { label: "Completed", value: "12" },
+    ],
+    href: "/classroom/lesson_english",
+  },
 ];
 
-const recentSessions = [
-  { title: "Quadratic Equations", course: "Mathematics Form 2", duration: "45 min", status: "Completed" as const },
-  { title: "Chemical Reactions", course: "KCSE Chemistry Revision", duration: "38 min", status: "Completed" as const },
-  { title: "HTML Introduction", course: "Computer Studies Basics", duration: "41 min", status: "Completed" as const },
+const mockRecentSessions = [
+  {
+    title: "Quadratic Equations",
+    course: "Mathematics Form 2",
+    time: "Today at 2:30 PM",
+    duration: "45 min",
+    status: "completed" as const,
+    href: "/student/sessions/sess_1",
+  },
+  {
+    title: "Chemical Reactions",
+    course: "KCSE Chemistry Revision",
+    time: "Yesterday at 4:00 PM",
+    duration: "38 min",
+    status: "completed" as const,
+    href: "/student/sessions/sess_2",
+  },
+  {
+    title: "HTML Introduction",
+    course: "Computer Studies Basics",
+    time: "3 days ago at 9:30 AM",
+    duration: "41 min",
+    status: "completed" as const,
+    href: "/student/sessions/sess_3",
+  },
+];
+
+const mockActivity = [
+  {
+    id: "1",
+    action: "Completed lesson",
+    description: 'Finished "Quadratic Equations" lesson',
+    timestamp: "Today at 2:45 PM",
+    variant: "success" as const,
+  },
+  {
+    id: "2",
+    action: "Quiz answered",
+    description: "Scored 92% on Quadratic Equations quiz",
+    timestamp: "Today at 2:42 PM",
+    variant: "success" as const,
+  },
+  {
+    id: "3",
+    action: "Joined classroom",
+    description: 'Started "Introduction to Quadratic Equations"',
+    timestamp: "Today at 2:30 PM",
+    variant: "default" as const,
+  },
+  {
+    id: "4",
+    action: "Notes saved",
+    description: "5 pages of study notes created",
+    timestamp: "Today at 2:28 PM",
+    variant: "default" as const,
+  },
+  {
+    id: "5",
+    action: "Completed assignment",
+    description: "Submitted homework for Chemical Reactions",
+    timestamp: "Yesterday at 4:15 PM",
+    variant: "success" as const,
+  },
 ];
 
 export function StudentDashboardPage() {
@@ -29,7 +149,7 @@ export function StudentDashboardPage() {
     // Simulate data loading
     const loadData = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 800));
         setIsLoading(false);
       } catch (err) {
         setError("Failed to load dashboard data");
@@ -58,180 +178,243 @@ export function StudentDashboardPage() {
 
   return (
     <DashboardShell config={config} activePath="/student/dashboard">
-      <Header />
-      <ContinueLearningHero />
-      <KpiSection />
-      <MainContentGrid />
-    </DashboardShell>
-  );
-}
+      <PageHeader
+        label="Welcome back"
+        title="Continue your learning journey"
+        subtitle="Pick up from where you left off and keep your progress moving forward."
+      />
 
-function Header() {
-  return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-[var(--primary)]">Welcome back</p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-[var(--gray-900)] lg:text-4xl">
-          Continue your learning journey
-        </h1>
-        <p className="mt-1 text-sm text-[var(--gray-500)]">
-          Your next classroom is ready. Pick up from your last lesson and keep your progress moving.
-        </p>
-      </div>
-      <Link
-        to="/classroom/$lessonId"
-        params={{ lessonId: "session_demo_math" }}
-        className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-2xl bg-[var(--primary)] px-6 text-sm font-bold text-white shadow-lg shadow-[var(--primary)]/25 transition-all hover:bg-[var(--primary-dark)]"
-      >
-        <Monitor className="h-4 w-4" />
-        Enter Classroom
-      </Link>
-    </div>
-  );
-}
-
-function ContinueLearningHero() {
-  return (
-    <section className="relative mb-8 overflow-hidden rounded-3xl border border-[var(--primary)]/20 bg-gradient-to-br from-white via-[var(--primary-light)] to-white p-7 shadow-lg">
-      <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-[var(--primary)]/5 blur-3xl" />
-      <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex-1">
-          <StatusBadge variant="success">AI Teacher Ready</StatusBadge>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--gray-900)] lg:text-3xl">
-            Introduction to Quadratic Equations
-          </h2>
-          <p className="mt-1 text-sm text-[var(--gray-500)]">
-            Mathematics Form 2 · Klassruum Demo Academy
-          </p>
-          <div className="mt-5 flex items-center gap-6">
-            <div>
-              <p className="text-xs text-[var(--gray-400)]">Current Step</p>
-              <p className="font-bold text-[var(--gray-900)]">Step 3 of 8 · Worked Example</p>
-            </div>
-            <div className="h-8 w-px bg-[var(--gray-200)]" />
-            <div>
-              <p className="text-xs text-[var(--gray-400)]">Progress</p>
-              <p className="text-2xl font-extrabold text-[var(--primary)]">42%</p>
-            </div>
-            <div className="h-8 w-px bg-[var(--gray-200)]" />
-            <div>
-              <p className="text-xs text-[var(--gray-400)]">Est. Time Left</p>
-              <p className="font-bold text-[var(--gray-900)]">18 min</p>
-            </div>
-          </div>
-          <div className="mt-4 h-2.5 w-full max-w-md rounded-full bg-[var(--primary)]/10">
-            <div className="h-full w-[42%] rounded-full bg-[var(--primary)] transition-all" />
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[var(--gray-600)] shadow-sm">AI Teacher</span>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[var(--gray-600)] shadow-sm">Captions On</span>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[var(--gray-600)] shadow-sm">Voice On</span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 lg:items-end">
-          <Link
-            to="/classroom/$lessonId"
-        params={{ lessonId: "session_demo_math" }}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-[var(--primary)] px-6 text-sm font-bold text-white shadow-lg shadow-[var(--primary)]/25 transition-all hover:bg-[var(--primary-dark)] lg:w-auto"
-          >
-            <Monitor className="h-4 w-4" />
-            Enter Classroom
-          </Link>
-          <Link
-            to="/student/sessions/$sessionId/summary"
-        params={{ sessionId: "session_demo_math" }}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
-          >
-            Review Summary
-          </Link>
-          <Link
-            to="/student/quizzes/$quizId"
-        params={{ quizId: "quiz_quadratic_001" }}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--primary)]/20 bg-white px-6 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)] lg:w-auto"
-          >
-            Take Quick Quiz
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function KpiSection() {
-  return (
-    <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-      <KpiCard title="My Classrooms" value="4" subtitle="Active classrooms" href="/student/classrooms" icon={Monitor} />
-      <KpiCard title="Completed Lessons" value="18" subtitle="This month" href="/student/progress" icon={BookOpen} />
-      <KpiCard title="Study Time" value="12h 45m" subtitle="This week" href="/student/progress" icon={Activity} />
-      <KpiCard title="Quiz Average" value="86%" subtitle="This month" href="/student/quizzes" icon={Star} trend="+4%" />
-      <KpiCard title="Current Streak" value="7" subtitle="Days in a row" href="/student/progress" icon={Flame} />
-    </section>
-  );
-}
-
-function MainContentGrid() {
-  return (
-    <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.35fr_0.85fr]">
-      <div className="space-y-6 lg:row-span-2">
-        <MyClassroomsPanel />
-      </div>
-      <LearningPlanCard />
-      <RecentSessionsPanel />
-      <LearningAccessWidget />
-    </section>
-  );
-}
-
-function MyClassroomsPanel() {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-[var(--gray-900)]">My Classrooms</h2>
-          <p className="mt-0.5 text-sm text-[var(--gray-500)]">Enter your active learning spaces.</p>
-        </div>
-        <Link to="/student/classrooms" className="text-sm font-bold text-[var(--primary)] hover:underline">
-          View all
-        </Link>
-      </div>
-      <div className="space-y-3">
-        {classrooms.map((c) => (
-          <article
-            key={c.course}
-            className="flex flex-col gap-3 rounded-2xl border border-[var(--gray-200)] bg-white p-4 transition-all hover:border-[var(--primary)]/20 hover:shadow-sm sm:flex-row sm:items-center"
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--primary)] to-blue-400 text-sm font-bold text-white">
-              {c.course.slice(0, 2)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-[var(--gray-900)]">{c.course}</h3>
-              <p className="text-xs text-[var(--gray-500)]">
-                {c.institution} · {c.lesson}
-              </p>
-              <div className="mt-2 flex items-center gap-3">
-                <div className="h-1.5 flex-1 rounded-full bg-[var(--gray-100)]">
-                  <div
-                    className="h-full rounded-full bg-[var(--primary)]"
-                    style={{ width: `${c.progress}%` }}
-                  />
-                </div>
-                <span className="text-xs font-bold text-[var(--gray-500)]">{c.progress}%</span>
+      {/* Featured Continue Learning Card */}
+      <FeaturedActionCard
+        title={mockContinueLearning.lesson}
+        description={`${mockContinueLearning.course} · ${mockContinueLearning.institution}`}
+        badge={<StatusBadge variant="success">AI Teacher Ready</StatusBadge>}
+        content={
+          <div className="space-y-5">
+            <div className="flex items-center gap-8">
+              <div>
+                <p className="text-xs font-semibold text-[#64748B]">Current Step</p>
+                <p className="mt-1 text-base font-bold text-[#0F172A]">
+                  Step 3 of 8 · {mockContinueLearning.step}
+                </p>
+              </div>
+              <div className="h-12 w-px bg-[#E2E8F0]" />
+              <div>
+                <p className="text-xs font-semibold text-[#64748B]">Progress</p>
+                <p className="mt-1 text-3xl font-bold text-[#2563EB]">
+                  {mockContinueLearning.progress}%
+                </p>
+              </div>
+              <div className="h-12 w-px bg-[#E2E8F0]" />
+              <div>
+                <p className="text-xs font-semibold text-[#64748B]">Est. Time Left</p>
+                <p className="mt-1 text-base font-bold text-[#0F172A]">
+                  {mockContinueLearning.estimatedTimeLeft}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <StatusBadge>{c.mode}</StatusBadge>
+            <div className="h-3 w-full rounded-full bg-[#E2E8F0]">
+              <div
+                className="h-full rounded-full bg-[#2563EB] transition-all"
+                style={{ width: `${mockContinueLearning.progress}%` }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold text-[#0F172A] backdrop-blur">
+                <Monitor className="h-3 w-3" />
+                {mockContinueLearning.mode}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold text-[#0F172A] backdrop-blur">
+                <Eye className="h-3 w-3" />
+                Captions On
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold text-[#0F172A] backdrop-blur">
+                <Zap className="h-3 w-3" />
+                Voice On
+              </span>
+            </div>
+          </div>
+        }
+        actions={[
+          {
+            label: "Enter Classroom",
+            href: `/classroom/${mockContinueLearning.lessonId}`,
+            variant: "primary",
+          },
+          {
+            label: "Review Notes",
+            href: "/student/notes",
+            variant: "secondary",
+          },
+          {
+            label: "View Transcript",
+            href: "/student/transcripts",
+            variant: "tertiary",
+          },
+        ]}
+      />
+
+      {/* KPI Cards */}
+      <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+        <KpiCard
+          title="My Classrooms"
+          value="3"
+          subtitle="Active courses"
+          href="/student/classrooms"
+          icon={Monitor}
+        />
+        <KpiCard
+          title="Completed"
+          value="18"
+          subtitle="This month"
+          href="/student/progress"
+          icon={CheckCircle2}
+        />
+        <KpiCard
+          title="Study Time"
+          value="12h 45m"
+          subtitle="This week"
+          href="/student/progress"
+          icon={Clock}
+        />
+        <KpiCard
+          title="Quiz Average"
+          value="86%"
+          subtitle="This month"
+          href="/student/quizzes"
+          icon={Star}
+          trend="+4%"
+        />
+        <KpiCard
+          title="Current Streak"
+          value="7"
+          subtitle="Days in a row"
+          href="/student/progress"
+          icon={Zap}
+        />
+      </section>
+
+      {/* Main Content Grid */}
+      <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* Left Column: Classrooms and Sessions */}
+        <div className="space-y-8 lg:col-span-2">
+          {/* My Classrooms */}
+          <div>
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-[#0F172A]">My Classrooms</h2>
+                <p className="mt-0.5 text-sm text-[#64748B]">Continue your active learning spaces</p>
+              </div>
               <Link
-                to="/classroom/$lessonId"
-        params={{ lessonId: "session_demo_math" }}
-                className="inline-flex h-9 items-center rounded-xl border border-[var(--primary)]/20 px-4 text-xs font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]"
+                to="/student/classrooms"
+                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
               >
-                Enter
+                View all
               </Link>
             </div>
-          </article>
-        ))}
-      </div>
-    </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {mockClassrooms.map((classroom) => (
+                <CourseCard
+                  key={classroom.title}
+                  title={classroom.title}
+                  course={classroom.course}
+                  institution={classroom.institution}
+                  progress={classroom.progress}
+                  stats={classroom.stats}
+                  href={classroom.href}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Sessions */}
+          <div>
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-[#0F172A]">Recent Sessions</h2>
+                <p className="mt-0.5 text-sm text-[#64748B]">Your recent learning activity</p>
+              </div>
+              <Link
+                to="/student/sessions"
+                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
+              >
+                View all
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {mockRecentSessions.map((session) => (
+                <SessionCard
+                  key={session.title}
+                  title={session.title}
+                  course={session.course}
+                  time={session.time}
+                  duration={session.duration}
+                  status={session.status}
+                  href={session.href}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Quick Info and Activity */}
+        <div className="space-y-6 lg:col-span-1">
+          {/* Today's Plan */}
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-bold text-[#0F172A]">Today's Plan</h3>
+              <Calendar className="h-4 w-4 text-[#94A3B8]" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 rounded-lg bg-[#EFF6FF] p-3">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2563EB] flex-shrink-0 text-xs font-bold text-white">
+                  1
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#0F172A]">Complete lesson</p>
+                  <p className="text-xs text-[#64748B]">Quadratic Equations</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-lg bg-[#F8FAFC] p-3 opacity-60">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E2E8F0] flex-shrink-0 text-xs font-bold text-[#64748B]">
+                  2
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#0F172A]">Take quiz</p>
+                  <p className="text-xs text-[#64748B]">Check your understanding</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-lg bg-[#F8FAFC] p-3 opacity-60">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E2E8F0] flex-shrink-0 text-xs font-bold text-[#64748B]">
+                  3
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#0F172A]">Review notes</p>
+                  <p className="text-xs text-[#64748B]">Study your highlights</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Learning Access */}
+          <Link
+            to="/student/access"
+            className="block rounded-2xl border border-[#E2E8F0] bg-gradient-to-br from-[#EFF6FF] to-white p-6 transition-all hover:border-[#2563EB] hover:shadow-md"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2563EB]">
+                <Eye className="h-4 w-4 text-white" />
+              </div>
+              <h3 className="font-bold text-[#0F172A]">Learning Access</h3>
+            </div>
+            <p className="text-xs text-[#64748B]">Customize captions, focus mode, and accessibility settings</p>
+          </Link>
+
+          {/* Activity Feed */}
+          <ActivityFeed title="Recent Activity" items={mockActivity} maxItems={5} />
+        </div>
+      </section>
+    </DashboardShell>
   );
 }
 
