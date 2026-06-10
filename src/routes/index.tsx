@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { Sparkles, Mic, PencilRuler, Brain, GraduationCap, ArrowRight, Users, School, Accessibility, Play, CircleCheck as CheckCircle2, ChevronRight, Zap, BookOpen, Monitor, Volume2, Bubbles as Subtitles, Trophy, Clock3, ChartBar as BarChart3, Lightbulb, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, LogoMark } from "@/components/brand/Logo";
@@ -52,46 +53,75 @@ function Landing() {
 }
 
 function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const links = [
+    { label: "Features", href: "#features" },
+    { label: "How it works", href: "#how" },
+    { label: "Classroom", href: "#preview" },
+    { label: "For Schools", href: "#institutions" },
+    { label: "Pricing", href: "#pricing" },
+  ];
+
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-md">
+    <header
+      className={`kr-nav fixed inset-x-0 top-0 z-50 ${
+        scrolled
+          ? "border-b border-gray-200 bg-white/90 shadow-[0_8px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl"
+          : "border-b border-white/10 bg-transparent"
+      }`}
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
           <LogoMark size={32} />
-          <span className="hidden sm:block font-bold text-lg tracking-tight text-gray-900">
+          <span
+            className={`hidden text-lg font-bold tracking-tight sm:block ${
+              scrolled ? "text-gray-900" : "text-white"
+            }`}
+          >
             Klassruum
           </span>
         </Link>
 
         {/* Navigation */}
-        <nav className="hidden items-center gap-8 text-sm font-medium text-gray-600 lg:flex">
-          <a href="#features" className="transition-colors hover:text-gray-900 hover:text-blue-600">
-            Features
-          </a>
-          <a href="#how" className="transition-colors hover:text-gray-900 hover:text-blue-600">
-            How it works
-          </a>
-          <a href="#preview" className="transition-colors hover:text-gray-900 hover:text-blue-600">
-            Classroom
-          </a>
-          <a href="#institutions" className="transition-colors hover:text-gray-900 hover:text-blue-600">
-            For Schools
-          </a>
-          <a href="#pricing" className="transition-colors hover:text-gray-900 hover:text-blue-600">
-            Pricing
-          </a>
+        <nav
+          className={`hidden items-center gap-9 text-sm font-semibold lg:flex ${
+            scrolled ? "text-gray-600" : "text-white/80"
+          }`}
+        >
+          {links.map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              className={`kr-nav-link transition-colors ${scrolled ? "hover:text-blue-600" : "hover:text-white"}`}
+            >
+              {l.label}
+            </a>
+          ))}
         </nav>
 
         {/* CTA Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link to="/auth">
-            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={scrolled ? "text-gray-600 hover:text-blue-600" : "text-white hover:bg-white/10 hover:text-white"}
+            >
               Sign in
             </Button>
           </Link>
           <Link to="/student/dashboard">
             <Button size="sm" className="kr-btn-primary border-0 shadow-md">
               Try Demo
+              <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </Link>
         </div>
@@ -102,114 +132,115 @@ function Nav() {
 
 function Hero() {
   return (
-    <section className="kr-aurora relative">
-      <div className="kr-blob kr-blob-1" />
-      <div className="kr-blob kr-blob-2" />
-      <div className="kr-blob kr-blob-3" />
-      <div className="absolute inset-0 kr-grid opacity-60" />
+    <section className="kr-hero min-h-screen">
+      {/* Cinematic background video */}
+      <video
+        className="kr-hero-video"
+        src="/media/learning-tablet.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/images/scenes/scene-1.png"
+      />
+      <div className="kr-hero-veil" />
+      <div className="kr-hero-mesh" />
+      <div className="kr-shimmer-ribbon" />
+      <div className="kr-glitter" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 pt-20 pb-24 lg:grid-cols-2 lg:gap-10 lg:pt-28 lg:pb-32">
+      <div className="relative mx-auto grid min-h-screen max-w-7xl items-center gap-14 px-6 pb-24 pt-28 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10">
         {/* Left — copy */}
         <div className="kr-fade-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/70 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm backdrop-blur">
+          <div className="kr-badge-glitter inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm">
             <Sparkles className="h-4 w-4" />
             AI-Powered Virtual Classrooms
           </div>
 
-          <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] tracking-tight text-gray-900 sm:text-6xl">
+          <h1 className="mt-6 text-5xl font-extrabold leading-[1.04] tracking-tight text-white sm:text-6xl lg:text-7xl">
             The future of{" "}
-            <span className="kr-gradient-text">smart learning</span>{" "}
+            <span className="kr-shine-text">smart learning</span>{" "}
             is here
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-gray-600">
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-blue-50/90">
             A real AI teacher that writes on the board, explains deeply, checks understanding,
             and adapts to every learner — with voice, live captions, and accessibility built in.
           </p>
 
           <div className="mt-9 flex flex-col gap-4 sm:flex-row">
             <Link to="/student/dashboard">
-              <Button size="lg" className="kr-btn-primary border-0 px-8 py-6 text-base gap-2">
+              <Button size="lg" className="kr-btn-primary gap-2 border-0 px-8 py-6 text-base">
                 <Play className="h-5 w-5" />
                 Try Demo Classroom
                 <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
             <Link to="/institutions/register">
-              <Button size="lg" variant="outline" className="border-blue-200 bg-white/70 px-8 py-6 text-base text-blue-700 backdrop-blur hover:bg-white">
+              <Button
+                size="lg"
+                variant="outline"
+                className="kr-border-glow border-0 bg-white/5 px-8 py-6 text-base text-white backdrop-blur hover:bg-white/15"
+              >
                 Register Your School
               </Button>
             </Link>
           </div>
 
-          <div className="mt-9 flex items-center gap-4">
+          <div className="mt-10 flex items-center gap-4">
             <div className="flex -space-x-3">
               {["#2563eb", "#6366f1", "#0ea5e9", "#22c55e"].map((c, i) => (
                 <span
                   key={i}
-                  className="h-10 w-10 rounded-full border-2 border-white text-sm font-bold text-white shadow-md grid place-items-center"
+                  className="grid h-10 w-10 place-items-center rounded-full border-2 border-white/80 text-sm font-bold text-white shadow-md"
                   style={{ background: c }}
                 >
                   {["A", "M", "S", "J"][i]}
                 </span>
               ))}
             </div>
-            <div className="text-sm text-gray-600">
-              <div className="flex items-center gap-1 text-amber-500">★★★★★</div>
+            <div className="text-sm text-blue-50/90">
+              <div className="flex items-center gap-1 text-amber-300">★★★★★</div>
               <span className="font-medium">Joined by 50,000+ learners worldwide</span>
             </div>
           </div>
         </div>
 
-        {/* Right — live video showcase */}
-        <div className="relative kr-fade-up-2">
-          <div className="kr-media aspect-[4/5] sm:aspect-[16/12]">
-            <video
-              src="/media/learning-tablet.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster="/images/scenes/scene-1.png"
-            />
-            <div className="kr-media-ring" />
-            {/* gradient veil for legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/45 via-transparent to-transparent" />
-
-            {/* top-left live badge */}
-            <div className="absolute left-4 top-4 kr-glass kr-chip">
+        {/* Right — floating glass stat cards over the video */}
+        <div className="relative hidden h-full min-h-[440px] lg:block">
+          {/* Live lesson card */}
+          <div className="kr-glass-dark kr-fade-up-2 absolute right-0 top-6 w-72 p-5 shadow-2xl">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-300">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
               </span>
               Live AI lesson
             </div>
-
-            {/* bottom caption chip */}
-            <div className="absolute bottom-4 left-4 right-4 kr-glass rounded-2xl px-4 py-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <Volume2 className="h-4 w-4 text-blue-600" />
-                AI Teacher: “Let’s factor x² + 5x + 6 together…”
-              </div>
+            <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-white">
+              <Volume2 className="h-4 w-4 text-blue-300" />
+              “Let’s factor x² + 5x + 6 together…”
             </div>
           </div>
 
-          {/* floating progress card */}
-          <div className="absolute -right-3 top-10 hidden kr-glass rounded-2xl px-4 py-3 shadow-xl sm:block kr-float">
-            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Lesson progress</div>
-            <div className="mt-1 text-2xl font-extrabold text-slate-900">42%</div>
-            <div className="mt-2 h-2 w-32 overflow-hidden rounded-full bg-blue-100">
-              <div className="h-full w-[42%] rounded-full bg-gradient-to-r from-blue-500 to-indigo-600" />
+          {/* Progress card */}
+          <div className="kr-glass-dark kr-fade-up-3 kr-float absolute left-2 top-44 w-56 p-5 shadow-2xl">
+            <div className="text-xs font-semibold uppercase tracking-wide text-blue-200/80">Lesson progress</div>
+            <div className="mt-1 text-3xl font-extrabold text-white">42%</div>
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/15">
+              <div className="h-full w-[42%] rounded-full bg-gradient-to-r from-blue-400 to-indigo-400" />
             </div>
           </div>
 
-          {/* floating captions chip */}
-          <div className="absolute -left-3 bottom-24 hidden kr-glass kr-chip shadow-xl sm:inline-flex kr-float" style={{ animationDelay: "-3s" }}>
-            <Subtitles className="h-4 w-4 text-indigo-600" />
-            Captions On
+          {/* Captions chip */}
+          <div className="kr-glass-dark kr-fade-up-2 kr-float absolute bottom-6 right-6 inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold text-white shadow-2xl" style={{ animationDelay: "-3s" }}>
+            <Subtitles className="h-4 w-4 text-indigo-300" />
+            Captions On · 10+ languages
           </div>
         </div>
       </div>
+
+      {/* Bottom fade into the page */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[var(--gray-50)]" />
     </section>
   );
 }
@@ -480,13 +511,15 @@ function Stats() {
   ];
 
   return (
-    <section className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 py-24">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-600 py-24">
+      <div className="kr-glitter" />
+      <div className="kr-shimmer-ribbon" />
+      <div className="relative mx-auto max-w-7xl px-6">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, idx) => (
             <div key={idx} className="text-center">
-              <div className="text-5xl sm:text-6xl font-bold text-white mb-3">{stat.value}</div>
-              <div className="text-base sm:text-lg text-white/90 font-medium">{stat.label}</div>
+              <div className="kr-shine-text mb-3 text-5xl font-bold sm:text-6xl">{stat.value}</div>
+              <div className="text-base font-medium text-white/90 sm:text-lg">{stat.label}</div>
             </div>
           ))}
         </div>
