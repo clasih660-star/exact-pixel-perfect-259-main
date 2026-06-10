@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Sparkles, Mic, PencilRuler, Brain, GraduationCap, ArrowRight, Users, School, Accessibility, Play, CircleCheck as CheckCircle2, ChevronRight, Zap, BookOpen, Monitor, Volume2, Bubbles as Subtitles, Trophy, Clock3, ChartBar as BarChart3, Lightbulb, Target, Calculator, Atom, Languages, Map, Globe, Palette, Music, Settings, Shield, Heart, Clock, Award, Headphones, Video, MessageSquare, LayoutDashboard, UserCheck, FileCheck, Bot, Wifi, Eye, Type, Hand, Focus, RotateCcw, HelpCircle, CheckCircle, X } from "lucide-react";
+import { Sparkles, Mic, PencilRuler, Brain, GraduationCap, ArrowRight, Users, School, Accessibility, Play, CircleCheck as CheckCircle2, ChevronRight, Zap, BookOpen, Monitor, Volume2, Bubbles as Subtitles, Trophy, Clock3, ChartBar as BarChart3, Lightbulb, Target, Calculator, Atom, Languages, Map, Globe, Palette, Music, Settings, Shield, Heart, Clock, Award, Headphones, Video, MessageSquare, LayoutDashboard, UserCheck, FileCheck, Bot, Wifi, Eye, Type, Hand, Focus, RotateCcw, Circle as HelpCircle, CircleCheck as CheckCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo, LogoMark } from "@/components/brand/Logo";
 
