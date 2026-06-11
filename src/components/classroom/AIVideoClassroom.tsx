@@ -21,12 +21,12 @@ import type {
   ClassroomConfidenceOption,
 } from "@/lib/classroom-content";
 import { buildDemoLessonContent } from "@/lib/classroom-content.demo";
-import { speak, startListening, stopListening } from "@/lib/speech";
+import { speak, startListening, stopListening, setNarrationMuted, setGlobalRate } from "@/lib/speech";
 import { answerLearnerQuestion } from "@/lib/classroom-ai.functions";
 import { recordSessionEvent } from "@/lib/events.functions";
-import { applyAccessibility, loadAccessibility, prefsForMode } from "@/lib/accessibility";
+import { loadAccessibility, prefsForMode, saveAccessibility } from "@/lib/accessibility";
+import type { AccessibilityPrefs, TextScale } from "@/lib/accessibility";
 import { InlineEngagementArea } from "./InlineEngagementArea";
-import { ClassroomNotesPanel } from "./ClassroomNotesPanel";
 import type { EngagementPrompt } from "@/lib/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -178,8 +178,14 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
   // Per-lesson identity (replaces the old module-level demo constants).
   const TEACHER_NAME = lesson.teacher.name;
-  const TEACHER_IMAGE = lesson.teacher.image;
+  // Gender-matched portrait: a man for a male voice, a woman for a female voice.
+  // Uses the lesson's own image when provided, else the matching default.
   const TEACHER_VOICE = lesson.teacher.voice;
+  const TEACHER_IMAGE =
+    lesson.teacher.image ||
+    (TEACHER_VOICE === "female" ? "/images/teachers/woman.png" : "/images/teachers/man.png");
+  // Optional real-teacher video feed (shown instead of the portrait when present).
+  const TEACHER_VIDEO = (lesson.teacher as { videoUrl?: string }).videoUrl;
   const INSTITUTION = lesson.institution;
   const COURSE = lesson.course;
   const LESSON_SUBJECT = lesson.subject;
@@ -239,10 +245,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   const [learningMode, setLearningMode] = useState<LearningMode>("standard");
   const [isPaused, setIsPaused] = useState(false);
 
-  // Apply text scaling / contrast when an accessibility-oriented mode is chosen.
+  // When an accessibility-oriented mode is chosen, fold its sensible display
+  // defaults (text scale / contrast / motion) into the live settings.
   useEffect(() => {
-    const base = loadAccessibility();
-    applyAccessibility({ ...base, ...prefsForMode(learningMode) });
+    const extra = prefsForMode(learningMode);
+    if (Object.keys(extra).length > 0) {
+      setA11y((prev) => ({ ...prev, ...extra }));
+    }
   }, [learningMode]);
 
   // ── Board State ───────────────────────────────────────
@@ -270,7 +279,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
   // ── Caption State ─────────────────────────────────────
   const [captionText, setCaptionText] = useState("");
-  const [captionSpeaker, setCaptionSpeaker] = useState("AI Teacher");
+  const [captionSpeaker, setCaptionSpeaker] = useState(TEACHER_NAME);
 
   // ── Transcript State ──────────────────────────────────
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
@@ -315,8 +324,29 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   const [completionOpen, setCompletionOpen] = useState(false);
   const [takeawayScore, setTakeawayScore] = useState<number | null>(null);
 
-  // ── Mode Selector State ───────────────────────────────
+  // ── Mode / Settings Selector State ────────────────────
   const [modeSelectorOpen, setModeSelectorOpen] = useState(false);
+
+  // ── Learner Settings (display, sound, captions) ───────
+  // Backed by the shared accessibility prefs, plus classroom-local extras. Built
+  // big and clear so it works for grade-one learners up to tertiary students.
+  const [a11y, setA11y] = useState<AccessibilityPrefs>(() => loadAccessibility());
+  const [narrationOn, setNarrationOn] = useState(true);
+  const [voiceSpeed, setVoiceSpeed] = useState<"slow" | "normal" | "fast">("normal");
+  const [captionSize, setCaptionSize] = useState<"sm" | "md" | "lg">("md");
+
+  // Apply display prefs (text scale / contrast / motion) whenever they change.
+  useEffect(() => {
+    saveAccessibility(a11y);
+  }, [a11y]);
+  // Mute/unmute the teacher's voice globally.
+  useEffect(() => {
+    setNarrationMuted(!narrationOn);
+  }, [narrationOn]);
+  // Narration speed → global speech rate.
+  useEffect(() => {
+    setGlobalRate(voiceSpeed === "slow" ? 0.8 : voiceSpeed === "fast" ? 1.25 : 1);
+  }, [voiceSpeed]);
 
   // ── Raise Hand State ──────────────────────────────────
   const [raiseHand, setRaiseHand] = useState<"idle" | "raised" | "acknowledged" | "resolved">("idle");
@@ -382,6 +412,18 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     if (phase === "practice") return 70 + (practiceIndex / practiceProblems.length) * 20;
     return Math.round(((currentIndex + 1) / sequence.length) * 70);
   }, [currentIndex, phase, completionOpen, practiceIndex]);
+
+  // ── Live session clock (mm:ss since the lesson started) ───────────────
+  const [elapsedSec, setElapsedSec] = useState(0);
+  useEffect(() => {
+    if (!started) return;
+    const id = setInterval(
+      () => setElapsedSec(Math.max(0, Math.floor((Date.now() - startTimeRef.current) / 1000))),
+      1000,
+    );
+    return () => clearInterval(id);
+  }, [started]);
+  const clock = `${String(Math.floor(elapsedSec / 60)).padStart(2, "0")}:${String(elapsedSec % 60).padStart(2, "0")}`;
 
   // Map board index to lesson section (driven by the lesson's section stops, so
   // it works for the demo and any real generated lesson alike).
@@ -526,7 +568,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setIsWriting(true);
       setCurrentWritingText("");
       setCaptionText("✍️ Writing on board...");
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
 
       const speed = SPEED_MAP[item.writingSpeed ?? "normal"];
       const text = item.boardText;
@@ -563,7 +605,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setPhase("reading");
       setTeacherState("speaking");
       setCaptionText(item.exactSpokenText);
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
       setShowExplanation(false);
       setShowWarning(false);
       addTranscript("teacher", item.exactSpokenText, item.id);
@@ -588,7 +630,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setCurrentExplanation(item);
       setShowExplanation(true);
       setCaptionText(item.teacherExplanation);
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", item.teacherExplanation, item.id);
 
       if (learningMode !== "deaf") {
@@ -618,7 +660,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setTeacherState("warning");
       setShowWarning(true);
       setCaptionText(`⚠️ ${item.commonMistake}`);
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", `Warning: ${item.commonMistake}`, item.id);
 
       phaseTimerRef.current = setTimeout(() => advanceRef.current(seq, idx), 4000);
@@ -639,7 +681,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setPracticeAnswer("");
       setPracticeFeedback(null);
       setCaptionText(mode === "guided" ? "Let's try one together!" : "Your turn to try alone!");
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
       addTranscript("system", mode === "guided" ? "Guided practice started" : "Independent practice started");
       setHintLevel(0);
     },
@@ -825,7 +867,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     if (intro) {
       setTeacherState("explaining");
       setCaptionText(intro);
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", intro);
       if (learningMode !== "deaf") speak(intro, undefined, undefined, TEACHER_VOICE);
       logEvent("Prerequisite reminder (auto)");
@@ -919,7 +961,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setPhase("idle");
     setTeacherState("preparing");
     setCaptionText("Welcome! Let's begin today's lesson.");
-    setCaptionSpeaker("AI Teacher");
+    setCaptionSpeaker(TEACHER_NAME);
     addTranscript("system", "Lesson started");
     addTranscript("teacher", LESSON_OPENING_NARRATIVE);
 
@@ -967,7 +1009,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setIsPaused(false);
     setTeacherState("preparing");
     setCaptionText("Replaying lesson from the beginning...");
-    setCaptionSpeaker("AI Teacher");
+    setCaptionSpeaker(TEACHER_NAME);
 
     writeOnBoard(sequence[0], seq, 0);
   }, [clearTimers, writeOnBoard]);
@@ -982,7 +1024,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setShowWarning(false);
     setTeacherState("preparing");
     setCaptionText("Replaying current step...");
-    setCaptionSpeaker("AI Teacher");
+    setCaptionSpeaker(TEACHER_NAME);
 
     writeOnBoard(sequence[currentIndex], seq, currentIndex);
   }, [currentIndex, clearTimers, writeOnBoard]);
@@ -1008,7 +1050,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setIsPaused(false);
       setTeacherState("preparing");
       setCaptionText(`Going to ${LESSON_PLAN_SECTIONS[sectionOrder].label}…`);
-      setCaptionSpeaker("AI Teacher");
+      setCaptionSpeaker(TEACHER_NAME);
       logEvent(`Jumped to section: ${key}`);
       writeOnBoard(sequence[targetIdx], seq, targetIdx);
     },
@@ -1066,7 +1108,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setQuestionOpen(true);
     setTeacherState("listening");
     setCaptionText("What is your question?");
-    setCaptionSpeaker("AI Teacher");
+    setCaptionSpeaker(TEACHER_NAME);
   }, []);
 
   /** Toggle voice capture for asking a question. Transcribes speech into the
@@ -1083,7 +1125,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setQuestionOpen(true);
     setTeacherState("listening");
     setCaptionText("Listening… ask your question now.");
-    setCaptionSpeaker("AI Teacher");
+    setCaptionSpeaker(TEACHER_NAME);
     setIsListening(true);
     recognizerRef.current = startListening(
       (transcript, isFinal) => {
@@ -1165,7 +1207,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         if (res.clarity === "unclear" && res.clarificationQuestion) {
           setTeacherState("clarifying");
           setCaptionText(res.clarificationQuestion);
-          setCaptionSpeaker("AI Teacher");
+          setCaptionSpeaker(TEACHER_NAME);
           addTranscript("teacher", res.clarificationQuestion);
           if (learningMode !== "deaf") speak(res.clarificationQuestion);
           logEvent("Teacher asked for clarification");
@@ -1186,7 +1228,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         const answer = res.answer;
         setTeacherState("answering");
         setCaptionText(answer);
-        setCaptionSpeaker("AI Teacher");
+        setCaptionSpeaker(TEACHER_NAME);
         addTranscript("teacher", answer);
         if (res.saveToNotes) logEvent("Answer saved to notes");
         if (learningMode !== "deaf") speak(answer);
@@ -1238,7 +1280,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         setResults((prev) => ({ ...prev, questionsAsked: prev.questionsAsked + 1 }));
         setTeacherState("thinking");
         setCaptionText("Let me think about how best to explain that…");
-        setCaptionSpeaker("AI Teacher");
+        setCaptionSpeaker(TEACHER_NAME);
         logEvent(`Quick action: ${action}`);
 
         const boardItem =
@@ -1265,7 +1307,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             const answer = res.answer || res.clarificationQuestion || "Let's look at this step again together.";
             setTeacherState("answering");
             setCaptionText(answer);
-            setCaptionSpeaker("AI Teacher");
+            setCaptionSpeaker(TEACHER_NAME);
             addTranscript("teacher", answer);
             if (learningMode !== "deaf") speak(answer, undefined, undefined, TEACHER_VOICE);
             setFollowUp(res.suggestedFollowUp || "Does that help, or should I show another example?");
@@ -1413,7 +1455,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setPhase("idle");
     setTeacherState("preparing");
     setCaptionText("Welcome back! Resuming your lesson...");
-    setCaptionSpeaker("AI Teacher");
+    setCaptionSpeaker(TEACHER_NAME);
     addTranscript("system", "Lesson resumed from previous session");
 
     if (learningMode !== "deaf") {
@@ -1598,7 +1640,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               <polygon points="23 7 16 12 23 17 23 7" />
               <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
             </svg>
-            AI Video Classroom
+            Live Classroom
           </div>
           <h1 className="vc-start-title">{LESSON_TITLE}</h1>
           <p className="vc-start-narrative">{LESSON_OPENING_NARRATIVE}</p>
@@ -1695,40 +1737,66 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         phase={phase}
         equation={LESSON_EQUATION}
         courseType={LESSON_COURSE_TYPE}
+        clock={clock}
+        learningMode={learningMode}
         onOpenSettings={() => setModeSelectorOpen(true)}
+        onOpenNotes={() => setNotesOpen(true)}
+        onOpenTranscript={() => setTranscriptOpen(true)}
+        onEndLesson={handleEndLesson}
       />
 
       {/* ── Main Layout ──────────────────────────────────── */}
       <div className="vc-main">
-        {/* ── AI Teacher Panel (26%) ──────────────────────── */}
+        {/* ── Teacher Panel (26%) ─────────────────────────── */}
         <div className="vc-teacher-panel">
-          {/* Video Frame */}
+          {/* Panel header — teacher presence */}
+          <div className="vc-panel-header">
+            <span className="vc-panel-header-title">Your Teacher</span>
+            <span className="vc-panel-header-status">
+              <span className="vc-panel-header-dot" />
+              Online
+            </span>
+          </div>
+
+          {/* Video / portrait frame */}
           <div className="vc-teacher-frame">
             <div className="vc-teacher-frame-inner">
-              {/* Teacher Image */}
-              <img
-                src={TEACHER_IMAGE}
-                alt={`AI Teacher ${TEACHER_NAME}`}
-                className="vc-teacher-image-real"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                  const parent = (e.target as HTMLImageElement).parentElement;
-                  if (parent && !parent.querySelector(".vc-teacher-image-placeholder")) {
-                    const fallback = document.createElement("div");
-                    fallback.className = "vc-teacher-image-placeholder";
-                    fallback.textContent = "MA";
-                    parent.appendChild(fallback);
-                  }
-                }}
-              />
+              {TEACHER_VIDEO ? (
+                /* Real teacher → their video feed plays here */
+                <video
+                  src={TEACHER_VIDEO}
+                  className="vc-teacher-image-real"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              ) : (
+                /* Lesson teacher → a portrait matched to the lesson's voice */
+                <img
+                  src={TEACHER_IMAGE}
+                  alt={TEACHER_NAME}
+                  className="vc-teacher-image-real"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                    const parent = (e.target as HTMLImageElement).parentElement;
+                    if (parent && !parent.querySelector(".vc-teacher-image-placeholder")) {
+                      const fallback = document.createElement("div");
+                      fallback.className = "vc-teacher-image-placeholder";
+                      fallback.textContent = TEACHER_NAME.slice(0, 2).toUpperCase();
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+              )}
 
               {/* Speaking Ring */}
               <div className={`vc-speaking-ring ${isSpeaking ? "vc-speaking-ring-active" : ""}`} />
 
-              {/* Badges */}
+              {/* Live presence badge */}
               <div className="vc-teacher-badge">
                 <span className="vc-teacher-badge-dot" />
-                AI Teacher
+                Live
               </div>
 
               <div className={`vc-teacher-voice-indicator ${isSpeaking ? "vc-teacher-voice-indicator-active" : ""}`}>
@@ -1737,108 +1805,77 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" strokeWidth="2" fill="none" />
                   <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" strokeWidth="2" />
                 </svg>
-                Voice Active
+                Speaking
               </div>
             </div>
           </div>
 
-          {/* Waveform */}
-          <div className={`vc-waveform ${isSpeaking ? "vc-waveform-active" : ""}`}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div
-                key={i}
-                className="vc-waveform-bar"
-                style={{
-                  height: isSpeaking ? undefined : "3px",
-                  animationDelay: `${i * 0.08}s`,
-                }}
+          {/* Teacher identity — name, subject subtitle, live status */}
+          <div className="vc-teacher-identity">
+            <div className="vc-teacher-name-row">
+              <span className="vc-teacher-name">{TEACHER_NAME}</span>
+            </div>
+            <div className="vc-teacher-subtitle">{LESSON_SUBJECT} Teacher</div>
+            <div className="vc-teacher-live-status">
+              <span
+                className="vc-teacher-live-dot"
+                style={{ background: stateColors[teacherState]?.text ?? "#16a34a" }}
               />
-            ))}
+              {stateLabel}
+            </div>
           </div>
 
-          {/* State Badge */}
-          <div
-            className="vc-state-badge"
-            style={{
-              background: stateColors[teacherState]?.bg ?? "rgba(148,163,184,0.15)",
-              color: stateColors[teacherState]?.text ?? "#94a3b8",
-            }}
-          >
-            <span style={{ fontSize: "0.65rem" }}>
-              {teacherState === "writing" ? "✍️" :
-               teacherState === "speaking" || teacherState === "explaining" ? "🗣️" :
-               teacherState === "listening" ? "👂" :
-               teacherState === "thinking" ? "💭" :
-               teacherState === "asking_question" ? "❓" :
-               teacherState === "warning" ? "⚠️" :
-               teacherState === "paused" ? "⏸️" : "🎓"}
-            </span>
-            {stateLabel}
-          </div>
-
-          {/* Teacher Name */}
-          <div className="vc-teacher-info">
-            <div className="vc-teacher-name">{TEACHER_NAME}</div>
+          {/* Three mini status cards — Voice / Captions / Listening */}
+          <div className="vc-mini-cards">
+            <div className={`vc-mini-card ${isSpeaking ? "vc-mini-card-on" : ""}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+              </svg>
+              <span>Voice Active</span>
+            </div>
+            <div className={`vc-mini-card ${captionsOn || learningMode === "deaf" ? "vc-mini-card-on" : ""}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="4" width="20" height="14" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="18" x2="12" y2="21" />
+              </svg>
+              <span>Captions On</span>
+            </div>
+            <div className={`vc-mini-card ${isListening || teacherState === "listening" ? "vc-mini-card-on" : ""}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M2 12a10 10 0 0 1 20 0" />
+                <path d="M5 12a7 7 0 0 1 14 0" />
+                <path d="M8 12a4 4 0 0 1 8 0" />
+              </svg>
+              <span>Listening</span>
+            </div>
           </div>
 
           {/* Step Info */}
           <div className="vc-teacher-step-info">
-            <span className="vc-teacher-step-label">Current Step</span>
+            <div className="vc-teacher-step-top">
+              <span className="vc-teacher-step-label">Current Step</span>
+              <span className="vc-teacher-step-count">{currentIndex + 1} of {sequence.length}</span>
+            </div>
             <span className="vc-teacher-step-value">
-              {currentIndex + 1} of {sequence.length}
-              {currentItem ? ` — ${currentItem.type.replace(/_/g, " ")}` : ""}
+              {currentItem ? currentItem.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "—"}
             </span>
             <div className="vc-teacher-step-bar">
               <div className="vc-teacher-step-bar-fill" style={{ width: `${progress}%` }} />
             </div>
           </div>
 
-          {/* Learning Mode Indicator */}
-          <div className="vc-mode-indicator">
-            {LEARNING_MODES.find((m) => m.value === learningMode)?.icon}{" "}
-            {LEARNING_MODES.find((m) => m.value === learningMode)?.label}
-          </div>
-
           {/* Lesson Plan Mini Timeline */}
-          <div className="vc-lesson-plan">
-            <div className="vc-lesson-plan-title">Lesson Plan</div>
-            <div className="vc-lesson-plan-items">
-              {LESSON_PLAN_SECTIONS.map((sec, idx) => {
-                const sectionIdx = LESSON_PLAN_SECTIONS.findIndex(s => s.key === currentSection);
-                const isCompleted = idx < sectionIdx;
-                const isCurrent = sec.key === currentSection;
-                const isLocked = idx > sectionIdx + 1;
-                const canJump = (SECTION_START_INDEX[sec.key] !== undefined) && idx <= sectionIdx + 1;
-                return (
-                  <button
-                    key={sec.key}
-                    type="button"
-                    disabled={!canJump}
-                    onClick={() => canJump && jumpToSection(sec.key)}
-                    className={`vc-lesson-plan-item ${isCompleted ? "vc-lesson-plan-item-completed" : isCurrent ? "vc-lesson-plan-item-current" : isLocked ? "vc-lesson-plan-item-locked" : ""} ${canJump ? "vc-lesson-plan-item-jumpable" : ""}`}
-                    title={canJump ? `Go to ${sec.label}` : "Complete the current section first"}
-                  >
-                    <span className="vc-lesson-plan-dot" />
-                    <span>{sec.icon} {sec.label}</span>
-                    {isCompleted ? (
-                      <span style={{ marginLeft: "auto", fontSize: "0.65rem" }}>✓</span>
-                    ) : isLocked ? (
-                      <span style={{ marginLeft: "auto", fontSize: "0.62rem", opacity: 0.6 }}>🔒</span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Progress Tracker */}
-          <div className="vc-progress-tracker">
-            <span className="vc-progress-tracker-label">Progress</span>
-            <div className="vc-progress-tracker-bar">
-              <div className="vc-progress-tracker-fill" style={{ width: `${progress}%` }} />
-            </div>
-            <span className="vc-progress-tracker-value">{progress}%</span>
-          </div>
+          <CourseOutline
+            course={COURSE}
+            lessonTitle={LESSON_TITLE}
+            sections={LESSON_PLAN_SECTIONS}
+            currentSection={currentSection}
+            canRevisit={(key) => SECTION_START_INDEX[key] !== undefined}
+            onRevisit={jumpToSection}
+          />
 
           {/* Raise Hand Status */}
           {raiseHand === "raised" && (
@@ -1848,28 +1885,45 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             </div>
           )}
           {raiseHand === "acknowledged" && (
-            <div className="vc-raise-hand-status" style={{ color: "#4ade80", borderColor: "rgba(34,197,94,0.25)", background: "rgba(34,197,94,0.1)" }}>
+            <div className="vc-raise-hand-status vc-raise-hand-status-ok">
               👋 Teacher sees your hand!
             </div>
           )}
 
-          {/* Quick Controls */}
-          <div className="vc-teacher-controls">
-            <button className="vc-teacher-btn vc-teacher-btn-primary" onClick={handleReplayStep}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="1 4 1 10 7 10" />
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-              </svg>
-              Replay
-            </button>
-            <button className="vc-teacher-btn" onClick={handleAskQuestion}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              Ask
-            </button>
+          {/* Quick Help — 2×2 one-tap actions */}
+          <div className="vc-quick-help">
+            <div className="vc-quick-help-title">Quick Help</div>
+            <div className="vc-quick-help-grid">
+              <button className="vc-quick-help-btn" onClick={handleAskQuestion}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Ask Question
+              </button>
+              <button className="vc-quick-help-btn" onClick={handleReplayStep}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="1 4 1 10 7 10" />
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Repeat Step
+              </button>
+              <button className="vc-quick-help-btn" onClick={() => handleQuickAction("Explain simpler")}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 18h6" /><path d="M10 22h4" />
+                  <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z" />
+                </svg>
+                Explain Simpler
+              </button>
+              <button className="vc-quick-help-btn vc-quick-help-btn-amber" onClick={() => handleQuickAction("Give example")}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M3 9h18" /><path d="M9 21V9" />
+                </svg>
+                Another Example
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1877,28 +1931,96 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         <div className="vc-whiteboard-area">
           {/* Current goal banner — keeps the learner focused on the now */}
           <div className="vc-current-goal">
-            <span className="vc-current-goal-icon">🎯</span>
-            <span className="vc-current-goal-label">Current goal:</span>
+            <span className="vc-current-goal-icon" aria-hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              </svg>
+            </span>
+            <span className="vc-current-goal-label">Current Goal:</span>
             <span className="vc-current-goal-text">
               {SECTION_GOALS[currentSection] ?? "Follow along with the teacher."}
+            </span>
+            <span className="vc-current-goal-info" aria-hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
             </span>
           </div>
           <div className="vc-board-row">
           <div className="vc-whiteboard">
             {/* Whiteboard Header */}
             <div className="vc-whiteboard-header">
-              <span className="vc-whiteboard-label">Learning Whiteboard</span>
-              {isWriting && (
-                <span className="vc-whiteboard-writing-indicator">
-                  <span className="vc-whiteboard-writing-dot" />
-                  Writing...
+              <div className="vc-whiteboard-header-left">
+                <span className="vc-whiteboard-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                    <rect x="3" y="4" width="18" height="14" rx="2" />
+                    <line x1="3" y1="20" x2="21" y2="20" />
+                  </svg>
+                  Learning Whiteboard
                 </span>
-              )}
-              {!isWriting && writtenLines.length > 0 && (
-                <span style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 500 }}>
-                  {writtenLines.length} line{writtenLines.length !== 1 ? "s" : ""} written
+                <span className="vc-whiteboard-sep">·</span>
+                <span className="vc-whiteboard-section">
+                  {LESSON_PLAN_SECTIONS.find((s) => s.key === currentSection)?.label ?? "Lesson"}
                 </span>
-              )}
+                <span className="vc-whiteboard-sep">·</span>
+                {isWriting ? (
+                  <span className="vc-whiteboard-writing-indicator">
+                    <span className="vc-whiteboard-writing-dot" />
+                    Writing…
+                  </span>
+                ) : (
+                  <span className="vc-whiteboard-count">
+                    {writtenLines.length} of {sequence.length} items
+                  </span>
+                )}
+              </div>
+              <div className="vc-whiteboard-header-right">
+                <button className="vc-board-tool-btn" onClick={handleReplayStep}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                  </svg>
+                  Replay This Item
+                </button>
+                <button
+                  className="vc-board-tool-btn"
+                  onClick={() => {
+                    const last = writtenLines[writtenLines.length - 1];
+                    if (last && learningMode !== "deaf") speak(`On the board: ${last.boardText}. ${last.teacherExplanation ?? ""}`, undefined, undefined, TEACHER_VOICE);
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                  </svg>
+                  Describe Board
+                </button>
+                <div className="vc-board-zoom">
+                  <button className="vc-board-zoom-btn" aria-label="Zoom out">−</button>
+                  <span className="vc-board-zoom-val">100%</span>
+                  <button className="vc-board-zoom-btn" aria-label="Zoom in">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="vc-board-stage">
+            {/* Vertical tool strip (decorative — matches reference) */}
+            <div className="vc-board-toolstrip" aria-hidden>
+              <span className="vc-board-tool vc-board-tool-active">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" /></svg>
+              </span>
+              <span className="vc-board-tool">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" /></svg>
+              </span>
+              <span className="vc-board-tool">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+              </span>
+              <span className="vc-board-tool">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg>
+              </span>
+              <span className="vc-board-tool">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+              </span>
             </div>
 
             {/* Whiteboard Content */}
@@ -1940,28 +2062,17 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               <span className="vc-tray-marker vc-tray-marker-red" />
               <span className="vc-tray-eraser" />
             </div>
+            </div>{/* /vc-board-stage */}
           </div>
-          {/* Right rail — present for every subject:
-              • the demo math lesson shows its live graph + worked strategy
-              • theory / any generated lesson shows live key points as they're written
-              The classroom decides automatically from the course type. */}
-          <ClassroomNotesPanel
-            learnerNotes={FULL_LEARNER_NOTES}
+          {/* Smaller right section — lesson visuals (graphs / diagrams /
+              illustrations) and live bullet summaries of what's on the board.
+              The classroom decides the content automatically from the subject. */}
+          <SubjectVisual
+            courseType={LESSON_COURSE_TYPE}
+            isDemo={lesson.lessonId === "demo"}
             keyPoints={boardKeyPoints}
-            transcript={transcript}
-            progress={progress}
-            currentSectionLabel={SECTION_GOALS[currentSection] ?? currentSection}
-            resources={
-              lesson.lessonId === "demo" && LESSON_COURSE_TYPE === "mathematics" ? (
-                <SubjectVisual
-                  courseType={LESSON_COURSE_TYPE}
-                  isDemo
-                  keyPoints={boardKeyPoints}
-                  lessonTitle={LESSON_TITLE}
-                  currentGoal={SECTION_GOALS[currentSection]}
-                />
-              ) : undefined
-            }
+            lessonTitle={LESSON_TITLE}
+            currentGoal={SECTION_GOALS[currentSection]}
           />
           </div>
         </div>
@@ -1978,13 +2089,17 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
       {/* ── Caption Bar ──────────────────────────────────── */}
       {(captionsOn || learningMode === "deaf") && (
-      <div className="vc-caption-bar">
+      <div className={`vc-caption-bar vc-cap-${captionSize}`}>
         <div className="vc-caption-bar-inner">
+          <span className="vc-caption-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" strokeWidth="2" fill="none" />
+            </svg>
+            {captionSpeaker}
+          </span>
           {captionText ? (
-            <>
-              <span className="vc-caption-speaker">{captionSpeaker}:</span>
-              <span className="vc-caption-text">{captionText}</span>
-            </>
+            <span className="vc-caption-text">{captionText}</span>
           ) : (
             <span className="vc-caption-empty">Captions will appear here</span>
           )}
@@ -2002,162 +2117,133 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       </div>
       )}
 
-      {/* ── Bottom Controls ──────────────────────────────── */}
+      {/* ── Bottom Controls — four labelled clusters (matches reference) ── */}
       <div className="vc-controls">
-        {/* Lesson controls */}
-        <div className="vc-controls-group">
-          <button className="vc-control-btn vc-control-btn-primary" onClick={handlePause}>
-            {isPaused ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
-            ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="6" y="4" width="4" height="16" />
-                <rect x="14" y="4" width="4" height="16" />
-              </svg>
-            )}
-            {isPaused ? "Play" : "Pause"}
-          </button>
-          <button className="vc-control-btn" onClick={handleReplay}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="1 4 1 10 7 10" />
-              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-            </svg>
-            Replay
-          </button>
-          <button className="vc-control-btn" onClick={handleReplayStep}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="19 20 9 12 19 4 19 20" />
-              <line x1="5" y1="4" x2="5" y2="20" />
-            </svg>
-            Step
-          </button>
+        {/* Lesson Controls */}
+        <div className="vc-control-cluster">
+          <span className="vc-cluster-label">Lesson Controls</span>
+          <div className="vc-cluster-row">
+            <button className="vc-ctl" onClick={handleReplay} title="Previous / replay from start">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19" /><polygon points="22 19 13 12 22 5 22 19" /></svg>
+              <span>Previous</span>
+            </button>
+            <button className="vc-ctl vc-ctl-primary" onClick={handlePause}>
+              {isPaused ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+              )}
+              <span>{isPaused ? "Play" : "Pause"}</span>
+            </button>
+            <button className="vc-ctl" onClick={resumeAfterInterjection} title="Next">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5" /><polygon points="2 5 11 12 2 19 2 5" /></svg>
+              <span>Next</span>
+            </button>
+            <button className="vc-ctl" onClick={handleReplayStep}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
+              <span>Replay Step</span>
+            </button>
+          </div>
         </div>
 
         <div className="vc-controls-divider" />
 
-        {/* Question controls */}
-        <div className="vc-controls-group">
-          <button className="vc-control-btn" onClick={handleAskQuestion}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            Ask
-          </button>
-          <button
-            className={`vc-control-btn vc-raise-hand-btn ${raiseHand !== "idle" ? "vc-control-btn-active" : ""}`}
-            onClick={() => {
-              if (raiseHand === "idle") {
-                setRaiseHand("raised");
-                setResults((prev) => ({ ...prev, raisedHands: prev.raisedHands + 1 }));
-                logEvent("Learner raised hand");
-                addTranscript("system", "Learner raised hand");
-                // Auto-acknowledge, then open the question box. Track the timers so
-                // lowering the hand cancels them (no state bounce / race).
-                raiseHandTimersRef.current.push(
-                  setTimeout(() => {
-                    setRaiseHand("acknowledged");
-                    setCaptionText("I see your hand! Let me finish this step, then I'll take your question.");
-                    addTranscript("teacher", "I see your hand! What would you like to ask?");
-                    raiseHandTimersRef.current.push(
-                      setTimeout(() => {
-                        setRaiseHand("resolved");
-                        handleAskQuestion();
-                      }, 3000),
-                    );
-                  }, 2000),
-                );
-              } else {
-                // Lower hand: cancel any pending auto-transitions.
-                raiseHandTimersRef.current.forEach(clearTimeout);
-                raiseHandTimersRef.current = [];
-                setRaiseHand("idle");
-              }
-            }}
-          >
-            <span style={{ fontSize: "0.85rem" }}>✋</span>
-            {raiseHand === "idle" ? "Raise Hand" : raiseHand === "raised" ? "Raised..." : "Hand Seen"}
-          </button>
-          <button
-            className={`vc-control-btn ${isListening ? "vc-control-btn-active" : ""}`}
-            onClick={toggleMic}
-            disabled={learningMode === "deaf"}
-            aria-pressed={isListening}
-            aria-label={isListening ? "Stop voice input" : "Ask by voice"}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" y1="19" x2="12" y2="23" />
-            </svg>
-            {isListening ? "Listening…" : "Mic"}
-          </button>
+        {/* Help & Interaction */}
+        <div className="vc-control-cluster">
+          <span className="vc-cluster-label">Help &amp; Interaction</span>
+          <div className="vc-cluster-row">
+            <button className="vc-ctl" onClick={handleAskQuestion}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+              <span>Ask Question</span>
+            </button>
+            <button
+              className={`vc-ctl ${raiseHand !== "idle" ? "vc-ctl-active" : ""}`}
+              onClick={() => {
+                if (raiseHand === "idle") {
+                  setRaiseHand("raised");
+                  setResults((prev) => ({ ...prev, raisedHands: prev.raisedHands + 1 }));
+                  logEvent("Learner raised hand");
+                  addTranscript("system", "Learner raised hand");
+                  raiseHandTimersRef.current.push(
+                    setTimeout(() => {
+                      setRaiseHand("acknowledged");
+                      setCaptionText("I see your hand! Let me finish this step, then I'll take your question.");
+                      addTranscript("teacher", "I see your hand! What would you like to ask?");
+                      raiseHandTimersRef.current.push(
+                        setTimeout(() => {
+                          setRaiseHand("resolved");
+                          handleAskQuestion();
+                        }, 3000),
+                      );
+                    }, 2000),
+                  );
+                } else {
+                  raiseHandTimersRef.current.forEach(clearTimeout);
+                  raiseHandTimersRef.current = [];
+                  setRaiseHand("idle");
+                }
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8" /><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></svg>
+              <span>{raiseHand === "idle" ? "Raise Hand" : raiseHand === "raised" ? "Raised…" : "Hand Seen"}</span>
+            </button>
+            <button className="vc-ctl vc-ctl-danger-soft" onClick={() => handleQuickAction("I don't understand")}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+              <span>I Don't Understand</span>
+            </button>
+            <button className="vc-ctl vc-ctl-amber" onClick={() => handleQuickAction("Give example")}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18h6" /><path d="M10 22h4" /><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z" /></svg>
+              <span>Another Example</span>
+            </button>
+          </div>
         </div>
 
         <div className="vc-controls-divider" />
 
-        {/* Learning support */}
-        <div className="vc-controls-group">
-          <button
-            className={`vc-control-btn ${captionsOn || learningMode === "deaf" ? "vc-control-btn-active" : ""}`}
-            onClick={() => setCaptionsOn((v) => !v)}
-            disabled={learningMode === "deaf"}
-            aria-pressed={captionsOn || learningMode === "deaf"}
-            title={learningMode === "deaf" ? "Captions are always on in Deaf mode" : captionsOn ? "Hide captions" : "Show captions"}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="2" y="4" width="20" height="14" rx="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="18" x2="12" y2="21" />
-            </svg>
-            CC
-          </button>
-          <button className={`vc-control-btn ${notesOpen ? "vc-control-btn-active" : ""}`} onClick={() => setNotesOpen(!notesOpen)}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-            </svg>
-            Notes
-          </button>
-          <button className={`vc-control-btn ${transcriptOpen ? "vc-control-btn-active" : ""}`} onClick={() => setTranscriptOpen(!transcriptOpen)}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="4 17 10 11 4 5" />
-              <line x1="12" y1="19" x2="20" y2="19" />
-            </svg>
-            Transcript
-          </button>
-          <button className="vc-control-btn" onClick={() => setModeSelectorOpen(!modeSelectorOpen)}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            Mode
-          </button>
+        {/* Learning Support */}
+        <div className="vc-control-cluster">
+          <span className="vc-cluster-label">Learning Support</span>
+          <div className="vc-cluster-row">
+            <button
+              className={`vc-ctl ${captionsOn || learningMode === "deaf" ? "vc-ctl-active" : ""}`}
+              onClick={() => setCaptionsOn((v) => !v)}
+              disabled={learningMode === "deaf"}
+              aria-pressed={captionsOn || learningMode === "deaf"}
+              title={learningMode === "deaf" ? "Captions are always on in Deaf mode" : captionsOn ? "Hide captions" : "Show captions"}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="18" x2="12" y2="21" /></svg>
+              <span>Captions</span>
+            </button>
+            <button className={`vc-ctl ${notesOpen ? "vc-ctl-active" : ""}`} onClick={() => setNotesOpen(!notesOpen)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+              <span>Notes</span>
+            </button>
+            <button className={`vc-ctl ${transcriptOpen ? "vc-ctl-active" : ""}`} onClick={() => setTranscriptOpen(!transcriptOpen)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
+              <span>Transcript</span>
+            </button>
+            <button className="vc-ctl" onClick={() => setModeSelectorOpen(!modeSelectorOpen)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+              <span>Learning Mode</span>
+            </button>
+            <button className="vc-ctl" title="Playback speed">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 8 12 12 15 13" /></svg>
+              <span>Speed 1.0x</span>
+            </button>
+          </div>
         </div>
 
         <div className="vc-controls-divider" />
 
-        {/* Next lesson + End Session */}
-        <div className="vc-controls-group">
-          <Link to="/student/dashboard" className="vc-control-btn vc-next-lesson-btn">
-            Next Lesson
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14" />
-              <path d="M12 5l7 7-7 7" />
-            </svg>
-          </Link>
-          <button className="vc-control-btn vc-control-btn-danger" onClick={handleEndLesson}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-            End
-          </button>
+        {/* Session */}
+        <div className="vc-control-cluster">
+          <span className="vc-cluster-label">Session</span>
+          <div className="vc-cluster-row">
+            <button className="vc-ctl vc-ctl-end" onClick={handleEndLesson}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" transform="rotate(135 12 12)" /></svg>
+              <span>End Lesson</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2383,7 +2469,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <div className="vc-completion-title">Lesson Complete!</div>
+            <div className="vc-completion-title">That brings us to the end of today's lesson</div>
             <div className="vc-completion-subtitle">{LESSON_TITLE}</div>
 
             {/* Takeaway Score Card */}
@@ -2516,23 +2602,23 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         </div>
       )}
 
-      {/* ── Learning Mode Selector ───────────────────────── */}
+      {/* ── Settings panel — display, sound, captions, accessibility ── */}
       {modeSelectorOpen && (
-        <div className="vc-mode-selector">
-          <div className="vc-mode-selector-title">Learning Mode</div>
-          {LEARNING_MODES.map((mode) => (
-            <button
-              key={mode.value}
-              className={`vc-mode-option ${learningMode === mode.value ? "vc-mode-option-active" : ""}`}
-              onClick={() => {
-                setLearningMode(mode.value);
-                setModeSelectorOpen(false);
-              }}
-            >
-              {mode.icon} {mode.label}
-            </button>
-          ))}
-        </div>
+        <SettingsPanel
+          onClose={() => setModeSelectorOpen(false)}
+          a11y={a11y}
+          setA11y={setA11y}
+          narrationOn={narrationOn}
+          setNarrationOn={setNarrationOn}
+          voiceSpeed={voiceSpeed}
+          setVoiceSpeed={setVoiceSpeed}
+          captionsOn={captionsOn}
+          setCaptionsOn={setCaptionsOn}
+          captionSize={captionSize}
+          setCaptionSize={setCaptionSize}
+          learningMode={learningMode}
+          setLearningMode={setLearningMode}
+        />
       )}
 
       {/* Engagement moments (recap, thinking pause, confidence, middle question,
@@ -2547,16 +2633,20 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 // Sub-Components
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Classroom Top Bar */
+/** Classroom Top Bar — matches the Klassruum reference:
+ *  brand · breadcrumb  |  Live · AI Teacher · clock · progress  |  Mode · Notes · Transcript · End */
 function ClassroomTopBar({
   institution,
   course,
   subject,
+  title,
   progress,
-  phase,
-  equation,
-  courseType,
+  clock,
+  learningMode,
   onOpenSettings,
+  onOpenNotes,
+  onOpenTranscript,
+  onEndLesson,
 }: {
   institution: string;
   course: string;
@@ -2566,92 +2656,369 @@ function ClassroomTopBar({
   phase: TeachingPhase;
   equation: string;
   courseType: CourseType;
+  clock: string;
+  learningMode: LearningMode;
   onOpenSettings: () => void;
+  onOpenNotes: () => void;
+  onOpenTranscript: () => void;
+  onEndLesson: () => void;
 }) {
-  const phaseLabels: Record<TeachingPhase, { label: string; color: string; bg: string }> = {
-    idle: { label: "Ready", color: "#94a3b8", bg: "rgba(148,163,184,0.15)" },
-    writing: { label: "Writing", color: "#a78bfa", bg: "rgba(124,58,237,0.15)" },
-    reading: { label: "Reading Board", color: "#60a5fa", bg: "rgba(59,130,246,0.15)" },
-    explaining: { label: "Explaining", color: "#4ade80", bg: "rgba(34,197,94,0.15)" },
-    warning: { label: "Warning", color: "#f87171", bg: "rgba(239,68,68,0.15)" },
-    pausing: { label: "Checkpoint", color: "#facc15", bg: "rgba(234,179,8,0.15)" },
-    asking: { label: "Question", color: "#fb923c", bg: "rgba(249,115,22,0.15)" },
-    practice: { label: "Practice", color: "#c084fc", bg: "rgba(168,85,247,0.15)" },
-    exit_ticket: { label: "Exit Ticket", color: "#fb923c", bg: "rgba(249,115,22,0.15)" },
-    complete: { label: "Complete", color: "#4ade80", bg: "rgba(34,197,94,0.15)" },
-  };
-
-  const phaseInfo = phaseLabels[phase];
-  const meta = COURSE_TYPE_META[courseType];
+  const modeLabel = LEARNING_MODES.find((m) => m.value === learningMode)?.label ?? "Standard";
 
   return (
     <div className="vc-top-bar">
+      {/* Left — brand + breadcrumb */}
       <div className="vc-top-bar-left">
-        {/* Uniform brand logo — anchored first, never displaced */}
         <Link to="/" className="vc-top-bar-brand" title="Klassruum home">
-          <LogoMark size={28} />
+          <LogoMark size={26} />
           <span className="vc-top-bar-logo">Klassruum</span>
         </Link>
 
-        {/* Back to dashboard — compact, sits after the brand */}
-        <Link to="/student/dashboard" className="vc-back-btn" title="Back to dashboard">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5" />
-            <path d="M12 19l-7-7 7-7" />
-          </svg>
-          <span>Dashboard</span>
-        </Link>
-
-        <span className="vc-top-bar-separator">|</span>
         <div className="vc-top-bar-breadcrumb">
           <span>{institution}</span>
           <span className="vc-top-bar-separator">›</span>
           <span>{course}</span>
           <span className="vc-top-bar-separator">›</span>
-          <span className="vc-top-bar-crumb-active">{subject}</span>
+          <span className="vc-top-bar-crumb-active">{subject || title}</span>
         </div>
       </div>
 
+      {/* Center — live status, clock, progress */}
       <div className="vc-top-bar-center">
-        <span className="vc-course-type-chip" title={`${meta.label} classroom`}>
-          {meta.icon} {meta.label}
+        <span className="vc-live-pill">
+          <span className="vc-live-dot" />
+          Live Lesson
         </span>
-        <div
-          className="vc-top-bar-phase"
-          style={{ background: phaseInfo.bg, color: phaseInfo.color }}
-        >
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: phaseInfo.color }} />
-          {phaseInfo.label}
-          {equation && (
-            <>
-              <span className="vc-top-bar-separator">·</span>
-              <span style={{ fontFamily: "Georgia, serif", fontSize: "0.7rem" }}>{equation}</span>
-            </>
-          )}
-        </div>
-        <span className="vc-autosave" title="Your progress is saved automatically">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
-          Autosaved
-        </span>
-      </div>
-
-      <div className="vc-top-bar-right">
+        <span className="vc-clock" title="Time in this lesson">{clock}</span>
         <div className="vc-top-bar-progress-wrap">
-          <span className="vc-top-bar-progress-text">{progress}%</span>
           <div className="vc-top-bar-progress-bar">
             <div className="vc-top-bar-progress-fill" style={{ width: `${progress}%` }} />
           </div>
+          <span className="vc-top-bar-progress-text">{progress}%</span>
         </div>
-        <button className="vc-icon-btn" onClick={onOpenSettings} title="Settings & learning access" aria-label="Settings">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </div>
+
+      {/* Right — learning mode, notes, transcript, end */}
+      <div className="vc-top-bar-right">
+        <button className="vc-top-pill-btn vc-top-pill-mode" onClick={onOpenSettings} title="Learning mode & access">
+          <span className="vc-top-pill-label">Learning Mode</span>
+          <span className="vc-top-pill-value">{modeLabel}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <polyline points="6 9 12 15 18 9" />
           </svg>
+        </button>
+        <button className="vc-top-pill-btn" onClick={onOpenNotes} title="Lesson notes">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Notes
+        </button>
+        <button className="vc-top-pill-btn" onClick={onOpenTranscript} title="Lesson transcript">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="4" width="18" height="14" rx="2" />
+            <line x1="7" y1="9" x2="17" y2="9" />
+            <line x1="7" y1="13" x2="13" y2="13" />
+          </svg>
+          Transcript
+        </button>
+        <button className="vc-top-end-btn" onClick={onEndLesson} title="End this lesson">
+          End Lesson
         </button>
       </div>
     </div>
+  );
+}
+
+/**
+ * CourseOutline — the left-sidebar course navigation.
+ *
+ * Three collapsible levels: Course → Lesson → Sections. The learner's
+ * registered course and the active lesson expand by default; the section list
+ * is an auto-advancing progress outline (the lesson teaches itself through to
+ * the end). Completed sections can be revisited; the learner never has to push
+ * the lesson forward section by section.
+ */
+function CourseOutline({
+  course,
+  lessonTitle,
+  sections,
+  currentSection,
+  canRevisit,
+  onRevisit,
+}: {
+  course: string;
+  lessonTitle: string;
+  sections: typeof LESSON_PLAN_SECTIONS;
+  currentSection: LessonSectionKey;
+  canRevisit: (key: LessonSectionKey) => boolean;
+  onRevisit: (key: LessonSectionKey) => void;
+}) {
+  const [courseOpen, setCourseOpen] = useState(true);
+  const [lessonOpen, setLessonOpen] = useState(true);
+  const currentIdx = sections.findIndex((s) => s.key === currentSection);
+  const doneCount = Math.max(0, currentIdx);
+
+  return (
+    <nav className="vc-outline" aria-label="Course contents">
+      <div className="vc-outline-title">My Course</div>
+
+      {/* Level 1 — Course */}
+      <button
+        type="button"
+        className={`vc-outline-course ${courseOpen ? "is-open" : ""}`}
+        onClick={() => setCourseOpen((v) => !v)}
+        aria-expanded={courseOpen}
+      >
+        <svg className="vc-outline-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="9 6 15 12 9 18" /></svg>
+        <svg className="vc-outline-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+        <span className="vc-outline-course-name">{course}</span>
+      </button>
+
+      {courseOpen && (
+        <div className="vc-outline-lessons">
+          {/* Level 2 — Lesson (the one being taught now) */}
+          <button
+            type="button"
+            className={`vc-outline-lesson ${lessonOpen ? "is-open" : ""} is-current`}
+            onClick={() => setLessonOpen((v) => !v)}
+            aria-expanded={lessonOpen}
+          >
+            <svg className="vc-outline-chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="9 6 15 12 9 18" /></svg>
+            <span className="vc-outline-lesson-name">{lessonTitle}</span>
+            <span className="vc-outline-lesson-count">{doneCount}/{sections.length}</span>
+          </button>
+
+          {lessonOpen && (
+            <ol className="vc-outline-sections">
+              {/* Level 3 — Sections (auto-advancing outline) */}
+              {sections.map((sec, idx) => {
+                const completed = idx < currentIdx;
+                const current = sec.key === currentSection;
+                const revisitable = completed && canRevisit(sec.key);
+                return (
+                  <li key={sec.key}>
+                    <button
+                      type="button"
+                      className={`vc-outline-section ${completed ? "is-done" : ""} ${current ? "is-current" : ""}`}
+                      disabled={!revisitable}
+                      onClick={() => revisitable && onRevisit(sec.key)}
+                      title={revisitable ? `Revisit ${sec.label}` : current ? "Now teaching" : "Coming up"}
+                    >
+                      <span className="vc-outline-mark" aria-hidden>
+                        {completed ? (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                        ) : current ? (
+                          <span className="vc-outline-playing" />
+                        ) : (
+                          <span className="vc-outline-pending" />
+                        )}
+                      </span>
+                      <span className="vc-outline-section-name">{sec.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </div>
+      )}
+    </nav>
+  );
+}
+
+/**
+ * SettingsPanel — the learner's control room.
+ *
+ * Big, clearly-labelled, plain-language controls so it works for a grade-one
+ * child as much as a tertiary student: reading size, contrast, motion, the
+ * teacher's voice (on/off + speed), captions (on/off + size) and an
+ * accessibility profile. Everything applies live.
+ */
+function SettingsPanel({
+  onClose,
+  a11y,
+  setA11y,
+  narrationOn,
+  setNarrationOn,
+  voiceSpeed,
+  setVoiceSpeed,
+  captionsOn,
+  setCaptionsOn,
+  captionSize,
+  setCaptionSize,
+  learningMode,
+  setLearningMode,
+}: {
+  onClose: () => void;
+  a11y: AccessibilityPrefs;
+  setA11y: React.Dispatch<React.SetStateAction<AccessibilityPrefs>>;
+  narrationOn: boolean;
+  setNarrationOn: (v: boolean) => void;
+  voiceSpeed: "slow" | "normal" | "fast";
+  setVoiceSpeed: (v: "slow" | "normal" | "fast") => void;
+  captionsOn: boolean;
+  setCaptionsOn: (v: boolean) => void;
+  captionSize: "sm" | "md" | "lg";
+  setCaptionSize: (v: "sm" | "md" | "lg") => void;
+  learningMode: LearningMode;
+  setLearningMode: (m: LearningMode) => void;
+}) {
+  const textScales: { value: TextScale; label: string; sample: string }[] = [
+    { value: "default", label: "Normal", sample: "A" },
+    { value: "large", label: "Large", sample: "A" },
+    { value: "xlarge", label: "Largest", sample: "A" },
+  ];
+  const speeds: { value: "slow" | "normal" | "fast"; label: string }[] = [
+    { value: "slow", label: "Slow" },
+    { value: "normal", label: "Normal" },
+    { value: "fast", label: "Fast" },
+  ];
+  const capSizes: { value: "sm" | "md" | "lg"; label: string }[] = [
+    { value: "sm", label: "Small" },
+    { value: "md", label: "Medium" },
+    { value: "lg", label: "Large" },
+  ];
+
+  return (
+    <div className="vc-settings-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="vc-settings" role="dialog" aria-label="Lesson settings">
+        <div className="vc-settings-head">
+          <div>
+            <h2 className="vc-settings-title">Settings</h2>
+            <p className="vc-settings-sub">Make the lesson comfortable for you. Changes apply right away.</p>
+          </div>
+          <button className="vc-settings-close" onClick={onClose} aria-label="Close settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+
+        <div className="vc-settings-body">
+          {/* Reading & display */}
+          <section className="vc-set-group">
+            <h3 className="vc-set-group-title">📖 Reading &amp; Display</h3>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">Text size</span>
+              <div className="vc-seg">
+                {textScales.map((t) => (
+                  <button
+                    key={t.value}
+                    className={`vc-seg-btn ${a11y.textScale === t.value ? "is-on" : ""}`}
+                    onClick={() => setA11y((p) => ({ ...p, textScale: t.value }))}
+                  >
+                    <span style={{ fontSize: t.value === "default" ? "0.9rem" : t.value === "large" ? "1.1rem" : "1.3rem", fontWeight: 800 }}>{t.sample}</span>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">High contrast</span>
+              <Toggle on={a11y.highContrast} onChange={(v) => setA11y((p) => ({ ...p, highContrast: v }))} />
+            </div>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">Reduce motion</span>
+              <Toggle on={a11y.reducedMotion} onChange={(v) => setA11y((p) => ({ ...p, reducedMotion: v }))} />
+            </div>
+          </section>
+
+          {/* Sound & voice */}
+          <section className="vc-set-group">
+            <h3 className="vc-set-group-title">🔊 Sound &amp; Voice</h3>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">Teacher's voice</span>
+              <Toggle on={narrationOn} onChange={setNarrationOn} />
+            </div>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">Voice speed</span>
+              <div className="vc-seg">
+                {speeds.map((s) => (
+                  <button
+                    key={s.value}
+                    className={`vc-seg-btn ${voiceSpeed === s.value ? "is-on" : ""}`}
+                    disabled={!narrationOn}
+                    onClick={() => setVoiceSpeed(s.value)}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Captions */}
+          <section className="vc-set-group">
+            <h3 className="vc-set-group-title">💬 Captions</h3>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">Show captions</span>
+              <Toggle on={captionsOn || learningMode === "deaf"} disabled={learningMode === "deaf"} onChange={setCaptionsOn} />
+            </div>
+
+            <div className="vc-set-row">
+              <span className="vc-set-label">Caption size</span>
+              <div className="vc-seg">
+                {capSizes.map((c) => (
+                  <button
+                    key={c.value}
+                    className={`vc-seg-btn ${captionSize === c.value ? "is-on" : ""}`}
+                    onClick={() => setCaptionSize(c.value)}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Accessibility profile */}
+          <section className="vc-set-group">
+            <h3 className="vc-set-group-title">♿ Accessibility Profile</h3>
+            <p className="vc-set-hint">Pick the way you learn best. We'll adjust the lesson for you.</p>
+            <div className="vc-profile-grid">
+              {LEARNING_MODES.map((m) => (
+                <button
+                  key={m.value}
+                  className={`vc-profile-card ${learningMode === m.value ? "is-on" : ""}`}
+                  onClick={() => setLearningMode(m.value)}
+                >
+                  <span className="vc-profile-ico">{m.icon}</span>
+                  <span className="vc-profile-label">{m.label}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div className="vc-settings-foot">
+          <button className="vc-settings-done" onClick={onClose}>Done</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** A large, clearly-on/off toggle switch (accessible, keyboard-operable). */
+function Toggle({ on, onChange, disabled }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      disabled={disabled}
+      className={`vc-toggle ${on ? "is-on" : ""}`}
+      onClick={() => onChange(!on)}
+    >
+      <span className="vc-toggle-knob" />
+      <span className="vc-toggle-text">{on ? "On" : "Off"}</span>
+    </button>
   );
 }
 
