@@ -24,7 +24,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { createAiGatewayProvider } from "./ai-gateway.server";
+import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import type { AcademicLevel, TeacherAnswer } from "./types";
 
 const ACADEMIC_LEVELS = ["elementary", "secondary", "college", "tertiary", "adult"] as const;
@@ -199,16 +199,17 @@ function toResult(a: TeacherAnswer): AnswerLearnerQuestionResult {
 export const answerLearnerQuestion = createServerFn({ method: "POST" })
   .validator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<AnswerLearnerQuestionResult> => {
-    const gateway = createAiGatewayProvider();
-    if (!gateway) {
+    const key = process.env.LOVABLE_API_KEY;
+
+    if (!key) {
       return toResult(fallbackTeacherAnswer(data.context, data.question));
     }
 
-    try {
-      const modelName = process.env.OPENAI_API_KEY ? "gpt-4o-mini" : "deepseek/teacher-1";
+    const gateway = createLovableAiGatewayProvider(key);
 
+    try {
       const { object } = await generateObject({
-        model: gateway(modelName),
+        model: gateway("google/gemini-3-flash-preview"),
         schema: TeacherAnswerSchema,
         system: buildSystemPrompt(data.context),
         prompt: `The learner asks: "${data.question}"\n\nReturn the structured teacher response now. If clear, the 'answer' must be ${MIN_WORDS}–${MAX_WORDS} words of plain spoken prose.`,

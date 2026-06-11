@@ -1,220 +1,31 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
-import { dashboardConfigs } from "@/lib/dashboard-config";
-import { PageHeader } from "@/components/dashboard/shared/PageHeader";
-import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
-import {
-  BookOpen,
-  Users,
-  Play,
-  BarChart2,
-  ChevronRight,
-  Clock,
-  CheckCircle2,
-  Search,
-} from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { RouteStubPage } from "@/components/route/RouteStubPage";
 
 export const Route = createFileRoute("/_authenticated/teacher/courses")({
-  component: TeacherCourses,
+  component: () => (
+    <RouteStubPage
+      role="Teacher"
+      title="My Courses"
+      description="Teacher-owned course management is ready for course details, lessons, and analytics."
+      primary={{ label: "Teacher dashboard", to: "/teacher/dashboard" }}
+      secondary={{ label: "Lessons", to: "/teacher/lessons" }}
+      items={[
+        {
+          label: "Course detail",
+          to: "/teacher/courses/course-demo",
+          description: "Open an individual course overview.",
+        },
+        {
+          label: "Course analytics",
+          to: "/teacher/courses/course-demo/analytics",
+          description: "Inspect student performance in the course.",
+        },
+        {
+          label: "Preview classroom",
+          to: "/classroom/preview/lesson-demo",
+          description: "See the classroom flow before teaching.",
+        },
+      ]}
+    />
+  ),
 });
-
-type Course = {
-  id: string;
-  title: string;
-  subject: string;
-  institution: string;
-  students: number;
-  lessons: number;
-  lessonsTotal: number;
-  progress: number;
-  nextSession: string;
-  status: "active" | "paused" | "completed";
-  description: string;
-};
-
-const COURSES: Course[] = [
-  {
-    id: "course_math",
-    title: "Mathematics Form 2",
-    subject: "Mathematics",
-    institution: "Klassruum Demo Academy",
-    students: 32,
-    lessons: 12,
-    lessonsTotal: 28,
-    progress: 65,
-    nextSession: "Today, 10:30 AM",
-    status: "active",
-    description: "Algebra, quadratic equations, linear functions, and geometry for Form 2 students.",
-  },
-  {
-    id: "course_chem",
-    title: "KCSE Chemistry Revision",
-    subject: "Chemistry",
-    institution: "Klassruum Demo Academy",
-    students: 45,
-    lessons: 18,
-    lessonsTotal: 24,
-    progress: 42,
-    nextSession: "Today, 2:00 PM",
-    status: "active",
-    description: "Comprehensive revision covering organic chemistry, reactions, and the periodic table.",
-  },
-  {
-    id: "course_cs",
-    title: "Computer Studies Basics",
-    subject: "Computer Science",
-    institution: "Klassruum Demo Academy",
-    students: 28,
-    lessons: 9,
-    lessonsTotal: 15,
-    progress: 78,
-    nextSession: "Tomorrow, 9:00 AM",
-    status: "active",
-    description: "Introduction to computing, web development fundamentals, and basic programming.",
-  },
-];
-
-const SUBJECT_COLORS: Record<string, string> = {
-  Mathematics: "from-blue-600 to-blue-400",
-  Chemistry: "from-green-600 to-emerald-400",
-  "Computer Science": "from-purple-600 to-violet-400",
-};
-
-const config = dashboardConfigs.teacher;
-
-function TeacherCourses() {
-  const [query, setQuery] = useState("");
-
-  const filtered = COURSES.filter(
-    (c) =>
-      c.title.toLowerCase().includes(query.toLowerCase()) ||
-      c.subject.toLowerCase().includes(query.toLowerCase()),
-  );
-
-  const totalStudents = COURSES.reduce((s, c) => s + c.students, 0);
-  const totalLessons = COURSES.reduce((s, c) => s + c.lessons, 0);
-  const avgProgress = Math.round(COURSES.reduce((s, c) => s + c.progress, 0) / COURSES.length);
-
-  return (
-    <DashboardShell config={config} activePath="/teacher/courses">
-      <PageHeader
-        label="Teaching load"
-        title="My Courses"
-        subtitle="All courses you are responsible for — track progress, manage lessons, and start sessions."
-      />
-
-      {/* Summary Stats */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#0F172A]">{COURSES.length}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Active Courses</p>
-        </div>
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#0F172A]">{totalStudents}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Total Students</p>
-        </div>
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#2563EB]">{avgProgress}%</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Avg. Progress</p>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-6 max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search courses…"
-          className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-        />
-      </div>
-
-      {/* Course Cards */}
-      <div className="space-y-5">
-        {filtered.map((course) => {
-          const gradClass = SUBJECT_COLORS[course.subject] ?? "from-slate-600 to-slate-400";
-          return (
-            <article
-              key={course.id}
-              className="rounded-2xl border border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#2563EB]/30 hover:shadow-md"
-            >
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                {/* Icon */}
-                <div
-                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradClass} text-base font-bold text-white`}
-                >
-                  {course.title.slice(0, 2)}
-                </div>
-
-                {/* Content */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-bold text-[#0F172A]">{course.title}</h3>
-                        <StatusBadge variant="success">Active</StatusBadge>
-                      </div>
-                      <p className="text-sm text-[#64748B]">{course.institution}</p>
-                    </div>
-                  </div>
-                  <p className="mt-2 text-sm text-[#64748B] line-clamp-1">{course.description}</p>
-
-                  {/* Stats row */}
-                  <div className="mt-3 flex flex-wrap items-center gap-5 text-sm text-[#64748B]">
-                    <span className="flex items-center gap-1.5">
-                      <Users className="h-4 w-4" /> {course.students} students
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <BookOpen className="h-4 w-4" /> {course.lessons}/{course.lessonsTotal} lessons
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" /> Next: {course.nextSession}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" /> {course.progress}% complete
-                    </span>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="mt-3 h-2 w-full rounded-full bg-[#E2E8F0]">
-                    <div
-                      className="h-full rounded-full bg-[#2563EB] transition-all"
-                      style={{ width: `${course.progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex shrink-0 flex-col gap-2 sm:items-end">
-                  <Link
-                    to="/classroom/session_demo_math"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#2563EB] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1D4ED8]"
-                  >
-                    <Play className="h-4 w-4" />
-                    Start Class
-                  </Link>
-                  <Link
-                    to="/teacher/courses/$courseId/analytics"
-                    params={{ courseId: course.id }}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-4 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC]"
-                  >
-                    <BarChart2 className="h-4 w-4" />
-                    Analytics
-                  </Link>
-                  <Link
-                    to="/teacher/lessons"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8]"
-                  >
-                    Manage lessons <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </DashboardShell>
-  );
-}

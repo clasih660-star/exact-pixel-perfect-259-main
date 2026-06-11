@@ -1,28 +1,8 @@
 let currentUtterance: SpeechSynthesisUtterance | null = null;
 let isPaused = false;
 
-// ── Global narration controls (driven by the classroom Settings panel) ────────
-/** When muted, the teacher's narration is suppressed (captions still show). */
-let narrationMuted = false;
-/** Global speaking-rate multiplier (0.5–2). 1 = normal. */
-let globalRate = 1;
-
-/** Turn the teacher's spoken narration on/off globally. */
-export function setNarrationMuted(muted: boolean): void {
-  narrationMuted = muted;
-  if (muted && typeof window !== "undefined" && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-}
-
-/** Set the global narration rate (clamped 0.5–2). Applies to new utterances. */
-export function setGlobalRate(rate: number): void {
-  globalRate = Math.max(0.5, Math.min(2, rate));
-}
-
 export function speakText(text: string, rate = 1): void {
   if (typeof window === "undefined") return;
-  if (narrationMuted) return;
 
   if (!("speechSynthesis" in window)) {
     console.warn("Speech synthesis is not supported in this browser.");
@@ -32,7 +12,7 @@ export function speakText(text: string, rate = 1): void {
   window.speechSynthesis.cancel();
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = rate * globalRate;
+  utterance.rate = rate;
   utterance.pitch = 1;
   utterance.volume = 1;
 
@@ -68,10 +48,6 @@ export function speak(
   gender?: "female" | "male",
 ): void {
   if (typeof window === "undefined") return;
-  if (narrationMuted) {
-    onEnd?.();
-    return;
-  }
   if (!("speechSynthesis" in window)) {
     console.warn("Speech synthesis is not supported in this browser.");
     onEnd?.();
@@ -81,7 +57,7 @@ export function speak(
   window.speechSynthesis.cancel();
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = globalRate;
+  utterance.rate = 1;
   utterance.volume = 1;
 
   if (gender) {

@@ -20,7 +20,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createAiGatewayProvider } from "./ai-gateway.server";
+import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 // ── AI output schema (one batch of lessons) ──────────────────────────────────
 
@@ -239,14 +239,14 @@ export const generateLessonsForCourse = createServerFn({ method: "POST" })
     }
 
     // Generate (AI when available, otherwise deterministic fallback)
+    const key = process.env.LOVABLE_API_KEY;
     let batch: GeneratedBatch;
     let usedAI = false;
-    const gateway = createAiGatewayProvider();
-    if (gateway) {
+    if (key) {
       try {
-        const modelName = process.env.OPENAI_API_KEY ? "gpt-4o-mini" : "deepseek/lesson-gen-1";
+        const gateway = createLovableAiGatewayProvider(key);
         const { object } = await generateObject({
-          model: gateway(modelName),
+          model: gateway("google/gemini-3-flash-preview"),
           schema: BatchSchema,
           system: generationSystemPrompt({
             course: course.title,

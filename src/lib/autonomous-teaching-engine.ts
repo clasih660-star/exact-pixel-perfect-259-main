@@ -14,7 +14,7 @@
 
 import { generateText, generateObject } from "ai";
 import { z } from "zod";
-import { createAiGatewayProvider } from "./ai-gateway.server";
+import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -119,7 +119,7 @@ const TeachingDecisionSchema = z.object({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class AutonomousTeachingEngine {
-  private model: ReturnType<typeof createAiGatewayProvider> | null = null;
+  private model: ReturnType<typeof createLovableAiGatewayProvider> | null = null;
   private initialized = false;
 
   constructor() {
@@ -127,9 +127,9 @@ export class AutonomousTeachingEngine {
   }
 
   private initializeModel() {
-    const gateway = createAiGatewayProvider();
-    if (gateway) {
-      this.model = gateway as any;
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (apiKey) {
+      this.model = createLovableAiGatewayProvider(apiKey);
     }
     this.initialized = true;
   }
