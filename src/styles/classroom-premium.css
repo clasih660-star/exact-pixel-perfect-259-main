@@ -522,11 +522,14 @@
   background: var(--kl-surface);
   border-bottom: 1px solid var(--kl-border);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
-.vc-top-bar-left { gap: 14px; flex: 0 1 auto; min-width: 0; }
+.vc-top-bar-left { gap: 10px; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; }
 .vc-top-bar-brand { gap: 8px; }
 .vc-top-bar-brand .vc-top-bar-logo { font-size: 1.05rem; font-weight: 800; color: var(--kl-navy); letter-spacing: -0.02em; }
-.vc-top-bar-breadcrumb { font-size: 0.82rem; color: var(--kl-muted); gap: 7px; }
+.vc-top-bar-breadcrumb { font-size: 0.82rem; color: var(--kl-muted); gap: 7px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .vc-top-bar-separator { color: #cbd5e1; }
 .vc-top-bar-crumb-active { color: var(--kl-navy); font-weight: 700; }
 
@@ -557,7 +560,7 @@
 .vc-top-bar-progress-fill { background: var(--kl-primary); border-radius: 999px; }
 .vc-top-bar-progress-text { font-size: 0.78rem; font-weight: 700; color: var(--kl-slate); }
 
-.vc-top-bar-right { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.vc-top-bar-right { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .vc-top-pill-btn {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 12px; border-radius: 10px; cursor: pointer;
@@ -578,11 +581,50 @@
 }
 .vc-top-end-btn:hover { background: #dc2626; border-color: #dc2626; }
 
+.vc-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--kl-border);
+  background: #fff;
+  color: var(--kl-slate);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.vc-back-btn:hover {
+  background: var(--kl-primary-soft);
+  border-color: #a3d9d8;
+  color: #1A5256;
+}
+
 @media (max-width: 1280px) {
   .vc-top-pill-label { display: none; }
   .vc-top-bar-breadcrumb { max-width: 280px; }
 }
-@media (max-width: 1080px) { .vc-top-bar-center { gap: 8px; } .vc-clock, .vc-ai-pill { display: none; } }
+@media (max-width: 1080px) {
+  .vc-top-bar {
+    height: auto;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+
+  .vc-top-bar-center {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    margin: 0;
+    padding-top: 6px;
+    gap: 8px;
+  }
+
+  .vc-clock, .vc-ai-pill { display: none; }
+}
 
 /* ── Teacher panel ───────────────────────────────────────────────────────── */
 .vc-teacher-panel {
@@ -788,16 +830,40 @@
 
 /* ── Caption bar ─────────────────────────────────────────────────────────── */
 .vc-caption-bar {
-  background: #0f172a; padding: 0; min-height: 0; flex-direction: column; align-items: stretch;
-  margin: 0 0 0 14px; border-radius: 14px 14px 0 0; overflow: hidden;
+  position: sticky;
+  bottom: 86px;
+  z-index: 25;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(14px);
+  padding: 0;
+  min-height: 0;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0 14px 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
 }
-.vc-caption-bar-inner { padding: 14px 18px; gap: 12px; align-items: flex-start; }
+.vc-caption-bar-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 16px;
+}
 .vc-caption-badge {
   display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
   padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
   color: #c4b5fd; background: rgba(124, 58, 237, 0.25);
 }
-.vc-caption-text { color: #f1f5f9; font-size: 0.95rem; line-height: 1.5; }
+.vc-caption-text {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 500;
+  word-break: break-word;
+}
 .vc-caption-footer { background: #0b1220; border-top-color: rgba(255,255,255,0.08); }
 
 /* ── Bottom controls — labelled clusters ────────────────────────────────── */
@@ -805,6 +871,9 @@
   height: auto; min-height: 78px; padding: 10px 18px; gap: 0;
   background: var(--kl-surface); border-top: 1px solid var(--kl-border);
   align-items: stretch; justify-content: flex-start;
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
 }
 .vc-control-cluster { display: flex; flex-direction: column; gap: 6px; padding: 0 14px; justify-content: center; }
 .vc-control-cluster:first-child { padding-left: 0; }
@@ -968,7 +1037,7 @@
   animation: vc-engagement-in 0.2s ease both;
 }
 .vc-settings {
-  width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column;
+  width: 100%; max-width: 680px; max-height: 88vh; display: flex; flex-direction: column;
   background: var(--kl-surface); border-radius: 20px; border: 1px solid var(--kl-border);
   box-shadow: 0 24px 64px rgba(15, 23, 42, 0.3); overflow: hidden;
 }
@@ -985,7 +1054,13 @@
 }
 .vc-settings-close:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
-.vc-settings-body { padding: 8px 24px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.vc-settings-body {
+  padding: 12px 24px 20px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+}
 .vc-set-group { padding: 16px 0; border-bottom: 1px solid var(--kl-border); }
 .vc-set-group:last-child { border-bottom: none; }
 .vc-set-group-title { margin: 0 0 12px; font-size: 1rem; font-weight: 800; color: var(--kl-navy); }
@@ -1044,6 +1119,12 @@
   box-shadow: 0 2px 8px rgba(31, 124, 128, 0.3); transition: all 0.15s ease;
 }
 .vc-settings-done:hover { background: #1A5256; }
+
+@media (max-width: 900px) {
+  .vc-settings-body {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 560px) {
   .vc-profile-grid { grid-template-columns: 1fr; }
@@ -1402,6 +1483,88 @@
   color: #334155;
 }
 
+/* ── Simple classroom view ────────────────────────────────────────────────
+   Default learner mode: keep the classroom calm by prioritising teacher,
+   current goal, board, captions, and the smallest set of controls. Full View
+   restores the course outline, drawer, and advanced board tooling. */
+.vc-simple-view .vc-teacher-panel {
+  width: 260px;
+  min-width: 240px;
+}
+
+.vc-simple-view .vc-teacher-frame {
+  padding-top: 12px;
+}
+
+.vc-simple-view .vc-teacher-frame-inner {
+  width: min(190px, calc(100% - 18px));
+  height: 226px;
+}
+
+.vc-simple-view .vc-mini-cards {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.vc-simple-view .vc-quick-help > .mt-3 {
+  display: none;
+}
+
+.vc-simple-view .vc-board-row {
+  padding-right: 14px;
+}
+
+.vc-simple-view .vc-whiteboard {
+  min-height: 0;
+}
+
+.vc-simple-view .vc-board-toolstrip,
+.vc-simple-view .vc-board-zoom {
+  display: none;
+}
+
+.vc-simple-view .vc-whiteboard-header-right {
+  gap: 8px;
+}
+
+.vc-simple-view .vc-board-tool-btn {
+  min-height: 36px;
+}
+
+.vc-simple-view .vc-control-cluster-help + .vc-controls-divider,
+.vc-simple-view .vc-control-cluster-help .vc-ctl-amber,
+.vc-simple-view .vc-support-menu-wrap,
+.vc-simple-view .vc-control-cluster:nth-of-type(5) .vc-ctl[title="Playback speed"] {
+  display: none;
+}
+
+.vc-simple-view .vc-controls {
+  justify-content: center;
+  row-gap: 8px;
+}
+
+.vc-simple-view .vc-ctl {
+  min-width: 74px;
+}
+
+@media (max-width: 1080px) {
+  .vc-simple-view .vc-teacher-panel {
+    width: 220px;
+    min-width: 210px;
+  }
+}
+
+@media (max-width: 980px) {
+  .vc-simple-view .vc-teacher-panel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .vc-simple-view .vc-mini-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .vc-board-note-explain {
   color: #1A5256;
 }
@@ -1640,378 +1803,140 @@
   }
 }
 
-/* Design-debug pass: align the active classroom with the premium reference */
+/* ── Viewport layout guard ──────────────────────────────────────────────────
+   Keep the caption bar and controls in normal flex flow. The previous sticky
+   bottom offsets made them visually overlap the whiteboard/teacher panel and
+   could cut off the controls when the control clusters wrapped. */
 .vc-root {
-  background:
-    radial-gradient(circle at 52% 0%, rgba(31, 124, 128, 0.18), transparent 38%),
-    radial-gradient(circle at 80% 100%, rgba(31, 124, 128, 0.08), transparent 40%),
-    linear-gradient(180deg, #0c0f1a 0%, #111827 50%, #0f172a 100%);
-  position: relative;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* Subtle dot grid texture overlay */
-.vc-root::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(31, 124, 128, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.5;
-}
-
-.vc-top-bar {
-  height: 52px;
-  background: rgba(12, 15, 26, 0.96) !important;
-  border-bottom: 1px solid rgba(31, 124, 128, 0.18) !important;
-  color: #d1eceb;
-  backdrop-filter: blur(12px);
-  padding: 0 14px;
-}
-
-.vc-top-bar-brand .vc-top-bar-logo,
-.vc-top-bar-crumb-active {
-  color: #f8fafc !important;
-}
-
-.vc-top-bar-breadcrumb,
-.vc-top-bar-progress-text {
-  color: #b6c5dc !important;
-}
-
-.vc-ai-pill {
-  background: rgba(16, 185, 129, 0.14) !important;
-  border-color: rgba(52, 211, 153, 0.22) !important;
-  color: #a7f3d0 !important;
-}
-
-.vc-clock,
-.vc-top-pill-btn {
-  background: rgba(15, 34, 61, 0.86) !important;
-  border-color: rgba(148, 163, 184, 0.22) !important;
-  color: #e2e8f0 !important;
-}
-
-.vc-top-pill-label {
-  color: #9fb2ce !important;
-}
-
-.vc-top-pill-value {
-  color: #a3d9d8 !important;
+.vc-top-bar,
+.vc-caption-bar,
+.vc-controls {
+  flex-shrink: 0;
 }
 
 .vc-main {
-  gap: 12px;
-  padding: 12px 12px 0;
-  background: transparent;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.vc-teacher-panel {
-  width: 292px;
-  flex: 0 0 292px;
-  height: calc(100% - 12px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  border: 1px solid rgba(31, 124, 128, 0.15) !important;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(15, 18, 30, 0.98), rgba(12, 15, 26, 0.98)) !important;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(165, 180, 252, 0.4) rgba(15, 20, 35, 0.4);
-  position: relative;
-  padding: 0 14px 14px;
-}
-
-/* Subtle gradient overlay for depth */
-.vc-teacher-panel::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 120px;
-  background: linear-gradient(180deg, rgba(31, 124, 128, 0.08), transparent);
-  pointer-events: none;
-  z-index: 0;
-  border-radius: 16px 16px 0 0;
-}
-
-.vc-teacher-panel::-webkit-scrollbar {
-  width: 8px;
-}
-
-.vc-teacher-panel::-webkit-scrollbar-track {
-  background: rgba(15, 34, 61, 0.35);
-  border-radius: 999px;
-}
-
-.vc-teacher-panel::-webkit-scrollbar-thumb {
-  background: rgba(147, 197, 253, 0.45);
-  border-radius: 999px;
-}
-
-.vc-panel-header-title,
-.vc-teacher-name,
-.vc-teacher-step-value,
-.vc-outline-title,
-.vc-quick-help-title {
-  color: #f8fafc !important;
-}
-
-.vc-panel-header,
-.vc-teacher-subtitle,
-.vc-teacher-step-label,
-.vc-teacher-step-count {
-  color: #a9bbd4 !important;
-}
-
-.vc-mini-card,
-.vc-teacher-step-info,
-.vc-outline,
-.vc-quick-help {
-  border-color: rgba(31, 124, 128, 0.12) !important;
-  background: rgba(15, 20, 35, 0.62) !important;
-}
-
-.vc-mini-card-on {
-  border-color: rgba(31, 124, 128, 0.35) !important;
-  background: rgba(31, 124, 128, 0.14) !important;
-}
-
-.vc-outline-list button,
-.vc-quick-help-btn {
-  border-color: rgba(31, 124, 128, 0.12) !important;
-  background: rgba(15, 20, 35, 0.56) !important;
-  color: #d1eceb !important;
-}
-
-.vc-quick-help-btn:hover,
-.vc-outline-list button:hover {
-  background: rgba(31, 124, 128, 0.22) !important;
-  border-color: rgba(31, 124, 128, 0.4) !important;
-}
-
-.vc-whiteboard-area {
-  padding: 0;
-  gap: 10px;
-  background: transparent;
-}
-
-.vc-current-goal {
-  margin: 0;
-  border: 1px solid rgba(31, 124, 128, 0.2);
-  border-radius: 13px;
-  background: rgba(232, 245, 245, 0.96);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-  padding: 10px 16px;
-}
-
-.vc-board-row {
-  gap: 12px;
-  padding-right: 0;
+.vc-teacher-panel,
+.vc-whiteboard-area,
+.vc-board-row,
+.vc-whiteboard,
+.vc-board-stage {
   min-height: 0;
 }
 
-.vc-board-row > .vc-whiteboard {
-  border-radius: 16px;
-  border-color: rgba(199, 210, 254, 0.75);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
-  position: relative;
+.vc-teacher-panel {
+  overflow-y: auto;
+}
+
+.vc-whiteboard-area,
+.vc-board-row {
   overflow: hidden;
 }
 
-/* Subtle paper texture overlay */
-.vc-board-row > .vc-whiteboard::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(31, 124, 128, 0.04), transparent 60%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%);
-  pointer-events: none;
-  z-index: 1;
+.vc-whiteboard {
+  display: flex;
+  flex-direction: column;
+}
+
+.vc-board-stage {
+  overflow: hidden;
 }
 
 .vc-whiteboard-content {
-  background:
-    linear-gradient(rgba(31, 124, 128, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(31, 124, 128, 0.03) 1px, transparent 1px),
-    #ffffff;
-  background-size: 32px 32px;
-  padding: 24px 28px;
-  line-height: 1.7;
-}
-
-.vc-learning-drawer {
-  width: 328px;
-  min-width: 312px;
-  max-width: 340px;
-  border-radius: 16px;
-  border-color: rgba(31, 124, 128, 0.15);
-  background: #0f1420;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25);
-  position: relative;
-  overflow: hidden;
-  padding: 0;
-}
-
-/* Subtle gradient overlay for depth */
-.vc-learning-drawer::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: linear-gradient(180deg, rgba(31, 124, 128, 0.06), transparent);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.vc-learning-drawer-tabs {
-  background: rgba(15, 20, 32, 0.92);
-  border-bottom-color: rgba(31, 124, 128, 0.12);
-}
-
-.vc-learning-tab {
-  color: #b6c5dc;
-}
-
-.vc-learning-tab:hover {
-  background: rgba(31, 124, 128, 0.18);
-  color: #d1eceb;
-}
-
-.vc-learning-drawer-body {
-  background: #0f1420;
-}
-
-.vc-learning-title {
-  color: #f8fafc;
-}
-
-.vc-learning-eyebrow,
-.vc-learning-empty,
-.vc-note-block p,
-.vc-transcript-line,
-.vc-transcript-card p,
-.vc-question-card-inline p,
-.vc-progress-grid span {
-  color: #b6c5dc;
-}
-
-.vc-continuous-notes,
-.vc-continuous-transcript,
-.vc-transcript-card,
-.vc-question-card-inline,
-.vc-progress-grid div {
-  border-color: rgba(31, 124, 128, 0.12);
-  background:
-    linear-gradient(to bottom, transparent 0, transparent 27px, rgba(165, 180, 252, 0.06) 28px),
-    rgba(15, 20, 35, 0.72);
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .vc-caption-bar {
-  width: auto;
-  margin-left: 304px;
-  margin-right: 352px;
-  border-radius: 14px 14px 0 0;
-  border: 1px solid rgba(31, 124, 128, 0.18);
-  border-bottom: 0;
-  background: rgba(10, 14, 26, 0.98);
-  box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
-  padding: 10px 16px;
+  position: relative;
+  bottom: auto;
+  z-index: 20;
+  margin: 0 14px 8px;
 }
 
 .vc-controls {
-  background: rgba(12, 15, 26, 0.98) !important;
-  border-top: 1px solid rgba(31, 124, 128, 0.18) !important;
-  color: #d1eceb;
-  backdrop-filter: blur(12px);
-  padding: 12px 16px;
+  position: relative;
+  bottom: auto;
+  z-index: 20;
+  max-height: 34vh;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
-.vc-cluster-label {
-  color: #8fa5c3;
-}
-
-.vc-ctl {
-  border-color: rgba(31, 124, 128, 0.15) !important;
-  background: rgba(15, 20, 35, 0.86) !important;
-  color: #d1eceb !important;
-}
-
-.vc-ctl:hover {
-  background: rgba(31, 124, 128, 0.22) !important;
-  border-color: rgba(31, 124, 128, 0.4) !important;
-}
-
+/* Restore control button states after the compact .vc-ctl rule above. */
 .vc-ctl-primary {
-  background: #1F7C80 !important;
-  border-color: #3fa8ab !important;
-  color: #ffffff !important;
+  background: var(--kl-primary);
+  border-color: var(--kl-primary);
+  color: #fff;
+}
+
+.vc-ctl-primary svg {
+  color: #fff;
+}
+
+.vc-ctl-primary:hover {
+  background: #1A5256;
+  border-color: #1A5256;
+  color: #fff;
+}
+
+.vc-ctl-primary:hover svg {
+  color: #fff;
+}
+
+.vc-ctl-active {
+  background: var(--kl-primary-soft);
+  border-color: var(--kl-primary);
+  color: #1A5256;
+}
+
+.vc-ctl-active svg {
+  color: var(--kl-primary);
 }
 
 .vc-ctl-end {
-  background: #b91c1c !important;
-  border-color: #dc2626 !important;
-  color: #ffffff !important;
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
 }
 
-.vc-control-cluster-help .vc-cluster-row .vc-ctl:nth-child(n + 2) {
-  display: none;
+.vc-ctl-end svg {
+  color: #fff;
 }
 
-.vc-controls {
-  min-height: 78px;
-  gap: 14px;
+.vc-ctl-end:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
 }
 
-.vc-cluster-row {
-  gap: 8px;
-}
-
-.vc-ctl {
-  min-width: 92px;
-  height: 42px;
-  padding: 0 12px;
-  border-radius: 12px;
-}
-
-.vc-ctl svg {
-  flex: 0 0 auto;
-}
-
-@media (max-width: 1320px) {
-  .vc-caption-bar {
-    margin-right: 312px;
-  }
-}
-
-@media (max-width: 1180px) {
-  .vc-caption-bar {
-    margin-left: 0;
-    margin-right: 0;
-    border-radius: 0;
-  }
+.vc-ctl-end:hover svg {
+  color: #fff;
 }
 
 @media (max-width: 980px) {
-  .vc-main {
-    padding: 10px;
-  }
-
-  .vc-teacher-panel {
-    width: auto;
-    flex: none;
+  .vc-root {
     height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
   }
 
-  .vc-learning-drawer {
-    width: auto;
-    max-width: none;
-    min-width: 0;
+  .vc-main,
+  .vc-whiteboard-area,
+  .vc-board-row {
+    overflow: visible;
+  }
+
+  .vc-controls {
+    max-height: none;
   }
 }

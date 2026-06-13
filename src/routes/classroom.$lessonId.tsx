@@ -2,17 +2,44 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AIVideoClassroom } from "@/components/classroom/AIVideoClassroom";
 import { loadClassroomLesson } from "@/lib/classroom-lesson.functions";
-import { getDemoLessonContent } from "@/lib/demo-lessons/demo-lesson-registry";
+import { DEMO_LESSON_LIST, getDemoLessonContent } from "@/lib/demo-lessons/demo-lesson-registry";
 import { startLearnerSession, endSession } from "@/lib/live-sessions.functions";
 import type { ClassroomLessonContent } from "@/lib/classroom-content";
 
+const SITE_URL = "https://klassruum.com";
+
 export const Route = createFileRoute("/classroom/$lessonId")({
-  head: () => ({
-    meta: [
-      { title: "Classroom — Klassruum" },
-      { name: "description", content: "Live AI teacher classroom." },
-    ],
-  }),
+  head: ({ params }) => {
+    const demoMeta = DEMO_LESSON_LIST.find((lesson) => lesson.id === params.lessonId);
+    const title = demoMeta
+      ? `${demoMeta.title} — Live AI Classroom Demo | Klassruum`
+      : "Live AI Classroom Lesson | Klassruum";
+    const description = demoMeta
+      ? `Start the ${demoMeta.subject} demo lesson: ${demoMeta.description} Experience an AI teacher, live whiteboard, voice explanations, captions, transcript, notes, accessibility modes, and lesson progress evidence.`
+      : "Open a live Klassruum AI classroom lesson with teacher-led explanations, interactive whiteboard, captions, transcript, accessibility modes, notes, and learner progress evidence.";
+    const url = `${SITE_URL}/classroom/${params.lessonId}`;
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        {
+          name: "keywords",
+          content:
+            "AI classroom lesson, live AI teacher, interactive whiteboard lesson, classroom demo, accessible online learning, live captions, lesson transcript, AI tutor, learner progress",
+        },
+        { name: "author", content: "Klassruum" },
+        { property: "og:type", content: "website" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: Classroom,
 });
 
@@ -27,8 +54,17 @@ function Classroom() {
   const { lessonId } = Route.useParams();
   const navigate = useNavigate();
 
-  const [content, setContent] = useState<ClassroomLessonContent | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  // Demo classroom content is synchronous and should be available on the first
+  // render. This avoids direct demo URLs showing only "Preparing your classroom"
+  // during SSR and gives the page indexable, useful content immediately.
+  const initialDemoContent = !UUID_RE.test(lessonId)
+    ? getDemoLessonContent(lessonId) ?? getDemoLessonContent("demo")
+    : null;
+
+  const [content, setContent] = useState<ClassroomLessonContent | null>(() => initialDemoContent);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(() =>
+    initialDemoContent ? "ready" : "loading",
+  );
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -85,7 +121,7 @@ function Classroom() {
     if (sessionId) {
       endSession({ data: { session_id: sessionId } }).catch(() => {});
     }
-    navigate({ to: "/student/dashboard" });
+    navigate({ to: UUID_RE.test(lessonId) ? "/student/dashboard" : "/demo/classroom" });
   }
 
   if (status === "loading") {

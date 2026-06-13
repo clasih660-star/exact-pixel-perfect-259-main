@@ -13,6 +13,8 @@ import { prepareTeacherSpeech } from "./prepare-teacher-speech";
 import { speechTypeSettings } from "./speech-settings";
 import { getTeacherVoiceProvider } from "./providers/get-provider";
 
+const warnedUnavailableProviders = new Set<LocalVoiceProvider>();
+
 type VoiceSupabaseClient = {
   from: (table: string) => any;
 };
@@ -121,7 +123,10 @@ export async function generateTeacherSpeech(
       if (providerName === "browser") {
         return browserFallback(input.text, spokenText, voice.local_voice_id);
       }
-      console.warn(`[TeacherVoice] ${providerName} unavailable, trying next provider.`, error);
+      if (!warnedUnavailableProviders.has(providerName)) {
+        console.warn(`[TeacherVoice] ${providerName} unavailable, trying next provider.`, error);
+        warnedUnavailableProviders.add(providerName);
+      }
     }
   }
 
@@ -129,35 +134,38 @@ export async function generateTeacherSpeech(
 }
 
 function orderedProviders(preferred: LocalVoiceProvider): LocalVoiceProvider[] {
-  const elevenLabsAvailable = !!process.env.ELEVENLABS_API_KEY;
-
-  /* Build a provider priority list:
-       1. ElevenLabs (if API key is configured)
-       2. The voice's preferred provider (skip if ElevenLabs but no key)
-       3. Every other fallback provider (no duplicates) */
+  /* Build a provider priority list using only configured providers, while
+     always keeping the browser voice as a final graceful fallback. */
   const seen = new Set<LocalVoiceProvider>();
   const order: LocalVoiceProvider[] = [];
 
-  if (elevenLabsAvailable) {
-    order.push("elevenlabs");
-    seen.add("elevenlabs");
-  }
-
-  if (preferred === "elevenlabs" && !elevenLabsAvailable) {
-    /* Skip — no point trying if the API key is missing. */
-  } else if (!seen.has(preferred)) {
-    order.push(preferred);
-    seen.add(preferred);
-  }
-
-  for (const p of LOCAL_VOICE_FALLBACK_ORDER) {
-    if (!seen.has(p)) {
+  for (const p of [preferred, ...LOCAL_VOICE_FALLBACK_ORDER]) {
+    if (!seen.has(p) && providerIsConfigured(p)) {
       order.push(p);
       seen.add(p);
     }
   }
 
+  if (!seen.has("browser")) {
+    order.push("browser");
+  }
+
   return order;
+}
+
+function providerIsConfigured(provider: LocalVoiceProvider): boolean {
+  switch (provider) {
+    case "browser":
+      return true;
+    case "elevenlabs":
+      return !!process.env.ELEVENLABS_API_KEY;
+    case "kokoro":
+      return !!process.env.LOCAL_KOKORO_TTS_URL;
+    case "piper":
+      return !!process.env.LOCAL_PIPER_TTS_URL;
+    default:
+      return false;
+  }
 }
 
 function browserFallback(captionText: string, spokenText: string, _localVoiceId: string): GenerateTeacherSpeechResult {

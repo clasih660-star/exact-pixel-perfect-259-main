@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 import { LogoMark } from "@/components/brand/Logo";
 import "../../styles/video-classroom.css";
 import "../../styles/classroom-premium.css";
@@ -353,6 +354,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   // ── Mode / Settings Selector State ────────────────────
   const [modeSelectorOpen, setModeSelectorOpen] = useState(false);
   const [supportMenuOpen, setSupportMenuOpen] = useState(false);
+  const [classroomView, setClassroomView] = useState<"simple" | "full">("simple");
 
   // ── Learner Settings (display, sound, captions) ───────
   // Backed by the shared accessibility prefs, plus classroom-local extras. Built
@@ -2147,7 +2149,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   const stateLabel = teacherState.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <div className="vc-root">
+    <div className={`vc-root ${classroomView === "simple" ? "vc-simple-view" : "vc-full-view"}`}>
       {/* ── Top Bar ──────────────────────────────────────── */}
       <ClassroomTopBar
         institution={INSTITUTION}
@@ -2160,6 +2162,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         courseType={LESSON_COURSE_TYPE}
         clock={clock}
         learningMode={learningMode}
+        onBack={onExit}
         onOpenSettings={() => setModeSelectorOpen(true)}
         onOpenNotes={() => setLearningDrawerTab("notes")}
         onOpenTranscript={() => setLearningDrawerTab("transcript")}
@@ -2251,14 +2254,16 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           </div>
 
           {/* Course contents sit directly below the teacher image/identity. */}
-          <CourseOutline
-            course={COURSE}
-            lessonTitle={LESSON_TITLE}
-            sections={LESSON_PLAN_SECTIONS}
-            currentSection={currentSection}
-            canRevisit={(key) => SECTION_START_INDEX[key] !== undefined}
-            onRevisit={jumpToSection}
-          />
+          {classroomView === "full" && (
+            <CourseOutline
+              course={COURSE}
+              lessonTitle={LESSON_TITLE}
+              sections={LESSON_PLAN_SECTIONS}
+              currentSection={currentSection}
+              canRevisit={(key) => SECTION_START_INDEX[key] !== undefined}
+              onRevisit={jumpToSection}
+            />
+          )}
 
           {/* Three mini status cards — Voice / Captions / Listening */}
           <div className="vc-mini-cards">
@@ -2539,30 +2544,32 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           {/* Smaller right section — lesson visuals (graphs / diagrams /
               illustrations) and live bullet summaries of what's on the board.
               The classroom decides the content automatically from the subject. */}
-          <LearningDrawer
-            activeTab={learningDrawerTab}
-            onTabChange={setLearningDrawerTab}
-            notes={FULL_LEARNER_NOTES}
-            transcript={transcript}
-            progress={progress}
-            currentSectionLabel={LESSON_PLAN_SECTIONS.find((s) => s.key === currentSection)?.label ?? "Lesson"}
-            results={results}
-            courseType={LESSON_COURSE_TYPE}
-            isDemo={lesson.lessonId === "demo"}
-            keyPoints={boardKeyPoints}
-            lessonTitle={LESSON_TITLE}
-            currentGoal={SECTION_GOALS[currentSection]}
-            onAskQuestion={handleAskQuestion}
-            onDownloadNotes={() => {
-              const blob = new Blob([FULL_LEARNER_NOTES], { type: "text/plain" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `${LESSON_TITLE} - Notes.txt`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          />
+          {classroomView === "full" && (
+            <LearningDrawer
+              activeTab={learningDrawerTab}
+              onTabChange={setLearningDrawerTab}
+              notes={FULL_LEARNER_NOTES}
+              transcript={transcript}
+              progress={progress}
+              currentSectionLabel={LESSON_PLAN_SECTIONS.find((s) => s.key === currentSection)?.label ?? "Lesson"}
+              results={results}
+              courseType={LESSON_COURSE_TYPE}
+              isDemo={lesson.lessonId === "demo"}
+              keyPoints={boardKeyPoints}
+              lessonTitle={LESSON_TITLE}
+              currentGoal={SECTION_GOALS[currentSection]}
+              onAskQuestion={handleAskQuestion}
+              onDownloadNotes={() => {
+                const blob = new Blob([FULL_LEARNER_NOTES], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${LESSON_TITLE} - Notes.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            />
+          )}
           </div>
         </div>
       </div>
@@ -2720,6 +2727,15 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 8 12 12 15 13" /></svg>
               <span>Speed {teacherVoiceSpeed.toFixed(2).replace(/0$/, "")}x</span>
+            </button>
+            <button
+              className={`vc-ctl ${classroomView === "simple" ? "vc-ctl-active" : ""}`}
+              onClick={() => setClassroomView((view) => (view === "simple" ? "full" : "simple"))}
+              aria-pressed={classroomView === "simple"}
+              title={classroomView === "simple" ? "Show full classroom tools" : "Switch to simple classroom view"}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M8 9h8M8 13h5" /></svg>
+              <span>{classroomView === "simple" ? "Full View" : "Simple View"}</span>
             </button>
           </div>
         </div>
@@ -3117,6 +3133,7 @@ function ClassroomTopBar({
   progress,
   clock,
   learningMode,
+  onBack,
   onOpenSettings,
   onOpenNotes,
   onOpenTranscript,
@@ -3132,6 +3149,7 @@ function ClassroomTopBar({
   courseType: CourseType;
   clock: string;
   learningMode: LearningMode;
+  onBack?: () => void;
   onOpenSettings: () => void;
   onOpenNotes: () => void;
   onOpenTranscript: () => void;
@@ -3143,6 +3161,14 @@ function ClassroomTopBar({
     <div className="vc-top-bar">
       {/* Left — brand + breadcrumb */}
       <div className="vc-top-bar-left">
+        {onBack ? (
+          <button type="button" className="vc-back-btn" onClick={onBack} title="Go back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back
+          </button>
+        ) : null}
         <Link to="/" className="vc-top-bar-brand" title="Klassruum home">
           <LogoMark size={26} />
           <span className="vc-top-bar-logo">Klassruum</span>

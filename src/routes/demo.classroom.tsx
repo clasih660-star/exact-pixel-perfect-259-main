@@ -16,16 +16,40 @@ import {
   GraduationCap,
 } from "lucide-react";
 
+const SITE_URL = "https://klassruum.com";
+
 export const Route = createFileRoute("/demo/classroom")({
   head: () => ({
     meta: [
-      { title: "Demo Classroom — Klassruum" },
+      { title: "Try the AI Classroom Demo — Voice, Whiteboard & Accessibility | Klassruum" },
       {
         name: "description",
         content:
-          "Try Klassruum's live virtual classroom with voice, whiteboard, captions, and interactive lessons.",
+          "Try Klassruum's AI classroom demo with live teacher voice, interactive whiteboard, captions, lesson transcript, notes, accessibility modes, learner questions, and progress evidence — no account needed.",
+      },
+      {
+        name: "keywords",
+        content:
+          "AI classroom demo, virtual classroom demo, AI teacher demo, interactive whiteboard demo, accessible online learning, live captions, classroom transcript, lesson notes, education technology demo",
+      },
+      { name: "author", content: "Klassruum" },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Try the Klassruum AI Classroom Demo" },
+      {
+        property: "og:description",
+        content:
+          "Pick a demo lesson and experience a real AI teacher-led classroom with voice, whiteboard, captions, notes, transcript, accessibility modes, and learner support.",
+      },
+      { property: "og:url", content: `${SITE_URL}/demo/classroom` },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Klassruum AI Classroom Demo" },
+      {
+        name: "twitter:description",
+        content:
+          "Experience AI teacher-led lessons with whiteboard, voice, captions, transcript, notes, and accessibility — no account needed.",
       },
     ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/demo/classroom` }],
   }),
   component: DemoClassroomPage,
 });
