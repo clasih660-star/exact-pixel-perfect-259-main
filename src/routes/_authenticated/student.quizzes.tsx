@@ -12,8 +12,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/quizzes")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentQuizzes,
 });
 
@@ -103,7 +105,7 @@ const QUIZZES: Quiz[] = [
 function scoreGrade(score: number, total: number) {
   const pct = (score / total) * 100;
   if (pct >= 90) return { grade: "A", color: "text-green-600", bg: "bg-green-50 border-green-200" };
-  if (pct >= 75) return { grade: "B", color: "text-blue-600", bg: "bg-blue-50 border-blue-200" };
+  if (pct >= 75) return { grade: "B", color: "text-[#1F7C80]", bg: "bg-[#e8f5f5] border-[#a3d9d8]" };
   if (pct >= 60) return { grade: "C", color: "text-amber-600", bg: "bg-amber-50 border-amber-200" };
   return { grade: "D", color: "text-red-600", bg: "bg-red-50 border-red-200" };
 }

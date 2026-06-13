@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AIVideoClassroom } from "@/components/classroom/AIVideoClassroom";
 import { loadClassroomLesson } from "@/lib/classroom-lesson.functions";
-import { buildDemoLessonContent } from "@/lib/classroom-content.demo";
+import { getDemoLessonContent } from "@/lib/demo-lessons/demo-lesson-registry";
 import { startLearnerSession, endSession } from "@/lib/live-sessions.functions";
 import type { ClassroomLessonContent } from "@/lib/classroom-content";
 
@@ -20,10 +20,8 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 /**
  * The live AI classroom. For a real (UUID) lesson id it loads the published
- * lesson — sections, teaching items, and the course's own material text for
- * grounded question answering — and teaches it in the teacher-first classroom.
- * Any non-UUID id (e.g. the marketing demo links) falls back to the built-in
- * quadratic-equations demo, so existing entry points keep working.
+ * lesson from the database. Any non-UUID id is looked up from the demo lesson
+ * registry (supports multiple demo subjects: math, chemistry, english, etc.).
  */
 function Classroom() {
   const { lessonId } = Route.useParams();
@@ -31,19 +29,31 @@ function Classroom() {
 
   const [content, setContent] = useState<ClassroomLessonContent | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  /** Real DB session backing this classroom (only for real, UUID lessons). */
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
 
+    // ── Demo lesson (non-UUID ID) ─────────────────────────────────────
     if (!UUID_RE.test(lessonId)) {
-      // Demo / non-database lesson id → built-in demo content (no DB session).
-      setContent(buildDemoLessonContent());
-      setStatus("ready");
+      const demoContent = getDemoLessonContent(lessonId);
+      if (demoContent) {
+        setContent(demoContent);
+        setStatus("ready");
+      } else {
+        // Unknown demo ID — fall back to the default math demo
+        const fallback = getDemoLessonContent("demo");
+        if (fallback) {
+          setContent(fallback);
+          setStatus("ready");
+        } else {
+          setStatus("error");
+        }
+      }
       return;
     }
 
+    // ── Real database lesson (UUID) ───────────────────────────────────
     setStatus("loading");
     loadClassroomLesson({ data: { lesson_id: lessonId } })
       .then((res) => {
@@ -51,13 +61,12 @@ function Classroom() {
         if (res.content) {
           setContent(res.content);
           setStatus("ready");
-          // Start a real session so progress, events, and results persist.
           startLearnerSession({ data: { lesson_id: lessonId } })
             .then((s) => {
               if (!cancelled) setSessionId(s.sessionId);
             })
             .catch(() => {
-              /* non-fatal: the lesson still plays without a session */
+              /* non-fatal */
             });
         } else {
           setStatus("error");
@@ -74,19 +83,17 @@ function Classroom() {
 
   function leaveClassroom() {
     if (sessionId) {
-      endSession({ data: { session_id: sessionId } }).catch(() => {
-        /* best-effort */
-      });
+      endSession({ data: { session_id: sessionId } }).catch(() => {});
     }
     navigate({ to: "/student/dashboard" });
   }
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-200">
+      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] text-[#0F172A]">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-600 border-t-blue-400" />
-          <p className="text-sm text-slate-400">Preparing your classroom…</p>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[#E2E8F0] border-t-[#1F7C80]" />
+          <p className="text-sm text-[#64748B]">Preparing your classroom…</p>
         </div>
       </div>
     );
@@ -94,16 +101,15 @@ function Classroom() {
 
   if (status === "error" || !content) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-center text-slate-200">
+      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6 text-center text-[#0F172A]">
         <div>
           <h1 className="text-2xl font-semibold">Lesson not available</h1>
-          <p className="mt-2 max-w-md text-sm text-slate-400">
+          <p className="mt-2 max-w-md text-sm text-[#64748B]">
             This lesson has no published teaching content yet, or you don't have access to it.
-            Ask your teacher to publish it, then try again.
           </p>
           <button
             onClick={() => navigate({ to: "/student/dashboard" })}
-            className="mt-6 inline-block rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500"
+            className="mt-6 inline-block rounded-lg bg-[#1F7C80] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1A5256]"
           >
             Back to dashboard
           </button>
@@ -117,6 +123,7 @@ function Classroom() {
       content={content}
       sessionId={sessionId}
       onExit={leaveClassroom}
+      autoPlay={true}
     />
   );
 }

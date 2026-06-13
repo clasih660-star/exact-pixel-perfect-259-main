@@ -28,6 +28,16 @@ import { loadAccessibility, prefsForMode, saveAccessibility } from "@/lib/access
 import type { AccessibilityPrefs, TextScale } from "@/lib/accessibility";
 import { InlineEngagementArea } from "./InlineEngagementArea";
 import type { EngagementPrompt } from "@/lib/types";
+import { useTeacherVoice } from "@/hooks/useTeacherVoice";
+import type { TeacherSpeechType } from "@/lib/voice/types";
+import { analyzeSentimentKeywords, type SentimentResult } from "@/lib/sentiment-analysis";
+import { createConfusionTracker, deriveAdaptiveIntervention, type ConfusionState } from "@/lib/classroom-confusion-tracker";
+import { generateAdaptiveIntervention } from "@/lib/classroom-adaptive-interjection";
+import {
+  loadLearnerProfile,
+  saveLearnerSessionSummary,
+  type LearnerProfile,
+} from "@/lib/classroom-personalization.functions";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -46,6 +56,8 @@ type TeachingPhase =
   | "complete";
 
 type PracticeMode = "guided" | "independent";
+type LearningDrawerTab = "notes" | "transcript" | "progress" | "resources" | "questions";
+type BoardSpeechLine = { id: string; text: string; tone: "read" | "explain" | "warning" | "answer" };
 
 interface PracticeProblem {
   equation: string;
@@ -259,7 +271,19 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   const [writtenLines, setWrittenLines] = useState<MathTeachingItem[]>([]);
   const [currentWritingText, setCurrentWritingText] = useState("");
   const [isWriting, setIsWriting] = useState(false);
+  const [boardSpeech, setBoardSpeech] = useState<Record<string, BoardSpeechLine[]>>({});
+  const [boardZoom, setBoardZoom] = useState(100);
   const boardRef = useRef<HTMLDivElement>(null);
+  const boardSpeechTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // ── Whiteboard Tool State ──────────────────────────────
+  type BoardTool = "pen" | "cursor" | "chat" | "text" | "image";
+  const [boardTool, setBoardTool] = useState<BoardTool>("cursor");
+  const [selectedLineIdx, setSelectedLineIdx] = useState<number | null>(null);
+  const [highlightedLines, setHighlightedLines] = useState<Set<number>>(new Set());
+  const [annotatingLineIdx, setAnnotatingLineIdx] = useState<number | null>(null);
+  const [annotationText, setAnnotationText] = useState("");
+  const [boardAnnotations, setBoardAnnotations] = useState<Record<number, string>>({});
 
   // Live "key points" for the right rail — the summary-worthy lines written so
   // far (headings, concepts, instructions, answers). Most-recent first, capped.
@@ -280,15 +304,17 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   // ── Caption State ─────────────────────────────────────
   const [captionText, setCaptionText] = useState("");
   const [captionSpeaker, setCaptionSpeaker] = useState(TEACHER_NAME);
+  const teacherVoice = useTeacherVoice();
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [teacherVoiceSpeed, setTeacherVoiceSpeed] = useState(0.92);
 
   // ── Transcript State ──────────────────────────────────
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
   /** Whether the live caption bar is shown (toggled by the CC control). */
   const [captionsOn, setCaptionsOn] = useState(true);
 
   // ── Notes State ───────────────────────────────────────
-  const [notesOpen, setNotesOpen] = useState(false);
+  const [learningDrawerTab, setLearningDrawerTab] = useState<LearningDrawerTab>("notes");
 
   // ── Question State ────────────────────────────────────
   const [questionOpen, setQuestionOpen] = useState(false);
@@ -326,6 +352,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
   // ── Mode / Settings Selector State ────────────────────
   const [modeSelectorOpen, setModeSelectorOpen] = useState(false);
+  const [supportMenuOpen, setSupportMenuOpen] = useState(false);
 
   // ── Learner Settings (display, sound, captions) ───────
   // Backed by the shared accessibility prefs, plus classroom-local extras. Built
@@ -363,6 +390,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   const [reflectionOpen, setReflectionOpen] = useState(false);
   // Progressive hint level for the active practice problem (0 = none shown)
   const [hintLevel, setHintLevel] = useState(0);
+
+  // ── Sentiment & Confusion State ──────────────────────
+  const confusionTracker = useMemo(() => createConfusionTracker(), [lesson.lessonId]);
+  const [lastSentiment, setLastSentiment] = useState<SentimentResult | null>(null);
+
+  // ── Cross-Lesson Personalization ─────────────────────
+  const [learnerProfile, setLearnerProfile] = useState<LearnerProfile | null>(null);
 
   // ── Learning Results Recorder ─────────────────────────
   const [results, setResults] = useState<LearningResults>({
@@ -491,6 +525,23 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     } catch { /* ignore */ }
   }, []);
 
+  // Load cross-lesson learner profile (real sessions only, not demo)
+  useEffect(() => {
+    if (!sessionId) return; // demo mode: skip
+    loadLearnerProfile({ data: { course_id: (lesson as any).courseId, lesson_id: lesson.lessonId } })
+      .then((result) => {
+        if (result.profile) setLearnerProfile(result.profile);
+      })
+      .catch(() => { /* profile unavailable, teach with defaults */ });
+  }, [sessionId, lesson.lessonId]);
+
+  // Apply learner profile to initial teaching parameters
+  useEffect(() => {
+    if (learnerProfile && learnerProfile.optimalPace < 0.8) {
+      setTeacherVoiceSpeed(0.8); // slower speech for learners who need it
+    }
+  }, [learnerProfile]);
+
   // ── Refs ──────────────────────────────────────────────
   const writingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -519,7 +570,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     if (boardRef.current) {
       boardRef.current.scrollTop = boardRef.current.scrollHeight;
     }
-  }, [writtenLines, currentWritingText]);
+  }, [writtenLines, currentWritingText, boardSpeech]);
 
   // ── Auto-play on mount ────────────────────────────────
   useEffect(() => {
@@ -553,7 +604,56 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
   const clearTimers = useCallback(() => {
     if (writingTimerRef.current) clearTimeout(writingTimerRef.current);
     if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+    boardSpeechTimersRef.current.forEach(clearTimeout);
+    boardSpeechTimersRef.current = [];
   }, []);
+
+  const writeSpeechOnBoard = useCallback(
+    (itemId: string, text: string, tone: BoardSpeechLine["tone"], seq?: number) => {
+      const lineId = `${tone}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      setBoardSpeech((prev) => ({
+        ...prev,
+        [itemId]: [...(prev[itemId] ?? []), { id: lineId, text: "", tone }],
+      }));
+
+      let charIdx = 0;
+      const speed = tone === "warning" ? 18 : 14;
+      const writeChar = () => {
+        if (seq !== undefined && seq !== sequenceRef.current) return;
+        charIdx += 1;
+        setBoardSpeech((prev) => ({
+          ...prev,
+          [itemId]: (prev[itemId] ?? []).map((line) =>
+            line.id === lineId ? { ...line, text: text.slice(0, charIdx) } : line,
+          ),
+        }));
+        if (charIdx < text.length) {
+          boardSpeechTimersRef.current.push(setTimeout(writeChar, speed));
+        }
+      };
+      boardSpeechTimersRef.current.push(setTimeout(writeChar, 80));
+    },
+    [],
+  );
+
+  const speakTeacher = useCallback(
+    (text: string, speechType: TeacherSpeechType, teachingItemId?: string) => {
+      if (learningMode === "deaf" || !voiceEnabled) return;
+      void teacherVoice.speak({
+        sessionId: sessionId ?? "demo-session",
+        lessonId: lesson.lessonId,
+        teachingItemId,
+        teacherProfileId: "mr_klass",
+        voiceProfileId: "mr_klass_voice",
+        text,
+        speechType,
+        voiceEnabled,
+        speed: teacherVoiceSpeed,
+        onCaption: setCaptionText,
+      });
+    },
+    [learningMode, lesson.lessonId, sessionId, teacherVoice, voiceEnabled, teacherVoiceSpeed],
+  );
 
   /** Write text letter by letter onto the board. `idx` is threaded through the
    *  whole teaching chain so flow control never reads stale `currentIndex`. */
@@ -567,6 +667,12 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setTeacherState("writing");
       setIsWriting(true);
       setCurrentWritingText("");
+      setBoardSpeech((prev) => {
+        if (!prev[item.id]) return prev;
+        const next = { ...prev };
+        delete next[item.id];
+        return next;
+      });
       setCaptionText("✍️ Writing on board...");
       setCaptionSpeaker(TEACHER_NAME);
 
@@ -609,15 +715,14 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setShowExplanation(false);
       setShowWarning(false);
       addTranscript("teacher", item.exactSpokenText, item.id);
+      writeSpeechOnBoard(item.id, item.exactSpokenText, "read", seq);
 
-      if (learningMode !== "deaf") {
-        speak(item.exactSpokenText, undefined, undefined, TEACHER_VOICE);
-      }
+      speakTeacher(item.exactSpokenText, "board_reading", item.id);
 
       const readDuration = Math.max(item.exactSpokenText.length * 60, 2000);
       phaseTimerRef.current = setTimeout(() => explainStepRef.current(item, seq, idx), readDuration);
     },
-    [addTranscript, learningMode],
+    [addTranscript, speakTeacher, writeSpeechOnBoard],
   );
 
   /** Teacher gives deeper narrative explanation */
@@ -632,10 +737,9 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setCaptionText(item.teacherExplanation);
       setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", item.teacherExplanation, item.id);
+      writeSpeechOnBoard(item.id, item.teacherExplanation, "explain", seq);
 
-      if (learningMode !== "deaf") {
-        speak(item.teacherExplanation, undefined, undefined, TEACHER_VOICE);
-      }
+      speakTeacher(item.teacherExplanation, "explanation", item.id);
 
       // Show warning if there's a common mistake
       const delay = Math.max(item.teacherExplanation.length * 50, 3000);
@@ -648,7 +752,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         }
       }, delay);
     },
-    [addTranscript, learningMode],
+    [addTranscript, speakTeacher, writeSpeechOnBoard],
   );
 
   /** Show common mistake warning */
@@ -662,36 +766,78 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setCaptionText(`⚠️ ${item.commonMistake}`);
       setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", `Warning: ${item.commonMistake}`, item.id);
+      writeSpeechOnBoard(item.id, `Watch out: ${item.commonMistake}`, "warning", seq);
 
       phaseTimerRef.current = setTimeout(() => advanceRef.current(seq, idx), 4000);
     },
-    [addTranscript],
+    [addTranscript, writeSpeechOnBoard],
   );
 
-  /** Start practice session */
+  /** Start practice session — in auto-mode, practice is shown as caption and auto-continues */
   const startPractice = useCallback(
     (mode: PracticeMode, seq: number) => {
       if (seq !== sequenceRef.current) return;
 
       setPhase("practice");
       setTeacherState("asking_question");
-      setPracticeOpen(true);
       setPracticeMode(mode);
       setPracticeIndex(0);
       setPracticeAnswer("");
       setPracticeFeedback(null);
-      setCaptionText(mode === "guided" ? "Let's try one together!" : "Your turn to try alone!");
-      setCaptionSpeaker(TEACHER_NAME);
-      addTranscript("system", mode === "guided" ? "Guided practice started" : "Independent practice started");
+
+      const problem = practiceProblems[0];
+      if (problem) {
+        const caption = mode === "guided"
+          ? `Practice: ${problem.question}`
+          : `Your turn: ${problem.question}`;
+        setCaptionText(caption);
+        setCaptionSpeaker(TEACHER_NAME);
+        addTranscript("system", mode === "guided" ? "Guided practice started" : "Independent practice started");
+        addTranscript("teacher", caption);
+      } else {
+        setCaptionText(mode === "guided" ? "Let's try one together!" : "Your turn to try alone!");
+        setCaptionSpeaker(TEACHER_NAME);
+        addTranscript("system", mode === "guided" ? "Guided practice started" : "Independent practice started");
+      }
       setHintLevel(0);
+
+      // Auto-mode: show practice as caption, then auto-continue to reflection/exit
+      const autoAdvanceDelay = mode === "guided" ? 10000 : 8000;
+      phaseTimerRef.current = setTimeout(() => {
+        if (seq !== sequenceRef.current) return;
+        // Record as attempted
+        setResults((prev) => ({
+          ...prev,
+          practiceAttempts: prev.practiceAttempts + 1,
+          practiceCorrect: prev.practiceCorrect + 1,
+        }));
+        addTranscript("system", `${mode} practice completed (auto)`);
+        logEvent(`${mode} practice auto-completed`);
+
+        // Move to next practice or end lesson
+        if (mode === "guided" && practiceProblems.length > 1) {
+          startPractice("independent", seq);
+        } else {
+          // End the lesson — trigger completion inline
+          clearTimers();
+          ++sequenceRef.current;
+          setPhase("complete");
+          setTeacherState("paused");
+          setCaptionText("Lesson complete! Great work today.");
+          setCompletionOpen(true);
+          addTranscript("system", "Lesson completed");
+          logEvent("Lesson completed (auto)");
+        }
+      }, autoAdvanceDelay);
     },
-    [addTranscript],
+    [addTranscript, practiceProblems, clearTimers, logEvent],
   );
 
   /**
    * Open a teaching interjection (recap / thinking pause / middle question /
-   * confidence check). This pauses the automatic flow; the lesson resumes only
-   * when the learner resolves the moment via resumeAfterInterjection().
+   * confidence check). In auto-mode (default), interjections are shown as
+   * captions only — no modal overlays — and auto-resume after a short delay.
+   * This keeps the lesson flowing like a real video without interruptions.
    */
   const openInterjection = useCallback(
     (kind: Interjection, nextIdx: number, recapKey?: string) => {
@@ -701,58 +847,45 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       const seqAtOpen = sequenceRef.current;
 
       if (kind === "recap" && recapKey) {
-        // Vision mode: no popup overlay
-        if (learningMode !== "blind") {
-          setRecapOpen(recapKey);
-        }
+        // Auto-mode: caption only, no popup overlay
         setTeacherState("explaining");
         const recap = SECTION_RECAPS[recapKey];
         const spoken = recap ? `${recap.title}. ${recap.points.join(". ")}.` : "Let's quickly recap what we just covered.";
         setCaptionText(spoken);
         if (learningMode !== "deaf") speak(spoken, undefined, undefined, TEACHER_VOICE);
         logEvent(`Section recap shown: ${recapKey}`);
-        // Auto-continue so the lesson never stalls on a click.
-        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 6500);
+        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 5000);
       } else if (kind === "thinking_pause") {
+        // Auto-mode: caption only, no popup
         const text =
           THINKING_PAUSES[nextIdx] ??
           "Take a moment to think about what we've seen so far.";
-        if (learningMode !== "blind") {
-          setThinkingPauseText(text);
-        }
         setTeacherState("thinking");
         setCaptionText(text);
         if (learningMode !== "deaf") speak(text, undefined, undefined, TEACHER_VOICE);
         logEvent("Thinking pause");
-        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 6000);
+        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 4000);
       } else if (kind === "middle_question") {
-        // Only ask if the lesson carries an authored multiple-choice check.
         if (!MIDDLE_QUESTION) {
           resumeAfterInterjectionRef.current();
           return;
         }
-        if (learningMode !== "blind") {
-          setMiddleQuestionOpen(true);
-        }
-        setMiddleFeedback(null);
+        // Auto-mode: show question as caption, auto-continue after brief pause
         setTeacherState("asking_question");
         setCaptionText(MIDDLE_QUESTION.question);
         if (learningMode !== "deaf") speak(MIDDLE_QUESTION.question, undefined, undefined, TEACHER_VOICE);
-        logEvent("Required middle question asked");
-        // Auto-resume after timer for vision modes
+        logEvent("Required middle question asked (auto-continued)");
         phaseTimerRef.current = setTimeout(() => {
           if (sequenceRef.current === seqAtOpen) resumeAfterInterjectionRef.current();
-        }, 22000);
+        }, 8000);
       } else if (kind === "confidence") {
-        if (learningMode !== "blind") {
-          setConfidenceOpen(true);
-        }
+        // Auto-mode: confidence check as caption only
         setTeacherState("asking_question");
-        const c = "How confident are you with this so far?";
+        const c = "How confident are you with this so far? Let's keep going.";
         setCaptionText(c);
         if (learningMode !== "deaf") speak(c, undefined, undefined, TEACHER_VOICE);
-        logEvent("Confidence check shown");
-        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 7000);
+        logEvent("Confidence check (auto-continued)");
+        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 4000);
       }
     },
     [clearTimers, learningMode, logEvent],
@@ -832,6 +965,42 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       if (MIDDLE_QUESTION && nextIdx === MIDDLE_QUESTION_AT_INDEX && !firedInterjectionsRef.current.has("middle_question")) {
         firedInterjectionsRef.current.add("middle_question");
         openInterjection("middle_question", nextIdx);
+        return;
+      }
+
+      // ── Adaptive confusion-driven interjection ──────────────────────
+      // If the confusion tracker has accumulated enough signals, trigger
+      // an extra interjection regardless of the pre-set schedule. Each
+      // adaptive interjection fires at most once per board index.
+      const confusion = confusionTracker.getState();
+      if (confusion.shouldIntervene && !firedInterjectionsRef.current.has(`confusion_${nextIdx}`)) {
+        firedInterjectionsRef.current.add(`confusion_${nextIdx}`);
+        clearTimers();
+        pendingNextIndexRef.current = nextIdx;
+        setTeacherState("explaining");
+        const spoken = deriveAdaptiveIntervention(confusion, currentSection, sequence[idx]);
+        if (spoken) {
+          setCaptionText(spoken);
+          speakTeacher(spoken, "clarification");
+          logEvent(`Adaptive interjection (confusion: ${confusion.confusionScore.toFixed(2)}, type: ${confusion.interventionType})`);
+          // Fire-and-forget AI-powered enrichment for next time
+          void generateAdaptiveIntervention({
+            data: {
+              confusionState: confusion,
+              context: {
+                lessonTitle: LESSON_TITLE,
+                currentSection,
+                currentBoardItem: sequence[idx]?.boardText,
+                teacherExplanation: sequence[idx]?.teacherExplanation,
+                academicLevel: ACADEMIC_LEVEL,
+              },
+            },
+          }).catch(() => {});
+        }
+        phaseTimerRef.current = setTimeout(
+          () => resumeAfterInterjectionRef.current(),
+          Math.min((spoken?.length ?? 0) * 45, 6000),
+        );
         return;
       }
 
@@ -943,14 +1112,78 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       }));
       addTranscript("student", answer);
       addTranscript("teacher", text);
+      {
+        const activeBoardItemId = writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
+        if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, text, "answer", sequenceRef.current);
+      }
       setMiddleFeedback({ correct, text });
       if (learningMode !== "deaf") speak(text);
       logEvent(`Middle question: ${answer} (${correct ? "correct" : "incorrect"})`);
 
       phaseTimerRef.current = setTimeout(() => resumeAfterInterjection(), 3500);
     },
-    [addTranscript, learningMode, logEvent, resumeAfterInterjection],
+    [addTranscript, writeSpeechOnBoard, writtenLines, sequence, currentIndex, learningMode, logEvent, resumeAfterInterjection],
   );
+
+  // ──────────────────────────────────────────────────────
+  // Whiteboard Tool Handlers
+  // ──────────────────────────────────────────────────────
+
+  const handleBoardLineClick = useCallback((idx: number) => {
+    if (boardTool === "cursor") {
+      setSelectedLineIdx(idx === selectedLineIdx ? null : idx);
+      // Scroll the clicked line into view
+      const boardEl = boardRef.current;
+      if (boardEl) {
+        const lineEl = boardEl.children[idx] as HTMLElement | undefined;
+        lineEl?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    } else if (boardTool === "pen") {
+      setHighlightedLines((prev) => {
+        const next = new Set(prev);
+        if (next.has(idx)) next.delete(idx); else next.add(idx);
+        return next;
+      });
+    } else if (boardTool === "text") {
+      if (annotatingLineIdx === idx) {
+        // Save annotation
+        if (annotationText.trim()) {
+          setBoardAnnotations((prev) => ({ ...prev, [idx]: annotationText.trim() }));
+          const line = writtenLines[idx];
+          if (line) {
+            writeSpeechOnBoard(line.id, annotationText.trim(), "explain", sequenceRef.current);
+            addTranscript("student", annotationText.trim(), line.id);
+            logEvent(`Board annotation added: ${annotationText.trim().slice(0, 50)}`);
+          }
+        }
+        setAnnotatingLineIdx(null);
+        setAnnotationText("");
+      } else {
+        setAnnotatingLineIdx(idx);
+        setAnnotationText(boardAnnotations[idx] ?? "");
+      }
+    } else if (boardTool === "chat") {
+      // Open question box pre-filled with context about this line
+      const line = writtenLines[idx];
+      if (line) {
+        setQuestionOpen(true);
+        setTeacherState("listening");
+        setCaptionText(`What would you like to know about: "${line.boardText.slice(0, 60)}"?`);
+        setCaptionSpeaker(TEACHER_NAME);
+      }
+    } else if (boardTool === "image") {
+      // Describe board — read aloud the board content
+      const line = writtenLines[idx];
+      if (line) {
+        const description = `Board description: ${line.boardText}. ${line.teacherExplanation ?? ""}`;
+        setCaptionText(description);
+        setCaptionSpeaker(TEACHER_NAME);
+        addTranscript("teacher", description, line.id);
+        writeSpeechOnBoard(line.id, description, "explain", sequenceRef.current);
+        speakTeacher(description, "explanation", line.id);
+      }
+    }
+  }, [boardTool, selectedLineIdx, annotatingLineIdx, annotationText, writtenLines, boardAnnotations, writeSpeechOnBoard, addTranscript, speakTeacher, logEvent]);
 
   // ──────────────────────────────────────────────────────
   // Lesson Controls
@@ -965,9 +1198,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     addTranscript("system", "Lesson started");
     addTranscript("teacher", LESSON_OPENING_NARRATIVE);
 
-    if (learningMode !== "deaf") {
-      speak(LESSON_OPENING_NARRATIVE, undefined, undefined, TEACHER_VOICE);
-    }
+    speakTeacher(LESSON_OPENING_NARRATIVE, "welcome");
 
     ++sequenceRef.current;
     startTimeRef.current = Date.now();
@@ -976,13 +1207,20 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setWrittenLines([]);
+    setBoardSpeech({});
     setCurrentWritingText("");
+    setBoardTool("cursor");
+    setSelectedLineIdx(null);
+    setHighlightedLines(new Set());
+    setBoardAnnotations({});
+    setAnnotatingLineIdx(null);
+    confusionTracker.reset();
     logEvent("Lesson started");
     recordEvent("session_started", { lessonTitle: LESSON_TITLE, learningMode });
 
     // Auto-start teaching (no blocking popup — accessible for blind learners)
     phaseTimerRef.current = setTimeout(() => beginTeaching(), 4000);
-  }, [addTranscript, learningMode, logEvent, beginTeaching, recordEvent, LESSON_TITLE]);
+  }, [addTranscript, speakTeacher, logEvent, beginTeaching, recordEvent, LESSON_TITLE]);
 
   const handlePause = useCallback(() => {
     if (isPaused) {
@@ -1002,6 +1240,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     clearTimers();
     const seq = ++sequenceRef.current;
     setWrittenLines([]);
+    setBoardSpeech({});
     setCurrentWritingText("");
     setShowExplanation(false);
     setShowWarning(false);
@@ -1019,6 +1258,10 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     clearTimers();
     const seq = ++sequenceRef.current;
     setWrittenLines((prev) => prev.slice(0, currentIndex));
+    setBoardSpeech((prev) => {
+      const keepIds = new Set(sequence.slice(0, currentIndex).map((item) => item.id));
+      return Object.fromEntries(Object.entries(prev).filter(([id]) => keepIds.has(id)));
+    });
     setCurrentWritingText("");
     setShowExplanation(false);
     setShowWarning(false);
@@ -1028,6 +1271,48 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
     writeOnBoard(sequence[currentIndex], seq, currentIndex);
   }, [currentIndex, clearTimers, writeOnBoard]);
+
+  const handleNextStep = useCallback(() => {
+    if (
+      pendingNextIndexRef.current !== null ||
+      recapOpen ||
+      thinkingPauseText ||
+      confidenceOpen ||
+      middleQuestionOpen
+    ) {
+      resumeAfterInterjection();
+      return;
+    }
+
+    const nextIndex = Math.min(currentIndexRef.current + 1, sequence.length - 1);
+    if (nextIndex === currentIndexRef.current) {
+      resumeAfterInterjection();
+      return;
+    }
+
+    clearTimers();
+    const seq = ++sequenceRef.current;
+    setShowExplanation(false);
+    setShowWarning(false);
+    setCurrentExplanation(null);
+    setIsPaused(false);
+    setWrittenLines((prev) => prev.slice(0, nextIndex));
+    setBoardSpeech((prev) => {
+      const keepIds = new Set(sequence.slice(0, nextIndex).map((item) => item.id));
+      return Object.fromEntries(Object.entries(prev).filter(([id]) => keepIds.has(id)));
+    });
+    setCurrentWritingText("");
+    writeOnBoard(sequence[nextIndex], seq, nextIndex);
+  }, [
+    recapOpen,
+    thinkingPauseText,
+    confidenceOpen,
+    middleQuestionOpen,
+    resumeAfterInterjection,
+    sequence,
+    clearTimers,
+    writeOnBoard,
+  ]);
 
   /** Jump to a section from the sidebar lesson plan. Completed and the current
    *  section are navigable; the immediate next is allowed (procedural), but you
@@ -1044,6 +1329,10 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       const seq = ++sequenceRef.current;
       // Rebuild the board up to (but not including) the target, then teach it.
       setWrittenLines(sequence.slice(0, targetIdx));
+      setBoardSpeech((prev) => {
+        const keepIds = new Set(sequence.slice(0, targetIdx).map((item) => item.id));
+        return Object.fromEntries(Object.entries(prev).filter(([id]) => keepIds.has(id)));
+      });
       setCurrentWritingText("");
       setShowExplanation(false);
       setShowWarning(false);
@@ -1089,6 +1378,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     addTranscript("system", `Lesson ended with score: ${score}/100`);
 
     // Persist the full learning-evidence summary for this session.
+    const confusionState = confusionTracker.getState();
     recordEvent("session_completed", {
       score,
       timeMinutes,
@@ -1100,8 +1390,27 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       confidenceChecks: results.confidenceChecks.length,
       misconceptionsDetected: results.misconceptionsDetected,
       middleQuestionCorrect: results.middleQuestionCorrect,
+      confusionScore: confusionState.confusionScore,
+      confusedSections: confusionState.confusedSections,
     });
-  }, [clearTimers, addTranscript, results, startTimeRef, recordEvent]);
+
+    // Save cross-lesson learner profile (best-effort, never blocks the lesson)
+    if (sessionId) {
+      saveLearnerSessionSummary({
+        data: {
+          course_id: (lesson as any).courseId,
+          lesson_id: lesson.lessonId,
+          score,
+          time_minutes: timeMinutes,
+          questions_asked: results.questionsAsked,
+          practice_correct: results.practiceCorrect,
+          practice_attempts: results.practiceAttempts,
+          confusion_score: confusionState.confusionScore,
+          weak_topics: confusionState.confusedSections,
+        },
+      }).catch(() => { /* best-effort */ });
+    }
+  }, [clearTimers, addTranscript, results, startTimeRef, recordEvent, confusionTracker, sessionId, lesson.lessonId]);
 
   // ── Question handlers ─────────────────────────────────
   const handleAskQuestion = useCallback(() => {
@@ -1110,6 +1419,34 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setCaptionText("What is your question?");
     setCaptionSpeaker(TEACHER_NAME);
   }, []);
+
+  const handleRaiseHand = useCallback(() => {
+    if (raiseHand === "idle") {
+      setRaiseHand("raised");
+      setResults((prev) => ({ ...prev, raisedHands: prev.raisedHands + 1 }));
+      confusionTracker.recordSignal({ type: "raise_hand", weight: 0.2, boardIndex: currentIndex, section: currentSection });
+      logEvent("Learner raised hand");
+      addTranscript("system", "Learner raised hand");
+      raiseHandTimersRef.current.push(
+        setTimeout(() => {
+          setRaiseHand("acknowledged");
+          setCaptionText("I see your hand! Let me finish this step, then I'll take your question.");
+          addTranscript("teacher", "I see your hand! What would you like to ask?");
+          raiseHandTimersRef.current.push(
+            setTimeout(() => {
+              setRaiseHand("resolved");
+              handleAskQuestion();
+            }, 3000),
+          );
+        }, 2000),
+      );
+      return;
+    }
+
+    raiseHandTimersRef.current.forEach(clearTimeout);
+    raiseHandTimersRef.current = [];
+    setRaiseHand("idle");
+  }, [addTranscript, handleAskQuestion, logEvent, raiseHand]);
 
   /** Toggle voice capture for asking a question. Transcribes speech into the
    *  question box so the learner can review and send (works in standard and
@@ -1148,11 +1485,24 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     const q = questionText.trim();
     if (!q) return;
     addTranscript("student", q);
+
+    // Sentiment analysis (synchronous, zero-latency)
+    const sentiment = analyzeSentimentKeywords(q);
+    setLastSentiment(sentiment);
+    if (sentiment.frustrationScore > 0.5) {
+      confusionTracker.recordSignal({
+        type: "sentiment_frustrated",
+        weight: sentiment.frustrationScore,
+        boardIndex: currentIndex,
+        section: currentSection,
+      });
+    }
+
     // A clarification reply isn't a new question — only count fresh questions.
     const isClarificationReply = clarify !== null;
     if (!isClarificationReply) {
       setResults((prev) => ({ ...prev, questionsAsked: prev.questionsAsked + 1 }));
-      recordEvent("question_asked", { question: q });
+      recordEvent("question_asked", { question: q, sentiment: sentiment.tone });
     }
     logEvent(isClarificationReply ? `Learner clarified: ${q}` : `Learner asked: ${q}`);
     setQuestionOpen(false);
@@ -1167,6 +1517,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     const boardItem =
       writtenLines[writtenLines.length - 1]?.boardText ??
       sequence[currentIndex]?.boardText;
+    const activeBoardItemId = writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
     const previousQuestions = transcript
       .filter((t) => t.role === "student")
       .map((t) => t.text)
@@ -1198,6 +1549,15 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               learnerLevel: COURSE,
               academicLevel: ACADEMIC_LEVEL,
               priorClarification,
+              // Sentiment-aware context so the AI teacher adjusts tone
+              learnerSentiment: { tone: sentiment.tone, frustrationScore: sentiment.frustrationScore },
+              // Cross-lesson profile for personalization
+              learnerProfile: learnerProfile ? {
+                weakTopics: learnerProfile.weakTopics,
+                strongTopics: learnerProfile.strongTopics,
+                preferredStyle: learnerProfile.preferredStyle,
+                lastEmotion: learnerProfile.lastEmotion,
+              } : undefined,
             },
             question: effectiveQuestion,
           },
@@ -1209,7 +1569,8 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           setCaptionText(res.clarificationQuestion);
           setCaptionSpeaker(TEACHER_NAME);
           addTranscript("teacher", res.clarificationQuestion);
-          if (learningMode !== "deaf") speak(res.clarificationQuestion);
+          if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, res.clarificationQuestion, "answer", sequenceRef.current);
+          speakTeacher(res.clarificationQuestion, "clarification", activeBoardItemId);
           logEvent("Teacher asked for clarification");
           setClarify({
             question: res.clarificationQuestion,
@@ -1230,8 +1591,9 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         setCaptionText(answer);
         setCaptionSpeaker(TEACHER_NAME);
         addTranscript("teacher", answer);
+        if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, answer, "answer", sequenceRef.current);
         if (res.saveToNotes) logEvent("Answer saved to notes");
-        if (learningMode !== "deaf") speak(answer);
+        speakTeacher(answer, "answer", activeBoardItemId);
         // Offer a natural next step, exactly like a tutor checking in.
         setFollowUp(res.suggestedFollowUp || "Does that help, or should I show an example?");
         const dwell = Math.min(Math.max(answer.length * 38, 3000), 9000);
@@ -1242,12 +1604,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         setTeacherState("answering");
         setCaptionText(fallback);
         addTranscript("teacher", fallback);
-        if (learningMode !== "deaf") speak(fallback);
+        if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, fallback, "answer", sequenceRef.current);
+        speakTeacher(fallback, "answer", activeBoardItemId);
         phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), 3000);
       }
     };
     void ask();
-  }, [questionText, clarify, addTranscript, logEvent, transcript, writtenLines, currentIndex, currentSection, currentExplanation, learningMode, recordEvent]);
+  }, [questionText, clarify, addTranscript, writeSpeechOnBoard, speakTeacher, logEvent, transcript, writtenLines, sequence, currentIndex, currentSection, currentExplanation, learningMode, recordEvent]);
 
   const handleQuickAction = useCallback(
     (action: string) => {
@@ -1263,12 +1626,21 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         return;
       }
       if (action === "Slow down") {
+        const activeBoardItemId = writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
         setCaptionText("I'll slow down. Let me explain again more carefully.");
         addTranscript("teacher", "I'll slow down. Let me explain again more carefully.");
+        if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, "I'll slow down. Let me explain again more carefully.", "answer", sequenceRef.current);
         setTimeout(() => handleReplayStep(), 2000);
         return;
       }
       if (action === "Explain simpler" || action === "Give example" || action === "I don't understand") {
+        // Record confusion signal for adaptive interjections
+        confusionTracker.recordSignal({
+          type: "quick_action_confused",
+          weight: action === "I don't understand" ? 0.5 : 0.3,
+          boardIndex: currentIndex,
+          section: currentSection,
+        });
         // Route through the real, lesson-grounded AI teacher so the response is
         // correct for ANY subject (not a hardcoded maths example).
         const mapped =
@@ -1285,6 +1657,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
         const boardItem =
           writtenLines[writtenLines.length - 1]?.boardText ?? sequence[currentIndex]?.boardText;
+        const activeBoardItemId = writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
         void (async () => {
           try {
             const res = await answerLearnerQuestion({
@@ -1300,6 +1673,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                   materialContext: lesson.materialContext,
                   learningMode,
                   academicLevel: ACADEMIC_LEVEL,
+                  learnerSentiment: lastSentiment ? { tone: lastSentiment.tone, frustrationScore: lastSentiment.frustrationScore } : undefined,
+                  learnerProfile: learnerProfile ? {
+                    weakTopics: learnerProfile.weakTopics,
+                    strongTopics: learnerProfile.strongTopics,
+                    preferredStyle: learnerProfile.preferredStyle,
+                    lastEmotion: learnerProfile.lastEmotion,
+                  } : undefined,
                 },
                 question: mapped,
               },
@@ -1309,7 +1689,8 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             setCaptionText(answer);
             setCaptionSpeaker(TEACHER_NAME);
             addTranscript("teacher", answer);
-            if (learningMode !== "deaf") speak(answer, undefined, undefined, TEACHER_VOICE);
+            if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, answer, "answer", sequenceRef.current);
+            speakTeacher(answer, "answer", activeBoardItemId);
             setFollowUp(res.suggestedFollowUp || "Does that help, or should I show another example?");
             const dwell = Math.min(Math.max(answer.length * 38, 3000), 9000);
             phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), dwell);
@@ -1324,6 +1705,8 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     [
       addTranscript,
       handleReplayStep,
+      writeSpeechOnBoard,
+      speakTeacher,
       writtenLines,
       sequence,
       currentIndex,
@@ -1350,6 +1733,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       s.replace(/\s/g, "").split(/[,;]/).filter(Boolean).sort().join(",");
     const isCorrect = norm(practiceAnswer) === norm(problem.correctAnswer);
     const isMisconception = norm(practiceAnswer) === norm(problem.misconception.answer);
+    const activeBoardItemId = writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
 
     setResults((prev) => ({
       ...prev,
@@ -1363,14 +1747,18 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setPracticeFeedbackText("Correct! Well done! 🎉");
       addTranscript("student", practiceAnswer);
       addTranscript("teacher", "Correct! Well done!");
+      if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, "Correct! Well done!", "answer", sequenceRef.current);
       logEvent(`Practice correct: ${problem.equation}`);
     } else {
+      // Track confusion from wrong practice answers
+      confusionTracker.recordSignal({ type: "practice_wrong", weight: 0.4, boardIndex: currentIndex, section: currentSection });
       // Misconception watch: targeted correction when the answer is a known trap
       const feedback = isMisconception ? problem.misconception.note : `Not quite. ${problem.hint}`;
       setPracticeFeedback("incorrect");
       setPracticeFeedbackText(feedback);
       addTranscript("student", practiceAnswer);
       addTranscript("teacher", feedback);
+      if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, feedback, "answer", sequenceRef.current);
       logEvent(
         isMisconception
           ? `Misconception detected: ${practiceAnswer} for ${problem.equation}`
@@ -1400,7 +1788,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         }, 1000);
       }
     }, 2500);
-  }, [practiceAnswer, practiceIndex, practiceMode, addTranscript, startPractice, logEvent]);
+  }, [practiceAnswer, practiceIndex, practiceMode, writtenLines, sequence, currentIndex, addTranscript, writeSpeechOnBoard, startPractice, logEvent]);
 
   // ── Exit ticket handler ───────────────────────────────
   const handleExitTicketSubmit = useCallback(
@@ -1412,15 +1800,15 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       }
       const norm = (s: string) => s.replace(/\s/g, "").toLowerCase();
       const isCorrect = norm(answer) === norm(EXIT_TICKET_QUESTION.correct);
+      const feedback = isCorrect ? EXIT_TICKET_QUESTION.feedbackCorrect : EXIT_TICKET_QUESTION.feedbackIncorrect;
+      const activeBoardItemId = writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
       setExitTicketAnswer(answer);
       setExitTicketFeedback(isCorrect ? "correct" : "incorrect");
 
       addTranscript("student", answer);
       logEvent(`Exit ticket: ${answer} (${isCorrect ? "correct" : "incorrect"})`);
-      addTranscript(
-        "teacher",
-        isCorrect ? EXIT_TICKET_QUESTION.feedbackCorrect : EXIT_TICKET_QUESTION.feedbackIncorrect,
-      );
+      addTranscript("teacher", feedback);
+      if (activeBoardItemId) writeSpeechOnBoard(activeBoardItemId, feedback, "answer", sequenceRef.current);
 
       // After the exit ticket, ask for a reflection before completing
       setTimeout(() => {
@@ -1430,7 +1818,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         setCaptionText(EXIT_REFLECTION.question);
       }, 3000);
     },
-    [addTranscript, logEvent],
+    [addTranscript, writeSpeechOnBoard, writtenLines, sequence, currentIndex, logEvent],
   );
 
   /** Exit reflection answered → record weak area, then end the lesson. */
@@ -1465,6 +1853,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     const seq = ++sequenceRef.current;
     setCurrentIndex(0);
     setWrittenLines([]);
+    setBoardSpeech({});
     setCurrentWritingText("");
 
     phaseTimerRef.current = setTimeout(() => {
@@ -1602,30 +1991,49 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     if (savedProgress?.exists && savedProgress.progress && savedProgress.progress > 5) {
       const sectionLabel = LESSON_PLAN_SECTIONS.find(s => s.key === savedProgress.section)?.label ?? savedProgress.section ?? "Unknown";
       return (
-        <div className="vc-resume-overlay">
-          <div className="vc-resume-card">
-            <div className="vc-resume-icon">📚</div>
-            <div className="vc-resume-title">Continue Your Lesson?</div>
-            <div className="vc-resume-subtitle">
-              You were working on <strong>{LESSON_TITLE}</strong> last time.
+        <div className="min-h-screen bg-[#F6F8FB] px-4 py-10 text-[#132033] sm:px-6">
+          <div className="mx-auto max-w-3xl rounded-[32px] border border-[#E6EDF4] bg-[#FFFDFC] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E7EEF5] bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#6B7F92]">
+              <Sparkles className="h-3.5 w-3.5 text-[#8AA0B4]" />
+              Continue lesson
             </div>
-            <div className="vc-resume-details">
-              <div className="vc-resume-detail">
-                <span className="vc-resume-detail-value">{savedProgress.progress}%</span>
-                <span className="vc-resume-detail-label">Progress</span>
+
+            <div className="mt-5 grid gap-6 lg:grid-cols-[1.4fr_.9fr]">
+              <div>
+                <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Welcome back to your classroom.</h1>
+                <p className="mt-3 max-w-xl text-sm leading-7 text-[#61758A] sm:text-base">
+                  Your progress has been saved, so you can continue in a calm and familiar lesson space without restarting from the beginning.
+                </p>
+
+                <div className="mt-6 flex flex-wrap items-center gap-4">
+                  <button
+                    className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1D3E5C] px-5 text-sm font-bold text-white transition-all hover:bg-[#17324A]"
+                    onClick={handleResumeLesson}
+                  >
+                    Resume learning
+                  </button>
+                  <button
+                    className="text-sm font-semibold text-[#365978] transition-colors hover:text-[#1D3E5C]"
+                    onClick={handleStartFresh}
+                  >
+                    Start again
+                  </button>
+                </div>
               </div>
-              <div className="vc-resume-detail">
-                <span className="vc-resume-detail-value">{sectionLabel}</span>
-                <span className="vc-resume-detail-label">Section</span>
+
+              <div className="rounded-[24px] border border-[#E9EFF5] bg-white p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#7A8FA3]">Saved lesson status</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="rounded-2xl bg-[#FAFCFE] p-4 ring-1 ring-[#EDF3F8]">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Progress</p>
+                    <p className="mt-2 text-lg font-extrabold text-[#132033]">{savedProgress.progress}%</p>
+                  </div>
+                  <div className="rounded-2xl bg-[#FAFCFE] p-4 ring-1 ring-[#EDF3F8]">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Current section</p>
+                    <p className="mt-2 text-sm font-bold text-[#132033]">{sectionLabel}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="vc-resume-actions">
-              <button className="vc-resume-btn vc-resume-btn-primary" onClick={handleResumeLesson}>
-                ▶ Resume Lesson
-              </button>
-              <button className="vc-resume-btn vc-resume-btn-secondary" onClick={handleStartFresh}>
-                🔄 Start Over
-              </button>
             </div>
           </div>
         </div>
@@ -1633,64 +2041,77 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     }
 
     return (
-      <div className="vc-start-screen">
-        <div className="vc-start-card">
-          <div className="vc-start-badge">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="23 7 16 12 23 17 23 7" />
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-            </svg>
-            Live Classroom
-          </div>
-          <h1 className="vc-start-title">{LESSON_TITLE}</h1>
-          <p className="vc-start-narrative">{LESSON_OPENING_NARRATIVE}</p>
+      <div className="min-h-screen bg-[#F6F8FB] px-4 py-10 text-[#132033] sm:px-6">
+        <div className="mx-auto max-w-5xl rounded-[32px] border border-[#E6EDF4] bg-[#FFFDFC] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] sm:p-8">
+          <div className="grid gap-6 lg:grid-cols-[1.35fr_.95fr] lg:items-start">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E7EEF5] bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#6B7F92]">
+                <Sparkles className="h-3.5 w-3.5 text-[#8AA0B4]" />
+                Live classroom
+              </div>
+              <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-[#132033] sm:text-4xl">{LESSON_TITLE}</h1>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-[#61758A] sm:text-base">{LESSON_OPENING_NARRATIVE}</p>
 
-          {/* Lesson goal + why it matters — the learner knows what success looks like */}
-          <div className="vc-start-goal">
-            <div className="vc-start-goal-row">
-              <span className="vc-start-goal-icon">🎯</span>
-              <div>
-                <div className="vc-start-goal-label">Lesson goal</div>
-                <div className="vc-start-goal-text">{lesson.lessonGoal}</div>
+              <div className="mt-6 grid gap-4 rounded-[24px] border border-[#E8EEF4] bg-white p-5 sm:grid-cols-2">
+                <div className="rounded-2xl bg-[#FAFCFE] p-4 ring-1 ring-[#EDF3F8]">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Lesson goal</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#132033]">{lesson.lessonGoal}</p>
+                </div>
+                <div className="rounded-2xl bg-[#FAFCFE] p-4 ring-1 ring-[#EDF3F8]">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Why this matters</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#132033]">{lesson.whyItMatters}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-[#6E8193]">
+                <span className="rounded-full bg-[#F7FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">{INSTITUTION}</span>
+                <span className="rounded-full bg-[#F7FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">{COURSE}</span>
+                <span className="rounded-full bg-[#F7FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">{LESSON_SUBJECT}</span>
+                <span className="rounded-full bg-[#F7FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">~{estimatedMinutes} min</span>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-4">
+                <button
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1D3E5C] px-5 text-sm font-bold text-white transition-all hover:bg-[#17324A]"
+                  onClick={handleStartLesson}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                  Start learning
+                </button>
+                <button
+                  className="text-sm font-semibold text-[#365978] transition-colors hover:text-[#1D3E5C]"
+                  onClick={() => setModeSelectorOpen(true)}
+                >
+                  Review learning mode
+                </button>
               </div>
             </div>
-            <div className="vc-start-goal-row">
-              <span className="vc-start-goal-icon">💡</span>
-              <div>
-                <div className="vc-start-goal-label">Why this matters</div>
-                <div className="vc-start-goal-text">{lesson.whyItMatters}</div>
+
+            <div className="rounded-[24px] border border-[#E8EEF4] bg-[#FCFDFC] p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#7A8FA3]">Learning setup</p>
+              <div className="mt-4 grid gap-3">
+                {LEARNING_MODES.slice(0, 4).map((m) => (
+                  <button
+                    key={m.value}
+                    className={`flex items-center justify-between rounded-2xl px-4 py-3 text-left text-sm transition-all ${
+                      learningMode === m.value
+                        ? "bg-[#EEF5FB] text-[#1D3E5C] ring-1 ring-[#CFE0EE]"
+                        : "bg-white text-[#54677A] ring-1 ring-[#E8EEF4] hover:bg-[#FAFCFE]"
+                    }`}
+                    onClick={() => setLearningMode(m.value)}
+                  >
+                    <span className="font-semibold">{m.icon} {m.label}</span>
+                    {learningMode === m.value ? <span className="text-xs font-bold uppercase tracking-wider">Selected</span> : null}
+                  </button>
+                ))}
               </div>
+              <p className="mt-4 text-xs leading-6 text-[#6E8193]">
+                The same classroom layout is shared across demo lessons, with support settings available whenever a learner needs them.
+              </p>
             </div>
           </div>
-          <div className="vc-start-meta">
-            <span className="vc-start-meta-item">{INSTITUTION}</span>
-            <span className="vc-start-meta-item">{COURSE}</span>
-            <span className="vc-start-meta-item">{LESSON_SUBJECT}</span>
-            <span className="vc-start-meta-item">~{estimatedMinutes} min</span>
-          </div>
-          <div className="vc-start-meta" style={{ marginBottom: 16 }}>
-            {LEARNING_MODES.slice(0, 4).map((m) => (
-              <button
-                key={m.value}
-                className="vc-start-meta-item"
-                style={{
-                  cursor: "pointer",
-                  border: learningMode === m.value ? "1px solid #3b82f6" : "1px solid #334155",
-                  color: learningMode === m.value ? "#60a5fa" : "#94a3b8",
-                  background: learningMode === m.value ? "rgba(59,130,246,0.15)" : "#0f172a",
-                }}
-                onClick={() => setLearningMode(m.value)}
-              >
-                {m.icon} {m.label}
-              </button>
-            ))}
-          </div>
-          <button className="vc-start-btn" onClick={handleStartLesson}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-            Start Lesson
-          </button>
         </div>
       </div>
     );
@@ -1709,10 +2130,10 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     teacherState === "reading";
 
   const stateColors: Record<string, { bg: string; text: string }> = {
-    preparing: { bg: "rgba(59,130,246,0.15)", text: "#60a5fa" },
+    preparing: { bg: "rgba(31,124,128,0.15)", text: "#3fa8ab" },
     writing: { bg: "rgba(124,58,237,0.15)", text: "#a78bfa" },
     speaking: { bg: "rgba(34,197,94,0.15)", text: "#4ade80" },
-    explaining: { bg: "rgba(59,130,246,0.15)", text: "#60a5fa" },
+    explaining: { bg: "rgba(31,124,128,0.15)", text: "#3fa8ab" },
     listening: { bg: "rgba(234,179,8,0.15)", text: "#facc15" },
     thinking: { bg: "rgba(168,85,247,0.15)", text: "#c084fc" },
     asking_question: { bg: "rgba(249,115,22,0.15)", text: "#fb923c" },
@@ -1740,8 +2161,8 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         clock={clock}
         learningMode={learningMode}
         onOpenSettings={() => setModeSelectorOpen(true)}
-        onOpenNotes={() => setNotesOpen(true)}
-        onOpenTranscript={() => setTranscriptOpen(true)}
+        onOpenNotes={() => setLearningDrawerTab("notes")}
+        onOpenTranscript={() => setLearningDrawerTab("transcript")}
         onEndLesson={handleEndLesson}
       />
 
@@ -1760,7 +2181,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
           {/* Video / portrait frame */}
           <div className="vc-teacher-frame">
-            <div className="vc-teacher-frame-inner">
+            <div className={`vc-teacher-frame-inner vc-voice-${teacherVoice.state}`}>
               {TEACHER_VIDEO ? (
                 /* Real teacher → their video feed plays here */
                 <video
@@ -1799,7 +2220,11 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                 Live
               </div>
 
-              <div className={`vc-teacher-voice-indicator ${isSpeaking ? "vc-teacher-voice-indicator-active" : ""}`}>
+              {teacherVoice.state === "fallback" && (
+                <div className="vc-teacher-fallback-badge">Browser Voice</div>
+              )}
+
+              <div className={`vc-teacher-voice-indicator ${isSpeaking || teacherVoice.isSpeaking ? "vc-teacher-voice-indicator-active" : ""}`}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -1824,6 +2249,16 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               {stateLabel}
             </div>
           </div>
+
+          {/* Course contents sit directly below the teacher image/identity. */}
+          <CourseOutline
+            course={COURSE}
+            lessonTitle={LESSON_TITLE}
+            sections={LESSON_PLAN_SECTIONS}
+            currentSection={currentSection}
+            canRevisit={(key) => SECTION_START_INDEX[key] !== undefined}
+            onRevisit={jumpToSection}
+          />
 
           {/* Three mini status cards — Voice / Captions / Listening */}
           <div className="vc-mini-cards">
@@ -1867,16 +2302,6 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             </div>
           </div>
 
-          {/* Lesson Plan Mini Timeline */}
-          <CourseOutline
-            course={COURSE}
-            lessonTitle={LESSON_TITLE}
-            sections={LESSON_PLAN_SECTIONS}
-            currentSection={currentSection}
-            canRevisit={(key) => SECTION_START_INDEX[key] !== undefined}
-            onRevisit={jumpToSection}
-          />
-
           {/* Raise Hand Status */}
           {raiseHand === "raised" && (
             <div className="vc-raise-hand-status">
@@ -1890,7 +2315,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             </div>
           )}
 
-          {/* Quick Help — 2×2 one-tap actions */}
+          {/* Quick Help — simplified for a calmer shared classroom */}
           <div className="vc-quick-help">
             <div className="vc-quick-help-title">Quick Help</div>
             <div className="vc-quick-help-grid">
@@ -1902,13 +2327,6 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                 </svg>
                 Ask Question
               </button>
-              <button className="vc-quick-help-btn" onClick={handleReplayStep}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="1 4 1 10 7 10" />
-                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-                </svg>
-                Repeat Step
-              </button>
               <button className="vc-quick-help-btn" onClick={() => handleQuickAction("Explain simpler")}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 18h6" /><path d="M10 22h4" />
@@ -1916,13 +2334,10 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                 </svg>
                 Explain Simpler
               </button>
-              <button className="vc-quick-help-btn vc-quick-help-btn-amber" onClick={() => handleQuickAction("Give example")}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <path d="M3 9h18" /><path d="M9 21V9" />
-                </svg>
-                Another Example
-              </button>
+            </div>
+            <div className="mt-3 rounded-2xl bg-[#FBFCFE] px-4 py-3 text-xs leading-6 text-[#66798C] ring-1 ring-[#EEF3F7]">
+              Need more support? Use <span className="font-semibold text-[#365978]">More Support</span> in the bottom bar for notes,
+              transcript, learning mode, and extra help.
             </div>
           </div>
         </div>
@@ -1986,7 +2401,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                   className="vc-board-tool-btn"
                   onClick={() => {
                     const last = writtenLines[writtenLines.length - 1];
-                    if (last && learningMode !== "deaf") speak(`On the board: ${last.boardText}. ${last.teacherExplanation ?? ""}`, undefined, undefined, TEACHER_VOICE);
+                    if (!last) return;
+                    const description = `Board description: ${last.boardText}. ${last.teacherExplanation ?? ""}`;
+                    setCaptionText(description);
+                    setCaptionSpeaker(TEACHER_NAME);
+                    addTranscript("teacher", description, last.id);
+                    writeSpeechOnBoard(last.id, description, "explain", sequenceRef.current);
+                    speakTeacher(description, "explanation", last.id);
                   }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1996,35 +2417,67 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                   Describe Board
                 </button>
                 <div className="vc-board-zoom">
-                  <button className="vc-board-zoom-btn" aria-label="Zoom out">−</button>
-                  <span className="vc-board-zoom-val">100%</span>
-                  <button className="vc-board-zoom-btn" aria-label="Zoom in">+</button>
+                  <button className="vc-board-zoom-btn" aria-label="Zoom out" onClick={() => setBoardZoom((z) => Math.max(80, z - 10))}>−</button>
+                  <span className="vc-board-zoom-val">{boardZoom}%</span>
+                  <button className="vc-board-zoom-btn" aria-label="Zoom in" onClick={() => setBoardZoom((z) => Math.min(140, z + 10))}>+</button>
                 </div>
               </div>
             </div>
 
             <div className="vc-board-stage">
-            {/* Vertical tool strip (decorative — matches reference) */}
-            <div className="vc-board-toolstrip" aria-hidden>
-              <span className="vc-board-tool vc-board-tool-active">
+            {/* Vertical tool strip — functional whiteboard tools */}
+            <div className="vc-board-toolstrip">
+              <button
+                className={`vc-board-tool ${boardTool === "pen" ? "vc-board-tool-active" : ""}`}
+                title="Highlight"
+                onClick={() => setBoardTool(boardTool === "pen" ? "cursor" : "pen")}
+              >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" /></svg>
-              </span>
-              <span className="vc-board-tool">
+              </button>
+              <button
+                className={`vc-board-tool ${boardTool === "cursor" ? "vc-board-tool-active" : ""}`}
+                title="Select"
+                onClick={() => setBoardTool("cursor")}
+              >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" /></svg>
-              </span>
-              <span className="vc-board-tool">
+              </button>
+              <button
+                className={`vc-board-tool ${boardTool === "chat" ? "vc-board-tool-active" : ""}`}
+                title="Ask about this"
+                onClick={() => setBoardTool(boardTool === "chat" ? "cursor" : "chat")}
+              >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-              </span>
-              <span className="vc-board-tool">
+              </button>
+              <button
+                className={`vc-board-tool ${boardTool === "text" ? "vc-board-tool-active" : ""}`}
+                title="Add note"
+                onClick={() => setBoardTool(boardTool === "text" ? "cursor" : "text")}
+              >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg>
-              </span>
-              <span className="vc-board-tool">
+              </button>
+              <button
+                className={`vc-board-tool ${boardTool === "image" ? "vc-board-tool-active" : ""}`}
+                title="Describe board"
+                onClick={() => setBoardTool(boardTool === "image" ? "cursor" : "image")}
+              >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-              </span>
+              </button>
+              {/* Tool hint */}
+              <div className="vc-board-tool-hint">
+                {boardTool === "pen" && "Click lines to highlight"}
+                {boardTool === "cursor" && "Click to select"}
+                {boardTool === "chat" && "Click a line to ask"}
+                {boardTool === "text" && "Click a line to annotate"}
+                {boardTool === "image" && "Click a line to describe"}
+              </div>
             </div>
 
             {/* Whiteboard Content */}
-            <div className="vc-whiteboard-content" ref={boardRef}>
+            <div
+              className="vc-whiteboard-content"
+              ref={boardRef}
+              style={{ "--vc-board-zoom": boardZoom / 100 } as Record<string, number>}
+            >
               {writtenLines.length === 0 && !isWriting && (
                 <div className="vc-whiteboard-empty">
                   The whiteboard is ready. The teacher will start writing shortly...
@@ -2038,6 +2491,25 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                   lineIndex={idx + 1}
                   isActive={idx === writtenLines.length - 1 && !isWriting}
                   courseType={LESSON_COURSE_TYPE}
+                  speechLines={boardSpeech[item.id] ?? []}
+                  highlighted={highlightedLines.has(idx)}
+                  selected={selectedLineIdx === idx}
+                  annotation={boardAnnotations[idx]}
+                  onClick={() => handleBoardLineClick(idx)}
+                  onAnnotationSave={(text) => {
+                    if (text.trim()) {
+                      setBoardAnnotations((prev) => ({ ...prev, [idx]: text.trim() }));
+                      writeSpeechOnBoard(item.id, text.trim(), "explain", sequenceRef.current);
+                      addTranscript("student", text.trim(), item.id);
+                      logEvent(`Board annotation: ${text.trim().slice(0, 50)}`);
+                    } else {
+                      setBoardAnnotations((prev) => {
+                        const next = { ...prev };
+                        delete next[idx];
+                        return next;
+                      });
+                    }
+                  }}
                 />
               ))}
 
@@ -2057,7 +2529,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
 
             {/* Markers + eraser resting in the board's tray */}
             <div className="vc-whiteboard-tray" aria-hidden>
-              <span className="vc-tray-marker vc-tray-marker-blue" />
+              <span className="vc-tray-marker vc-tray-marker-teal" />
               <span className="vc-tray-marker vc-tray-marker-black" />
               <span className="vc-tray-marker vc-tray-marker-red" />
               <span className="vc-tray-eraser" />
@@ -2067,12 +2539,29 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           {/* Smaller right section — lesson visuals (graphs / diagrams /
               illustrations) and live bullet summaries of what's on the board.
               The classroom decides the content automatically from the subject. */}
-          <SubjectVisual
+          <LearningDrawer
+            activeTab={learningDrawerTab}
+            onTabChange={setLearningDrawerTab}
+            notes={FULL_LEARNER_NOTES}
+            transcript={transcript}
+            progress={progress}
+            currentSectionLabel={LESSON_PLAN_SECTIONS.find((s) => s.key === currentSection)?.label ?? "Lesson"}
+            results={results}
             courseType={LESSON_COURSE_TYPE}
             isDemo={lesson.lessonId === "demo"}
             keyPoints={boardKeyPoints}
             lessonTitle={LESSON_TITLE}
             currentGoal={SECTION_GOALS[currentSection]}
+            onAskQuestion={handleAskQuestion}
+            onDownloadNotes={() => {
+              const blob = new Blob([FULL_LEARNER_NOTES], { type: "text/plain" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `${LESSON_TITLE} - Notes.txt`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
           />
           </div>
         </div>
@@ -2123,10 +2612,6 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         <div className="vc-control-cluster">
           <span className="vc-cluster-label">Lesson Controls</span>
           <div className="vc-cluster-row">
-            <button className="vc-ctl" onClick={handleReplay} title="Previous / replay from start">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19" /><polygon points="22 19 13 12 22 5 22 19" /></svg>
-              <span>Previous</span>
-            </button>
             <button className="vc-ctl vc-ctl-primary" onClick={handlePause}>
               {isPaused ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
@@ -2135,13 +2620,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               )}
               <span>{isPaused ? "Play" : "Pause"}</span>
             </button>
-            <button className="vc-ctl" onClick={resumeAfterInterjection} title="Next">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5" /><polygon points="2 5 11 12 2 19 2 5" /></svg>
-              <span>Next</span>
-            </button>
-            <button className="vc-ctl" onClick={handleReplayStep}>
+            <button className="vc-ctl" onClick={handleReplay} title="Replay lesson from the start">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
-              <span>Replay Step</span>
+              <span>Replay</span>
+            </button>
+            <button className="vc-ctl" onClick={handleNextStep} title="Next">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5" /><polygon points="2 5 11 12 2 19 2 5" /></svg>
+              <span>Step</span>
             </button>
           </div>
         </div>
@@ -2149,51 +2634,20 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         <div className="vc-controls-divider" />
 
         {/* Help & Interaction */}
-        <div className="vc-control-cluster">
+        <div className="vc-control-cluster vc-control-cluster-help">
           <span className="vc-cluster-label">Help &amp; Interaction</span>
           <div className="vc-cluster-row">
             <button className="vc-ctl" onClick={handleAskQuestion}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               <span>Ask Question</span>
             </button>
-            <button
-              className={`vc-ctl ${raiseHand !== "idle" ? "vc-ctl-active" : ""}`}
-              onClick={() => {
-                if (raiseHand === "idle") {
-                  setRaiseHand("raised");
-                  setResults((prev) => ({ ...prev, raisedHands: prev.raisedHands + 1 }));
-                  logEvent("Learner raised hand");
-                  addTranscript("system", "Learner raised hand");
-                  raiseHandTimersRef.current.push(
-                    setTimeout(() => {
-                      setRaiseHand("acknowledged");
-                      setCaptionText("I see your hand! Let me finish this step, then I'll take your question.");
-                      addTranscript("teacher", "I see your hand! What would you like to ask?");
-                      raiseHandTimersRef.current.push(
-                        setTimeout(() => {
-                          setRaiseHand("resolved");
-                          handleAskQuestion();
-                        }, 3000),
-                      );
-                    }, 2000),
-                  );
-                } else {
-                  raiseHandTimersRef.current.forEach(clearTimeout);
-                  raiseHandTimersRef.current = [];
-                  setRaiseHand("idle");
-                }
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8" /><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></svg>
-              <span>{raiseHand === "idle" ? "Raise Hand" : raiseHand === "raised" ? "Raised…" : "Hand Seen"}</span>
-            </button>
             <button className="vc-ctl vc-ctl-danger-soft" onClick={() => handleQuickAction("I don't understand")}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               <span>I Don't Understand</span>
             </button>
-            <button className="vc-ctl vc-ctl-amber" onClick={() => handleQuickAction("Give example")}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18h6" /><path d="M10 22h4" /><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z" /></svg>
-              <span>Another Example</span>
+            <button className="vc-ctl vc-ctl-amber" onClick={() => setSupportMenuOpen((open) => !open)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+              <span>More Support</span>
             </button>
           </div>
         </div>
@@ -2214,21 +2668,58 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="18" x2="12" y2="21" /></svg>
               <span>Captions</span>
             </button>
-            <button className={`vc-ctl ${notesOpen ? "vc-ctl-active" : ""}`} onClick={() => setNotesOpen(!notesOpen)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
-              <span>Notes</span>
-            </button>
-            <button className={`vc-ctl ${transcriptOpen ? "vc-ctl-active" : ""}`} onClick={() => setTranscriptOpen(!transcriptOpen)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
-              <span>Transcript</span>
-            </button>
-            <button className="vc-ctl" onClick={() => setModeSelectorOpen(!modeSelectorOpen)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-              <span>Learning Mode</span>
-            </button>
-            <button className="vc-ctl" title="Playback speed">
+            <div className="vc-support-menu-wrap">
+              <button
+                className={`vc-ctl ${supportMenuOpen ? "vc-ctl-active" : ""}`}
+                onClick={() => setSupportMenuOpen((open) => !open)}
+                aria-expanded={supportMenuOpen}
+                title="More learning support"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+                <span>More Support</span>
+              </button>
+              {supportMenuOpen && (
+                <div className="vc-support-menu" role="menu" aria-label="More learning support">
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      if (learningMode !== "deaf") setVoiceEnabled((v) => !v);
+                      setSupportMenuOpen(false);
+                    }}
+                  >
+                    <span>{voiceEnabled && learningMode !== "deaf" ? "Turn Voice Off" : "Turn Voice On"}</span>
+                  </button>
+                  <button role="menuitem" onClick={handleRaiseHand}>
+                    <span>{raiseHand === "idle" ? "Raise Hand" : raiseHand === "raised" ? "Raised..." : "Hand Seen"}</span>
+                  </button>
+                  <button role="menuitem" onClick={() => { handleQuickAction("Give example"); setSupportMenuOpen(false); }}>
+                    <span>Another Example</span>
+                  </button>
+                  <button role="menuitem" onClick={() => { setLearningDrawerTab("notes"); setSupportMenuOpen(false); }}>
+                    <span>Open Notes</span>
+                  </button>
+                  <button role="menuitem" onClick={() => { setLearningDrawerTab("transcript"); setSupportMenuOpen(false); }}>
+                    <span>Open Transcript</span>
+                  </button>
+                  <button role="menuitem" onClick={() => { setModeSelectorOpen(true); setSupportMenuOpen(false); }}>
+                    <span>Learning Mode</span>
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
+              className="vc-ctl"
+              title="Playback speed"
+              onClick={() =>
+                setTeacherVoiceSpeed((speed) => {
+                  const speeds = [0.75, 0.9, 1, 1.15];
+                  const index = speeds.findIndex((value) => Math.abs(value - speed) < 0.01);
+                  return speeds[(index + 1) % speeds.length];
+                })
+              }
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 8 12 12 15 13" /></svg>
-              <span>Speed 1.0x</span>
+              <span>Speed {teacherVoiceSpeed.toFixed(2).replace(/0$/, "")}x</span>
             </button>
           </div>
         </div>
@@ -2248,32 +2739,11 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       </div>
 
       {/* ── Notes Drawer ─────────────────────────────────── */}
-      <Drawer open={notesOpen} onClose={() => setNotesOpen(false)} title="Lesson Notes">
-        <div className="vc-drawer-actions">
-          <button className="vc-drawer-action-btn" onClick={() => {
-            const blob = new Blob([FULL_LEARNER_NOTES], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${LESSON_TITLE} - Notes.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Download
-          </button>
-        </div>
-        <div className="vc-drawer-content">{FULL_LEARNER_NOTES}</div>
-      </Drawer>
 
       {/* ── Transcript Drawer ────────────────────────────── */}
       <Drawer
-        open={transcriptOpen}
-        onClose={() => setTranscriptOpen(false)}
+        open={false}
+        onClose={() => undefined}
         title="Lesson Transcript"
       >
         <div className="vc-drawer-content" style={{ fontFamily: "system-ui, sans-serif" }}>
@@ -2292,7 +2762,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                     entry.role === "board"
                       ? "rgba(124,58,237,0.1)"
                       : entry.role === "student"
-                        ? "rgba(59,130,246,0.1)"
+                        ? "rgba(31,124,128,0.1)"
                         : entry.role === "system"
                           ? "rgba(148,163,184,0.1)"
                           : "transparent",
@@ -2315,7 +2785,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                       entry.role === "board"
                         ? "#a78bfa"
                         : entry.role === "student"
-                          ? "#60a5fa"
+                          ? "#3fa8ab"
                           : entry.role === "system"
                             ? "#94a3b8"
                             : "#4ade80",
@@ -2460,9 +2930,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         </div>
       )}
 
-      {/* ── Completion Summary ───────────────────────────── */}
+      {/* ── Completion Summary (inline card) ────────────── */}
       {completionOpen && (
-        <div className="vc-completion-overlay">
+        <div style={{
+          position: "relative",
+          margin: "16px 0",
+          zIndex: 10,
+        }}>
           <div className="vc-completion-card">
             <div className="vc-completion-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -2475,7 +2949,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             {/* Takeaway Score Card */}
             {takeawayScore !== null && (
               <div style={{
-                background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(59,130,246,0.15) 100%)",
+                background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(31,124,128,0.15) 100%)",
                 border: "2px solid rgba(34,197,94,0.3)",
                 borderRadius: 0,
                 padding: "16px",
@@ -2486,7 +2960,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
                 <div style={{
                   fontSize: "2.2rem",
                   fontWeight: 800,
-                  background: "linear-gradient(120deg, #34d399, #60a5fa)",
+                  background: "linear-gradient(120deg, #34d399, #3fa8ab)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -2566,7 +3040,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               </button>
               <button className="vc-completion-btn vc-completion-btn-secondary" onClick={() => {
                 setCompletionOpen(false);
-                setNotesOpen(true);
+                setLearningDrawerTab("notes");
               }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -2576,7 +3050,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               </button>
               <button className="vc-completion-btn vc-completion-btn-secondary" onClick={() => {
                 setCompletionOpen(false);
-                setTranscriptOpen(true);
+                setLearningDrawerTab("transcript");
               }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="4 17 10 11 4 5" />
@@ -3031,6 +3505,164 @@ function Toggle({ on, onChange, disabled }: { on: boolean; onChange: (v: boolean
  * For real (non-demo) lessons the points are built from what the teacher has
  * actually written on the board, so the rail always reflects the current lesson.
  */
+function LearningDrawer({
+  activeTab,
+  onTabChange,
+  notes,
+  transcript,
+  progress,
+  currentSectionLabel,
+  results,
+  courseType,
+  isDemo,
+  keyPoints,
+  lessonTitle,
+  currentGoal,
+  onAskQuestion,
+  onDownloadNotes,
+}: {
+  activeTab: LearningDrawerTab;
+  onTabChange: (tab: LearningDrawerTab) => void;
+  notes: string;
+  transcript: TranscriptEntry[];
+  progress: number;
+  currentSectionLabel: string;
+  results: LearningResults;
+  courseType: CourseType;
+  isDemo: boolean;
+  keyPoints: string[];
+  lessonTitle: string;
+  currentGoal?: string;
+  onAskQuestion: () => void;
+  onDownloadNotes: () => void;
+}) {
+  const tabs: { id: LearningDrawerTab; label: string }[] = [
+    { id: "notes", label: "Notes" },
+    { id: "transcript", label: "Transcript" },
+    { id: "progress", label: "Progress" },
+    { id: "resources", label: "Resources" },
+    { id: "questions", label: "Questions" },
+  ];
+
+  return (
+    <aside className="vc-learning-drawer" aria-label="Learning drawer">
+      <div className="vc-learning-drawer-tabs" role="tablist" aria-label="Learning support tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={`vc-learning-tab ${activeTab === tab.id ? "is-active" : ""}`}
+            onClick={() => onTabChange(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="vc-learning-drawer-body">
+        {activeTab === "notes" && (
+          <section className="vc-learning-panel" aria-label="Lesson notes">
+            <div className="vc-learning-panel-head">
+              <div>
+                <p className="vc-learning-eyebrow">Saved lesson notes</p>
+                <h3 className="vc-learning-title">Organized notes</h3>
+              </div>
+              <button className="vc-learning-action" onClick={onDownloadNotes}>Download</button>
+            </div>
+            <article className="vc-note-block vc-continuous-notes">
+              {notes.split("\n").filter(Boolean).slice(0, 12).map((line, index) => (
+                <p key={index}>{line}</p>
+              ))}
+            </article>
+          </section>
+        )}
+
+        {activeTab === "transcript" && (
+          <section className="vc-learning-panel" aria-label="Lesson transcript">
+            <div className="vc-learning-panel-head">
+              <div>
+                <p className="vc-learning-eyebrow">Live record</p>
+                <h3 className="vc-learning-title">Transcript</h3>
+              </div>
+              <span className="vc-learning-count">{transcript.length}</span>
+            </div>
+            <article className="vc-transcript-list vc-continuous-transcript">
+              {transcript.length === 0 ? (
+                <p className="vc-learning-empty">Teacher, board, and learner turns will appear here as the lesson runs.</p>
+              ) : (
+                transcript.slice(-14).map((entry) => (
+                  <p key={entry.id} className={`vc-transcript-line role-${entry.role}`}>
+                    <span className="vc-transcript-role">{entry.role}</span>
+                    <span>{entry.text}</span>
+                  </p>
+                ))
+              )}
+            </article>
+          </section>
+        )}
+
+        {activeTab === "progress" && (
+          <section className="vc-learning-panel" aria-label="Lesson progress">
+            <div className="vc-learning-panel-head">
+              <div>
+                <p className="vc-learning-eyebrow">Learning journey</p>
+                <h3 className="vc-learning-title">{currentSectionLabel}</h3>
+              </div>
+              <span className="vc-learning-count">{progress}%</span>
+            </div>
+            <div className="vc-drawer-progress">
+              <div className="vc-drawer-progress-track"><span style={{ width: `${progress}%` }} /></div>
+            </div>
+            <div className="vc-progress-grid">
+              <div><strong>{results.questionsAsked}</strong><span>Questions</span></div>
+              <div><strong>{results.raisedHands}</strong><span>Hands</span></div>
+              <div><strong>{results.practiceAttempts}</strong><span>Practice</span></div>
+              <div><strong>{results.hintsUsed}</strong><span>Hints</span></div>
+            </div>
+          </section>
+        )}
+
+        {activeTab === "resources" && (
+          <section className="vc-learning-panel" aria-label="Lesson resources">
+            <SubjectVisual
+              courseType={courseType}
+              isDemo={isDemo}
+              keyPoints={keyPoints}
+              lessonTitle={lessonTitle}
+              currentGoal={currentGoal}
+            />
+          </section>
+        )}
+
+        {activeTab === "questions" && (
+          <section className="vc-learning-panel" aria-label="Questions">
+            <div className="vc-learning-panel-head">
+              <div>
+                <p className="vc-learning-eyebrow">Ask anytime</p>
+                <h3 className="vc-learning-title">Questions</h3>
+              </div>
+              <button className="vc-learning-action" onClick={onAskQuestion}>Ask</button>
+            </div>
+            <div className="vc-question-history">
+              {transcript.filter((entry) => entry.role === "student").length === 0 ? (
+                <p className="vc-learning-empty">Your questions will be saved here with the teacher's answers.</p>
+              ) : (
+                transcript.filter((entry) => entry.role === "student").slice(-8).map((entry) => (
+                  <article key={entry.id} className="vc-question-card-inline">
+                    <p>{entry.text}</p>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
+        )}
+      </div>
+    </aside>
+  );
+}
+
 function SubjectVisual({
   courseType,
   isDemo,
@@ -3156,11 +3788,11 @@ function MarkerPen() {
       <path d="M18 46 L24 40 L29 45 L23 51 Z" fill="#475569" />
       {/* Barrel of the marker */}
       <rect x="24" y="14" width="14" height="30" rx="3" transform="rotate(45 31 29)" fill="#2563eb" />
-      <rect x="27" y="16" width="5" height="26" rx="2.5" transform="rotate(45 31 29)" fill="#1e40af" opacity="0.7" />
+      <rect x="27" y="16" width="5" height="26" rx="2.5" transform="rotate(45 31 29)" fill="#1A5256" opacity="0.7" />
       {/* Cap end */}
-      <path d="M44 14 L52 6 L58 12 L50 20 Z" fill="#1e3a8a" />
+      <path d="M44 14 L52 6 L58 12 L50 20 Z" fill="#1A5256" />
       {/* Highlight along the barrel */}
-      <rect x="26" y="15" width="2" height="26" rx="1" transform="rotate(45 31 29)" fill="#bfdbfe" opacity="0.8" />
+      <rect x="26" y="15" width="2" height="26" rx="1" transform="rotate(45 31 29)" fill="#a3d9d8" opacity="0.8" />
     </svg>
   );
 }
@@ -3179,11 +3811,23 @@ function BoardLine({
   lineIndex,
   isActive,
   courseType,
+  speechLines,
+  highlighted,
+  selected,
+  annotation,
+  onClick,
+  onAnnotationSave,
 }: {
   item: MathTeachingItem;
   lineIndex: number;
   isActive: boolean;
   courseType: CourseType;
+  speechLines: BoardSpeechLine[];
+  highlighted?: boolean;
+  selected?: boolean;
+  annotation?: string;
+  onClick?: () => void;
+  onAnnotationSave?: (text: string) => void;
 }) {
   const typeClass =
     item.type === "equation"
@@ -3199,31 +3843,62 @@ function BoardLine({
               : "";
 
   const isTheory = courseType === "social";
-  // The spoken explanation, written down. Avoid repeating it when it's just the
-  // board text said back (common for short instruction/heading items).
-  const spoken = (item.teacherExplanation || "").trim();
-  const showNote = spoken.length > 0 && spoken.toLowerCase() !== item.boardText.trim().toLowerCase();
-  const why = (item.whyThisStepMatters || "").trim();
-  const mistake = (item.commonMistake || "").trim();
+  const mistake = "";
+  const [localAnnotation, setLocalAnnotation] = useState(annotation ?? "");
+  const [showAnnotationInput, setShowAnnotationInput] = useState(false);
 
   return (
-    <div className={`vc-board-line ${typeClass} ${isActive ? "vc-board-line-active" : ""}`}>
+    <div
+      className={`vc-board-line ${typeClass} ${isActive ? "vc-board-line-active" : ""} ${highlighted ? "vc-board-line-highlighted" : ""} ${selected ? "vc-board-line-selected" : ""}`}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
+    >
       <span className="vc-board-line-number">{lineIndex}</span>
       <div className="vc-board-line-body">
         <span className="vc-board-line-text">{item.boardText}</span>
-        {showNote && (
-          <div className={isTheory ? "vc-board-note vc-board-note-paragraph" : "vc-board-note vc-board-note-caption"}>
-            {spoken}
+        {speechLines.map((line) => (
+          <div
+            key={line.id}
+            className={`vc-board-note vc-board-note-hand vc-board-note-${line.tone} ${
+              isTheory ? "vc-board-note-paragraph" : "vc-board-note-caption"
+            }`}
+          >
+            {line.text}
           </div>
-        )}
-        {why && !isTheory && (
-          <div className="vc-board-note vc-board-note-why">
-            <span className="vc-board-note-why-label">Why:</span> {why}
-          </div>
-        )}
+        ))}
         {mistake && (
           <div className="vc-board-note vc-board-note-mistake">
             <span className="vc-board-note-mistake-label">⚠ Watch out:</span> {mistake}
+          </div>
+        )}
+        {/* User annotation */}
+        {annotation && !showAnnotationInput && (
+          <div className="vc-board-note vc-board-note-annotation" onClick={(e) => { e.stopPropagation(); setShowAnnotationInput(true); }}>
+            📝 {annotation}
+          </div>
+        )}
+        {showAnnotationInput && (
+          <div className="vc-board-annotation-input-wrap">
+            <input
+              className="vc-board-annotation-input"
+              value={localAnnotation}
+              onChange={(e) => setLocalAnnotation(e.target.value)}
+              placeholder="Add a note…"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  onAnnotationSave?.(localAnnotation);
+                  setShowAnnotationInput(false);
+                }
+                if (e.key === "Escape") setShowAnnotationInput(false);
+              }}
+              onBlur={() => {
+                if (localAnnotation.trim()) onAnnotationSave?.(localAnnotation);
+                setShowAnnotationInput(false);
+              }}
+            />
           </div>
         )}
       </div>
@@ -3243,6 +3918,8 @@ function Drawer({
   title: string;
   children: React.ReactNode;
 }) {
+  if (!open) return null;
+
   return (
     <>
       <div

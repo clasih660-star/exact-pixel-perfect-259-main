@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getLesson } from "@/lib/lessons.functions";
 import { startSession } from "@/lib/sessions.functions";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/lessons/$lessonId")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentLessonPage,
 });
 

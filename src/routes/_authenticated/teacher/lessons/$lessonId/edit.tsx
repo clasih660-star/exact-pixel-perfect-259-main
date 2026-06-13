@@ -471,13 +471,13 @@ function PublishSection({ lesson, lessonId, onPublish }: { lesson: any; lessonId
   }
 
   return (
-    <Card className="border-blue-200 bg-blue-50">
+    <Card className="border-[#a3d9d8] bg-[#e8f5f5]">
       <CardContent className="p-6">
-        <h4 className="font-semibold mb-2 text-blue-900">Ready to Publish?</h4>
-        <p className="text-sm text-blue-800 mb-4">
+        <h4 className="font-semibold mb-2 text-[#0F172A]">Ready to Publish?</h4>
+        <p className="text-sm text-[#1A5256] mb-4">
           Review all sections and items above. When you're satisfied, publish this lesson to make it available to students.
         </p>
-        <Button onClick={() => m.mutate()} disabled={m.isPending} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={() => m.mutate()} disabled={m.isPending} className="bg-[#1F7C80] hover:bg-[#1A5256]">
           {m.isPending ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

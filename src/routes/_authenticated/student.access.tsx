@@ -8,8 +8,10 @@ import {
   loadAccessibility,
   saveAccessibility,
 } from "@/lib/accessibility";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/access")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentAccess,
 });
 

@@ -86,7 +86,7 @@ export function SessionReplayPage({
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
             to={`/classroom/session/${sessionId}`}
-            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium"
+            className="flex items-center gap-2 text-[#3fa8ab] hover:text-[#a3d9d8] font-medium"
           >
             <ArrowLeft size={18} />
             Back
@@ -174,7 +174,7 @@ export function SessionReplayPage({
                 <button
                   onClick={() => setShowCaptions(!showCaptions)}
                   className={`p-2 rounded transition-colors ${
-                    showCaptions ? "bg-blue-600" : "hover:bg-slate-700"
+                    showCaptions ? "bg-[#1F7C80]" : "hover:bg-slate-700"
                   }`}
                   title="Toggle captions"
                 >

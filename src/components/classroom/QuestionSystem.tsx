@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Send, X, HelpCircle } from "lucide-react";
 import type { LearningMode } from "@/lib/types";
-import { startListening, stopListening, speak } from "@/lib/speech";
+import { startListening, stopListening, speak, speakWithAccessibility } from "@/lib/speech";
 
 interface QuestionSystemProps {
   mode: LearningMode;
@@ -26,6 +26,42 @@ export function QuestionSystem({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const textInputRef = useRef<HTMLInputElement>(null);
+  const recognizerRef = useRef<ReturnType<typeof startListening> | null>(null);
+
+  const stopVoiceCapture = () => {
+    if (recognizerRef.current) {
+      stopListening(recognizerRef.current);
+      recognizerRef.current = null;
+    }
+    setIsListening(false);
+  };
+
+  const beginVoiceCapture = () => {
+    setTranscript("");
+    stopVoiceCapture();
+
+    const recognizer = startListening(
+      (result, isFinal) => {
+        setTranscript(result);
+        if (!isFinal) return;
+
+        if (result.toLowerCase().includes("no question")) {
+          handleSkip();
+        } else {
+          handleAnswer(result, "voice");
+        }
+
+        stopVoiceCapture();
+      },
+      undefined,
+      () => {
+        stopVoiceCapture();
+      }
+    );
+
+    recognizerRef.current = recognizer;
+    setIsListening(Boolean(recognizer));
+  };
 
   // Auto-play audio based on mode
   useEffect(() => {
@@ -36,7 +72,7 @@ export function QuestionSystem({
       } else if (mode === "standard" || mode === "deaf") {
         // Optional audio, just show text
         if (mode === "standard") {
-          speak(questionText, { rate: 0.9 });
+          speakWithAccessibility(questionText, { rate: 0.9 });
         }
       }
     }
@@ -51,24 +87,13 @@ export function QuestionSystem({
 
   // Blind mode: auto-enable microphone
   useEffect(() => {
-    if (isOpen && mode === "blind" && !isListening) {
-      setIsListening(true);
-      startListening((result) => {
-        setTranscript(result);
-        if (result.toLowerCase().includes("no question")) {
-          handleSkip();
-        } else {
-          handleAnswer(result, "voice");
-        }
-      });
+    if (isOpen && mode === "blind" && !recognizerRef.current) {
+      beginVoiceCapture();
     }
     return () => {
-      if (isListening) {
-        stopListening();
-        setIsListening(false);
-      }
+      stopVoiceCapture();
     };
-  }, [isOpen, mode, isListening]);
+  }, [isOpen, mode]);
 
   const handleAnswer = (answer: string, inputType: "text" | "voice" = "text") => {
     onAnswer?.(answer, inputType);
@@ -84,16 +109,15 @@ export function QuestionSystem({
 
   const handleVoiceInput = () => {
     if (isListening) {
-      stopListening();
-      setIsListening(false);
+      stopVoiceCapture();
     } else {
-      setIsListening(true);
-      setTranscript("");
-      startListening((result) => {
-        setTranscript(result);
-        setIsListening(false);
-      });
+      beginVoiceCapture();
     }
+  };
+
+  const handleClose = () => {
+    stopVoiceCapture();
+    onClose?.();
   };
 
   // Standard Mode
@@ -101,7 +125,7 @@ export function QuestionSystem({
     return isOpen ? (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <HelpCircle className="h-5 w-5 text-blue-600" />
+          <HelpCircle className="h-5 w-5 text-[#1F7C80]" />
           <div className="flex-1">
             <p className="text-sm text-gray-700 mb-2">{questionText}</p>
             <div className="flex items-center gap-2">
@@ -116,7 +140,7 @@ export function QuestionSystem({
                     handleAnswer(inputValue);
                   }
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1F7C80]"
               />
               <button
                 onClick={handleVoiceInput}
@@ -136,7 +160,7 @@ export function QuestionSystem({
               <button
                 onClick={() => handleAnswer(inputValue || transcript)}
                 disabled={!inputValue.trim() && !transcript.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2 bg-[#1F7C80] text-white rounded-lg text-sm font-medium hover:bg-[#1A5256] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Send className="h-4 w-4" /> Send
               </button>
@@ -147,7 +171,7 @@ export function QuestionSystem({
                 Skip
               </button>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="p-2 text-gray-400 hover:text-gray-600"
               >
                 <X className="h-5 w-5" />
@@ -180,14 +204,14 @@ export function QuestionSystem({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Type your question here..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 h-24 resize-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1F7C80] mb-4 h-24 resize-none"
           />
 
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => handleAnswer(inputValue)}
               disabled={!inputValue.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-[#1F7C80] text-white rounded-lg text-sm font-medium hover:bg-[#1A5256] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Send Question
             </button>
@@ -198,7 +222,7 @@ export function QuestionSystem({
               No Question
             </button>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="col-span-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
             >
               Repeat Board Step
@@ -222,7 +246,7 @@ export function QuestionSystem({
             className={`w-full p-4 rounded-lg mb-4 text-center transition-colors ${
               isListening
                 ? "bg-red-50 border-2 border-red-500"
-                : "bg-blue-50 border-2 border-blue-500"
+                : "bg-[#e8f5f5] border-2 border-[#1F7C80]"
             }`}
           >
             <p className="text-sm font-medium text-gray-700">
@@ -241,7 +265,7 @@ export function QuestionSystem({
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isListening
                   ? "bg-red-600 text-white hover:bg-red-700"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-[#1F7C80] text-white hover:bg-[#1A5256]"
               }`}
             >
               {isListening ? "Stop Listening" : "Start Listening"}
@@ -271,13 +295,13 @@ export function QuestionSystem({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Type your answer..."
-              className="col-span-3 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+              className="col-span-3 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1F7C80] mb-2"
             />
 
             <button
               onClick={() => handleAnswer(inputValue)}
               disabled={!inputValue.trim()}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="px-3 py-2 bg-[#1F7C80] text-white rounded-lg text-sm font-medium hover:bg-[#1A5256] disabled:opacity-50"
             >
               Send
             </button>
@@ -288,7 +312,7 @@ export function QuestionSystem({
               No Question
             </button>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
             >
               Close
@@ -312,14 +336,14 @@ export function QuestionSystem({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Your answer"
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#1F7C80]"
               autoFocus
             />
 
             <button
               onClick={() => handleAnswer(inputValue)}
               disabled={!inputValue.trim()}
-              className="w-full px-4 py-4 bg-blue-600 text-white rounded-lg text-lg font-bold hover:bg-blue-700 disabled:opacity-50"
+              className="w-full px-4 py-4 bg-[#1F7C80] text-white rounded-lg text-lg font-bold hover:bg-[#1A5256] disabled:opacity-50"
             >
               Submit
             </button>
@@ -348,7 +372,7 @@ export function QuestionSystem({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Type your answer"
-            className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
+            className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#1F7C80] mb-6"
             autoFocus
           />
 
@@ -356,7 +380,7 @@ export function QuestionSystem({
             <button
               onClick={() => handleAnswer(inputValue)}
               disabled={!inputValue.trim()}
-              className="px-6 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 text-lg"
+              className="px-6 py-4 bg-[#1F7C80] text-white rounded-lg font-semibold hover:bg-[#1A5256] disabled:opacity-50 text-lg"
             >
               Send
             </button>

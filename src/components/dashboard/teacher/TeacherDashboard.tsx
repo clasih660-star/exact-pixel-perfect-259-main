@@ -2,13 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
   BookOpen,
-  FileText,
   Users,
   Video,
-  MessageSquare,
   AlertTriangle,
   CheckCircle2,
-  Clock,
   Eye,
 } from "lucide-react";
 import { dashboardConfigs } from "@/lib/dashboard-config";
@@ -28,12 +25,12 @@ import { AlertBanner } from "@/components/dashboard/shared/AlertBanner";
 const config = dashboardConfigs.teacher;
 
 const mockUpcomingSession = {
-  title: "Introduction to Quadratic Equations",
+  title: "Solving Quadratic Equations by Factoring",
   course: "Mathematics Form 2",
   time: "Today at 10:30 AM",
   mode: "AI-Assisted",
   expectedStudents: 32,
-  sessionId: "sess_upcoming_1",
+  sessionId: "demo",
 };
 
 const mockCourses = [
@@ -45,27 +42,27 @@ const mockCourses = [
       { label: "Lessons", value: "12/28" },
     ],
     progress: 65,
-    href: "/teacher/courses/course_math",
+    href: "/classroom/demo",
   },
   {
-    title: "KCSE Chemistry Revision",
+    title: "Science Form 3",
     institution: "Klassruum Demo Academy",
     stats: [
       { label: "Students", value: "45" },
       { label: "Lessons", value: "18/24" },
     ],
     progress: 42,
-    href: "/teacher/courses/course_chem",
+    href: "/classroom/demo_chemistry",
   },
   {
-    title: "Computer Studies Basics",
+    title: "English Form 2",
     institution: "Klassruum Demo Academy",
     stats: [
       { label: "Students", value: "28" },
       { label: "Lessons", value: "9/15" },
     ],
     progress: 78,
-    href: "/teacher/courses/course_cs",
+    href: "/classroom/demo_english",
   },
 ];
 
@@ -76,23 +73,23 @@ const mockUpcomingSessions = [
     time: "Today at 10:30 AM",
     participantCount: 32,
     status: "scheduled" as const,
-    href: "/teacher/sessions/sess_1",
+    href: "/classroom/demo",
   },
   {
-    title: "Chemical Reactions",
-    course: "KCSE Chemistry",
+    title: "Chemical Bonding",
+    course: "Science Form 3",
     time: "Today at 2:00 PM",
     participantCount: 45,
     status: "scheduled" as const,
-    href: "/teacher/sessions/sess_2",
+    href: "/classroom/demo_chemistry",
   },
   {
-    title: "HTML Basics",
-    course: "Computer Studies",
+    title: "Parts of Speech",
+    course: "English Form 2",
     time: "Tomorrow at 9:00 AM",
     participantCount: 28,
     status: "scheduled" as const,
-    href: "/teacher/sessions/sess_3",
+    href: "/classroom/demo_english",
   },
 ];
 
@@ -102,21 +99,21 @@ const mockLessonReview = [
     course: "Mathematics Form 2",
     status: "completed" as const,
     description: "Ready for teaching",
-    href: "/teacher/lessons/lesson_quadratic",
+    href: "/classroom/demo",
   },
   {
     title: "Chemical Bonding",
-    course: "KCSE Chemistry",
-    status: "warning" as const,
-    description: "Needs captions review",
-    href: "/teacher/lessons/lesson_bonding",
+    course: "Science Form 3",
+    status: "completed" as const,
+    description: "Ready for teaching",
+    href: "/classroom/demo_chemistry",
   },
   {
-    title: "HTML Forms",
-    course: "Computer Studies",
-    status: "warning" as const,
-    description: "Needs quiz assignment",
-    href: "/teacher/lessons/lesson_html",
+    title: "Parts of Speech",
+    course: "English Form 2",
+    status: "completed" as const,
+    description: "Ready for teaching",
+    href: "/classroom/demo_english",
   },
 ];
 
@@ -231,7 +228,7 @@ export default function TeacherDashboard() {
         actions={[
           {
             label: "Start Class",
-            href: `/classroom/${mockUpcomingSession.sessionId}`,
+            href: `/classroom/demo`,
             variant: "primary",
           },
           {
@@ -299,7 +296,7 @@ export default function TeacherDashboard() {
               </div>
               <Link
                 to="/teacher/courses"
-                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
+                className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]"
               >
                 View all
               </Link>
@@ -327,7 +324,7 @@ export default function TeacherDashboard() {
               </div>
               <Link
                 to="/teacher/lessons"
-                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
+                className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]"
               >
                 View all
               </Link>
@@ -337,23 +334,18 @@ export default function TeacherDashboard() {
                 <Link
                   key={lesson.title}
                   to={lesson.href}
-                  className="block rounded-2xl border border-[#E2E8F0] bg-white p-4 transition-all hover:border-[#2563EB]/30 hover:shadow-md"
+                  className="block rounded-2xl border border-[#E2E8F0] bg-white p-4 transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-base font-bold text-[#0F172A]">{lesson.title}</h3>
-                        {lesson.status === "completed" && (
-                          <StatusBadge variant="success">Ready</StatusBadge>
-                        )}
-                        {lesson.status === "warning" && (
-                          <StatusBadge variant="warning">Review Needed</StatusBadge>
-                        )}
+                        <StatusBadge variant="success">Ready</StatusBadge>
                       </div>
                       <p className="text-sm text-[#64748B]">{lesson.course}</p>
                       <p className="text-xs text-[#94A3B8] mt-1">{lesson.description}</p>
                     </div>
-                    <Eye className="h-5 w-5 text-[#2563EB] flex-shrink-0" />
+                    <Eye className="h-5 w-5 text-[#1F7C80] flex-shrink-0" />
                   </div>
                 </Link>
               ))}
@@ -369,7 +361,7 @@ export default function TeacherDashboard() {
               <h3 className="font-bold text-[#0F172A]">Today's Schedule</h3>
               <Link
                 to="/teacher/sessions"
-                className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8]"
+                className="text-xs font-bold text-[#1F7C80] hover:text-[#1A5256]"
               >
                 View all
               </Link>
@@ -405,162 +397,5 @@ export default function TeacherDashboard() {
         </div>
       </section>
     </DashboardShell>
-  );
-}
-
-function KpiSection() {
-  return (
-    <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-      <KpiCard title="Assigned Courses" value="5" subtitle="Active courses" href="/teacher/courses" icon={BookOpen} />
-      <KpiCard title="Upcoming Sessions" value="8" subtitle="This week" href="/teacher/sessions" icon={Video} />
-      <KpiCard title="Draft Lessons" value="6" subtitle="Need review" href="/teacher/lessons" icon={FileText} />
-      <KpiCard title="Students Taught" value="214" subtitle="Across courses" href="/teacher/students" icon={Users} />
-      <KpiCard title="Avg Quiz Score" value="81%" subtitle="This month" href="/teacher/analytics" icon={Star} trend="+3%" />
-    </section>
-  );
-}
-
-function MainContentGrid() {
-  return (
-    <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.35fr_0.85fr]">
-      <div className="space-y-6 lg:row-span-2">
-        <MyCoursesPanel />
-      </div>
-      <LessonPreparationPanel />
-      <UpcomingSessionsPanel />
-      <StudentAlertsPanel />
-    </section>
-  );
-}
-
-function MyCoursesPanel() {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-[var(--gray-900)]">My Courses</h2>
-          <p className="mt-0.5 text-sm text-[var(--gray-500)]">Courses assigned to you.</p>
-        </div>
-        <Link to="/teacher/courses" className="text-sm font-bold text-[var(--primary)] hover:underline">
-          View all
-        </Link>
-      </div>
-      <div className="space-y-3">
-        {courses.map((c) => (
-          <article
-            key={c.title}
-            className="flex flex-col gap-3 rounded-2xl border border-[var(--gray-200)] bg-white p-4 transition-all hover:border-[var(--primary)]/20 hover:shadow-sm sm:flex-row sm:items-center"
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-600 to-green-400 text-sm font-bold text-white">
-              {c.title.slice(0, 2)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-[var(--gray-900)]">{c.title}</h3>
-              <p className="text-xs text-[var(--gray-500)]">
-                {c.students} students · {c.lessons} lessons · Next: {c.nextSession}
-              </p>
-              <div className="mt-2 flex items-center gap-3">
-                <div className="h-1.5 flex-1 rounded-full bg-[var(--gray-100)]">
-                  <div
-                    className="h-full rounded-full bg-green-500"
-                    style={{ width: `${c.progress}%` }}
-                  />
-                </div>
-                <span className="text-xs font-bold text-[var(--gray-500)]">{c.progress}%</span>
-              </div>
-            </div>
-            <Link
-              to="/teacher/courses/$courseId"
-              params={{ courseId: `course_${c.title.toLowerCase().replace(/\s+/g, "_")}` }}
-              className="inline-flex h-9 items-center rounded-xl border border-[var(--primary)]/20 px-4 text-xs font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]"
-            >
-              Open
-            </Link>
-          </article>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function LessonPreparationPanel() {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[var(--gray-900)]">Lesson Preparation</h2>
-      <p className="mt-0.5 text-sm text-[var(--gray-500)]">Lessons needing attention.</p>
-      <div className="mt-4 space-y-2">
-        {lessonPreps.map((l) => (
-          <Link
-            key={l.title}
-            to="/teacher/lessons/$lessonId/edit"
-            params={{ lessonId: l.title.toLowerCase().replace(/\s+/g, "_") }}
-            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[var(--gray-900)]">{l.title}</p>
-              <p className="text-xs text-[var(--gray-500)]">{l.meta}</p>
-            </div>
-            <StatusBadge variant={l.status === "Ready" ? "success" : "warning"}>{l.status}</StatusBadge>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function UpcomingSessionsPanel() {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[var(--gray-900)]">Upcoming Sessions</h2>
-      <p className="mt-0.5 text-sm text-[var(--gray-500)]">Your scheduled classrooms.</p>
-      <div className="mt-4 space-y-2">
-        {upcomingSessions.map((s) => (
-          <div
-            key={s.title}
-            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[var(--gray-900)]">{s.title}</p>
-              <p className="text-xs text-[var(--gray-500)]">
-                {s.course} · {s.time}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <StatusBadge variant={s.mode === "AI-Assisted" ? "default" : "success"}>{s.mode}</StatusBadge>
-              <span className="text-xs text-[var(--gray-400)]">{s.students}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function StudentAlertsPanel() {
-  return (
-    <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50 p-6 shadow-sm">
-      <h2 className="flex items-center gap-2 text-xl font-bold text-[var(--gray-900)]">
-        <AlertTriangle className="h-5 w-5 text-amber-500" />
-        Student Alerts
-      </h2>
-      <p className="mt-0.5 text-sm text-[var(--gray-500)]">Students who may need support.</p>
-      <div className="mt-4 space-y-2">
-        {studentAlerts.map((alert) => (
-          <div
-            key={alert}
-            className="rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm font-semibold text-[var(--gray-700)]"
-          >
-            {alert}
-          </div>
-        ))}
-      </div>
-      <Link
-        to="/teacher/analytics"
-        className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-2xl border border-amber-200 px-4 text-sm font-bold text-amber-700 transition-all hover:bg-amber-50"
-      >
-        <BarChart3 className="h-4 w-4" />
-        View Details
-      </Link>
-    </div>
   );
 }

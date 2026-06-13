@@ -2,6 +2,17 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
+/** Whether Supabase credentials are configured (not the demo placeholders). */
+export function isSupabaseConfigured(): boolean {
+  const url =
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) ||
+    (typeof process !== "undefined" && process.env?.SUPABASE_URL);
+  const key =
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
+    (typeof process !== "undefined" && process.env?.SUPABASE_PUBLISHABLE_KEY);
+  return Boolean(url && key && !url.includes("demo.supabase") && !key.includes("demo_key"));
+}
+
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
@@ -10,13 +21,14 @@ function createSupabaseClient() {
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(
+      "[Supabase] No credentials configured — running in demo mode. " +
+        "Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY for production.",
+    );
+    // Return a proxy that silently no-ops on any call, so the app never crashes
+    // when Supabase is not configured. Auth calls return empty results, queries
+    // return empty arrays, etc.
+    return createNoopClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -26,6 +38,64 @@ function createSupabaseClient() {
       autoRefreshToken: true,
     },
   });
+}
+
+/**
+ * A no-op Supabase client that returns empty results for every call.
+ * Used when env vars are missing so the app runs in pure demo mode
+ * without crashing on `supabase.auth.getUser()` or `.from("table").select()`.
+ */
+function createNoopClient(): any {
+  const empty = {
+    data: { user: null, session: null },
+    error: null,
+  };
+  const noopAuth = {
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    signInWithPassword: () => Promise.resolve(empty),
+    signUp: () => Promise.resolve(empty),
+    signOut: () => Promise.resolve({ error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    getClaims: () => Promise.resolve({ data: { claims: null }, error: null }),
+  };
+  const chainable = () => {
+    const c: any = {
+      select: () => c,
+      eq: () => c,
+      neq: () => c,
+      gt: () => c,
+      gte: () => c,
+      lt: () => c,
+      lte: () => c,
+      like: () => c,
+      ilike: () => c,
+      in: () => c,
+      is: () => c,
+      order: () => c,
+      limit: () => c,
+      range: () => c,
+      single: () => Promise.resolve({ data: null, error: null }),
+      maybeSingle: () => Promise.resolve({ data: null, error: null }),
+      then: (resolve: any) => resolve({ data: [], error: null, count: 0 }),
+      insert: () => c,
+      upsert: () => c,
+      update: () => c,
+      delete: () => c,
+    };
+    return c;
+  };
+  return {
+    auth: noopAuth,
+    from: () => chainable(),
+    rpc: () => Promise.resolve({ data: null, error: null }),
+    channel: () => ({
+      on: () => ({ subscribe: () => {} }),
+      subscribe: () => {},
+      unsubscribe: () => {},
+    }),
+    removeChannel: () => {},
+  };
 }
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;

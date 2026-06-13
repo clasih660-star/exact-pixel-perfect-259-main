@@ -93,7 +93,7 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
           icon={CheckCircle2}
           label="Lessons Done"
           value={totalLessonsCompleted}
-          color="text-blue-600"
+          color="text-[#1F7C80]"
         />
         <StatCard
           icon={Clock}
@@ -178,7 +178,7 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div>
-                        <div className="text-lg font-bold text-blue-600">{inProgress}</div>
+                        <div className="text-lg font-bold text-[#1F7C80]">{inProgress}</div>
                         <div className="text-[10px] uppercase text-muted-foreground">
                           In Progress
                         </div>

@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 
-export type UserRole = "platform_admin" | "institution_admin" | "teacher" | "student" | "parent";
+export type UserRole = "platform_admin" | "institution_admin" | "owner" | "teacher" | "student" | "parent";
 
 export type TeacherState =
   | "idle"

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { speak, stopSpeech, startListening, stopListening } from "@/lib/speech";
+import { speakWithAccessibility, stopSpeech, startListening, stopListening } from "@/lib/speech";
 import { DEMO_LESSON, type BoardWriteItem, type QuestionCheckpoint, type BoardItemType } from "@/lib/lesson-models";
 import { startOrResumeClassroom } from "@/lib/sessions.functions";
 import type { ClassroomContext } from "@/lib/types";
@@ -120,7 +120,7 @@ export function InteractiveClassroomPage({
   const [welcomeOpen, setWelcomeOpen] = useState(true);
 
   const timerRef = useRef<number | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<ReturnType<typeof startListening> | null>(null);
   const autoPlayRef = useRef(state.autoPlay);
 
   // Keep autoPlayRef in sync
@@ -162,13 +162,16 @@ export function InteractiveClassroomPage({
       currentSpeech: text,
     }));
 
-    speak(text, () => {
-      setState(prev => ({
-        ...prev,
-        isTeacherSpeaking: false,
-      }));
-      onComplete?.();
-    }, state.speechRate);
+    speakWithAccessibility(text, {
+      rate: state.speechRate,
+      onEnd: () => {
+        setState(prev => ({
+          ...prev,
+          isTeacherSpeaking: false,
+        }));
+        onComplete?.();
+      },
+    });
   }, [state.speechRate]);
 
   // Show next board item
@@ -592,7 +595,7 @@ export function InteractiveClassroomPage({
 
           <Link
             to="/student/access"
-            className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-100"
+            className="flex items-center gap-2 rounded-lg bg-[#e8f5f5] px-3 py-2 text-xs font-medium text-[#1F7C80] hover:bg-[#d1eceb]"
           >
             <Accessibility className="h-4 w-4" />
             Access
@@ -668,7 +671,7 @@ export function InteractiveClassroomPage({
                   onClick={() => setState(prev => ({ ...prev, speechRate: rate }))}
                   className={`flex-1 py-2 text-xs font-semibold rounded ${
                     state.speechRate === rate
-                      ? "bg-blue-600 text-white"
+                      ? "bg-[#1F7C80] text-white"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >

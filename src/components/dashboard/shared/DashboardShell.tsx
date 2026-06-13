@@ -1,10 +1,8 @@
-import { Link, useRouter } from "@tanstack/react-router";
-import { type ReactNode, useState } from "react";
-import { AppShell } from "@/components/layout/AppShell";
+import { Link, useLocation, useRouter } from "@tanstack/react-router";
+import { type ReactNode, useState, useRef, useEffect, useCallback } from "react";
 import {
   Accessibility,
   Bell,
-  ChevronDown,
   ChevronRight,
   HelpCircle,
   LogOut,
@@ -13,40 +11,83 @@ import {
   Settings,
   User,
   X,
-  Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoMark } from "@/components/brand/Logo";
-import type { DashboardConfig } from "@/lib/dashboard-config";
+import { useDashboardConfig } from "@/hooks/useDashboardConfig";
+import { useAuthContext } from "@/hooks/useUserRole";
 
 type Props = {
-  config: DashboardConfig;
-  activePath: string;
+  /** Optional override — if omitted, the config is derived from the user's role. */
+  config?: import("@/lib/dashboard-config").DashboardConfig;
+  /** Optional — if omitted, active path is derived from current location. */
+  activePath?: string;
   title?: string;
   subtitle?: string;
   children: ReactNode;
 };
 
-export function DashboardShell({ config, activePath, title, subtitle, children }: Props) {
+/**
+ * Shared dashboard layout for all roles.
+ *
+ * When `config` is not provided, it is automatically resolved from the
+ * authenticated user's role via `useDashboardConfig()`. This means every
+ * dashboard page just needs:
+ *
+ *   <DashboardShell title="My Courses">
+ *     <MyCoursesContent />
+ *   </DashboardShell>
+ *
+ * and the correct sidebar + topbar + role label are rendered automatically.
+ */
+export function DashboardShell({ config: configProp, activePath: activePathProp, title, subtitle, children }: Props) {
+  const config = configProp ?? useDashboardConfig();
+  const { user } = useAuthContext();
+  const location = useLocation();
+  const activePath = activePathProp ?? location.pathname;
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+  /** Derive initials from the user's email. */
+  const getInitials = useCallback((): string => {
+    if (!user?.email) return "U";
+    return user.email
+      .split("@")[0]
+      .split(/[._-]/)
+      .map((s) => s[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  }, [user?.email]);
+
+  /** Derive display name from the user's email. */
+  const displayName = user?.email?.split("@")[0] ?? "User";
 
   const signOut = async () => {
     await supabase.auth.signOut();
     router.navigate({ to: "/auth", replace: true });
   };
 
-  const handleSearch = (query: string) => {
-    console.log(`Searching for: ${query}`);
-  };
-
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleProfileDropdown = () => setIsProfileDropdownOpen(!isProfileDropdownOpen);
 
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    if (!isProfileDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isProfileDropdownOpen]);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#f8fafb]">
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
         <div
@@ -57,11 +98,11 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r border-[#E2E8F0] bg-white transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[268px] flex-col border-r border-[#d1eceb] bg-white transition-transform duration-300 lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-[#E2E8F0] px-5 py-5">
+        <div className="flex items-center justify-between gap-3 border-b border-[#EEF2F8] px-6 py-6">
           <Link to="/" className="flex items-center gap-2.5">
             <LogoMark size={32} />
             <span className="text-base font-bold tracking-tight text-[#0F172A]">
@@ -77,7 +118,7 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
           </button>
         </div>
 
-        <div className="border-b border-[#E2E8F0] px-5 py-4">
+        <div className="border-b border-[#EEF2F8] px-6 py-4">
           <p className="text-[11px] font-bold uppercase tracking-widest text-[#94A3B8]">
             {config.title}
           </p>
@@ -94,8 +135,8 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`nav-item group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
                     isActive
-                      ? "bg-[#2563EB] text-white shadow-sm"
-                      : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                      ? "bg-[#e8f5f5] text-[#1A5256] shadow-sm"
+                      : "text-[#1A3233] hover:bg-[#f0fafa] hover:text-[#1A5256]"
                   }`}
                 >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -114,11 +155,11 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
             <Link
               to="/student/access"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="mb-3 block rounded-xl border border-[#E2E8F0] bg-[#EFF6FF] p-3 transition-all duration-150 hover:border-[#2563EB] hover:bg-[#DBEAFE]"
+              className="mb-3 block rounded-xl border border-[#d1eceb] bg-[#e8f5f5] p-3 transition-all duration-150 hover:border-[#1F7C80] hover:bg-[#d1eceb]"
             >
               <div className="flex items-center gap-2">
-                <Accessibility className="h-4 w-4 text-[#2563EB]" />
-                <span className="text-xs font-semibold text-[#2563EB]">Learning Access</span>
+                <Accessibility className="h-4 w-4 text-[#1F7C80]" />
+                <span className="text-xs font-semibold text-[#1F7C80]">Learning Access</span>
               </div>
               <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
                 Manage captions, focus mode, and more
@@ -127,11 +168,11 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
           )}
 
           <div className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[#F8FAFC]">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-xs font-bold text-white">
-              DS
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#1F7C80] to-[#1A5256] text-xs font-bold text-white">
+              {getInitials()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-[#0F172A]">Demo User</p>
+              <p className="truncate text-sm font-semibold text-[#0F172A]">{displayName}</p>
               <p className="text-[11px] text-[#94A3B8]">{config.roleLabel}</p>
             </div>
           </div>
@@ -149,9 +190,9 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
       </aside>
 
       {/* Main content */}
-      <div className="lg:ml-[264px]">
+      <div className="lg:ml-[268px]">
         {/* Header */}
-        <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between gap-4 border-b border-[#E2E8F0] bg-white/95 px-4 py-3 lg:px-8 backdrop-blur">
+        <header className="sticky top-0 z-40 flex min-h-20 items-center justify-between gap-4 border-b border-[#EEF2F8] bg-white/90 px-4 py-4 backdrop-blur lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
               className="lg:hidden"
@@ -176,8 +217,8 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
                 <input
                   type="text"
                   placeholder={config.searchPlaceholder}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] py-2 pl-10 pr-4 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/10"
+
+                className="w-full rounded-2xl border border-[#d1eceb] bg-white py-3 pl-10 pr-4 text-sm text-[#1A3233] placeholder:text-[#A3ADAD] shadow-sm focus:border-[#1F7C80] focus:outline-none focus:ring-2 focus:ring-[#1F7C80]/10"
                 />
               </div>
             )}
@@ -194,18 +235,18 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
             </div>
 
             {title && (
-              <div className="relative hidden w-56 md:block lg:w-64 xl:w-72">
+              <div className="relative hidden w-56 md:block lg:w-64 xl:w-96">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
                 <input
                   type="text"
                   placeholder={config.searchPlaceholder}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] py-2 pl-10 pr-4 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/10"
+
+                  className="w-full rounded-2xl border border-[#d1eceb] bg-white py-3 pl-10 pr-4 text-sm text-[#1A3233] placeholder:text-[#A3ADAD] shadow-sm focus:border-[#1F7C80] focus:outline-none focus:ring-2 focus:ring-[#1F7C80]/10"
                 />
               </div>
             )}
             <button
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white text-[#64748B] transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+              className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#d1eceb] bg-white text-[#1A3233] shadow-sm transition-all hover:bg-[#e8f5f5] hover:text-[#1A5256]"
               aria-label="Notifications"
             >
               <Bell className="h-4 w-4" />
@@ -214,27 +255,27 @@ export function DashboardShell({ config, activePath, title, subtitle, children }
               </span>
             </button>
             <button
-              className="hidden h-9 w-9 items-center justify-center rounded-lg border border-[#E2E8F0] bg-white text-[#64748B] transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] lg:flex"
+              className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-[#D5E0F0] bg-white text-[#1E335B] shadow-sm transition-all hover:bg-[#F3F7FF] hover:text-[#1A5256] lg:flex"
               aria-label="Help"
             >
               <HelpCircle className="h-4 w-4" />
             </button>
 
             {/* Profile dropdown */}
-            <div className="relative">
+            <div className="relative" ref={profileDropdownRef}>
               <button
                 onClick={toggleProfileDropdown}
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-xs font-bold text-white transition-all hover:from-[#1D4ED8] hover:to-[#1E40AF]"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] text-xs font-bold text-white shadow-sm transition-all hover:from-[#1A5256] hover:to-[#1A3233]"
                 aria-label="User profile"
               >
-                DS
+                {getInitials()}
               </button>
 
               {isProfileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#E2E8F0] bg-white shadow-lg">
                   <div className="border-b border-[#E2E8F0] p-4">
-                    <p className="text-sm font-semibold text-[#0F172A]">Demo User</p>
-                    <p className="text-xs text-[#64748B]">{config.roleLabel}</p>
+                    <p className="text-sm font-semibold text-[#0F172A]">{displayName}</p>
+                    <p className="text-xs text-[#64748B]">{user?.email ?? config.roleLabel}</p>
                   </div>
                   <div className="p-2">
                     {config.role === "learner" && (

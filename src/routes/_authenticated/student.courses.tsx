@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { StudentShell } from "@/components/student/StudentShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { getMyEnrolledCourses } from "@/lib/student.functions";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/courses")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentCourses,
 });
 

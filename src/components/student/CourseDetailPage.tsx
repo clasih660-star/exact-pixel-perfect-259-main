@@ -104,7 +104,7 @@ export function CourseDetailPage({
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
             to="/student/courses"
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+            className="flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium"
           >
             <ArrowLeft size={18} />
             Back to Courses
@@ -123,7 +123,7 @@ export function CourseDetailPage({
       </header>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-500 to-indigo-500 text-white">
+      <div className="bg-gradient-to-br from-purple-500 to-[#e8f5f5]0 text-white">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <h1 className="text-4xl font-bold mb-4">{courseData.title}</h1>
           <p className="text-lg text-purple-100 max-w-2xl mb-6">
@@ -186,19 +186,19 @@ export function CourseDetailPage({
             </h2>
 
             {isEnrolled && (
-              <Card className="mb-6 border-blue-200 bg-blue-50">
+              <Card className="mb-6 border-[#a3d9d8] bg-[#e8f5f5]">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-medium text-gray-900">
                       Your Progress
                     </span>
-                    <span className="text-sm font-bold text-blue-600">
+                    <span className="text-sm font-bold text-[#1F7C80]">
                       {courseData.progress}%
                     </span>
                   </div>
                   <Progress
                     value={courseData.progress}
-                    className="bg-blue-100 h-2"
+                    className="bg-[#d1eceb] h-2"
                   />
                   <p className="text-xs text-gray-600 mt-3">
                     {completedCount} of {courseData.lessons.length} lessons
@@ -227,8 +227,8 @@ export function CourseDetailPage({
                               />
                             </div>
                           ) : lesson.status === "in_progress" ? (
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <Play size={20} className="text-blue-600" />
+                            <div className="w-10 h-10 rounded-full bg-[#d1eceb] flex items-center justify-center">
+                              <Play size={20} className="text-[#1F7C80]" />
                             </div>
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
@@ -256,7 +256,7 @@ export function CourseDetailPage({
                               </span>
                             )}
                             {lesson.status === "in_progress" && (
-                              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                              <span className="text-xs px-2 py-1 rounded-full bg-[#d1eceb] text-[#1A5256] font-medium">
                                 In Progress
                               </span>
                             )}
@@ -308,7 +308,7 @@ export function CourseDetailPage({
                     </p>
                   </div>
                   <div className="pt-4 border-t border-gray-200">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Button className="w-full bg-[#1F7C80] hover:bg-[#1A5256]">
                       <Download size={16} />
                       Download Resources
                     </Button>

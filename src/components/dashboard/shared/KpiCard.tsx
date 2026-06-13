@@ -15,17 +15,17 @@ export function KpiCard({ title, value, subtitle, href, icon: Icon, trend, trend
   return (
     <Link
       to={href}
-      className="group block rounded-2xl border border-[var(--gray-200)] bg-white p-5 shadow-sm transition-all duration-200 hover:border-[var(--primary)]/30 hover:shadow-md hover:-translate-y-0.5"
+      className="group block min-h-[112px] rounded-[18px] border border-[#d1eceb] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#a3d9d8] hover:shadow-[0_16px_34px_rgba(37,99,235,0.12)]"
     >
-      <div className="flex items-start gap-4">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--primary-light)] text-[var(--primary)]">
+      <div className="flex items-start gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#e8f5f5] text-[#1F7C80] ring-1 ring-[#d1eceb] transition-all group-hover:bg-[#d1eceb]">
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[var(--gray-500)]">{title}</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-[var(--gray-900)]">{value}</p>
+          <p className="text-xs font-semibold text-[#334155]">{title}</p>
+          <p className="mt-1 text-2xl font-extrabold tracking-tight text-[#0F172A]">{value}</p>
           <div className="mt-1 flex items-center gap-2">
-            <p className="text-xs text-[var(--gray-400)]">{subtitle}</p>
+            <p className="text-xs text-[#64748B]">{subtitle}</p>
             {trend && (
               <span
                 className={`text-xs font-bold ${

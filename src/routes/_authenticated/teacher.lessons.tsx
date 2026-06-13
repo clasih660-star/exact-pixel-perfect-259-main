@@ -16,8 +16,10 @@ import {
   Filter,
   ChevronRight,
 } from "lucide-react";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/teacher/lessons")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: TeacherLessons,
 });
 
@@ -126,7 +128,7 @@ const STATUS_CONFIG: Record<LessonStatus, { label: string; variant: "success" | 
 };
 
 const SUBJECT_COLORS: Record<string, string> = {
-  Mathematics: "from-blue-600 to-blue-400",
+  Mathematics: "from-[#1F7C80] to-[#3fa8ab]",
   Chemistry: "from-green-600 to-emerald-400",
   "Computer Science": "from-purple-600 to-violet-400",
 };
@@ -168,7 +170,7 @@ function TeacherLessons() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search lessons or courses…"
-            className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#1F7C80] focus:outline-none focus:ring-2 focus:ring-[#1F7C80]/20"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -179,8 +181,8 @@ function TeacherLessons() {
               onClick={() => setFilter(f)}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-all ${
                 filter === f
-                  ? "bg-[#2563EB] text-white"
-                  : "bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#2563EB]/40"
+                  ? "bg-[#1F7C80] text-white"
+                  : "bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#1F7C80]/40"
               }`}
             >
               {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f as keyof typeof counts]})
@@ -219,7 +221,7 @@ function TeacherLessons() {
             return (
               <article
                 key={lesson.id}
-                className="rounded-2xl border border-[#E2E8F0] bg-white p-5 transition-all hover:border-[#2563EB]/30 hover:shadow-md"
+                className="rounded-2xl border border-[#E2E8F0] bg-white p-5 transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
               >
                 <div className="flex items-start gap-4">
                   {/* Icon */}
@@ -272,7 +274,7 @@ function TeacherLessons() {
                       <Link
                         to="/classroom/$lessonId"
                         params={{ lessonId: lesson.id }}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#2563EB] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1D4ED8]"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1A5256]"
                       >
                         <Play className="h-3.5 w-3.5" />
                         Start Class

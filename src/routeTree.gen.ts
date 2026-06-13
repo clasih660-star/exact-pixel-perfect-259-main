@@ -9,19 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WebinarsRouteImport } from './routes/webinars'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DataProtectionRouteImport } from './routes/data-protection'
+import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ClassroomRouteImport } from './routes/classroom'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentProgressRouteImport } from './routes/student.progress'
+import { Route as SolutionsUniversitiesRouteImport } from './routes/solutions.universities'
+import { Route as SolutionsTutoringCentersRouteImport } from './routes/solutions.tutoring-centers'
+import { Route as SolutionsTrainingProvidersRouteImport } from './routes/solutions.training-providers'
+import { Route as SolutionsSchoolsRouteImport } from './routes/solutions.schools'
+import { Route as SolutionsNgosRouteImport } from './routes/solutions.ngos'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
 import { Route as DemoWhiteboardRouteImport } from './routes/demo.whiteboard'
 import { Route as DemoTeachingRouteImport } from './routes/demo.teaching'
@@ -175,6 +187,11 @@ import { Route as AuthenticatedTeacherCoursesCourseIdMaterialsUploadRouteImport 
 import { Route as AuthenticatedInstitutionCoursesCourseIdMaterialsUploadRouteImport } from './routes/_authenticated/institution.courses.$courseId.materials.upload'
 import { Route as AuthenticatedInstitutionCoursesCourseIdLessonsNewRouteImport } from './routes/_authenticated/institution.courses.$courseId.lessons.new'
 
+const WebinarsRoute = WebinarsRouteImport.update({
+  id: '/webinars',
+  path: '/webinars',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -188,6 +205,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -205,9 +227,34 @@ const FeaturesRoute = FeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataProtectionRoute = DataProtectionRouteImport.update({
+  id: '/data-protection',
+  path: '/data-protection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiePolicyRoute = CookiePolicyRouteImport.update({
+  id: '/cookie-policy',
+  path: '/cookie-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassroomRoute = ClassroomRouteImport.update({
+  id: '/classroom',
+  path: '/classroom',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -237,6 +284,33 @@ const IndexRoute = IndexRouteImport.update({
 const StudentProgressRoute = StudentProgressRouteImport.update({
   id: '/student/progress',
   path: '/student/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsUniversitiesRoute = SolutionsUniversitiesRouteImport.update({
+  id: '/solutions/universities',
+  path: '/solutions/universities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsTutoringCentersRoute =
+  SolutionsTutoringCentersRouteImport.update({
+    id: '/solutions/tutoring-centers',
+    path: '/solutions/tutoring-centers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SolutionsTrainingProvidersRoute =
+  SolutionsTrainingProvidersRouteImport.update({
+    id: '/solutions/training-providers',
+    path: '/solutions/training-providers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SolutionsSchoolsRoute = SolutionsSchoolsRouteImport.update({
+  id: '/solutions/schools',
+  path: '/solutions/schools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsNgosRoute = SolutionsNgosRouteImport.update({
+  id: '/solutions/ngos',
+  path: '/solutions/ngos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InstitutionsRegisterRoute = InstitutionsRegisterRouteImport.update({
@@ -270,9 +344,9 @@ const DemoAccessibilityDemoRoute = DemoAccessibilityDemoRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassroomLessonIdRoute = ClassroomLessonIdRouteImport.update({
-  id: '/classroom/$lessonId',
-  path: '/classroom/$lessonId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$lessonId',
+  path: '/$lessonId',
+  getParentRoute: () => ClassroomRoute,
 } as any)
 const ClassroomEnhancedLessonIdRoute =
   ClassroomEnhancedLessonIdRouteImport.update({
@@ -327,15 +401,15 @@ const AuthenticatedDevRouteRoute = AuthenticatedDevRouteRouteImport.update({
 } as any)
 const ClassroomSessionSessionIdRoute =
   ClassroomSessionSessionIdRouteImport.update({
-    id: '/classroom/session/$sessionId',
-    path: '/classroom/session/$sessionId',
-    getParentRoute: () => rootRouteImport,
+    id: '/session/$sessionId',
+    path: '/session/$sessionId',
+    getParentRoute: () => ClassroomRoute,
   } as any)
 const ClassroomPreviewLessonIdRoute =
   ClassroomPreviewLessonIdRouteImport.update({
-    id: '/classroom/preview/$lessonId',
-    path: '/classroom/preview/$lessonId',
-    getParentRoute: () => rootRouteImport,
+    id: '/preview/$lessonId',
+    path: '/preview/$lessonId',
+    getParentRoute: () => ClassroomRoute,
   } as any)
 const AuthenticatedTeacherSupervisionRoute =
   AuthenticatedTeacherSupervisionRouteImport.update({
@@ -1137,13 +1211,20 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRoute
+  '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/data-protection': typeof DataProtectionRoute
+  '/docs': typeof DocsRoute
   '/features': typeof FeaturesRoute
   '/help': typeof HelpRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/partners': typeof PartnersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1161,6 +1242,11 @@ export interface FileRoutesByFullPath {
   '/demo/teaching': typeof DemoTeachingRoute
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
+  '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/schools': typeof SolutionsSchoolsRoute
+  '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
+  '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
+  '/solutions/universities': typeof SolutionsUniversitiesRoute
   '/student/progress': typeof StudentProgressRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
@@ -1303,13 +1389,20 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRoute
+  '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/data-protection': typeof DataProtectionRoute
+  '/docs': typeof DocsRoute
   '/features': typeof FeaturesRoute
   '/help': typeof HelpRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/partners': typeof PartnersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1327,6 +1420,11 @@ export interface FileRoutesByTo {
   '/demo/teaching': typeof DemoTeachingRoute
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
+  '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/schools': typeof SolutionsSchoolsRoute
+  '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
+  '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
+  '/solutions/universities': typeof SolutionsUniversitiesRoute
   '/student/progress': typeof StudentProgressRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
@@ -1471,13 +1569,20 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRoute
+  '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/data-protection': typeof DataProtectionRoute
+  '/docs': typeof DocsRoute
   '/features': typeof FeaturesRoute
   '/help': typeof HelpRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/partners': typeof PartnersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/webinars': typeof WebinarsRoute
   '/_authenticated/dev': typeof AuthenticatedDevRouteRouteWithChildren
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1495,6 +1600,11 @@ export interface FileRoutesById {
   '/demo/teaching': typeof DemoTeachingRoute
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
+  '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/schools': typeof SolutionsSchoolsRoute
+  '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
+  '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
+  '/solutions/universities': typeof SolutionsUniversitiesRoute
   '/student/progress': typeof StudentProgressRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
@@ -1639,13 +1749,20 @@ export interface FileRouteTypes {
     | '/about'
     | '/accessibility'
     | '/auth'
+    | '/blog'
+    | '/classroom'
     | '/contact'
+    | '/cookie-policy'
+    | '/data-protection'
+    | '/docs'
     | '/features'
     | '/help'
     | '/how-it-works'
+    | '/partners'
     | '/pricing'
     | '/privacy'
     | '/terms'
+    | '/webinars'
     | '/dev'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -1663,6 +1780,11 @@ export interface FileRouteTypes {
     | '/demo/teaching'
     | '/demo/whiteboard'
     | '/institutions/register'
+    | '/solutions/ngos'
+    | '/solutions/schools'
+    | '/solutions/training-providers'
+    | '/solutions/tutoring-centers'
+    | '/solutions/universities'
     | '/student/progress'
     | '/admin/activity'
     | '/admin/ai-settings'
@@ -1805,13 +1927,20 @@ export interface FileRouteTypes {
     | '/about'
     | '/accessibility'
     | '/auth'
+    | '/blog'
+    | '/classroom'
     | '/contact'
+    | '/cookie-policy'
+    | '/data-protection'
+    | '/docs'
     | '/features'
     | '/help'
     | '/how-it-works'
+    | '/partners'
     | '/pricing'
     | '/privacy'
     | '/terms'
+    | '/webinars'
     | '/dev'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -1829,6 +1958,11 @@ export interface FileRouteTypes {
     | '/demo/teaching'
     | '/demo/whiteboard'
     | '/institutions/register'
+    | '/solutions/ngos'
+    | '/solutions/schools'
+    | '/solutions/training-providers'
+    | '/solutions/tutoring-centers'
+    | '/solutions/universities'
     | '/student/progress'
     | '/admin/activity'
     | '/admin/ai-settings'
@@ -1972,13 +2106,20 @@ export interface FileRouteTypes {
     | '/about'
     | '/accessibility'
     | '/auth'
+    | '/blog'
+    | '/classroom'
     | '/contact'
+    | '/cookie-policy'
+    | '/data-protection'
+    | '/docs'
     | '/features'
     | '/help'
     | '/how-it-works'
+    | '/partners'
     | '/pricing'
     | '/privacy'
     | '/terms'
+    | '/webinars'
     | '/_authenticated/dev'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -1996,6 +2137,11 @@ export interface FileRouteTypes {
     | '/demo/teaching'
     | '/demo/whiteboard'
     | '/institutions/register'
+    | '/solutions/ngos'
+    | '/solutions/schools'
+    | '/solutions/training-providers'
+    | '/solutions/tutoring-centers'
+    | '/solutions/universities'
     | '/student/progress'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/ai-settings'
@@ -2140,29 +2286,45 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccessibilityRoute: typeof AccessibilityRoute
   AuthRoute: typeof AuthRouteWithChildren
+  BlogRoute: typeof BlogRoute
+  ClassroomRoute: typeof ClassroomRouteWithChildren
   ContactRoute: typeof ContactRoute
+  CookiePolicyRoute: typeof CookiePolicyRoute
+  DataProtectionRoute: typeof DataProtectionRoute
+  DocsRoute: typeof DocsRoute
   FeaturesRoute: typeof FeaturesRoute
   HelpRoute: typeof HelpRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  PartnersRoute: typeof PartnersRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  WebinarsRoute: typeof WebinarsRoute
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
-  ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
   DemoAccessibilityDemoRoute: typeof DemoAccessibilityDemoRoute
   DemoAiVideoRoute: typeof DemoAiVideoRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
   DemoTeachingRoute: typeof DemoTeachingRoute
   DemoWhiteboardRoute: typeof DemoWhiteboardRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
+  SolutionsNgosRoute: typeof SolutionsNgosRoute
+  SolutionsSchoolsRoute: typeof SolutionsSchoolsRoute
+  SolutionsTrainingProvidersRoute: typeof SolutionsTrainingProvidersRoute
+  SolutionsTutoringCentersRoute: typeof SolutionsTutoringCentersRoute
+  SolutionsUniversitiesRoute: typeof SolutionsUniversitiesRoute
   StudentProgressRoute: typeof StudentProgressRoute
-  ClassroomPreviewLessonIdRoute: typeof ClassroomPreviewLessonIdRoute
-  ClassroomSessionSessionIdRoute: typeof ClassroomSessionSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/webinars': {
+      id: '/webinars'
+      path: '/webinars'
+      fullPath: '/webinars'
+      preLoaderRoute: typeof WebinarsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -2182,6 +2344,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/how-it-works': {
@@ -2205,11 +2374,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-protection': {
+      id: '/data-protection'
+      path: '/data-protection'
+      fullPath: '/data-protection'
+      preLoaderRoute: typeof DataProtectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie-policy': {
+      id: '/cookie-policy'
+      path: '/cookie-policy'
+      fullPath: '/cookie-policy'
+      preLoaderRoute: typeof CookiePolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classroom': {
+      id: '/classroom'
+      path: '/classroom'
+      fullPath: '/classroom'
+      preLoaderRoute: typeof ClassroomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -2252,6 +2456,41 @@ declare module '@tanstack/react-router' {
       path: '/student/progress'
       fullPath: '/student/progress'
       preLoaderRoute: typeof StudentProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/universities': {
+      id: '/solutions/universities'
+      path: '/solutions/universities'
+      fullPath: '/solutions/universities'
+      preLoaderRoute: typeof SolutionsUniversitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/tutoring-centers': {
+      id: '/solutions/tutoring-centers'
+      path: '/solutions/tutoring-centers'
+      fullPath: '/solutions/tutoring-centers'
+      preLoaderRoute: typeof SolutionsTutoringCentersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/training-providers': {
+      id: '/solutions/training-providers'
+      path: '/solutions/training-providers'
+      fullPath: '/solutions/training-providers'
+      preLoaderRoute: typeof SolutionsTrainingProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/schools': {
+      id: '/solutions/schools'
+      path: '/solutions/schools'
+      fullPath: '/solutions/schools'
+      preLoaderRoute: typeof SolutionsSchoolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/ngos': {
+      id: '/solutions/ngos'
+      path: '/solutions/ngos'
+      fullPath: '/solutions/ngos'
+      preLoaderRoute: typeof SolutionsNgosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/institutions/register': {
@@ -2298,10 +2537,10 @@ declare module '@tanstack/react-router' {
     }
     '/classroom/$lessonId': {
       id: '/classroom/$lessonId'
-      path: '/classroom/$lessonId'
+      path: '/$lessonId'
       fullPath: '/classroom/$lessonId'
       preLoaderRoute: typeof ClassroomLessonIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ClassroomRoute
     }
     '/classroom-enhanced/$lessonId': {
       id: '/classroom-enhanced/$lessonId'
@@ -2375,17 +2614,17 @@ declare module '@tanstack/react-router' {
     }
     '/classroom/session/$sessionId': {
       id: '/classroom/session/$sessionId'
-      path: '/classroom/session/$sessionId'
+      path: '/session/$sessionId'
       fullPath: '/classroom/session/$sessionId'
       preLoaderRoute: typeof ClassroomSessionSessionIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ClassroomRoute
     }
     '/classroom/preview/$lessonId': {
       id: '/classroom/preview/$lessonId'
-      path: '/classroom/preview/$lessonId'
+      path: '/preview/$lessonId'
       fullPath: '/classroom/preview/$lessonId'
       preLoaderRoute: typeof ClassroomPreviewLessonIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ClassroomRoute
     }
     '/_authenticated/teacher/supervision': {
       id: '/_authenticated/teacher/supervision'
@@ -4122,31 +4361,56 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface ClassroomRouteChildren {
+  ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
+  ClassroomPreviewLessonIdRoute: typeof ClassroomPreviewLessonIdRoute
+  ClassroomSessionSessionIdRoute: typeof ClassroomSessionSessionIdRoute
+}
+
+const ClassroomRouteChildren: ClassroomRouteChildren = {
+  ClassroomLessonIdRoute: ClassroomLessonIdRoute,
+  ClassroomPreviewLessonIdRoute: ClassroomPreviewLessonIdRoute,
+  ClassroomSessionSessionIdRoute: ClassroomSessionSessionIdRoute,
+}
+
+const ClassroomRouteWithChildren = ClassroomRoute._addFileChildren(
+  ClassroomRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AccessibilityRoute: AccessibilityRoute,
   AuthRoute: AuthRouteWithChildren,
+  BlogRoute: BlogRoute,
+  ClassroomRoute: ClassroomRouteWithChildren,
   ContactRoute: ContactRoute,
+  CookiePolicyRoute: CookiePolicyRoute,
+  DataProtectionRoute: DataProtectionRoute,
+  DocsRoute: DocsRoute,
   FeaturesRoute: FeaturesRoute,
   HelpRoute: HelpRoute,
   HowItWorksRoute: HowItWorksRoute,
+  PartnersRoute: PartnersRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  WebinarsRoute: WebinarsRoute,
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
-  ClassroomLessonIdRoute: ClassroomLessonIdRoute,
   DemoAccessibilityDemoRoute: DemoAccessibilityDemoRoute,
   DemoAiVideoRoute: DemoAiVideoRoute,
   DemoClassroomRoute: DemoClassroomRoute,
   DemoTeachingRoute: DemoTeachingRoute,
   DemoWhiteboardRoute: DemoWhiteboardRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
+  SolutionsNgosRoute: SolutionsNgosRoute,
+  SolutionsSchoolsRoute: SolutionsSchoolsRoute,
+  SolutionsTrainingProvidersRoute: SolutionsTrainingProvidersRoute,
+  SolutionsTutoringCentersRoute: SolutionsTutoringCentersRoute,
+  SolutionsUniversitiesRoute: SolutionsUniversitiesRoute,
   StudentProgressRoute: StudentProgressRoute,
-  ClassroomPreviewLessonIdRoute: ClassroomPreviewLessonIdRoute,
-  ClassroomSessionSessionIdRoute: ClassroomSessionSessionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

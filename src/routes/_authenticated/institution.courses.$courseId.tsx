@@ -16,8 +16,10 @@ import { Button } from "@/components/ui/button";
 import { getCourse, updateCourseStatus } from "@/lib/courses.functions";
 import { listEnrollments, removeEnrollment } from "@/lib/enrollments.functions";
 import { updateLessonStatus } from "@/lib/lessons.functions";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/institution/courses/$courseId")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: CourseDetailPage,
 });
 

@@ -1,15 +1,14 @@
 /* =============================================================================
-   SHARP CORNERS — premium, architectural look across the whole product.
-   Zero out the common rounded utilities; keep true circles (rounded-full,
-   avatars, dots, pills, toggles) round so they don't turn into squares.
+   SOFT PREMIUM CORNERS — warm, approachable institutional feel.
+   Small rounded corners everywhere; circles stay round.
    ============================================================================= */
 [class*="rounded-"]:not(.rounded-full):not([class*="rounded-full"]) {
-  border-radius: 0 !important;
+  border-radius: 10px !important;
 }
 .kr-pcard, .kr-card, .kr-glass, .kr-media, .kr-chip,
 .dashboard-card, .sidebar, .topnav, button, input, textarea, select,
 .card, [data-slot="card"], [data-slot="button"], [data-slot="input"] {
-  border-radius: 0 !important;
+  border-radius: 10px !important;
 }
 /* Keep genuinely circular elements round */
 .rounded-full, [class*="rounded-full"],
@@ -53,15 +52,15 @@ html[data-reduced-motion] *::after {
   border-radius: 9px; border: 1px solid #e6ebf5; background: #fff; color: #475569; cursor: pointer;
   transition: all .15s ease;
 }
-.kr-cal-nav:hover { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.kr-cal-nav:hover { background: #e8f5f5; color: #1A5256; border-color: #a3d9d8; }
 .kr-cal-cell {
   position: relative; aspect-ratio: 1 / 1; min-height: 52px;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   padding-top: 8px; border-radius: 12px; border: 1px solid transparent;
   background: #f8fafc; cursor: pointer; transition: all .15s ease;
 }
-.kr-cal-cell:hover { background: #eff6ff; border-color: #bfdbfe; }
-.kr-cal-cell-selected { background: #2563eb !important; border-color: #2563eb !important; }
+.kr-cal-cell:hover { background: #eff6ff; border-color: #a3d9d8; }
+.kr-cal-cell-selected { background: #1F7C80 !important; border-color: #1F7C80 !important; }
 .kr-cal-cell-selected .kr-cal-num { color: #fff; }
 .kr-cal-num { font-size: 13px; font-weight: 700; color: #334155; }
 .kr-cal-dots { display: flex; gap: 3px; margin-top: 6px; }
@@ -70,30 +69,30 @@ html[data-reduced-motion] *::after {
 
 /* Notes page */
 .kr-note-card { transition: transform .18s var(--kr-ease), box-shadow .2s var(--kr-ease), border-color .2s ease; cursor: pointer; }
-.kr-note-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(37,99,235,.12); border-color: #bfdbfe; }
+.kr-note-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(37,99,235,.12); border-color: #a3d9d8; }
 
 /* =============================================================================
    KLASSRUUM — Premium polish layer
-   Light, blue & white, navy accents. Adds depth, motion, refined interactions,
+   Light, teal & white, navy accents. Adds depth, motion, refined interactions,
    color blending, custom cursors, and the classroom pen — without overriding
    the Tailwind/shadcn component layer destructively.
    ============================================================================= */
 
 :root {
-  --kr-blue-50:  #eff6ff;
-  --kr-blue-100: #dbeafe;
-  --kr-blue-200: #bfdbfe;
-  --kr-blue-400: #60a5fa;
-  --kr-blue-500: #3b5bff;
-  --kr-blue-600: #2547e0;
-  --kr-blue-700: #1d4ed8;
-  --kr-navy:     #0f172a;
-  --kr-navy-700: #1e293b;
-  --kr-ink:      #1e3a8a;
+  --kr-blue-50:  #e8f5f5;
+  --kr-blue-100: #d1eceb;
+  --kr-blue-200: #a3d9d8;
+  --kr-blue-400: #3fa8ab;
+  --kr-blue-500: #1F7C80;
+  --kr-blue-600: #1A6B6E;
+  --kr-blue-700: #1A5256;
+  --kr-navy:     #1A3233;
+  --kr-navy-700: #1A3233;
+  --kr-ink:      #1A5256;
 
-  --kr-shadow-soft: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(37, 99, 235, .06);
-  --kr-shadow-lift: 0 2px 6px rgba(15, 23, 42, .06), 0 18px 40px rgba(37, 99, 235, .14);
-  --kr-ring: 0 0 0 4px rgba(59, 130, 246, .28);
+  --kr-shadow-soft: 0 1px 3px rgba(26, 50, 51, .04), 0 8px 24px rgba(31, 124, 128, .06);
+  --kr-shadow-lift: 0 2px 8px rgba(26, 50, 51, .06), 0 18px 40px rgba(31, 124, 128, .14);
+  --kr-ring: 0 0 0 4px rgba(31, 124, 128, .28);
 
   --kr-ease: cubic-bezier(.21, .8, .36, 1);
 }
@@ -197,7 +196,7 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
 .kr-aurora {
   position: relative;
   background:
-    radial-gradient(60% 60% at 15% 10%, rgba(59,130,246,.12), transparent 60%),
+    radial-gradient(60% 60% at 15% 10%, rgba(31,124,128,.12), transparent 60%),
     radial-gradient(50% 50% at 90% 20%, rgba(99,102,241,.12), transparent 60%),
     radial-gradient(60% 60% at 70% 95%, rgba(96,165,250,.12), transparent 60%),
     linear-gradient(180deg, #ffffff, #f6f9ff 55%, #eef3ff);
@@ -211,9 +210,9 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
   pointer-events: none;
   animation: kr-drift 16s ease-in-out infinite;
 }
-.kr-blob-1 { width: 420px; height: 420px; background: #93c5fd; top: -120px; left: -80px; }
+.kr-blob-1 { width: 420px; height: 420px; background: #a3d9d8; top: -120px; left: -80px; }
 .kr-blob-2 { width: 360px; height: 360px; background: #c7d2fe; bottom: -120px; right: -60px; animation-delay: -6s; }
-.kr-blob-3 { width: 300px; height: 300px; background: #bfdbfe; top: 40%; left: 55%; animation-delay: -11s; }
+.kr-blob-3 { width: 300px; height: 300px; background: #a3d9d8; top: 40%; left: 55%; animation-delay: -11s; }
 
 /* Subtle dotted grid texture for backgrounds */
 .kr-grid {
@@ -247,7 +246,7 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
 
 /* ---- Lesson Takeaway Score Card ---- */
 .vc-takeaway-card {
-  background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(59,130,246,0.12) 100%);
+  background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(31,124,128,0.12) 100%);
   border: 2px solid rgba(34,197,94,0.3);
   border-radius: 0;
   padding: 20px;
@@ -265,7 +264,7 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
 .vc-takeaway-score {
   font-size: 2.4rem;
   font-weight: 800;
-  background: linear-gradient(120deg, #34d399, #60a5fa);
+  background: linear-gradient(120deg, #34d399, #3fa8ab);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -427,7 +426,7 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
 .kr-shine-text {
   background: linear-gradient(100deg,
     #ffffff 0%, #cfe0ff 22%, #8ab4ff 38%, #c4b5fd 52%,
-    #93c5fd 66%, #ffffff 82%, #bfdbfe 100%);
+    #a3d9d8 66%, #ffffff 82%, #a3d9d8 100%);
   background-size: 220% auto;
   -webkit-background-clip: text; background-clip: text;
   color: transparent;

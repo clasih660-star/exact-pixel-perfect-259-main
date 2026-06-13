@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { StudentShell } from "@/components/student/StudentShell";
 import { FileText, Search, Download, BookOpen, Calculator, AlertTriangle } from "lucide-react";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/notes")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentNotes,
 });
 

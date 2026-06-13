@@ -7,7 +7,7 @@ interface CaptionBarProps {
 
 export function CaptionBar({ message, speaker = "teacher" }: CaptionBarProps) {
   const speakerColors = {
-    teacher: "bg-blue-600",
+    teacher: "bg-[#1F7C80]",
     student: "bg-green-600",
     system: "bg-gray-600",
   };
@@ -20,7 +20,7 @@ export function CaptionBar({ message, speaker = "teacher" }: CaptionBarProps) {
 
   return (
     <div className="ai-speaking-bar">
-      <div className="flex items-center gap-2 text-blue-400">
+      <div className="flex items-center gap-2 text-[#3fa8ab]">
         <Bot size={18} />
       </div>
       <div className="speaking-text">

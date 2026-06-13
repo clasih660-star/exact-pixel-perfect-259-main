@@ -24,8 +24,10 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { requireTeacher } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/teacher/analytics")({
+  beforeLoad: (ctx) => requireTeacher(ctx.context),
   component: TeacherAnalytics,
 });
 
@@ -47,7 +49,7 @@ const completionData = [
 ];
 
 const engagementData = [
-  { name: "Questions Asked", value: 87, color: "#2563EB" },
+  { name: "Questions Asked", value: 87, color: "#1F7C80" },
   { name: "Notes Created", value: 243, color: "#22C55E" },
   { name: "Replays Watched", value: 56, color: "#A855F7" },
   { name: "Quizzes Taken", value: 312, color: "#F59E0B" },
@@ -60,7 +62,7 @@ const topPerformers = [
   { name: "Fatima Bello", course: "Chemistry", score: 78, trend: "+4" },
 ];
 
-const COLORS = ["#2563EB", "#22C55E", "#A855F7", "#F59E0B"];
+const COLORS = ["#1F7C80", "#22C55E", "#A855F7", "#F59E0B"];
 
 function TeacherAnalytics() {
   return (
@@ -74,7 +76,7 @@ function TeacherAnalytics() {
       {/* KPI Summary */}
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
-          { label: "Avg Quiz Score", value: "81%", change: "+3% this month", icon: Star, color: "text-[#2563EB]" },
+          { label: "Avg Quiz Score", value: "81%", change: "+3% this month", icon: Star, color: "text-[#1F7C80]" },
           { label: "Completion Rate", value: "62%", change: "+8% this month", icon: CheckCircle2, color: "text-green-600" },
           { label: "Active Learners", value: "87", change: "+12 this week", icon: Users, color: "text-purple-600" },
           { label: "Questions Answered", value: "87", change: "Last 30 days", icon: MessageSquare, color: "text-amber-600" },
@@ -97,7 +99,7 @@ function TeacherAnalytics() {
         {/* Quiz Score Trend */}
         <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
           <div className="mb-4 flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-[#2563EB]" />
+            <BarChart2 className="h-5 w-5 text-[#1F7C80]" />
             <h3 className="font-bold text-[#0F172A]">Quiz Score Trends</h3>
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -108,13 +110,13 @@ function TeacherAnalytics() {
               <Tooltip
                 contentStyle={{ border: "1px solid #E2E8F0", borderRadius: 12, fontSize: 12 }}
               />
-              <Line type="monotone" dataKey="Math" stroke="#2563EB" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Math" stroke="#1F7C80" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="Chemistry" stroke="#22C55E" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="CS" stroke="#A855F7" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
           <div className="mt-3 flex items-center gap-4 text-xs">
-            {[{ label: "Math F2", color: "#2563EB" }, { label: "Chemistry", color: "#22C55E" }, { label: "CS Basics", color: "#A855F7" }].map((l) => (
+            {[{ label: "Math F2", color: "#1F7C80" }, { label: "Chemistry", color: "#22C55E" }, { label: "CS Basics", color: "#A855F7" }].map((l) => (
               <span key={l.label} className="flex items-center gap-1.5 text-[#64748B]">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: l.color }} />
                 {l.label}
@@ -137,7 +139,7 @@ function TeacherAnalytics() {
               <Tooltip
                 contentStyle={{ border: "1px solid #E2E8F0", borderRadius: 12, fontSize: 12 }}
               />
-              <Bar dataKey="completed" name="Completed" fill="#2563EB" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="completed" name="Completed" fill="#1F7C80" radius={[6, 6, 0, 0]} />
               <Bar dataKey="incomplete" name="In Progress" fill="#E2E8F0" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -185,7 +187,7 @@ function TeacherAnalytics() {
           <div className="space-y-3">
             {topPerformers.map((p, i) => (
               <div key={p.name} className="flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-400 text-xs font-bold text-white">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1F7C80] to-[#3fa8ab] text-xs font-bold text-white">
                   {i + 1}
                 </div>
                 <div className="min-w-0 flex-1">

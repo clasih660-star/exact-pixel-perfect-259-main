@@ -130,7 +130,7 @@ export function ParentDashboard() {
             <div className="grid grid-cols-4 gap-4">
               <div>
                 <p className="text-xs font-semibold text-[#64748B]">Progress</p>
-                <p className="mt-1 text-3xl font-bold text-[#2563EB]">
+                <p className="mt-1 text-3xl font-bold text-[#1F7C80]">
                   {selectedLearner.progress}%
                 </p>
               </div>
@@ -155,7 +155,7 @@ export function ParentDashboard() {
             </div>
             <div className="h-3 w-full rounded-full bg-[#E2E8F0]">
               <div
-                className="h-full rounded-full bg-[#2563EB] transition-all"
+                className="h-full rounded-full bg-[#1F7C80] transition-all"
                 style={{ width: `${selectedLearner.progress}%` }}
               />
             </div>
@@ -246,8 +246,8 @@ export function ParentDashboard() {
                   onClick={() => setSelectedLearner(learner)}
                   className={`w-full text-left rounded-2xl border transition-all p-5 ${
                     selectedLearner.id === learner.id
-                      ? "border-[#2563EB] bg-[#EFF6FF] shadow-md"
-                      : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/30 hover:shadow-md"
+                      ? "border-[#1F7C80] bg-[#EFF6FF] shadow-md"
+                      : "border-[#E2E8F0] bg-white hover:border-[#1F7C80]/30 hover:shadow-md"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -267,7 +267,7 @@ export function ParentDashboard() {
                   {/* Stats Grid */}
                   <div className="grid grid-cols-4 gap-2">
                     <div className="rounded-lg bg-[#F8FAFC] p-2 text-center">
-                      <p className="text-xs font-bold text-[#2563EB]">{learner.progress}%</p>
+                      <p className="text-xs font-bold text-[#1F7C80]">{learner.progress}%</p>
                       <p className="text-[10px] text-[#64748B]">Progress</p>
                     </div>
                     <div className="rounded-lg bg-[#F8FAFC] p-2 text-center">
@@ -288,7 +288,7 @@ export function ParentDashboard() {
                   <div className="mt-3">
                     <div className="h-2 w-full rounded-full bg-[#E2E8F0]">
                       <div
-                        className="h-full rounded-full bg-[#2563EB] transition-all"
+                        className="h-full rounded-full bg-[#1F7C80] transition-all"
                         style={{ width: `${learner.progress}%` }}
                       />
                     </div>
@@ -307,7 +307,7 @@ export function ParentDashboard() {
               </div>
               <Link
                 to="/parent/sessions"
-                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
+                className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]"
               >
                 View all
               </Link>
@@ -345,7 +345,7 @@ export function ParentDashboard() {
             <div className="space-y-2">
               <Link
                 to="/parent/progress"
-                className="block rounded-lg bg-[#EFF6FF] px-3 py-2.5 text-sm font-bold text-[#2563EB] transition-all hover:bg-[#DBEAFE]"
+                className="block rounded-lg bg-[#EFF6FF] px-3 py-2.5 text-sm font-bold text-[#1F7C80] transition-all hover:bg-[#DBEAFE]"
               >
                 View Progress Report
               </Link>

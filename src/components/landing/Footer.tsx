@@ -12,8 +12,8 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
     links: [
-      { label: "Features", href: "#features" },
-      { label: "Classroom", href: "#classroom" },
+      { label: "Features", to: "/features" },
+      { label: "Classroom", to: "/classroom" },
       { label: "Accessibility", to: "/accessibility" },
       { label: "Pricing", to: "/pricing" },
       { label: "Demo", to: "/demo/classroom" },
@@ -22,20 +22,20 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Solutions",
     links: [
-      { label: "For Schools", href: "#institutions" },
-      { label: "For Universities", href: "#use-cases" },
-      { label: "For Tutoring Centers", href: "#use-cases" },
-      { label: "For NGOs", href: "#use-cases" },
-      { label: "For Training Providers", href: "#use-cases" },
+      { label: "For Schools", to: "/solutions/schools" },
+      { label: "For Universities", to: "/solutions/universities" },
+      { label: "For Tutoring Centers", to: "/solutions/tutoring-centers" },
+      { label: "For NGOs", to: "/solutions/ngos" },
+      { label: "For Training Providers", to: "/solutions/training-providers" },
     ],
   },
   {
     title: "Resources",
     links: [
       { label: "Help Center", to: "/help" },
-      { label: "Documentation", to: "/help" },
-      { label: "Blog", to: "/about" },
-      { label: "Webinars", to: "/about" },
+      { label: "Documentation", to: "/docs" },
+      { label: "Blog", to: "/blog" },
+      { label: "Webinars", to: "/webinars" },
     ],
   },
   {
@@ -43,7 +43,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "About", to: "/about" },
       { label: "Contact", to: "/contact" },
-      { label: "Partners", to: "/contact" },
+      { label: "Partners", to: "/partners" },
     ],
   },
   {
@@ -51,14 +51,14 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "Privacy Policy", to: "/privacy" },
       { label: "Terms of Service", to: "/terms" },
-      { label: "Cookie Policy", to: "/privacy" },
-      { label: "Data Protection", to: "/privacy" },
+      { label: "Cookie Policy", to: "/cookie-policy" },
+      { label: "Data Protection", to: "/data-protection" },
     ],
   },
 ];
 
 function FooterAnchor({ link }: { link: FooterLink }) {
-  const cls = "text-sm text-[#475569] transition-colors hover:text-[#1D4ED8]";
+  const cls = "text-sm text-[#475569] transition-colors hover:text-[#1A5256]";
   if (link.to) {
     return (
       <Link to={link.to as never} className={cls}>

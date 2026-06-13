@@ -21,10 +21,12 @@ import { getMyInstitutions } from "@/lib/institutions.functions";
 import { listCourses } from "@/lib/courses.functions";
 import { createResource } from "@/lib/resources.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 
 type ResType = "pdf" | "text" | "image" | "link" | "video" | "audio" | "slides" | "document";
 
 export const Route = createFileRoute("/_authenticated/institution/resources/upload")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: UploadResourcePage,
 });
 

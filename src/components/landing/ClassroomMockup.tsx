@@ -38,17 +38,17 @@ export function ClassroomMockup({ className }: { className?: string }) {
         {/* Teacher panel */}
         <aside className="flex flex-col gap-3">
           <div className="relative overflow-hidden rounded-[16px] border border-white/10 bg-gradient-to-b from-[#1e293b] to-[#0f172a] p-3">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#2563EB]/20 ring-2 ring-[#2563EB]/40">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#1F7C80]/20 ring-2 ring-[#1F7C80]/40">
               <span className="text-2xl">👩🏽‍🏫</span>
             </div>
             <div className="mt-2 text-center">
               <div className="text-[12px] font-semibold text-white">Ms. Ada</div>
-              <div className="text-[10px] text-[#60a5fa]">AI Teacher · explaining</div>
+              <div className="text-[10px] text-[#3fa8ab]">AI Teacher · explaining</div>
             </div>
             {/* speaking waveform */}
             <div className="mt-2 flex items-end justify-center gap-0.5" aria-hidden>
               {[10, 16, 8, 20, 12, 18, 9].map((h, i) => (
-                <span key={i} className="w-0.5 rounded-full bg-[#60a5fa]/80" style={{ height: h }} />
+                <span key={i} className="w-0.5 rounded-full bg-[#3fa8ab]/80" style={{ height: h }} />
               ))}
             </div>
           </div>
@@ -57,7 +57,7 @@ export function ClassroomMockup({ className }: { className?: string }) {
             <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Lesson plan</div>
             <ul className="mt-2 space-y-1.5 text-[11px]">
               <li className="flex items-center gap-1.5 text-slate-400"><span>✓</span> Concept</li>
-              <li className="flex items-center gap-1.5 font-medium text-white"><span className="text-[#60a5fa]">▶</span> Worked example</li>
+              <li className="flex items-center gap-1.5 font-medium text-white"><span className="text-[#3fa8ab]">▶</span> Worked example</li>
               <li className="flex items-center gap-1.5 text-slate-500"><span>○</span> Guided practice</li>
               <li className="flex items-center gap-1.5 text-slate-500"><span>○</span> Summary</li>
             </ul>
@@ -70,25 +70,25 @@ export function ClassroomMockup({ className }: { className?: string }) {
           <div className="rounded-[16px] border border-[#cbd5e1] bg-white p-4">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-wide text-[#64748B]">Learning whiteboard</span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#2563EB]">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#2563EB]" /> Writing…
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#1F7C80]">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#1F7C80]" /> Writing…
               </span>
             </div>
             <div className="space-y-2.5" style={{ fontFamily: '"Caveat", "Patrick Hand", cursive' }}>
               <div className="text-[22px] font-bold leading-tight text-[#1d4ed8]">x² + 5x + 6 = 0</div>
               <div className="text-[18px] leading-tight text-[#1f2937]">Find two numbers that multiply to 6 and add to 5</div>
-              <div className="text-[18px] leading-tight text-[#1e40af]">2 × 3 = 6 &nbsp;&nbsp; 2 + 3 = 5</div>
+              <div className="text-[18px] leading-tight text-[#1A5256]">2 × 3 = 6 &nbsp;&nbsp; 2 + 3 = 5</div>
               <div className="text-[18px] leading-tight text-[#15803d]">(x + 2)(x + 3) = 0 → x = −2 or x = −3</div>
             </div>
             {/* written sub-note (what the teacher says, typed) */}
-            <p className="mt-3 border-l-2 border-[#bfdbfe] pl-3 text-[12px] leading-relaxed text-[#475569]">
+            <p className="mt-3 border-l-2 border-[#a3d9d8] pl-3 text-[12px] leading-relaxed text-[#475569]">
               We rewrite the quadratic as two brackets. Setting each bracket to zero gives the two solutions.
             </p>
           </div>
 
           {/* Captions */}
           <div className="flex items-start gap-2 rounded-[12px] bg-[#0b1220] px-3 py-2">
-            <Captions className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#60a5fa]" aria-hidden />
+            <Captions className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#3fa8ab]" aria-hidden />
             <p className="text-[12px] leading-snug text-slate-200">
               <span className="font-semibold text-white">Teacher:</span> Notice both numbers must satisfy the two
               conditions at once.
@@ -101,7 +101,7 @@ export function ClassroomMockup({ className }: { className?: string }) {
               <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Learner question</div>
               <p className="mt-1 text-[12px] text-slate-200">“Why did the answer become negative?”</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className="rounded-[6px] bg-[#2563EB] px-2 py-1 text-[10px] font-medium text-white">Answer</span>
+                <span className="rounded-[6px] bg-[#1F7C80] px-2 py-1 text-[10px] font-medium text-white">Answer</span>
                 <span className="rounded-[6px] bg-white/10 px-2 py-1 text-[10px] text-slate-200">Show on board</span>
                 <span className="rounded-[6px] bg-white/10 px-2 py-1 text-[10px] text-slate-200">Simpler</span>
               </div>
@@ -118,7 +118,7 @@ export function ClassroomMockup({ className }: { className?: string }) {
                   <span>Lesson progress</span><span className="font-semibold text-white">68%</span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full rounded-full bg-[#2563EB]" style={{ width: "68%" }} />
+                  <div className="h-full rounded-full bg-[#1F7C80]" style={{ width: "68%" }} />
                 </div>
               </div>
             </div>

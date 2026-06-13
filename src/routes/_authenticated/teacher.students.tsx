@@ -15,8 +15,10 @@ import {
   CheckCircle2,
   MessageSquare,
 } from "lucide-react";
+import { requireTeacher } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/teacher/students")({
+  beforeLoad: (ctx) => requireTeacher(ctx.context),
   component: TeacherStudents,
 });
 
@@ -80,13 +82,13 @@ const STUDENTS: Student[] = [
 
 const STATUS_META: Record<StudentStatus, { label: string; variant: "success" | "warning" | "info" | "neutral" | "error"; icon: typeof CheckCircle2; color: string }> = {
   excelling: { label: "Excelling", variant: "success", icon: TrendingUp, color: "text-green-600" },
-  "on-track": { label: "On Track", variant: "info", icon: CheckCircle2, color: "text-blue-600" },
+  "on-track": { label: "On Track", variant: "info", icon: CheckCircle2, color: "text-[#1F7C80]" },
   "at-risk": { label: "At Risk", variant: "warning", icon: TrendingDown, color: "text-amber-600" },
   "needs-help": { label: "Needs Help", variant: "error", icon: AlertTriangle, color: "text-red-600" },
 };
 
 const AVATAR_COLORS = [
-  "from-blue-600 to-blue-400",
+  "from-[#1F7C80] to-[#3fa8ab]",
   "from-green-600 to-emerald-400",
   "from-purple-600 to-violet-400",
   "from-rose-600 to-pink-400",
@@ -156,13 +158,13 @@ function TeacherStudents() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search students…"
-            className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+            className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#1F7C80] focus:outline-none focus:ring-2 focus:ring-[#1F7C80]/20"
           />
         </div>
         <select
           value={courseFilter}
           onChange={(e) => setCourseFilter(e.target.value)}
-          className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-2.5 text-sm text-[#0F172A] focus:border-[#2563EB] focus:outline-none"
+          className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-2.5 text-sm text-[#0F172A] focus:border-[#1F7C80] focus:outline-none"
         >
           <option value="all">All Courses</option>
           {courses.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -170,7 +172,7 @@ function TeacherStudents() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StudentStatus | "all")}
-          className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-2.5 text-sm text-[#0F172A] focus:border-[#2563EB] focus:outline-none"
+          className="rounded-xl border border-[#E2E8F0] bg-white px-3 py-2.5 text-sm text-[#0F172A] focus:border-[#1F7C80] focus:outline-none"
         >
           <option value="all">All Status</option>
           <option value="excelling">Excelling</option>
@@ -227,7 +229,7 @@ function TeacherStudents() {
                       <div className="flex items-center gap-2">
                         <div className="h-2 w-20 rounded-full bg-[#E2E8F0]">
                           <div
-                            className="h-full rounded-full bg-[#2563EB] transition-all"
+                            className="h-full rounded-full bg-[#1F7C80] transition-all"
                             style={{ width: `${student.progress}%` }}
                           />
                         </div>

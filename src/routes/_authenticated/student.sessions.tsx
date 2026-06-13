@@ -12,8 +12,10 @@ import {
   Search,
   ChevronRight,
 } from "lucide-react";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/sessions")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentSessions,
 });
 
@@ -100,7 +102,7 @@ const SESSIONS: Session[] = [
 
 const STATUS_META: Record<SessionStatus, { label: string; color: string; bg: string; border: string }> = {
   completed: { label: "Completed", color: "#15803D", bg: "#DCFCE7", border: "#BBF7D0" },
-  "in-progress": { label: "In Progress", color: "#1D4ED8", bg: "#DBEAFE", border: "#BFDBFE" },
+  "in-progress": { label: "In Progress", color: "#1A5256", bg: "#DBEAFE", border: "#BFDBFE" },
   upcoming: { label: "Upcoming", color: "#475569", bg: "#F1F5F9", border: "#E2E8F0" },
 };
 

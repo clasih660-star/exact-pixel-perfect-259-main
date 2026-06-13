@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateObject } from "ai";
 import { z } from "zod";
-import { createAiGatewayProvider } from "./ai-gateway.server";
+import { createResilientModelCaller } from "./ai-gateway.server";
 import {
   LESSON_STEPS,
   type ChatTurn,
@@ -103,8 +102,8 @@ export const teacherTurn = createServerFn({ method: "POST" })
     const lesson = getLesson(data.lessonId);
     if (!lesson) throw new Error("Lesson not found");
 
-    const gateway = createAiGatewayProvider();
-    if (!gateway) {
+    const resilientCaller = createResilientModelCaller("teacher_turn");
+    if (!resilientCaller) {
       if (process.env.NODE_ENV === "development") {
         // Dev fallback: return a simple teacher response so the UI remains interactive
         return {
@@ -126,14 +125,17 @@ export const teacherTurn = createServerFn({ method: "POST" })
       .join("\n");
 
     try {
-      const modelName = process.env.OPENAI_API_KEY ? "gpt-4o-mini" : "deepseek/teacher-1";
+      const result = await resilientCaller.call(
+        TeacherSchema,
+        systemPrompt(lesson.title, lesson.subject, data.state as LessonState),
+        `Recent transcript:\n${transcript || "(no prior turns — this is the very start)"}\n\nStudent just said: "${data.studentMessage}"\n\nDecide the next teaching action and return JSON.`,
+      );
 
-      const { object } = await generateObject({
-        model: gateway(modelName),
-        schema: TeacherSchema,
-        system: systemPrompt(lesson.title, lesson.subject, data.state as LessonState),
-        prompt: `Recent transcript:\n${transcript || "(no prior turns — this is the very start)"}\n\nStudent just said: "${data.studentMessage}"\n\nDecide the next teaching action and return JSON.`,
-      });
+      if (!result) {
+        throw new Error("All AI providers failed");
+      }
+
+      const { object } = result;
 
       return {
         speak: object.speak,

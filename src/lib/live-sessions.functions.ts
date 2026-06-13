@@ -1,14 +1,8 @@
 /**
  * live-sessions.functions.ts — Phase 2 classroom session lifecycle.
  *
- * A "session" is one delivery of a lesson inside the classroom. For AI-teacher
- * mode each learner gets their own session (so progress, notes, transcript, and
- * events attach to a real `classroom_sessions` row). Human-live / hybrid sessions
- * are created by a teacher and joined by many learners.
- *
- * This service runs on tables that already exist (classroom_sessions,
- * session_participants) — it does NOT depend on the newer Phase 2 tables — so it
- * works today and gives the rest of the live/hybrid layer a stable foundation.
+ * In demo mode (Supabase not configured), all functions return mock data
+ * so the classroom works without a database.
  */
 
 import { createServerFn } from "@tanstack/react-start";
@@ -19,8 +13,13 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const startLearnerSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { supabase, userId } = context;
+
+    // Demo mode — return a mock session ID
+    if (!supabase) {
+      return { sessionId: `demo-session-${Date.now()}` };
+    }
 
     const { data: lesson, error: lErr } = await supabase
       .from("lessons")
@@ -29,7 +28,6 @@ export const startLearnerSession = createServerFn({ method: "POST" })
       .single();
     if (lErr || !lesson) throw new Error(lErr?.message ?? "Lesson not found");
 
-    // Reuse a still-live session this learner already owns for this lesson.
     const { data: existing } = await supabase
       .from("classroom_sessions")
       .select("id, status")
@@ -59,7 +57,6 @@ export const startLearnerSession = createServerFn({ method: "POST" })
       sessionId = row.id;
     }
 
-    // Record the learner as a participant (idempotent on session+user).
     const db = supabase as any;
     await db
       .from("session_participants")
@@ -77,7 +74,7 @@ export const startLearnerSession = createServerFn({ method: "POST" })
     return { sessionId };
   });
 
-/** A teacher creates a live or hybrid session for a lesson (scheduled or live). */
+/** A teacher creates a live or hybrid session for a lesson. */
 export const createTeacherSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) =>
@@ -90,8 +87,20 @@ export const createTeacherSession = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { supabase, userId } = context;
+
+    if (!supabase) {
+      return {
+        session: {
+          id: `demo-session-${Date.now()}`,
+          mode: data.mode,
+          status: data.start_now ? "live" : "scheduled",
+          started_at: data.start_now ? new Date().toISOString() : null,
+        },
+      };
+    }
+
     const { data: lesson, error: lErr } = await supabase
       .from("lessons")
       .select("id, course_id, institution_id")
@@ -117,14 +126,16 @@ export const createTeacherSession = createServerFn({ method: "POST" })
     return { session: row };
   });
 
-/** End a session: mark completed and stamp the leave time for participants. */
+/** End a session. */
 export const endSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { supabase, userId } = context;
-    const nowIso = new Date().toISOString();
 
+    if (!supabase) return { ok: true };
+
+    const nowIso = new Date().toISOString();
     const { error } = await supabase
       .from("classroom_sessions")
       .update({ status: "completed", ended_at: nowIso })
@@ -142,11 +153,12 @@ export const endSession = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Mark the current user as having left a session (without ending it for others). */
+/** Mark the current user as having left a session. */
 export const leaveSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
+    if (!context.supabase) return { ok: true };
     const db = context.supabase as any;
     await db
       .from("session_participants")
@@ -160,8 +172,13 @@ export const leaveSession = createServerFn({ method: "POST" })
 export const listActiveSessions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { institution_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { supabase } = context;
+
+    if (!supabase) {
+      return { sessions: [] };
+    }
+
     const { data: sessions, error } = await supabase
       .from("classroom_sessions")
       .select("id, course_id, lesson_id, mode, status, started_at, host_user_id, lessons(title), courses(title)")
@@ -171,7 +188,6 @@ export const listActiveSessions = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const rows = (sessions ?? []) as any[];
-    // Attach a live participant count per session (best-effort).
     const db = supabase as any;
     const withCounts = await Promise.all(
       rows.map(async (s) => {

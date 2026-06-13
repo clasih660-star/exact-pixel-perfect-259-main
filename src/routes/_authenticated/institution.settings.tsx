@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMyInstitutions } from "@/lib/institutions.functions";
+import { requireInstitutionAdmin } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/institution/settings")({
+  beforeLoad: (ctx) => requireInstitutionAdmin(ctx.context),
   component: SettingsPage,
 });
 

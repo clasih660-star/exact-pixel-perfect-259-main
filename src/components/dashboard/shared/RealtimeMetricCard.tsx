@@ -1,4 +1,4 @@
-import type { LucideIcon, ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 type Props = {

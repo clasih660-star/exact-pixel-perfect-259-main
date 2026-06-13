@@ -22,9 +22,8 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
-import { generateObject } from "ai";
 import { z } from "zod";
-import { createAiGatewayProvider } from "./ai-gateway.server";
+import { createResilientModelCaller } from "./ai-gateway.server";
 import type { AcademicLevel, TeacherAnswer } from "./types";
 
 const ACADEMIC_LEVELS = ["elementary", "secondary", "college", "tertiary", "adult"] as const;
@@ -46,6 +45,18 @@ const ContextSchema = z.object({
   academicLevel: z.enum(ACADEMIC_LEVELS).optional(),
   /** A prior clarifying question the teacher asked, if this is a follow-up turn. */
   priorClarification: z.string().optional(),
+  /** Real-time sentiment analysis of the learner's input. */
+  learnerSentiment: z.object({
+    tone: z.string(),
+    frustrationScore: z.number().min(0).max(1),
+  }).optional(),
+  /** Cross-lesson learner profile for personalization. */
+  learnerProfile: z.object({
+    weakTopics: z.array(z.string()),
+    strongTopics: z.array(z.string()),
+    preferredStyle: z.string(),
+    lastEmotion: z.string(),
+  }).optional(),
 });
 
 const InputSchema = z.object({
@@ -121,6 +132,8 @@ ${ctx.imageDescriptions?.length ? `- Images on the board: ${ctx.imageDescription
 ${ctx.previousQuestions?.length ? `- Earlier questions: ${ctx.previousQuestions.join(" | ")}` : ""}
 ${ctx.materialContext ? `- Course material excerpt:\n${ctx.materialContext}` : ""}
 ${ctx.priorClarification ? `- You already asked the learner to clarify: "${ctx.priorClarification}". Treat their message as the clarification and answer directly now.` : ""}
+${ctx.learnerSentiment ? `- LEARNER SENTIMENT: The learner appears ${ctx.learnerSentiment.tone} (frustration: ${Math.round((ctx.learnerSentiment.frustrationScore ?? 0) * 100)}%). Adjust tone accordingly — be warmer if frustrated, reinforce if engaged.` : ""}
+${ctx.learnerProfile ? `- LEARNER HISTORY: Weak areas: ${ctx.learnerProfile.weakTopics.join(", ") || "none"}. Strong areas: ${ctx.learnerProfile.strongTopics.join(", ") || "none"}. Preferred learning style: ${ctx.learnerProfile.preferredStyle}. Prior emotional state: ${ctx.learnerProfile.lastEmotion}. Use this to tailor your response — avoid assuming knowledge in weak areas and build on strong areas.` : ""}
 - Learning mode: ${ctx.learningMode ?? "standard"}
 
 TEACHING STYLE:
@@ -199,20 +212,23 @@ function toResult(a: TeacherAnswer): AnswerLearnerQuestionResult {
 export const answerLearnerQuestion = createServerFn({ method: "POST" })
   .validator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<AnswerLearnerQuestionResult> => {
-    const gateway = createAiGatewayProvider();
-    if (!gateway) {
+    const resilientCaller = createResilientModelCaller("teacher_answer");
+    if (!resilientCaller) {
       return toResult(fallbackTeacherAnswer(data.context, data.question));
     }
 
     try {
-      const modelName = process.env.OPENAI_API_KEY ? "gpt-4o-mini" : "deepseek/teacher-1";
+      const result = await resilientCaller.call(
+        TeacherAnswerSchema,
+        buildSystemPrompt(data.context),
+        `The learner asks: "${data.question}"\n\nReturn the structured teacher response now. If clear, the 'answer' must be ${MIN_WORDS}–${MAX_WORDS} words of plain spoken prose.`,
+      );
 
-      const { object } = await generateObject({
-        model: gateway(modelName),
-        schema: TeacherAnswerSchema,
-        system: buildSystemPrompt(data.context),
-        prompt: `The learner asks: "${data.question}"\n\nReturn the structured teacher response now. If clear, the 'answer' must be ${MIN_WORDS}–${MAX_WORDS} words of plain spoken prose.`,
-      });
+      if (!result) {
+        return toResult(fallbackTeacherAnswer(data.context, data.question));
+      }
+
+      const { object } = result;
 
       // Clamp an over-long answer and enforce the back-compat shape.
       const normalised: TeacherAnswer = {

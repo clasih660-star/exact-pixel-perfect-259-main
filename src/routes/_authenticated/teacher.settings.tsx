@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RouteStubPage } from "@/components/route/RouteStubPage";
+import { requireTeacher } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/teacher/settings")({
+  beforeLoad: (ctx) => requireTeacher(ctx.context),
   component: () => (
     <RouteStubPage
       role="Teacher"

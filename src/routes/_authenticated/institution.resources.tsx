@@ -10,8 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getMyInstitutions } from "@/lib/institutions.functions";
 import { listResources } from "@/lib/resources.functions";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/institution/resources")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: ResourcesPage,
 });
 

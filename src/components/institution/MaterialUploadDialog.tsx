@@ -180,11 +180,11 @@ export function MaterialUploadDialog({
                     </div>
                   </label>
                   {form.file && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded flex items-center justify-between">
-                      <span className="text-sm text-blue-900 truncate">{form.file.name}</span>
+                    <div className="mt-4 p-3 bg-[#e8f5f5] rounded flex items-center justify-between">
+                      <span className="text-sm text-[#0F172A] truncate">{form.file.name}</span>
                       <button
                         onClick={() => setForm({ ...form, file: null })}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-[#1F7C80] hover:text-[#1A5256]"
                       >
                         <X className="h-4 w-4" />
                       </button>

@@ -28,13 +28,13 @@ export function AlertBanner({
 
   const config = {
     info: {
-      bg: "bg-blue-50",
-      border: "border-blue-200",
+      bg: "bg-[#e8f5f5]",
+      border: "border-[#a3d9d8]",
       icon: Info,
-      iconColor: "text-blue-600",
-      title: "text-blue-900",
-      description: "text-blue-800",
-      button: "bg-blue-600 hover:bg-blue-700",
+      iconColor: "text-[#1F7C80]",
+      title: "text-[#0F172A]",
+      description: "text-[#1A5256]",
+      button: "bg-[#1F7C80] hover:bg-[#1A5256]",
     },
     success: {
       bg: "bg-green-50",

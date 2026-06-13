@@ -9,8 +9,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getMyInstitutions } from "@/lib/institutions.functions";
 import { listClassrooms } from "@/lib/classrooms.functions";
+import { requireInstitutionAdmin } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/institution/classrooms")({
+  beforeLoad: (ctx) => requireInstitutionAdmin(ctx.context),
   component: ClassroomsPage,
 });
 

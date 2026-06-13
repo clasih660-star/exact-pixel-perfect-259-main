@@ -13,8 +13,10 @@ import {
   BarChart2,
   Eye,
 } from "lucide-react";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/teacher/sessions")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: TeacherSessions,
 });
 
@@ -110,7 +112,7 @@ const SESSIONS: Session[] = [
 ];
 
 const STATUS_CONFIG: Record<SessionStatus, { label: string; variant: "success" | "warning" | "info" | "neutral" | "error"; dotColor: string }> = {
-  live: { label: "Live Now", variant: "info", dotColor: "#2563EB" },
+  live: { label: "Live Now", variant: "info", dotColor: "#1F7C80" },
   upcoming: { label: "Upcoming", variant: "neutral", dotColor: "#94A3B8" },
   completed: { label: "Completed", variant: "success", dotColor: "#22C55E" },
   cancelled: { label: "Cancelled", variant: "error", dotColor: "#EF4444" },
@@ -133,11 +135,11 @@ function TeacherSessions() {
 
       {/* Live Now banner */}
       {liveSessions.length > 0 && (
-        <div className="mb-6 rounded-2xl border-2 border-[#2563EB] bg-gradient-to-r from-[#EFF6FF] to-white p-5">
+        <div className="mb-6 rounded-2xl border-2 border-[#1F7C80] bg-gradient-to-r from-[#EFF6FF] to-white p-5">
           <div className="flex items-center gap-3 mb-3">
             <span className="relative flex h-3 w-3">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2563EB] opacity-75" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-[#2563EB]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1F7C80] opacity-75" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-[#1F7C80]" />
             </span>
             <h2 className="text-base font-bold text-[#0F172A]">Live Right Now</h2>
           </div>
@@ -153,7 +155,7 @@ function TeacherSessions() {
       <section className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-[#2563EB]" />
+            <Calendar className="h-5 w-5 text-[#1F7C80]" />
             <h2 className="text-lg font-bold text-[#0F172A]">Upcoming Sessions</h2>
           </div>
           <span className="text-sm text-[#64748B]">{upcomingSessions.length} scheduled</span>
@@ -187,10 +189,10 @@ function TeacherSessions() {
 function SessionRow({ session }: { session: Session }) {
   const sc = STATUS_CONFIG[session.status];
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4 transition-all hover:border-[#2563EB]/30 hover:shadow-sm sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4 transition-all hover:border-[#1F7C80]/30 hover:shadow-sm sm:flex-row sm:items-center">
       {/* Video icon */}
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EFF6FF]">
-        <Video className="h-5 w-5 text-[#2563EB]" />
+        <Video className="h-5 w-5 text-[#1F7C80]" />
       </div>
 
       {/* Main info */}
@@ -216,7 +218,7 @@ function SessionRow({ session }: { session: Session }) {
             </span>
           )}
           {session.completionRate !== undefined && (
-            <span className="font-semibold text-[#2563EB]">
+            <span className="font-semibold text-[#1F7C80]">
               {session.completionRate}% completed
             </span>
           )}
@@ -228,7 +230,7 @@ function SessionRow({ session }: { session: Session }) {
         {session.status === "live" || session.status === "upcoming" ? (
           <Link
             to="/classroom/session_demo_math"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#2563EB] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1D4ED8]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1A5256]"
           >
             <Play className="h-4 w-4" />
             {session.status === "live" ? "Join" : "Start"}

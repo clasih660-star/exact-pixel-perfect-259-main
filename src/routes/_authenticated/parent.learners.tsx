@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RouteStubPage } from "@/components/route/RouteStubPage";
+import { requireParent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/parent/learners")({
+  beforeLoad: (ctx) => requireParent(ctx.context),
   component: () => (
     <RouteStubPage
       role="Parent"

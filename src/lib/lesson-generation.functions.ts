@@ -17,10 +17,9 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
-import { generateObject } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createAiGatewayProvider } from "./ai-gateway.server";
+import { createResilientModelCaller } from "./ai-gateway.server";
 
 // ── AI output schema (one batch of lessons) ──────────────────────────────────
 
@@ -241,24 +240,26 @@ export const generateLessonsForCourse = createServerFn({ method: "POST" })
     // Generate (AI when available, otherwise deterministic fallback)
     let batch: GeneratedBatch;
     let usedAI = false;
-    const gateway = createAiGatewayProvider();
-    if (gateway) {
+    const resilientCaller = createResilientModelCaller("lesson_gen");
+    if (resilientCaller) {
       try {
-        const modelName = process.env.OPENAI_API_KEY ? "gpt-4o-mini" : "deepseek/lesson-gen-1";
-        const { object } = await generateObject({
-          model: gateway(modelName),
-          schema: BatchSchema,
-          system: generationSystemPrompt({
+        const result = await resilientCaller.call(
+          BatchSchema,
+          generationSystemPrompt({
             course: course.title,
             subject: course.subject ?? undefined,
             level: data.level ?? course.level ?? undefined,
             timelineWeeks: data.timeline_weeks,
             requestedCount: data.requested_count,
           }),
-          prompt: `COURSE MATERIALS:\n${materialText.slice(0, 24000)}\n\nGenerate the lessons now as JSON.`,
-        });
-        batch = object;
-        usedAI = true;
+          `COURSE MATERIALS:\n${materialText.slice(0, 24000)}\n\nGenerate the lessons now as JSON.`,
+        );
+        if (result) {
+          batch = result.object;
+          usedAI = true;
+        } else {
+          batch = fallbackBatch(materialText, data.requested_count, course.title);
+        }
       } catch {
         batch = fallbackBatch(materialText, data.requested_count, course.title);
       }

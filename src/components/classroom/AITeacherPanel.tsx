@@ -1,10 +1,9 @@
-import type { TeacherState, LessonStep } from "@/lib/types";
-import { LogoMark } from "@/components/brand/Logo";
+import type { TeacherState, LessonStepKey } from "@/lib/types";
 import { Info, RotateCcw, GraduationCap } from "lucide-react";
 
 interface AITeacherPanelProps {
   teacherState: TeacherState;
-  currentStep: LessonStep;
+  currentStep: LessonStepKey;
   teacherName?: string;
   isSpeaking?: boolean;
 }
@@ -44,7 +43,7 @@ export function AITeacherPanel({
       <div className="ai-avatar-wrap">
         <div className="ai-avatar">
           <div className="ai-avatar-placeholder">
-            <GraduationCap size={48} className="text-blue-600" />
+            <GraduationCap size={48} className="text-[#1F7C80]" />
           </div>
         </div>
         <div className="ai-speaking">
@@ -104,8 +103,8 @@ function SoundBars() {
   );
 }
 
-function getStepNumber(step: LessonStep): number {
-  const steps = [
+function getStepNumber(step: LessonStepKey): number {
+  const steps: LessonStepKey[] = [
     "hook",
     "concept",
     "worked_example",
@@ -118,8 +117,8 @@ function getStepNumber(step: LessonStep): number {
   return steps.indexOf(step) + 1;
 }
 
-function formatStepName(step: LessonStep): string {
-  const names: Record<LessonStep, string> = {
+function formatStepName(step: LessonStepKey): string {
+  const names: Record<LessonStepKey, string> = {
     hook: "Hook",
     concept: "Concept Teaching",
     worked_example: "Worked Example",
@@ -132,8 +131,8 @@ function formatStepName(step: LessonStep): string {
   return names[step];
 }
 
-function getStepDescription(step: LessonStep): string {
-  const descriptions: Record<LessonStep, string> = {
+function getStepDescription(step: LessonStepKey): string {
+  const descriptions: Record<LessonStepKey, string> = {
     hook: "Engaging introduction to show why this topic matters",
     concept: "Learning the fundamental ideas and definitions",
     worked_example: "Step-by-step demonstration of the solution method",

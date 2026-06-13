@@ -31,10 +31,10 @@ export function CourseCard({
   actions,
 }: Props) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-[#2563EB]/30 hover:shadow-md">
+    <article className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-[#1F7C80]/30 hover:shadow-md">
       {/* Image */}
       {image && (
-        <div className="h-32 w-full bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] flex items-center justify-center text-xs font-semibold text-[#2563EB]">
+        <div className="h-32 w-full bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] flex items-center justify-center text-xs font-semibold text-[#1F7C80]">
           {image}
         </div>
       )}
@@ -73,11 +73,11 @@ export function CourseCard({
           <div className="mb-4">
             <div className="mb-1.5 flex items-center justify-between">
               <p className="text-xs font-semibold text-[#64748B]">Progress</p>
-              <p className="text-xs font-bold text-[#2563EB]">{progress}%</p>
+              <p className="text-xs font-bold text-[#1F7C80]">{progress}%</p>
             </div>
             <div className="h-2 w-full rounded-full bg-[#E2E8F0]">
               <div
-                className="h-full rounded-full bg-[#2563EB] transition-all"
+                className="h-full rounded-full bg-[#1F7C80] transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -88,7 +88,7 @@ export function CourseCard({
         <div className="flex gap-2">
           <Link
             to={href}
-            className="flex-1 inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#2563EB] text-sm font-bold text-white transition-all hover:bg-[#1D4ED8]"
+            className="flex-1 inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#1F7C80] text-sm font-bold text-white transition-all hover:bg-[#1A5256]"
           >
             Enter
           </Link>
@@ -102,7 +102,7 @@ export function CourseCard({
                   text-sm font-bold transition-all
                   ${
                     action.secondary
-                      ? "border border-[#E2E8F0] text-[#2563EB] hover:bg-[#EFF6FF]"
+                      ? "border border-[#E2E8F0] text-[#1F7C80] hover:bg-[#EFF6FF]"
                       : "border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]"
                   }
                 `}

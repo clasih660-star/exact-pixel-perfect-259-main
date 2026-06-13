@@ -10,25 +10,25 @@
 
 /* ---- Dashboard CSS Variables ---- */
 :root {
-  --kr-primary: #1d4ed8;
-  --kr-primary-dark: #1e3a8a;
-  --kr-blue-soft: #eef3ff;
-  --kr-navy: #0f172a;
-  --kr-muted: #64748b;
-  --kr-bg: #f8fafc;
+  --kr-primary: #1F7C80;
+  --kr-primary-dark: #1A5256;
+  --kr-blue-soft: #e8f5f5;
+  --kr-navy: #1A3233;
+  --kr-muted: #A3ADAD;
+  --kr-bg: #f8fafb;
   --kr-surface: #ffffff;
-  --kr-border: #e2e8f0;
-  --kr-success: #22c55e;
-  --kr-success-light: #dcfce7;
-  --kr-warning: #f59e0b;
+  --kr-border: #d1eceb;
+  --kr-success: #059669;
+  --kr-success-light: #ecfdf5;
+  --kr-warning: #d97706;
   --kr-warning-light: #fffbeb;
-  --kr-error: #ef4444;
+  --kr-error: #dc2626;
   --kr-error-light: #fef2f2;
-  --kr-radius: 0px;
-  --kr-radius-sm: 0px;
-  --kr-radius-lg: 0px;
-  --kr-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-  --kr-shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
+  --kr-radius: 18px;
+  --kr-radius-sm: 14px;
+  --kr-radius-lg: 24px;
+  --kr-shadow: 0 18px 50px rgba(26, 50, 51, 0.1);
+  --kr-shadow-sm: 0 8px 24px rgba(26,50,51,0.055);
 }
 
 /* ---- Dashboard Shell ---- */
@@ -74,7 +74,7 @@
   display: grid;
   place-items: center;
   color: white;
-  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  background: linear-gradient(135deg, #1A5256, #3fa8ab);
   font-weight: 900;
 }
 
@@ -152,7 +152,7 @@
   display: grid;
   place-items: center;
   background: #dbeafe;
-  color: #1d4ed8;
+  color: #1A5256;
   font-weight: 900;
   font-size: 14px;
 }
@@ -301,7 +301,7 @@
 .kr-secondary-button {
   background: white;
   color: var(--kr-primary);
-  border: 1px solid #bfdbfe;
+  border: 1px solid #a3d9d8;
 }
 
 .kr-secondary-button:hover {
@@ -323,10 +323,10 @@
 /* ---- Hero Sections ---- */
 .kr-continue-hero {
   background:
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.15), transparent 32%),
-    linear-gradient(135deg, #ffffff, #eff6ff);
-  border: 1px solid #bfdbfe;
-  border-radius: 28px;
+    radial-gradient(circle at 88% 20%, rgba(37, 99, 235, 0.14), transparent 30%),
+    linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
+  border: 1px solid #dbeafe;
+  border-radius: var(--kr-radius-lg);
   box-shadow: var(--kr-shadow);
   padding: 28px;
   display: flex;
@@ -478,7 +478,7 @@
 }
 
 .kr-kpi-card:hover {
-  border-color: #bfdbfe;
+  border-color: #a3d9d8;
   transform: translateY(-2px);
   box-shadow: var(--kr-shadow);
 }
@@ -541,6 +541,16 @@
   border-radius: var(--kr-radius);
   box-shadow: var(--kr-shadow-sm);
   padding: 22px;
+}
+
+.kr-dashboard-header {
+  padding: 26px 28px;
+  border: 1px solid var(--kr-border);
+  border-radius: var(--kr-radius-lg);
+  background:
+    radial-gradient(circle at 76% 28%, rgba(37, 99, 235, 0.12), transparent 26%),
+    linear-gradient(135deg, #ffffff, #f5f9ff);
+  box-shadow: var(--kr-shadow-sm);
 }
 
 .kr-card.large {
@@ -612,7 +622,7 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+  background: linear-gradient(135deg, #1A5256, #3fa8ab);
   color: white;
   font-weight: 900;
   text-transform: uppercase;
@@ -661,7 +671,7 @@
 
 .kr-activity-item:hover {
   background: var(--kr-blue-soft);
-  border-color: #bfdbfe;
+  border-color: #a3d9d8;
 }
 
 .kr-activity-item strong,
@@ -719,7 +729,7 @@
   border-radius: 22px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+  background: linear-gradient(135deg, #1A5256, #3fa8ab);
   color: white;
   font-size: 32px;
   font-weight: 900;
@@ -952,14 +962,14 @@
 
 /* =============================================================================
    PREMIUM ELEVATION (Phase: high-end refresh)
-   Layered on top of the base dashboard styles above. Light, blue & white with
+   Layered on top of the base dashboard styles above. Light, teal & white with
    navy accents, richer depth, gradient icons, and smoother interactions.
    ============================================================================= */
 
 /* Ambient, premium page background for every role dashboard */
 .kr-dashboard-shell {
   background:
-    radial-gradient(60% 50% at 100% 0%, rgba(59,130,246,.07), transparent 60%),
+    radial-gradient(60% 50% at 100% 0%, rgba(31,124,128,.07), transparent 60%),
     radial-gradient(45% 40% at 0% 100%, rgba(99,102,241,.06), transparent 60%),
     #f6f9ff;
 }
@@ -975,13 +985,13 @@
   box-shadow: 1px 0 0 rgba(37,99,235,.04), 12px 0 40px rgba(15,23,42,.03);
 }
 .kr-brand-mark {
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  background: linear-gradient(135deg, #1A5256, #1F7C80);
   box-shadow: 0 8px 18px rgba(30, 58, 138, .35);
 }
 .kr-nav-item { transition: transform .16s var(--kr-ease), background .16s ease, color .16s ease, box-shadow .16s ease; }
 .kr-nav-item:hover { transform: translateX(2px); }
 .kr-nav-item.active {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #1F7C80, #1A5256);
   box-shadow: 0 10px 22px rgba(37, 99, 235, .35);
 }
 
@@ -996,20 +1006,20 @@
 .kr-kpi-card::before {
   content: "";
   position: absolute; left: 0; right: 0; top: 0; height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  background: linear-gradient(90deg, #3fa8ab, #6366f1);
   opacity: 0; transition: opacity .22s ease;
 }
 .kr-kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 44px rgba(37,99,235,.16); border-color: #cdddff; }
 .kr-kpi-card:hover::before { opacity: 1; }
 .kr-kpi-icon {
   background: linear-gradient(135deg, #eff6ff, #dbeafe);
-  color: #1d4ed8;
+  color: #1A5256;
   box-shadow: inset 0 0 0 1px rgba(37,99,235,.08);
 }
 
 /* Headline KPI value gets a subtle gradient */
 .kr-kpi-value {
-  background: linear-gradient(120deg, #0f172a, #1e3a8a);
+  background: linear-gradient(120deg, #0f172a, #1A5256);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
@@ -1024,7 +1034,7 @@
 
 /* "Continue learning" hero — richer brand gradient + soft glow */
 .kr-continue-hero {
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1A5256 0%, #1F7C80 55%, #3fa8ab 100%);
   box-shadow: 0 24px 60px rgba(37, 99, 235, .30);
   position: relative;
   overflow: hidden;
@@ -1042,7 +1052,7 @@
 
 /* Primary / secondary dashboard buttons */
 .kr-primary-button {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #1F7C80, #1A5256);
   box-shadow: 0 10px 24px rgba(37,99,235,.30);
   transition: transform .16s var(--kr-ease), box-shadow .2s var(--kr-ease), filter .2s ease;
 }
@@ -1052,7 +1062,7 @@
 .kr-secondary-button:hover { transform: translateY(-1.5px); }
 
 /* Search field focus glow */
-.kr-search input:focus { box-shadow: 0 0 0 4px rgba(59,130,246,.18); border-color: #2563eb; }
+.kr-search input:focus { box-shadow: 0 0 0 4px rgba(31,124,128,.18); border-color: #1F7C80; }
 
 /* Topbar action buttons */
 .kr-topbar-actions button { transition: transform .15s var(--kr-ease), background .15s ease, color .15s ease; }

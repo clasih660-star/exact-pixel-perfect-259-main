@@ -5,6 +5,7 @@ import { Footer } from "@/components/landing/Footer";
 import {
   HeroSection,
   TrustStrip,
+  SocialProofSection,
   ProblemSection,
   SolutionSection,
   FeaturesSection,
@@ -15,8 +16,11 @@ import {
   AccessibilitySection,
   InstitutionSection,
   ComparisonSection,
+  IntegrationsSection,
   UseCasesSection,
   AnalyticsSection,
+  SecuritySection,
+  PricingPreviewSection,
   TestimonialsSection,
   FAQSection,
   FinalCTA,
@@ -50,7 +54,7 @@ export const Route = createFileRoute("/")({
       },
       { name: "author", content: "Klassruum" },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
-      { name: "theme-color", content: "#2563EB" },
+      { name: "theme-color", content: "#1F7C80" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
 
       // Open Graph
@@ -128,6 +132,7 @@ function LandingPage() {
       <main>
         <HeroSection />
         <TrustStrip />
+        <SocialProofSection />
         <ProblemSection />
         <SolutionSection />
         <FeaturesSection />
@@ -138,8 +143,11 @@ function LandingPage() {
         <AccessibilitySection />
         <InstitutionSection />
         <ComparisonSection />
+        <IntegrationsSection />
         <UseCasesSection />
         <AnalyticsSection />
+        <SecuritySection />
+        <PricingPreviewSection />
         <TestimonialsSection />
         <FAQSection />
         <FinalCTA />

@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { StudentShell } from "@/components/student/StudentShell";
 import { ChevronLeft, ChevronRight, Clock, Video, Dot } from "lucide-react";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/calendar")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentCalendar,
 });
 

@@ -46,6 +46,12 @@ import {
   Type,
   Gauge,
   Plus,
+  Shield,
+  Lock,
+  Globe,
+  Zap,
+  Link2,
+  CheckCircle,
 } from "lucide-react";
 import {
   Container,
@@ -81,7 +87,7 @@ export function HeroSection() {
             className="mt-5 text-[34px] font-bold leading-[1.1] tracking-tight text-[#0F172A] sm:text-[44px] md:text-[52px]"
           >
             AI-powered virtual classrooms that{" "}
-            <span className="text-[#2563EB]">teach like real teachers</span>
+            <span className="text-[#1F7C80]">teach like real teachers</span>
           </h1>
 
           <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-[#475569]">
@@ -137,7 +143,7 @@ export function TrustStrip() {
               key={a.label}
               className="flex items-center justify-center gap-2 rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3 text-sm font-medium text-[#0F172A]"
             >
-              <span className="text-[#2563EB]">{a.icon}</span>
+              <span className="text-[#1F7C80]">{a.icon}</span>
               {a.label}
             </div>
           ))}
@@ -214,7 +220,7 @@ export function SolutionSection() {
         <div className="lp-fade-up lp-delay-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {SOLUTION_FLOW.map((s) => (
             <div key={s.title} className="rounded-[18px] border border-[#E2E8F0] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#2563EB]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#1F7C80]">
                 {s.icon}
               </div>
               <h3 className="mt-4 text-[15px] font-semibold text-[#0F172A]">{s.title}</h3>
@@ -294,7 +300,7 @@ export function HowItWorksSection() {
           {STEPS.map((s) => (
             <li key={s.n} className="rounded-[20px] border border-white/10 bg-white/5 p-6">
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#2563EB] text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#1F7C80] text-white">
                   {s.icon}
                 </span>
                 <span className="text-2xl font-bold text-white/20">{s.n}</span>
@@ -338,7 +344,7 @@ export function ClassroomExperienceSection() {
           <ol className="lp-fade-up space-y-3">
             {TEACHING_LOOP.map((step, i) => (
               <li key={i} className="flex items-start gap-3 rounded-[14px] border border-[#E2E8F0] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF6FF] text-xs font-bold text-[#2563EB]">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EFF6FF] text-xs font-bold text-[#1F7C80]">
                   {i + 1}
                 </span>
                 <span className="text-[15px] leading-relaxed text-[#0F172A]">{step}</span>
@@ -395,7 +401,7 @@ export function AITeacherSection() {
 
             <div className="mt-4 space-y-4">
               <div className="flex justify-end">
-                <p className="max-w-[80%] rounded-[14px] rounded-tr-[4px] bg-[#2563EB] px-4 py-2.5 text-sm text-white">
+                <p className="max-w-[80%] rounded-[14px] rounded-tr-[4px] bg-[#1F7C80] px-4 py-2.5 text-sm text-white">
                   Why did the answer become negative?
                 </p>
               </div>
@@ -414,7 +420,7 @@ export function AITeacherSection() {
                   key={opt}
                   className={
                     "rounded-[10px] px-3 py-1.5 text-xs font-medium " +
-                    (i === 0 ? "bg-[#2563EB] text-white" : "border border-[#E2E8F0] bg-white text-[#475569]")
+                    (i === 0 ? "bg-[#1F7C80] text-white" : "border border-[#E2E8F0] bg-white text-[#475569]")
                   }
                 >
                   {opt}
@@ -455,7 +461,7 @@ export function SubjectsSection() {
         <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {SUBJECTS.map((s) => (
             <SurfaceCard key={s.title} className="h-full">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-[#EFF6FF] text-[#2563EB]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-[#EFF6FF] text-[#1F7C80]">
                 {s.icon}
               </div>
               <h3 className="mt-4 text-[16px] font-semibold text-[#0F172A]">{s.title}</h3>
@@ -521,7 +527,7 @@ export function AccessibilitySection() {
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {A11Y_FEATURES.map((f) => (
               <div key={f.label} className="flex items-center gap-2.5 rounded-[12px] border border-[#E2E8F0] bg-white px-3 py-2.5">
-                <span className="text-[#2563EB]">{f.icon}</span>
+                <span className="text-[#1F7C80]">{f.icon}</span>
                 <span className="text-sm text-[#0F172A]">{f.label}</span>
               </div>
             ))}
@@ -536,7 +542,7 @@ export function AccessibilitySection() {
         <div className="lp-fade-up lp-delay-2">
           <div className="rounded-[24px] border border-[#E2E8F0] bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.10)]">
             <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#2563EB]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#1F7C80]">
                 <Captions className="h-4 w-4" />
               </span>
               <h3 className="text-[16px] font-semibold text-[#0F172A]">Deaf &amp; hard-of-hearing mode</h3>
@@ -614,7 +620,7 @@ export function InstitutionSection() {
           <div className="rounded-[24px] border border-[#E2E8F0] bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.10)]">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[#0F172A]">Institution overview</h3>
-              <span className="rounded-[8px] bg-[#EFF6FF] px-2 py-1 text-[11px] font-medium text-[#1D4ED8]">Live</span>
+              <span className="rounded-[8px] bg-[#EFF6FF] px-2 py-1 text-[11px] font-medium text-[teal-800]">Live</span>
             </div>
             {/* EDITABLE METRIC: sample dashboard figures for illustration only. */}
             <div className="mt-4 grid grid-cols-2 gap-3">
@@ -634,7 +640,7 @@ export function InstitutionSection() {
                   <span className="font-semibold text-[#16A34A]">74%</span>
                 </div>
                 <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[#E2E8F0]">
-                  <div className="h-full rounded-full bg-[#2563EB]" style={{ width: "74%" }} />
+                  <div className="h-full rounded-full bg-[#1F7C80]" style={{ width: "74%" }} />
                 </div>
               </div>
             </div>
@@ -677,7 +683,7 @@ export function ComparisonSection() {
             <thead>
               <tr className="border-b border-[#E2E8F0]">
                 <th scope="col" className="p-4 text-sm font-semibold text-[#0F172A]">Capability</th>
-                <th scope="col" className="p-4 text-center text-sm font-semibold text-[#2563EB]">Klassruum</th>
+                <th scope="col" className="p-4 text-center text-sm font-semibold text-[#1F7C80]">Klassruum</th>
                 <th scope="col" className="p-4 text-center text-sm font-semibold text-[#475569]">Traditional LMS</th>
                 <th scope="col" className="p-4 text-center text-sm font-semibold text-[#475569]">Video conferencing</th>
                 <th scope="col" className="p-4 text-center text-sm font-semibold text-[#475569]">AI chatbot</th>
@@ -822,7 +828,7 @@ export function TestimonialsSection() {
         <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
           {TESTIMONIALS.map((t, i) => (
             <figure key={i} className="flex h-full flex-col rounded-[20px] border border-[#E2E8F0] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
-              <Quote className="h-6 w-6 text-[#2563EB]" aria-hidden />
+              <Quote className="h-6 w-6 text-[#1F7C80]" aria-hidden />
               <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-[#0F172A]">“{t.quote}”</blockquote>
               <figcaption className="mt-5 border-t border-[#E2E8F0] pt-4">
                 <div className="text-sm font-semibold text-[#0F172A]">{t.name}</div>
@@ -906,18 +912,264 @@ export function FAQSection() {
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   17. FINAL CTA
+   17. SOCIAL PROOF
+   ════════════════════════════════════════════════════════════════════ */
+export function SocialProofSection() {
+  const stats = [
+    { value: "50+", label: "Institutions" },
+    { value: "10,000+", label: "Learners reached" },
+    { value: "500+", label: "Lessons delivered" },
+    { value: "8", label: "Subjects supported" },
+  ];
+
+  return (
+    <section className="border-y border-[#E2E8F0] bg-white py-14" aria-labelledby="social-proof-heading">
+      <Container>
+        <div className="text-center">
+          <span className="inline-flex items-center gap-2 rounded-[999px] border border-[#E2E8F0] bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[teal-800]">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden /> Growing fast
+          </span>
+          <h2 id="social-proof-heading" className="mt-4 text-[28px] font-bold tracking-tight text-[#0F172A] sm:text-[34px]">
+            Institutions are already teaching with Klassruum
+          </h2>
+          <p className="mt-3 text-[17px] leading-relaxed text-[#475569]">
+            Schools, universities, tutoring centers, and NGOs are using Klassruum to deliver structured, accessible lessons at scale.
+          </p>
+        </div>
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-[18px] border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-6 text-center">
+              <div className="text-[32px] font-bold tracking-tight text-[#1F7C80]">{s.value}</div>
+              <div className="mt-1 text-sm font-medium text-[#475569]">{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-center text-xs text-[#94A3B8]">
+          Illustrative figures. Verified metrics will be published before general availability.
+        </p>
+      </Container>
+    </section>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   18. PRICING PREVIEW
+   ════════════════════════════════════════════════════════════════════ */
+const PRICING_PLANS = [
+  {
+    name: "Starter",
+    price: "Free",
+    period: "to try",
+    description: "Explore the demo classroom and see how Klassruum works — no setup required.",
+    features: ["Full demo classroom", "AI teacher-led lesson", "Captions & transcript", "Accessibility modes", "No account required"],
+    cta: { label: "Try Demo", to: "/demo/classroom" },
+    highlighted: false,
+  },
+  {
+    name: "School",
+    price: "Custom",
+    period: "per institution",
+    description: "For primary and secondary schools ready to deploy AI classrooms across classes.",
+    features: ["Unlimited teachers & learners", "Course & lesson management", "Curriculum-aligned content", "Institution dashboard", "Progress tracking", "Priority support"],
+    cta: { label: "Register Your School", to: "/institutions/register" },
+    highlighted: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "per institution",
+    description: "For universities, training providers, and large organizations with custom needs.",
+    features: ["Everything in School", "Custom branding", "SSO & advanced security", "API & integrations", "Dedicated account manager", "SLA & compliance"],
+    cta: { label: "Contact Sales", to: "/contact" },
+    highlighted: false,
+  },
+];
+
+export function PricingPreviewSection() {
+  return (
+    <section className="bg-[#F8FAFC] py-20 md:py-24" aria-labelledby="pricing-heading">
+      <Container>
+        <SectionHeader
+          id="pricing-heading"
+          eyebrow="Pricing"
+          title="Simple, transparent pricing"
+          description="Start with a free demo. Institutional plans scale with your needs — no hidden fees, no per-learner charges."
+        />
+        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {PRICING_PLANS.map((plan) => (
+            <div
+              key={plan.name}
+              className={
+                "flex flex-col rounded-[20px] border p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)] " +
+                (plan.highlighted
+                  ? "border-[#1F7C80] bg-white ring-2 ring-[#1F7C80]/10"
+                  : "border-[#E2E8F0] bg-white")
+              }
+            >
+              {plan.highlighted && (
+                <span className="mb-3 inline-flex w-fit rounded-[999px] bg-[#EFF6FF] px-3 py-1 text-xs font-semibold text-[teal-800]">
+                  Most popular
+                </span>
+              )}
+              <h3 className="text-[18px] font-bold text-[#0F172A]">{plan.name}</h3>
+              <div className="mt-3 flex items-baseline gap-1.5">
+                <span className="text-[36px] font-bold tracking-tight text-[#0F172A]">{plan.price}</span>
+                <span className="text-sm text-[#64748B]">{plan.period}</span>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-[#475569]">{plan.description}</p>
+              <ul className="mt-5 flex-1 space-y-2.5">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#0F172A]">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#16A34A]" aria-hidden />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <CTAButton
+                to={plan.cta.to}
+                variant={plan.highlighted ? "primary" : "secondary"}
+                size="lg"
+                className="mt-6 w-full"
+              >
+                {plan.cta.label}
+              </CTAButton>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <CTAButton to="/pricing" variant="ghost">
+            See full pricing details →
+          </CTAButton>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   19. SECURITY & COMPLIANCE
+   ════════════════════════════════════════════════════════════════════ */
+const SECURITY_ITEMS = [
+  { icon: <Lock className="h-5 w-5" />, title: "Data encryption", body: "All data is encrypted in transit and at rest using industry-standard protocols." },
+  { icon: <Shield className="h-5 w-5" />, title: "Access controls", body: "Role-based permissions ensure teachers, learners, and admins only see what they need." },
+  { icon: <Globe className="h-5 w-5" />, title: "GDPR-ready", body: "Purpose-limited data collection, institution-controlled retention, and export/deletion workflows." },
+  { icon: <CheckCircle className="h-5 w-5" />, title: "Institution ownership", body: "Institutions control their courses, users, and classroom records — Klassruum doesn't sell or share learner data." },
+  { icon: <Lock className="h-5 w-5" />, title: "Secure infrastructure", body: "Hosted on enterprise-grade cloud infrastructure with automated backups and monitoring." },
+  { icon: <Shield className="h-5 w-5" />, title: "Audit logging", body: "Administrative actions and classroom events are logged for accountability and compliance." },
+];
+
+export function SecuritySection() {
+  return (
+    <section className="py-20 md:py-24" aria-labelledby="security-heading">
+      <Container className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div className="lp-fade-up">
+          <SectionHeader
+            id="security-heading"
+            eyebrow="Security & compliance"
+            title="Built for institutions that take data seriously"
+            align="left"
+            description="Klassruum is designed for schools and organizations that need clear control over learner records, classroom activity, and data governance."
+          />
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {SECURITY_ITEMS.map((item) => (
+              <div key={item.title} className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#1F7C80]">
+                  {item.icon}
+                </span>
+                <div>
+                  <h3 className="text-[15px] font-semibold text-[#0F172A]">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-[#475569]">{item.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="lp-fade-up lp-delay-2">
+          <div className="rounded-[24px] border border-[#E2E8F0] bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.10)]">
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#1F7C80]">
+                <Shield className="h-4 w-4" />
+              </span>
+              <h3 className="text-[16px] font-semibold text-[#0F172A]">Your data, your control</h3>
+            </div>
+            <ul className="mt-4 space-y-3">
+              {[
+                "Institutions own their course content and learner records",
+                "No learner data is used for advertising or sold to third parties",
+                "Administrators control who sees what — teachers, learners, and guardians",
+                "Retention and deletion policies match your institution's requirements",
+                "Classroom activity is logged for accountability and safeguarding",
+                "Contact us for our full data processing agreement",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-[15px] text-[#0F172A]">
+                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#16A34A]" aria-hidden />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   20. INTEGRATIONS & COMPATIBILITY
+   ════════════════════════════════════════════════════════════════════ */
+const INTEGRATION_ITEMS = [
+  { icon: <Link2 className="h-5 w-5" />, title: "LMS compatibility", body: "Designed to complement your existing learning management system — not replace it." },
+  { icon: <Globe className="h-5 w-5" />, title: "Browser-based", body: "No installs, no plugins. Runs on Chrome, Firefox, Safari, and Edge on any device." },
+  { icon: <Zap className="h-5 w-5" />, title: "Low-bandwidth friendly", body: "Optimized for classrooms with limited internet — works on modest devices and patchy connections." },
+  { icon: <Upload className="h-5 w-5" />, title: "Import your content", body: "Upload PDFs, slides, Word docs, images, and syllabi — Klassruum generates lessons from them." },
+  { icon: <LayoutDashboard className="h-5 w-5" />, title: "SSO ready", body: "Enterprise plans support single sign-on for seamless institution-wide access." },
+  { icon: <Code2 className="h-5 w-5" />, title: "API access", body: "Integrate Klassruum into your existing workflows and portals with our API." },
+];
+
+export function IntegrationsSection() {
+  return (
+    <section className="bg-[#EFF6FF]/60 py-20 md:py-24" aria-labelledby="integrations-heading">
+      <Container>
+        <SectionHeader
+          id="integrations-heading"
+          eyebrow="Integrations"
+          title="Fits into your existing setup"
+          description="Klassruum is designed to work alongside the tools and systems your institution already uses."
+        />
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {INTEGRATION_ITEMS.map((item) => (
+            <div
+              key={item.title}
+              className="flex items-start gap-4 rounded-[18px] border border-[#E2E8F0] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#1F7C80]">
+                {item.icon}
+              </span>
+              <div>
+                <h3 className="text-[15px] font-semibold text-[#0F172A]">{item.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-[#475569]">{item.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   21. FINAL CTA
    ════════════════════════════════════════════════════════════════════ */
 export function FinalCTA() {
   return (
     <section className="py-20 md:py-24" aria-labelledby="final-cta-heading">
       <Container>
-        <div className="relative overflow-hidden rounded-[24px] border border-[#1D4ED8] bg-[#2563EB] px-6 py-14 text-center shadow-[0_12px_32px_rgba(37,99,235,0.25)] sm:px-12">
+        <div className="relative overflow-hidden rounded-[24px] border border-[teal-800] bg-[#1F7C80] px-6 py-14 text-center shadow-[0_12px_32px_rgba(37,99,235,0.25)] sm:px-12">
           <div className="lp-blob -right-10 -top-10 h-56 w-56 bg-white/10" aria-hidden />
           <h2 id="final-cta-heading" className="relative text-[28px] font-bold tracking-tight text-white sm:text-[36px]">
             Ready to build your AI-powered classroom?
           </h2>
-          <p className="relative mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-blue-100">
+          <p className="relative mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-[#a3d9d8]">
             Try a live AI teacher classroom demo, or register your institution to start turning your course materials into
             structured, accessible lessons.
           </p>
@@ -933,7 +1185,7 @@ export function FinalCTA() {
               Register Your School
             </CTAButton>
           </div>
-          <div className="relative mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-blue-100">
+          <div className="relative mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[#a3d9d8]">
             <span className="inline-flex items-center gap-1.5"><Plus className="h-4 w-4" aria-hidden /> No complex setup</span>
             <span className="inline-flex items-center gap-1.5"><Plus className="h-4 w-4" aria-hidden /> Institution-ready</span>
             <span className="inline-flex items-center gap-1.5"><Plus className="h-4 w-4" aria-hidden /> Accessible learning</span>

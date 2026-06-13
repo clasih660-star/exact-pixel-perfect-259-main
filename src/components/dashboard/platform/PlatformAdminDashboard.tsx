@@ -1,23 +1,56 @@
 import { Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
-import { 
-  Building2, 
-  Users, 
-  Activity, 
-  CreditCard, 
-  TrendingUp, 
+import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
+import {
+  Building2,
+  Users,
+  Activity,
+  CreditCard,
+  TrendingUp,
   AlertTriangle,
   CheckCircle2,
   XCircle,
   Clock,
   ArrowUpRight,
-  ArrowDownRight
 } from "lucide-react";
 
 export function PlatformAdminDashboard() {
   const config = dashboardConfigs.platform_admin;
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // TODO: Replace with real data fetching (useServerFn + useQuery like InstitutionDashboard)
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        setIsLoading(false);
+      } catch {
+        setError("Failed to load dashboard data");
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <DashboardShell config={config} activePath="/admin/platform">
+        <DashboardLoadingState type="skeleton" />
+      </DashboardShell>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardShell config={config} activePath="/admin/platform">
+        <DashboardLoadingState type="error" message={error} />
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell config={config} activePath="/admin/platform">
@@ -257,8 +290,8 @@ export function PlatformAdminDashboard() {
 
           <div className="space-y-3">
             <div className="flex items-start gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100">
-                <Building2 className="h-3 w-3 text-blue-600" />
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#d1eceb]">
+                <Building2 className="h-3 w-3 text-[#1F7C80]" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-[var(--gray-900)]">New institution registered</p>
@@ -331,13 +364,13 @@ export function PlatformAdminDashboard() {
             </div>
 
             <div className="flex items-start gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100">
-                <AlertTriangle className="h-3 w-3 text-blue-600" />
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#d1eceb]">
+                <AlertTriangle className="h-3 w-3 text-[#1F7C80]" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Billing inquiry</p>
-                  <span className="text-xs font-medium text-blue-600">Low</span>
+                  <span className="text-xs font-medium text-[#1F7C80]">Low</span>
                 </div>
                 <p className="text-xs text-[var(--gray-500)]">Question · 5 hours ago</p>
               </div>

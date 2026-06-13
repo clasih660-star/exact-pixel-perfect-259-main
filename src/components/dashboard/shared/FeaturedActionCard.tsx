@@ -26,7 +26,7 @@ export function FeaturedActionCard({
   return (
     <section className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-gradient-to-br from-white via-[#EFF6FF] to-white p-8 shadow-sm">
       {/* Gradient background accent */}
-      <div className="absolute right-0 top-0 h-80 w-80 translate-x-24 -translate-y-24 rounded-full bg-[#2563EB]/5 blur-3xl" />
+      <div className="absolute right-0 top-0 h-80 w-80 translate-x-24 -translate-y-24 rounded-full bg-[#1F7C80]/5 blur-3xl" />
 
       <div className="relative z-10">
         {/* Header */}
@@ -41,7 +41,7 @@ export function FeaturedActionCard({
             )}
           </div>
           {icon && (
-            <div className="ml-4 flex-shrink-0 text-[#2563EB]">{icon}</div>
+            <div className="ml-4 flex-shrink-0 text-[#1F7C80]">{icon}</div>
           )}
         </div>
 
@@ -60,9 +60,9 @@ export function FeaturedActionCard({
                   rounded-xl px-5 text-sm font-bold transition-all
                   ${
                     action.variant === "primary"
-                      ? "bg-[#2563EB] text-white shadow-lg shadow-[#2563EB]/25 hover:bg-[#1D4ED8]"
+                      ? "bg-[#1F7C80] text-white shadow-lg shadow-[#1F7C80]/25 hover:bg-[#1A5256]"
                       : action.variant === "tertiary"
-                        ? "text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1"
+                        ? "text-[#1F7C80] hover:text-[#1A5256] flex items-center gap-1"
                         : "border border-[#E2E8F0] bg-white text-[#0F172A] hover:bg-[#F8FAFC]"
                   }
                 `}

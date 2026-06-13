@@ -129,9 +129,9 @@ const STATE_CONFIG: Record<AITeacherState, StateConfig> = {
   },
   preparing: {
     label: "Preparing lesson…",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-300",
+    color: "text-[#1F7C80]",
+    bgColor: "bg-[#e8f5f5]",
+    borderColor: "border-[#a3d9d8]",
     icon: Loader2,
     ringColor: "rgba(37, 99, 235, 0.3)",
   },
@@ -145,9 +145,9 @@ const STATE_CONFIG: Record<AITeacherState, StateConfig> = {
   },
   reading_board: {
     label: "Reading board…",
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50",
-    borderColor: "border-indigo-300",
+    color: "text-[#1F7C80]",
+    bgColor: "bg-[#e8f5f5]",
+    borderColor: "border-[#a3d9d8]",
     icon: BookMarked,
     ringColor: "rgba(79, 70, 229, 0.4)",
   },
@@ -185,9 +185,9 @@ const STATE_CONFIG: Record<AITeacherState, StateConfig> = {
   },
   answering: {
     label: "Answering…",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-300",
+    color: "text-[#1F7C80]",
+    bgColor: "bg-[#e8f5f5]",
+    borderColor: "border-[#a3d9d8]",
     icon: MessageSquare,
     ringColor: "rgba(37, 99, 235, 0.4)",
   },
@@ -381,7 +381,7 @@ function AITeacherAvatar({
 
           {/* Graduation cap */}
           <div className="ai-video-avatar-cap">
-            <GraduationCap size={20} className="text-blue-600" />
+            <GraduationCap size={20} className="text-[#1F7C80]" />
           </div>
         </div>
 

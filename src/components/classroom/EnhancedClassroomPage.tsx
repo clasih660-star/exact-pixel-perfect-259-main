@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from '@tanstack/react-router'
 import { AnimatedWhiteboard } from './AnimatedWhiteboard'
 import { QuestionSystem } from './QuestionSystem'
 import { LearnerNotesPanel, TeacherNotesPanel } from './IntegratedNotesPanel'
@@ -38,6 +37,9 @@ export function EnhancedClassroomPage({
     // For now, use sample lesson
     setLesson(sampleQuadraticsLesson)
     setProgress({
+      lessonId: sampleQuadraticsLesson.id,
+      studentId: "demo-student",
+      startedAt: new Date().toISOString(),
       currentStepIndex: 0,
       completedSteps: [],
       askedQuestions: [],
@@ -45,6 +47,8 @@ export function EnhancedClassroomPage({
       practiceAnswers: [],
       exitTicketAnswered: false,
       misconceptionsDetected: [],
+      totalTimeMinutes: 0,
+      notesCollected: [],
     })
   }, [lessonId])
 
@@ -98,27 +102,41 @@ export function EnhancedClassroomPage({
 
   // Show completion summary
   if (showCompletion) {
+    const practiceCorrectCount = progress.practiceAnswers.filter((answer) => answer.correct).length
+    const practiceScore = progress.practiceAnswers.length
+      ? Math.round((practiceCorrectCount / progress.practiceAnswers.length) * 100)
+      : 0
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-[#e8f5f5] to-[#e8f5f5] p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           <LessonCompletionSummary
             lessonTitle={lesson.title}
-            stats={{
-              timeSpent: Math.floor(timeElapsed / 60),
-              questionsAsked: progress.askedQuestions.length,
-              midLessonQuestionAnswered: progress.midLessonQuestionAnswered,
-              overallScorePercent: 85,
-            }}
-            practiceBreakdown={{
-              guidedPractice: { attempted: 1, score: 100 },
-              independentPractice: { attempted: 1, score: 85 },
-            }}
+            courseTitle={lesson.subject}
+            timeSpentMinutes={Math.max(1, Math.floor(timeElapsed / 60))}
+            questionsAsked={progress.askedQuestions.length}
+            midLessonQuestionCorrect={Boolean(progress.midLessonQuestionAnswered)}
+            practiceScore={practiceScore}
+            exitTicketScore={progress.exitTicketAnswered ? 100 : undefined}
             weakTopics={['Sign handling in factoring']}
-            onDashboard={() => window.location.href = '/student/dashboard'}
-            onRetake={() => window.location.reload()}
-            onNext={() => window.location.href = '/student/courses'}
+            recommendedNext={{
+              type: "practice",
+              title: "Review factoring with two more examples",
+              reason: "A little more repetition will make the factoring pattern feel automatic.",
+            }}
+            onBackToDashboard={() => window.location.href = '/student/dashboard'}
+            onRetakeLesson={() => window.location.reload()}
+            onNextLesson={() => window.location.href = '/student/courses'}
           />
-          <HomeworkPanel homework={lesson.homework} onStart={() => alert('Starting homework')} />
+          {lesson.homework && (
+            <HomeworkPanel
+              title={lesson.homework.title}
+              problems={lesson.homework.problems}
+              estimatedMinutes={lesson.homework.estimatedMinutes}
+              reviewMaterial={lesson.homework.reviewMaterial}
+              onStartHomework={() => alert('Starting homework')}
+            />
+          )}
         </div>
       </div>
     )
@@ -127,12 +145,16 @@ export function EnhancedClassroomPage({
   // Show exit ticket
   if (showExitTicket) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-[#e8f5f5] to-[#e8f5f5] p-6">
         <div className="max-w-2xl mx-auto">
           <ExitTicketPrompt
-            questionText={lesson.exitTicket.question}
+            ticket={lesson.exitTicket}
             onSubmit={(answer) => {
-              progress.exitTicketAnswered = true
+              setProgress(prev => prev ? {
+                ...prev,
+                exitTicketAnswered: true,
+                completedAt: new Date().toISOString(),
+              } : prev)
               setShowCompletion(true)
             }}
             isLoading={false}
@@ -174,7 +196,7 @@ export function EnhancedClassroomPage({
           <div className="mt-4">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all"
+                className="bg-[#1F7C80] h-2 rounded-full transition-all"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -242,7 +264,7 @@ export function EnhancedClassroomPage({
                     setIsAnimating(false)
                   }
                 }}
-                className="gap-2 bg-blue-600 hover:bg-blue-700"
+                className="gap-2 bg-[#1F7C80] hover:bg-[#1A5256]"
               >
                 {currentStepIndex === lesson.steps.length - 1 ? 'Finish Lesson' : 'Next Step'}
                 <ChevronRight className="w-4 h-4" />
@@ -264,10 +286,10 @@ export function EnhancedClassroomPage({
               ) : (
                 <LearnerNotesPanel
                   lessonTitle={lesson.title}
-                  summary={currentStep?.learnerNotes?.summary}
-                  sections={currentStep?.learnerNotes?.sections || []}
-                  formulasAndRules={currentStep?.learnerNotes?.formulasOrRules}
-                  commonMistakes={currentStep?.learnerNotes?.commonMistakes}
+                  summary={lesson.notes.learnerNotes.summary}
+                  sections={lesson.notes.learnerNotes.sections}
+                  formulasAndRules={lesson.notes.learnerNotes.formulasAndRules}
+                  commonMistakes={lesson.notes.learnerNotes.commonMistakes}
                   onDownload={() => alert('Downloading notes...')}
                 />
               )}
@@ -286,9 +308,20 @@ export function EnhancedClassroomPage({
             : lesson.questionCheckpoints[currentQuestionCheckpoint]?.promptText
         }
         onAnswer={(answer, method) => {
+          const questionText = !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
+            ? lesson.requiredMidLessonQuestion.questionText
+            : lesson.questionCheckpoints[currentQuestionCheckpoint]?.promptText || ""
+
           setProgress({
             ...progress,
-            askedQuestions: [...progress.askedQuestions, { answer, method, timestamp: timeElapsed }],
+            askedQuestions: [...progress.askedQuestions, {
+              checkpointId: !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
+                ? "mid-lesson"
+                : lesson.questionCheckpoints[currentQuestionCheckpoint]?.id || `checkpoint-${currentQuestionCheckpoint}`,
+              question: questionText,
+              answer,
+              timestamp: new Date().toISOString(),
+            }],
             midLessonQuestionAnswered:
               !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
                 ? true

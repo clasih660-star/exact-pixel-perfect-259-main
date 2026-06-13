@@ -12,7 +12,7 @@ export function PageHeader({ label, title, subtitle, action }: Props) {
     <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex-1">
         {label && (
-          <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1F7C80]">
             {label}
           </p>
         )}

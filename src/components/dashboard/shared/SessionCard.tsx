@@ -29,7 +29,7 @@ export function SessionCard({
     live: { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", dot: "bg-green-500" },
     completed: { bg: "bg-[#F8FAFC]", border: "border-[#E2E8F0]", text: "text-[#0F172A]", dot: "bg-[#64748B]" },
     scheduled: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
-    ongoing: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", dot: "bg-blue-500" },
+    ongoing: { bg: "bg-[#e8f5f5]", border: "border-[#a3d9d8]", text: "text-[#1A5256]", dot: "bg-[#e8f5f5]0" },
   };
 
   const config = statusConfig[status];
@@ -39,7 +39,7 @@ export function SessionCard({
       to={href}
       className={`
         block overflow-hidden rounded-2xl border transition-all
-        hover:shadow-md hover:border-[#2563EB]/30
+        hover:shadow-md hover:border-[#1F7C80]/30
         ${config.bg} ${config.border}
       `}
     >

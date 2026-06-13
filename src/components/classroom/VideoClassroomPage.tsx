@@ -1122,7 +1122,7 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
 
             {/* Practice triggers */}
             {!completion.guidedPracticeAttempted && state.progress.stepIndex >= 3 && (
-              <button onClick={() => startPractice("guided")} className="replay-button text-blue-600 border-blue-200" title="Guided practice">
+              <button onClick={() => startPractice("guided")} className="replay-button text-[#1F7C80] border-[#a3d9d8]" title="Guided practice">
                 <Target className="h-3.5 w-3.5" /> Guided Practice
               </button>
             )}
@@ -1143,7 +1143,7 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       {/* ═══ CAPTION BAR ══════════════════════════════════════ */}
       {state.captions.enabled && state.captions.currentText && !isFocusMode && (
         <div className="caption-bar">
-          <Subtitles className="mr-2 h-4 w-4 text-blue-400" />
+          <Subtitles className="mr-2 h-4 w-4 text-[#3fa8ab]" />
           <span className="caption-text">{state.captions.currentText}</span>
         </div>
       )}
@@ -1402,7 +1402,7 @@ function ClassroomTopBar({
         </div>
 
         {/* Current step */}
-        <div className="hidden items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600 lg:flex">
+        <div className="hidden items-center gap-1.5 rounded-full bg-[#e8f5f5] px-2.5 py-1 text-xs font-semibold text-[#1F7C80] lg:flex">
           <Target className="h-3 w-3" />
           {currentStep}
         </div>
@@ -1478,14 +1478,14 @@ function TeacherVideoPanel({
   const stateLabel = teacherState.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const stateColor = (() => {
     switch (teacherState) {
-      case "speaking": return "bg-blue-100 text-blue-700";
+      case "speaking": return "bg-[#d1eceb] text-[#1A5256]";
       case "writing": return "bg-purple-100 text-purple-700";
       case "listening": return "bg-green-100 text-green-700";
       case "thinking": return "bg-orange-100 text-orange-700";
       case "answering": return "bg-cyan-100 text-cyan-700";
       case "encouraging": return "bg-pink-100 text-pink-700";
       case "paused": return "bg-yellow-100 text-yellow-700";
-      case "explaining": return "bg-indigo-100 text-indigo-700";
+      case "explaining": return "bg-[#e8f5f5] text-[#1A5256]";
       case "asking_question": return "bg-amber-100 text-amber-700";
       case "preparing": return "bg-slate-100 text-slate-600";
       default: return "bg-slate-100 text-slate-600";
@@ -1540,13 +1540,13 @@ function TeacherVideoPanel({
 
         {/* Avatar with speaking ring */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`relative h-20 w-20 rounded-full border-4 ${isSpeaking ? "border-blue-400 shadow-lg shadow-blue-400/30" : "border-slate-600"}`}>
-            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30" />
-            <div className="absolute inset-3 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500/60 to-purple-500/60">
-              <div className={`h-6 w-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 ${isSpeaking ? "animate-pulse" : ""}`} />
+          <div className={`relative h-20 w-20 rounded-full border-4 ${isSpeaking ? "border-[#3fa8ab] shadow-lg shadow-[#3fa8ab]/30" : "border-slate-600"}`}>
+            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-[#3fa8ab]/30 to-purple-400/30" />
+            <div className="absolute inset-3 flex items-center justify-center rounded-full bg-gradient-to-br from-[#1F7C80]/60 to-purple-500/60">
+              <div className={`h-6 w-6 rounded-full bg-gradient-to-br from-[#3fa8ab] to-purple-400 ${isSpeaking ? "animate-pulse" : ""}`} />
             </div>
             {isSpeaking && (
-              <div className="absolute inset-0 animate-ping rounded-full border-2 border-blue-400/20" />
+              <div className="absolute inset-0 animate-ping rounded-full border-2 border-[#3fa8ab]/20" />
             )}
             {teacherState === "writing" && (
               <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs shadow-md">✍️</div>
@@ -1562,7 +1562,7 @@ function TeacherVideoPanel({
           {isSpeaking && (
             <div className="mt-2 flex items-center gap-[2px]">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-[2px] rounded-full bg-blue-400" style={{ height: `${4 + Math.random() * 10}px`, animation: `waveform 0.6s ease-in-out infinite alternate`, animationDelay: `${i * 0.08}s` }} />
+                <div key={i} className="w-[2px] rounded-full bg-[#3fa8ab]" style={{ height: `${4 + Math.random() * 10}px`, animation: `waveform 0.6s ease-in-out infinite alternate`, animationDelay: `${i * 0.08}s` }} />
               ))}
             </div>
           )}
@@ -1602,7 +1602,7 @@ function TeacherVideoPanel({
 
       {/* Status badges */}
       <div className="flex flex-wrap justify-center gap-2 px-4">
-        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-600">
+        <span className="rounded-full bg-[#e8f5f5] px-2.5 py-1 text-[10px] font-semibold text-[#1F7C80]">
           {teacherMode === "ai_teacher" ? "AI Teacher" : teacherMode === "human_teacher" ? "Human Teacher" : "Hybrid"}
         </span>
         <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${audioEnabled ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-500"}`}>
@@ -1739,7 +1739,7 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
             <span>{currentWrittenText}</span>
             {/* Writing cursor / hand */}
             {!reducedMotion && (
-              <span className="writing-cursor inline-block w-[2px] animate-pulse bg-blue-500" style={{ height: "1em", verticalAlign: "text-bottom", marginLeft: "2px" }} />
+              <span className="writing-cursor inline-block w-[2px] animate-pulse bg-[#e8f5f5]0" style={{ height: "1em", verticalAlign: "text-bottom", marginLeft: "2px" }} />
             )}
             {/* Hand cursor emoji following text */}
             {!reducedMotion && (
@@ -1847,12 +1847,12 @@ function ClassroomControls({
 
       {/* Accessibility controls group */}
       {learningMode !== "blind" && (
-        <button onClick={onToggleAudio} className={`${btnClass} flex items-center justify-center rounded-full ${audioEnabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-muted-foreground"}`} aria-label={audioEnabled ? "Mute audio" : "Unmute audio"}>
+        <button onClick={onToggleAudio} className={`${btnClass} flex items-center justify-center rounded-full ${audioEnabled ? "bg-[#d1eceb] text-[#1F7C80]" : "bg-slate-100 text-muted-foreground"}`} aria-label={audioEnabled ? "Mute audio" : "Unmute audio"}>
           {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
         </button>
       )}
 
-      <button onClick={onToggleCaptions} className={`${btnClass} flex items-center justify-center rounded-full ${captionsEnabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-muted-foreground"}`} aria-label={captionsEnabled ? "Hide captions" : "Show captions"}>
+      <button onClick={onToggleCaptions} className={`${btnClass} flex items-center justify-center rounded-full ${captionsEnabled ? "bg-[#d1eceb] text-[#1F7C80]" : "bg-slate-100 text-muted-foreground"}`} aria-label={captionsEnabled ? "Hide captions" : "Show captions"}>
         <Subtitles className="h-4 w-4" />
       </button>
 
@@ -2386,7 +2386,7 @@ function NotesDrawer({
           {/* Lesson objective */}
           <div className="mb-4">
             <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Lesson Objective</h4>
-            <p className="text-sm text-foreground bg-blue-50 rounded-lg p-3">{lesson.objective}</p>
+            <p className="text-sm text-foreground bg-[#e8f5f5] rounded-lg p-3">{lesson.objective}</p>
           </div>
 
           {/* Key ideas from current step */}
@@ -2640,10 +2640,10 @@ function LessonCompletionSummaryPanel({
         )}
 
         {/* Recommended next steps */}
-        <div className="mt-4 rounded-lg bg-blue-50 p-3 text-left">
-          <p className="text-xs font-bold text-blue-600 mb-1">Recommended Next Steps</p>
-          <p className="text-sm text-blue-700">• Practice factor signs</p>
-          <p className="text-sm text-blue-700">• Try equations with negative coefficients</p>
+        <div className="mt-4 rounded-lg bg-[#e8f5f5] p-3 text-left">
+          <p className="text-xs font-bold text-[#1F7C80] mb-1">Recommended Next Steps</p>
+          <p className="text-sm text-[#1A5256]">• Practice factor signs</p>
+          <p className="text-sm text-[#1A5256]">• Try equations with negative coefficients</p>
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-3">
@@ -2705,7 +2705,7 @@ function TranscriptDrawer({
             <div key={entry.id} className={`transcript-entry ${entry.role}`}>
               <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                 <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${
-                  entry.role === "student" ? "bg-blue-100 text-blue-600" :
+                  entry.role === "student" ? "bg-[#d1eceb] text-[#1F7C80]" :
                   entry.role === "teacher" ? "bg-green-100 text-green-600" :
                   entry.role === "board" ? "bg-purple-100 text-purple-600" :
                   "bg-slate-100 text-slate-500"

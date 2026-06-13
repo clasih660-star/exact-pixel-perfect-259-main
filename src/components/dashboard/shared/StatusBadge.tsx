@@ -1,6 +1,6 @@
 type Props = {
   children: string;
-  variant?: "default" | "success" | "warning" | "error" | "neutral";
+  variant?: "default" | "success" | "warning" | "error" | "neutral" | "info";
 };
 
 const variantStyles: Record<string, string> = {
@@ -9,6 +9,7 @@ const variantStyles: Record<string, string> = {
   warning: "bg-amber-50 text-amber-700",
   error: "bg-red-50 text-red-700",
   neutral: "bg-[var(--gray-100)] text-[var(--gray-600)]",
+  info: "bg-teal-50 text-teal-700",
 };
 
 export function StatusBadge({ children, variant = "default" }: Props) {

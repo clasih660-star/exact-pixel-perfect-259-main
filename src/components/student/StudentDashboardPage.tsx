@@ -1,43 +1,35 @@
 import { Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
-  Monitor,
+  Accessibility,
+  Award,
   BookOpen,
+  Calendar,
+  CheckCircle2,
+  ChevronRight,
   Clock,
+  Eye,
+  Monitor,
   Star,
   Zap,
-  Award,
-  MessageSquare,
-  Calendar,
-  FileText,
-  Eye,
-  CheckCircle2,
 } from "lucide-react";
 import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
-import { DashboardEmptyState } from "@/components/dashboard/shared/DashboardEmptyState";
-import { FeaturedActionCard } from "@/components/dashboard/shared/FeaturedActionCard";
-import { CourseCard } from "@/components/dashboard/shared/CourseCard";
-import { SessionCard } from "@/components/dashboard/shared/SessionCard";
-import { PageHeader } from "@/components/dashboard/shared/PageHeader";
-import { ActivityFeed } from "@/components/dashboard/shared/ActivityFeed";
-import { RealtimeMetricCard } from "@/components/dashboard/shared/RealtimeMetricCard";
-import { OnlineStatusDot } from "@/components/dashboard/shared/OnlineStatusDot";
 
 const config = dashboardConfigs.learner;
 
 const mockContinueLearning = {
   course: "Mathematics Form 2",
   institution: "Klassruum Demo Academy",
-  lesson: "Introduction to Quadratic Equations",
+  lesson: "Solving Quadratic Equations by Factoring",
   step: "Worked Example",
   progress: 42,
   estimatedTimeLeft: "18 min",
   mode: "AI Teacher",
-  lessonId: "session_demo_math",
+  lessonId: "demo",
 };
 
 const mockClassrooms = [
@@ -46,33 +38,24 @@ const mockClassrooms = [
     institution: "Klassruum Demo Academy",
     course: "Quadratic Equations",
     progress: 42,
-    stats: [
-      { label: "Lessons", value: "12/28" },
-      { label: "Completed", value: "8" },
-    ],
-    href: "/classroom/lesson_math",
+    href: "/classroom/demo",
+    badge: "AI Teacher",
   },
   {
-    title: "KCSE Chemistry Revision",
+    title: "Science Form 3",
     institution: "Klassruum Demo Academy",
-    course: "Chemical Reactions",
+    course: "Chemical Bonding",
     progress: 28,
-    stats: [
-      { label: "Lessons", value: "8/24" },
-      { label: "Completed", value: "6" },
-    ],
-    href: "/classroom/lesson_chem",
+    href: "/classroom/demo_chemistry",
+    badge: "AI Teacher",
   },
   {
-    title: "English Speaking Practice",
+    title: "English Form 2",
     institution: "Klassruum Demo Academy",
-    course: "Daily Conversation",
+    course: "Parts of Speech",
     progress: 65,
-    stats: [
-      { label: "Lessons", value: "13/20" },
-      { label: "Completed", value: "12" },
-    ],
-    href: "/classroom/lesson_english",
+    href: "/classroom/demo_english",
+    badge: "AI Teacher",
   },
 ];
 
@@ -103,55 +86,16 @@ const mockRecentSessions = [
   },
 ];
 
-const mockActivity = [
-  {
-    id: "1",
-    action: "Completed lesson",
-    description: 'Finished "Quadratic Equations" lesson',
-    timestamp: "Today at 2:45 PM",
-    variant: "success" as const,
-  },
-  {
-    id: "2",
-    action: "Quiz answered",
-    description: "Scored 92% on Quadratic Equations quiz",
-    timestamp: "Today at 2:42 PM",
-    variant: "success" as const,
-  },
-  {
-    id: "3",
-    action: "Joined classroom",
-    description: 'Started "Introduction to Quadratic Equations"',
-    timestamp: "Today at 2:30 PM",
-    variant: "default" as const,
-  },
-  {
-    id: "4",
-    action: "Notes saved",
-    description: "5 pages of study notes created",
-    timestamp: "Today at 2:28 PM",
-    variant: "default" as const,
-  },
-  {
-    id: "5",
-    action: "Completed assignment",
-    description: "Submitted homework for Chemical Reactions",
-    timestamp: "Yesterday at 4:15 PM",
-    variant: "success" as const,
-  },
-];
-
 export function StudentDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate data loading
     const loadData = async () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 800));
         setIsLoading(false);
-      } catch (err) {
+      } catch {
         setError("Failed to load dashboard data");
         setIsLoading(false);
       }
@@ -177,352 +121,240 @@ export function StudentDashboardPage() {
   }
 
   return (
-    <DashboardShell config={config} activePath="/student/dashboard">
-      <PageHeader
-        label="Welcome back"
-        title="Continue your learning journey"
-        subtitle="Pick up from where you left off and keep your progress moving forward."
-      />
-
-      {/* Featured Continue Learning Card */}
-      <FeaturedActionCard
-        title={mockContinueLearning.lesson}
-        description={`${mockContinueLearning.course} · ${mockContinueLearning.institution}`}
-        badge={<StatusBadge variant="success">AI Teacher Ready</StatusBadge>}
-        content={
-          <div className="space-y-5">
-            <div className="flex items-center gap-8">
-              <div>
-                <p className="text-xs font-semibold text-[#64748B]">Current Step</p>
-                <p className="mt-1 text-base font-bold text-[#0F172A]">
-                  Step 3 of 8 · {mockContinueLearning.step}
-                </p>
-              </div>
-              <div className="h-12 w-px bg-[#E2E8F0]" />
-              <div>
-                <p className="text-xs font-semibold text-[#64748B]">Progress</p>
-                <p className="mt-1 text-3xl font-bold text-[#2563EB]">
-                  {mockContinueLearning.progress}%
-                </p>
-              </div>
-              <div className="h-12 w-px bg-[#E2E8F0]" />
-              <div>
-                <p className="text-xs font-semibold text-[#64748B]">Est. Time Left</p>
-                <p className="mt-1 text-base font-bold text-[#0F172A]">
-                  {mockContinueLearning.estimatedTimeLeft}
-                </p>
-              </div>
-            </div>
-            <div className="h-3 w-full rounded-full bg-[#E2E8F0]">
-              <div
-                className="h-full rounded-full bg-[#2563EB] transition-all"
-                style={{ width: `${mockContinueLearning.progress}%` }}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold text-[#0F172A] backdrop-blur">
-                <Monitor className="h-3 w-3" />
-                {mockContinueLearning.mode}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold text-[#0F172A] backdrop-blur">
-                <Eye className="h-3 w-3" />
-                Captions On
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold text-[#0F172A] backdrop-blur">
-                <Zap className="h-3 w-3" />
-                Voice On
-              </span>
-            </div>
-          </div>
-        }
-        actions={[
-          {
-            label: "Enter Classroom",
-            href: `/classroom/${mockContinueLearning.lessonId}`,
-            variant: "primary",
-          },
-          {
-            label: "Review Notes",
-            href: "/student/notes",
-            variant: "secondary",
-          },
-          {
-            label: "View Transcript",
-            href: "/student/transcripts",
-            variant: "tertiary",
-          },
-        ]}
-      />
-
-      {/* KPI Cards */}
-      <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <KpiCard
-          title="My Classrooms"
-          value="3"
-          subtitle="Active courses"
-          href="/student/classrooms"
-          icon={Monitor}
-        />
-        <KpiCard
-          title="Completed"
-          value="18"
-          subtitle="This month"
-          href="/student/progress"
-          icon={CheckCircle2}
-        />
-        <KpiCard
-          title="Study Time"
-          value="12h 45m"
-          subtitle="This week"
-          href="/student/progress"
-          icon={Clock}
-        />
-        <KpiCard
-          title="Quiz Average"
-          value="86%"
-          subtitle="This month"
-          href="/student/quizzes"
-          icon={Star}
-          trend="+4%"
-        />
-        <KpiCard
-          title="Current Streak"
-          value="7"
-          subtitle="Days in a row"
-          href="/student/progress"
-          icon={Zap}
-        />
-      </section>
-
-      {/* Main Content Grid */}
-      <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left Column: Classrooms and Sessions */}
-        <div className="space-y-8 lg:col-span-2">
-          {/* My Classrooms */}
-          <div>
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-[#0F172A]">My Classrooms</h2>
-                <p className="mt-0.5 text-sm text-[#64748B]">Continue your active learning spaces</p>
-              </div>
-              <Link
-                to="/student/classrooms"
-                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
-              >
-                View all
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {mockClassrooms.map((classroom) => (
-                <CourseCard
-                  key={classroom.title}
-                  title={classroom.title}
-                  course={classroom.course}
-                  institution={classroom.institution}
-                  progress={classroom.progress}
-                  stats={classroom.stats}
-                  href={classroom.href}
-                />
-              ))}
-            </div>
+    <DashboardShell config={config} activePath="/student/dashboard" title="Learner Dashboard">
+      <section className="mb-5 grid gap-5 xl:grid-cols-[1fr_1.22fr]">
+        <div className="relative overflow-hidden rounded-[22px] border border-[#DCE8F7] bg-gradient-to-br from-white via-[#F6FAFF] to-[#EAF3FF] p-7 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+          <div className="relative z-10 max-w-[58%]">
+            <p className="text-sm font-bold text-[#1F7C80]">Welcome back</p>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#0F172A]">
+              Continue your learning journey
+            </h1>
+            <p className="mt-4 text-sm leading-7 text-[#334155]">
+              Your next classroom is ready. Continue from where you left off and keep building your skills.
+            </p>
+            <Link
+              to={`/classroom/${mockContinueLearning.lessonId}`}
+              className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-6 text-sm font-bold text-white shadow-lg shadow-[#1F7C80]/25 transition-all hover:bg-[#1A5256]"
+            >
+              Enter Classroom
+              <ChevronRight className="h-4 w-4" />
+            </Link>
           </div>
 
-          {/* Recent Sessions */}
-          <div>
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-[#0F172A]">Recent Sessions</h2>
-                <p className="mt-0.5 text-sm text-[#64748B]">Your recent learning activity</p>
-              </div>
-              <Link
-                to="/student/sessions"
-                className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
-              >
-                View all
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {mockRecentSessions.map((session) => (
-                <SessionCard
-                  key={session.title}
-                  title={session.title}
-                  course={session.course}
-                  time={session.time}
-                  duration={session.duration}
-                  status={session.status}
-                  href={session.href}
-                />
-              ))}
+          <div className="absolute bottom-5 right-8 grid h-44 w-52 place-items-center">
+            <div className="absolute h-36 w-48 rounded-[44px] bg-[#d1eceb]" />
+            <div className="relative grid h-28 w-36 place-items-center rounded-3xl bg-white shadow-xl shadow-[#1F7C80]/10">
+              <BookOpen className="h-16 w-16 text-[#1A5256]" />
+              <Award className="absolute -right-4 -top-4 h-11 w-11 rounded-2xl bg-[#e8f5f5] p-2 text-[#1F7C80] shadow-md" />
             </div>
           </div>
         </div>
 
-        {/* Right Column: Quick Info and Activity */}
-        <div className="space-y-6 lg:col-span-1">
-          {/* Today's Plan */}
-          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-bold text-[#0F172A]">Today's Plan</h3>
-              <Calendar className="h-4 w-4 text-[#94A3B8]" />
+        <div className="rounded-[22px] border border-[#DCE8F7] bg-white p-7 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1F7C80] text-2xl font-black text-white shadow-lg shadow-[#1F7C80]/25">
+              x²
             </div>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 rounded-lg bg-[#EFF6FF] p-3">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2563EB] flex-shrink-0 text-xs font-bold text-white">
-                  1
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#0F172A]">Complete lesson</p>
-                  <p className="text-xs text-[#64748B]">Quadratic Equations</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-lg bg-[#F8FAFC] p-3 opacity-60">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E2E8F0] flex-shrink-0 text-xs font-bold text-[#64748B]">
-                  2
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#0F172A]">Take quiz</p>
-                  <p className="text-xs text-[#64748B]">Check your understanding</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-lg bg-[#F8FAFC] p-3 opacity-60">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E2E8F0] flex-shrink-0 text-xs font-bold text-[#64748B]">
-                  3
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#0F172A]">Review notes</p>
-                  <p className="text-xs text-[#64748B]">Study your highlights</p>
-                </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-xl font-extrabold tracking-tight text-[#0F172A]">
+                {mockContinueLearning.lesson}
+              </h2>
+              <p className="mt-1 text-sm text-[#475569]">
+                {mockContinueLearning.course} · {mockContinueLearning.institution}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <StatusBadge variant="success">AI Teacher Ready</StatusBadge>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-[#BFDBFE] bg-[#e8f5f5] px-3 py-1 text-xs font-bold text-[#1A5256]">
+                  <Eye className="h-3.5 w-3.5" />
+                  Captions On
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] px-3 py-1 text-xs font-bold text-[#15803D]">
+                  <Zap className="h-3.5 w-3.5" />
+                  Voice On
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Learning Access */}
-          <Link
-            to="/student/access"
-            className="block rounded-2xl border border-[#E2E8F0] bg-gradient-to-br from-[#EFF6FF] to-white p-6 transition-all hover:border-[#2563EB] hover:shadow-md"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2563EB]">
-                <Eye className="h-4 w-4 text-white" />
+          <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <p className="text-sm text-[#334155]">
+                <span className="font-bold">Current Step:</span> Step 3 of 8 · {mockContinueLearning.step}
+              </p>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-[#d1eceb]">
+                <div className="h-full rounded-full bg-[#1F7C80]" style={{ width: `${mockContinueLearning.progress}%` }} />
               </div>
-              <h3 className="font-bold text-[#0F172A]">Learning Access</h3>
             </div>
-            <p className="text-xs text-[#64748B]">Customize captions, focus mode, and accessibility settings</p>
-          </Link>
+            <div className="text-left sm:text-right">
+              <p className="text-2xl font-extrabold text-[#1A5256]">{mockContinueLearning.progress}%</p>
+              <p className="mt-1 text-sm text-[#475569]">{mockContinueLearning.estimatedTimeLeft} left</p>
+            </div>
+          </div>
 
-          {/* Activity Feed */}
-          <ActivityFeed title="Recent Activity" items={mockActivity} maxItems={5} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <Link to={`/classroom/${mockContinueLearning.lessonId}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-4 text-sm font-bold text-white transition-all hover:bg-[#1A5256]">
+              Enter Classroom
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+            <Link to="/student/notes" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#a3d9d8] bg-white px-4 text-sm font-bold text-[#1A5256] transition-all hover:bg-[#e8f5f5]">
+              Review Notes
+            </Link>
+            <Link to="/student/quizzes" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#a3d9d8] bg-white px-4 text-sm font-bold text-[#1A5256] transition-all hover:bg-[#e8f5f5]">
+              Quick Quiz
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+        <KpiCard title="My Classrooms" value="4" subtitle="Active classrooms" href="/student/classrooms" icon={Monitor} />
+        <KpiCard title="Completed Lessons" value="18" subtitle="This month" href="/student/progress" icon={CheckCircle2} />
+        <KpiCard title="Study Time" value="12h 45m" subtitle="This week" href="/student/progress" icon={Clock} />
+        <KpiCard title="Quiz Average" value="86%" subtitle="This month" href="/student/quizzes" icon={Star} trend="+4%" />
+        <KpiCard title="Current Streak" value="7" subtitle="Days in a row" href="/student/progress" icon={Zap} />
+      </section>
+
+      <section className="grid grid-cols-1 gap-5 xl:grid-cols-[1.22fr_.75fr_.95fr]">
+        <div className="rounded-[18px] border border-[#DCE8F7] bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-[#0F172A]">My Classrooms</h2>
+              <p className="mt-0.5 text-sm text-[#64748B]">Continue your active learning spaces</p>
+            </div>
+            <Link to="/student/classrooms" className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]">
+              View all
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {mockClassrooms.map((classroom) => (
+              <Link
+                key={classroom.title}
+                to={classroom.href}
+                className="grid grid-cols-[48px_1fr_auto] items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-3 transition-all hover:border-[#BFDBFE] hover:bg-[#F8FBFF]"
+              >
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#1F7C80] text-sm font-black text-white">
+                  {classroom.title.includes("Mathematics") ? "x²" : classroom.title.includes("Chemistry") ? "Chem" : "Eng"}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-extrabold text-[#0F172A]">{classroom.title}</h3>
+                  <p className="truncate text-xs text-[#64748B]">{classroom.institution} · {classroom.course}</p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <div className="h-2 w-28 overflow-hidden rounded-full bg-[#d1eceb]">
+                      <div className="h-full rounded-full bg-[#1F7C80]" style={{ width: `${classroom.progress}%` }} />
+                    </div>
+                    <span className="text-xs font-bold text-[#1A5256]">{classroom.progress}%</span>
+                  </div>
+                </div>
+                <span className="inline-flex h-9 items-center rounded-lg border border-[#BFDBFE] px-3 text-xs font-bold text-[#1A5256]">
+                  Enter
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[18px] border border-[#DCE8F7] bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-bold text-[#0F172A]">Today's Plan</h3>
+            <Calendar className="h-4 w-4 text-[#94A3B8]" />
+          </div>
+          <div className="space-y-3">
+            {[
+              ["Continue Quadratic Equations lesson", "Active"],
+              ["Complete the quick quiz", "5 min"],
+              ["Review weak topic: Factoring", "Later"],
+            ].map(([title, meta], index) => (
+              <div key={title} className={`flex items-start gap-3 rounded-xl p-3 ${index === 0 ? "bg-[#e8f5f5]" : "bg-[#F8FAFC]"}`}>
+                <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${index === 0 ? "bg-[#1F7C80] text-white" : "bg-[#d1eceb] text-[#1F7C80]"}`}>
+                  {index + 1}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#0F172A]">{title}</p>
+                  <p className="text-xs text-[#64748B]">{meta}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <Link to="/classroom/$lessonId" params={{ lessonId: mockContinueLearning.lessonId }} className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1F7C80] text-sm font-bold text-white">
+              Start Plan
+            </Link>
+            <Link to="/student/learning-plan" className="inline-flex h-10 items-center justify-center rounded-xl border border-[#a3d9d8] text-sm font-bold text-[#1A5256]">
+              Customize
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-[18px] border border-[#DCE8F7] bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-[#0F172A]">Recent Sessions</h2>
+              <p className="mt-0.5 text-sm text-[#64748B]">Your recent learning activity</p>
+            </div>
+            <Link to="/student/sessions" className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]">
+              View all
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {mockRecentSessions.map((session) => (
+              <Link
+                key={session.title}
+                to={session.href}
+                className="grid grid-cols-[46px_1fr_auto] items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-3 transition-all hover:border-[#BFDBFE] hover:bg-[#F8FBFF]"
+              >
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#1F7C80] text-xs font-black text-white">
+                  {session.title.includes("Quadratic") ? "x²" : session.title.includes("Chemical") ? "Lab" : "HTML"}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-extrabold text-[#0F172A]">{session.title}</h3>
+                  <p className="truncate text-xs text-[#64748B]">
+                    {session.course} · {session.duration}
+                  </p>
+                </div>
+                <span className="rounded-lg bg-[#DCFCE7] px-2.5 py-1 text-xs font-bold text-[#15803D]">
+                  Completed
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-5 rounded-[18px] border border-[#DCE8F7] bg-white p-5 shadow-sm">
+        <div className="grid gap-4 lg:grid-cols-[1fr_1.15fr_auto_auto] lg:items-center">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#e8f5f5] text-[#1F7C80]">
+              <Accessibility className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-extrabold text-[#0F172A]">Learning Access</h2>
+              <p className="text-sm text-[#475569]">Standard profile</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-4">
+            {[
+              ["Teacher voice", "On"],
+              ["Captions", "On"],
+              ["Keyboard shortcuts", "On"],
+              ["Focus mode", "Off"],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+                <p className="text-xs font-bold text-[#334155]">{label}</p>
+                <p className={`mt-1 text-sm font-extrabold ${value === "On" ? "text-[#16A34A]" : "text-[#64748B]"}`}>
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+          <Link to="/student/access" className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1F7C80] px-5 text-sm font-bold text-white">
+            Adjust Access
+          </Link>
+          <button className="inline-flex h-11 items-center justify-center rounded-xl border border-[#a3d9d8] px-5 text-sm font-bold text-[#1A5256]">
+            Focus Mode
+          </button>
         </div>
       </section>
     </DashboardShell>
-  );
-}
-
-function LearningPlanCard() {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[var(--gray-900)]">Today's Learning Plan</h2>
-      <p className="mt-0.5 text-sm text-[var(--gray-500)]">Recommended for you.</p>
-      <ol className="mt-5 space-y-3">
-        {[
-          "Continue Quadratic Equations lesson",
-          "Complete the quick quiz (5 min)",
-          "Review weak topic: Factoring",
-        ].map((item, i) => (
-          <li key={i} className="flex items-start gap-3">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">
-              {i + 1}
-            </span>
-            <span className="pt-0.5 text-sm font-semibold text-[var(--gray-700)]">{item}</span>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-5 flex gap-2">
-        <Link
-          to="/classroom/$lessonId"
-        params={{ lessonId: "session_demo_math" }}
-          className="inline-flex h-10 flex-1 items-center justify-center rounded-2xl bg-[var(--primary)] px-4 text-sm font-bold text-white transition-all hover:bg-[var(--primary-dark)]"
-        >
-          Start Plan
-        </Link>
-        <Link
-          to="/student/learning-plan"
-          className="inline-flex h-10 flex-1 items-center justify-center rounded-2xl border border-[var(--primary)]/20 px-4 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]"
-        >
-          Customize
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function RecentSessionsPanel() {
-  return (
-    <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[var(--gray-900)]">Recent Sessions</h2>
-      <p className="mt-0.5 text-sm text-[var(--gray-500)]">Review what you learned.</p>
-      <div className="mt-4 space-y-2">
-        {recentSessions.map((s) => (
-          <Link
-            key={s.title}
-            to="/student/sessions/$sessionId/summary"
-        params={{ sessionId: "session_demo_math" }}
-            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[var(--gray-900)]">{s.title}</p>
-              <p className="text-xs text-[var(--gray-500)]">
-                {s.course} · {s.duration}
-              </p>
-            </div>
-            <StatusBadge variant="neutral">{s.status}</StatusBadge>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function LearningAccessWidget() {
-  return (
-    <div className="rounded-2xl border border-[var(--primary)]/20 bg-gradient-to-br from-white to-[var(--primary-light)] p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[var(--gray-900)]">Learning Access</h2>
-      <p className="mt-0.5 text-sm text-[var(--gray-500)]">Standard profile</p>
-      <div className="mt-4 space-y-2">
-        {[
-          { label: "Teacher voice", value: "On" },
-          { label: "Captions", value: "On" },
-          { label: "Keyboard shortcuts", value: "On" },
-          { label: "Focus mode", value: "Off" },
-        ].map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between rounded-xl border border-[var(--gray-200)] bg-white px-4 py-2.5"
-          >
-            <span className="text-sm font-semibold text-[var(--gray-700)]">{item.label}</span>
-            <span
-              className={`text-xs font-bold ${
-                item.value === "On" ? "text-green-600" : "text-[var(--gray-400)]"
-              }`}
-            >
-              {item.value}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5 flex gap-2">
-        <Link
-          to="/student/access"
-          className="inline-flex h-10 flex-1 items-center justify-center rounded-2xl bg-[var(--primary)] px-4 text-sm font-bold text-white transition-all hover:bg-[var(--primary-dark)]"
-        >
-          Adjust Access
-        </Link>
-        <button className="inline-flex h-10 flex-1 items-center justify-center rounded-2xl border border-[var(--primary)]/20 px-4 text-sm font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary-light)]">
-          <TrendingUp className="mr-1.5 h-4 w-4" />
-          Focus Mode
-        </button>
-      </div>
-    </div>
   );
 }
 

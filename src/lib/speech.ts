@@ -7,6 +7,16 @@ let narrationMuted = false;
 /** Global speaking-rate multiplier (0.5–2). 1 = normal. */
 let globalRate = 1;
 
+// ── Eagerly preload voices on module load (Safari needs this) ─────────────────
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  // Trigger voice loading — Safari loads them asynchronously.
+  window.speechSynthesis.getVoices();
+  // Also listen for the voiceschanged event so they're ready when needed.
+  window.speechSynthesis.addEventListener?.("voiceschanged", () => {
+    window.speechSynthesis.getVoices();
+  });
+}
+
 /** Turn the teacher's spoken narration on/off globally. */
 export function setNarrationMuted(muted: boolean): void {
   narrationMuted = muted;

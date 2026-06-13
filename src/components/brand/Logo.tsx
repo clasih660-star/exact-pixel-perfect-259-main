@@ -17,13 +17,13 @@ export function LogoMark({ className, size = 32 }: { className?: string; size?: 
     >
       <defs>
         <linearGradient id="klass-k" x1="10" y1="20" x2="38" y2="44" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#3B82F6" />
-          <stop offset="55%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#1D4ED8" />
+          <stop offset="0%" stopColor="#3fa8ab" />
+          <stop offset="55%" stopColor="#1F7C80" />
+          <stop offset="100%" stopColor="#1A5256" />
         </linearGradient>
         <linearGradient id="klass-cap" x1="6" y1="9" x2="42" y2="24" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#1E3A8A" />
-          <stop offset="100%" stopColor="#0F172A" />
+          <stop offset="0%" stopColor="#1A5256" />
+          <stop offset="100%" stopColor="#1A3233" />
         </linearGradient>
       </defs>
 
@@ -38,15 +38,15 @@ export function LogoMark({ className, size = 32 }: { className?: string; size?: 
       {/* Cap band under the board */}
       <path
         d="M15 19.6 V25.4 C15 27.9 19 29.4 24 29.4 C29 29.4 33 27.9 33 25.4 V19.6 L24 23.2 Z"
-        fill="#1E3A8A"
+        fill="#1A5256"
         opacity="0.92"
       />
       {/* Subtle top highlight on the board */}
       <path d="M24 8.2 L43.5 16 L24 18.1 L4.5 16 Z" fill="#FFFFFF" opacity="0.12" />
 
       {/* Navy tassel + blue bead */}
-      <path d="M42.4 16.2 V22.2" stroke="#1E3A8A" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="42.4" cy="23.8" r="1.8" fill="#3B82F6" />
+      <path d="M42.4 16.2 V22.2" stroke="#1A5256" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="42.4" cy="23.8" r="1.8" fill="#3fa8ab" />
     </svg>
   );
 }
@@ -65,7 +65,7 @@ export function Logo({
       <LogoMark size={size} />
       {showWordmark && (
         <span className="text-xl font-extrabold tracking-tight text-foreground">
-          Klass<span className="text-[var(--primary,#2563eb)]">ruum</span>
+          Klass<span className="text-[var(--primary,#1F7C80)]">ruum</span>
         </span>
       )}
     </div>

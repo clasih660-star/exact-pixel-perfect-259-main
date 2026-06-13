@@ -44,7 +44,7 @@ export function DashboardPage() {
       <AppShell>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1F7C80] mx-auto mb-4" />
             <p className="text-gray-500">Loading your dashboard...</p>
           </div>
         </div>
@@ -116,31 +116,31 @@ export function DashboardPage() {
 
         {/* Continue Learning Hero */}
         {continueLearning && (
-          <div className="card p-6 mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+          <div className="card p-6 mb-6 bg-gradient-to-r from-[#1F7C80] to-[#1A5256] text-white">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Continue Learning</h2>
-                <p className="text-blue-100 mb-2">
+                <p className="text-[#a3d9d8] mb-2">
                   {continueLearning.courseTitle}
                 </p>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1 text-sm text-blue-200">
+                  <div className="flex items-center gap-1 text-sm text-[#a3d9d8]">
                     <span>Step: {continueLearning.currentStep}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-sm text-blue-200">
+                  <div className="flex items-center gap-1 text-sm text-[#a3d9d8]">
                     <span>{continueLearning.progressPercentage}% complete</span>
                   </div>
                 </div>
               </div>
               <Link
                 to="/student/classrooms"
-                className="btn bg-white text-blue-600 hover:bg-blue-50"
+                className="btn bg-white text-[#1F7C80] hover:bg-[#e8f5f5]"
               >
                 <Play size={16} />
                 Resume
               </Link>
             </div>
-            <div className="mt-4 bg-blue-500/30 rounded-full h-2">
+            <div className="mt-4 bg-[#e8f5f5]0/30 rounded-full h-2">
               <div
                 className="bg-white rounded-full h-2 transition-all"
                 style={{ width: `${continueLearning.progressPercentage}%` }}
@@ -213,7 +213,7 @@ export function DashboardPage() {
                   <div className="font-medium text-sm mb-1">{rec.title}</div>
                   <div className="text-xs text-gray-500 mb-2">{rec.description}</div>
                   {rec.targetUrl && (
-                    <Link to={rec.targetUrl} className="text-xs text-blue-600 hover:underline">
+                    <Link to={rec.targetUrl} className="text-xs text-[#1F7C80] hover:underline">
                       Go →
                     </Link>
                   )}
@@ -280,7 +280,7 @@ export function DashboardPage() {
                     className={`upcoming-icon ${
                       session.type === "quiz"
                         ? "bg-orange-100 text-orange-600"
-                        : "bg-blue-100 text-blue-600"
+                        : "bg-[#d1eceb] text-[#1F7C80]"
                     }`}
                   >
                     {session.type === "quiz" ? <Target size={16} /> : <Calendar size={16} />}

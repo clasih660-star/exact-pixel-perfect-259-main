@@ -65,7 +65,7 @@ export function LearnerNotesPanel({
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BookOpen className="h-5 w-5 text-blue-600" />
+          <BookOpen className="h-5 w-5 text-[#1F7C80]" />
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">
               {lessonTitle} Notes
@@ -126,7 +126,7 @@ export function LearnerNotesPanel({
                           key={pIndex}
                           className="text-sm text-gray-600 flex items-start gap-2"
                         >
-                          <span className="text-blue-600 mt-0.5">•</span>
+                          <span className="text-[#1F7C80] mt-0.5">•</span>
                           <span>{point}</span>
                         </li>
                       ))}
@@ -160,15 +160,15 @@ export function LearnerNotesPanel({
                 {formulasAndRules.map((item, index) => (
                   <div
                     key={index}
-                    className="p-3 bg-blue-50 rounded-lg border border-blue-200"
+                    className="p-3 bg-[#e8f5f5] rounded-lg border border-[#a3d9d8]"
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <code className="text-xs font-mono font-semibold text-blue-900 flex-1">
+                      <code className="text-xs font-mono font-semibold text-[#0F172A] flex-1">
                         {item.formula}
                       </code>
                       <button
                         onClick={() => copyToClipboard(item.formula, index)}
-                        className="p-1 text-gray-500 hover:text-gray-700 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                        className="p-1 text-gray-500 hover:text-gray-700 hover:bg-[#d1eceb] rounded transition-colors flex-shrink-0"
                         title="Copy formula"
                       >
                         {copiedIndex === index ? (
@@ -294,7 +294,7 @@ export function TeacherNotesPanel({
             <div className="px-6 pb-3 space-y-2">
               {keyMessages.map((msg, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold text-xs mt-0.5">
+                  <span className="text-[#1F7C80] font-bold text-xs mt-0.5">
                     ★
                   </span>
                   <p className="text-xs text-gray-700">{msg}</p>

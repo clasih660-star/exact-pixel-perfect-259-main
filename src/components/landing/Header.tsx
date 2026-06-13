@@ -48,14 +48,14 @@ export function Header() {
             <a
               key={item.href}
               href={item.href}
-              className="rounded-[10px] px-3 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#EFF6FF] hover:text-[#1D4ED8]"
+              className="rounded-[10px] px-3 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#EFF6FF] hover:text-[#1A5256]"
             >
               {item.label}
             </a>
           ))}
           <Link
             to="/pricing"
-            className="rounded-[10px] px-3 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#EFF6FF] hover:text-[#1D4ED8]"
+            className="rounded-[10px] px-3 py-2 text-sm font-medium text-[#475569] transition-colors hover:bg-[#EFF6FF] hover:text-[#1A5256]"
           >
             Pricing
           </Link>
@@ -65,7 +65,7 @@ export function Header() {
         <div className="hidden items-center gap-2 lg:flex">
           <Link
             to="/auth"
-            className="rounded-[10px] px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:text-[#1D4ED8]"
+            className="rounded-[10px] px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:text-[#1A5256]"
           >
             Sign in
           </Link>
@@ -96,7 +96,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-[10px] px-3 py-2.5 text-[15px] font-medium text-[#0F172A] hover:bg-[#EFF6FF] hover:text-[#1D4ED8]"
+                className="rounded-[10px] px-3 py-2.5 text-[15px] font-medium text-[#0F172A] hover:bg-[#EFF6FF] hover:text-[#1A5256]"
               >
                 {item.label}
               </a>
@@ -104,7 +104,7 @@ export function Header() {
             <Link
               to="/pricing"
               onClick={() => setOpen(false)}
-              className="rounded-[10px] px-3 py-2.5 text-[15px] font-medium text-[#0F172A] hover:bg-[#EFF6FF] hover:text-[#1D4ED8]"
+              className="rounded-[10px] px-3 py-2.5 text-[15px] font-medium text-[#0F172A] hover:bg-[#EFF6FF] hover:text-[#1A5256]"
             >
               Pricing
             </Link>

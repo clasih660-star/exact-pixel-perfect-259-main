@@ -1,4 +1,4 @@
-import type { LucideIcon, ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 type ActivityItem = {
   id: string;

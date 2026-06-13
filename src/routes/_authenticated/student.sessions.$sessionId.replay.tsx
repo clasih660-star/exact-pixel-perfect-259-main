@@ -21,8 +21,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/sessions/$sessionId/replay")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: SessionReplayPage,
 });
 
@@ -56,7 +58,7 @@ function SessionReplayPage() {
       <AppShell>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1F7C80] mx-auto mb-4" />
             <p className="text-gray-500">Loading replay...</p>
           </div>
         </div>
@@ -154,7 +156,7 @@ function SessionReplayPage() {
                   key={item.id}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     idx === activeIndex
-                      ? "bg-blue-50 border border-blue-200"
+                      ? "bg-[#e8f5f5] border border-[#a3d9d8]"
                       : "hover:bg-gray-50"
                   }`}
                   onClick={() => {
@@ -179,11 +181,11 @@ function TimelineItemDisplay({ item }: { item: any }) {
     return (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <MessageSquare size={16} className={isTeacher ? "text-blue-600" : "text-green-600"} />
+          <MessageSquare size={16} className={isTeacher ? "text-[#1F7C80]" : "text-green-600"} />
           <span className="font-medium">{isTeacher ? "AI Teacher" : "Student"}</span>
           <span className="text-sm text-gray-400">{new Date(item.timestamp).toLocaleTimeString()}</span>
         </div>
-        <div className={`p-4 rounded-lg ${isTeacher ? "bg-blue-50 border-l-4 border-blue-400" : "bg-green-50 border-l-4 border-green-400"}`}>
+        <div className={`p-4 rounded-lg ${isTeacher ? "bg-[#e8f5f5] border-l-4 border-[#3fa8ab]" : "bg-green-50 border-l-4 border-green-400"}`}>
           <p>{item.message}</p>
         </div>
       </div>
@@ -229,7 +231,7 @@ function TimelineItemLabel({ item }: { item: any }) {
     const isTeacher = item.sender === "ai_teacher" || item.sender === "teacher";
     return (
       <div className="flex items-center gap-2">
-        <MessageSquare size={12} className={isTeacher ? "text-blue-500" : "text-green-500"} />
+        <MessageSquare size={12} className={isTeacher ? "text-[#1F7C80]" : "text-green-500"} />
         <span className="text-sm truncate">{isTeacher ? "Teacher: " : "You: "}{item.message.slice(0, 50)}</span>
       </div>
     );
@@ -256,7 +258,7 @@ function EventIcon({ eventType, size = 16 }: { eventType: string; size?: number 
     case "session_ended":
       return <Clock size={size} className="text-gray-500" />;
     case "step_changed":
-      return <ChevronRight size={size} className="text-blue-500" />;
+      return <ChevronRight size={size} className="text-[#1F7C80]" />;
     case "quiz_started":
     case "quiz_answered":
       return <CheckCircle size={size} className="text-orange-500" />;

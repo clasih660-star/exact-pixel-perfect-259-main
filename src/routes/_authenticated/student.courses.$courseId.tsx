@@ -7,8 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCourseForStudent } from "@/lib/student.functions";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/courses/$courseId")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentCoursePage,
 });
 

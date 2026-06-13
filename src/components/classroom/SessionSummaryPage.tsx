@@ -83,7 +83,7 @@ export function SessionSummaryPage({
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
             to={`/classroom/session/${sessionId}`}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+            className="flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium"
           >
             <ArrowLeft size={18} />
             Back to Dashboard
@@ -118,7 +118,7 @@ export function SessionSummaryPage({
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
+                <div className="text-3xl font-bold text-[#1F7C80] mb-2">
                   {quizScore}%
                 </div>
                 <div className="text-sm text-gray-600">Quiz Score</div>
@@ -197,7 +197,7 @@ export function SessionSummaryPage({
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="text-blue-600" size={20} />
+                <TrendingUp className="text-[#1F7C80]" size={20} />
                 <h2 className="text-lg font-semibold text-gray-900">
                   Insights
                 </h2>
@@ -222,7 +222,7 @@ export function SessionSummaryPage({
               </h2>
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                className="text-[#1F7C80] hover:text-[#1A5256] text-sm font-medium flex items-center gap-1"
               >
                 {showDetails ? "Hide" : "Show"} Details
                 <ChevronRight size={16} />
@@ -246,10 +246,10 @@ export function SessionSummaryPage({
 
         {/* Next Steps */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <Card className="bg-gradient-to-br from-[#e8f5f5] to-[#d1eceb] border-[#a3d9d8]">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
-                <Target className="text-blue-600 flex-shrink-0" size={24} />
+                <Target className="text-[#1F7C80] flex-shrink-0" size={24} />
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Recommended Next Lesson
@@ -259,7 +259,7 @@ export function SessionSummaryPage({
                   </p>
                   <Link
                     to={`/classroom/${lessonId}`}
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                    className="inline-flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium text-sm"
                   >
                     Start Lesson
                     <ChevronRight size={16} />
@@ -282,7 +282,7 @@ export function SessionSummaryPage({
                   </p>
                   <Link
                     to="/student/notes"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                    className="inline-flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium text-sm"
                   >
                     View Notes
                     <ChevronRight size={16} />
@@ -300,7 +300,7 @@ export function SessionSummaryPage({
               Back to Dashboard
             </Button>
           </Link>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">
             <RotateCcw size={16} />
             Retake This Lesson
           </Button>

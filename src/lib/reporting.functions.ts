@@ -38,8 +38,14 @@ async function resolveInstitution(
  */
 export const getInstitutionDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const { supabase, userId } = context;
+
+    // Demo mode — return empty data
+    if (!supabase) {
+      return { institution: null, stats: null, courses: [], activeSessions: [], recentMaterials: [], activity: [] };
+    }
+
     const institution = await resolveInstitution(supabase, userId);
     if (!institution) {
       return { institution: null, stats: null, courses: [], activeSessions: [], recentMaterials: [], activity: [] };
@@ -155,8 +161,10 @@ export const getCourseProgressReport = createServerFn({ method: "GET" })
   .validator((data: { course_id: string }) =>
     z.object({ course_id: z.string().uuid() }).parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { supabase } = context;
+
+    if (!supabase) return { enrollments: [], results: [], questions: [] };
 
     const [enrollRes, resultsRes, questionsRes] = await Promise.all([
       supabase
@@ -236,7 +244,9 @@ export const getInstitutionQuestions = createServerFn({ method: "GET" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
+    if (!context.supabase) return { questions: [] };
+
     let query = context.supabase
       .from("learner_questions")
       .select("id, course_id, lesson_id, question_text, answer_text, answer_source, section_type, learning_mode, created_at")
@@ -256,8 +266,13 @@ export const getInstitutionQuestions = createServerFn({ method: "GET" })
  */
 export const getTeacherSupervision = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const { supabase, userId } = context;
+
+    if (!supabase) {
+      return { institution: null, courses: [], liveSessions: [], recentQuestions: [], stats: null };
+    }
+
     const institution = await resolveInstitution(supabase, userId);
     if (!institution) {
       return { institution: null, courses: [], liveSessions: [], recentQuestions: [], stats: null };

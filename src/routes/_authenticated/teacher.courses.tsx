@@ -14,8 +14,10 @@ import {
   CheckCircle2,
   Search,
 } from "lucide-react";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/teacher/courses")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: TeacherCourses,
 });
 
@@ -76,7 +78,7 @@ const COURSES: Course[] = [
 ];
 
 const SUBJECT_COLORS: Record<string, string> = {
-  Mathematics: "from-blue-600 to-blue-400",
+  Mathematics: "from-[#1F7C80] to-[#3fa8ab]",
   Chemistry: "from-green-600 to-emerald-400",
   "Computer Science": "from-purple-600 to-violet-400",
 };
@@ -115,7 +117,7 @@ function TeacherCourses() {
           <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Total Students</p>
         </div>
         <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#2563EB]">{avgProgress}%</p>
+          <p className="text-2xl font-extrabold text-[#1F7C80]">{avgProgress}%</p>
           <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Avg. Progress</p>
         </div>
       </div>
@@ -127,7 +129,7 @@ function TeacherCourses() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search courses…"
-          className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#1F7C80] focus:outline-none focus:ring-2 focus:ring-[#1F7C80]/20"
         />
       </div>
 
@@ -138,7 +140,7 @@ function TeacherCourses() {
           return (
             <article
               key={course.id}
-              className="rounded-2xl border border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#2563EB]/30 hover:shadow-md"
+              className="rounded-2xl border border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
             >
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                 {/* Icon */}
@@ -180,7 +182,7 @@ function TeacherCourses() {
                   {/* Progress bar */}
                   <div className="mt-3 h-2 w-full rounded-full bg-[#E2E8F0]">
                     <div
-                      className="h-full rounded-full bg-[#2563EB] transition-all"
+                      className="h-full rounded-full bg-[#1F7C80] transition-all"
                       style={{ width: `${course.progress}%` }}
                     />
                   </div>
@@ -190,7 +192,7 @@ function TeacherCourses() {
                 <div className="flex shrink-0 flex-col gap-2 sm:items-end">
                   <Link
                     to="/classroom/session_demo_math"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#2563EB] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1D4ED8]"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1A5256]"
                   >
                     <Play className="h-4 w-4" />
                     Start Class
@@ -205,7 +207,7 @@ function TeacherCourses() {
                   </Link>
                   <Link
                     to="/teacher/lessons"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8]"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1F7C80] hover:text-[#1A5256]"
                   >
                     Manage lessons <ChevronRight className="h-4 w-4" />
                   </Link>

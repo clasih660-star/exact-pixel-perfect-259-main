@@ -9,7 +9,7 @@ interface RecentSessionCardProps {
 export function RecentSessionCard({ session }: RecentSessionCardProps) {
   const statusColors = {
     completed: "text-green-600 bg-green-50",
-    in_progress: "text-blue-600 bg-blue-50",
+    in_progress: "text-[#1F7C80] bg-[#e8f5f5]",
     scheduled: "text-orange-600 bg-orange-50",
   };
 

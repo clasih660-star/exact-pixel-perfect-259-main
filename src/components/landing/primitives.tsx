@@ -24,7 +24,7 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-[999px] border border-[#E2E8F0] bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#1D4ED8]",
+        "inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700",
         className,
       )}
     >
@@ -83,13 +83,13 @@ type CTASize = "md" | "lg";
 
 function ctaClasses(variant: CTAVariant, size: CTASize, className?: string) {
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-[12px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2",
+    "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2",
     size === "lg" ? "h-12 px-6 text-[15px]" : "h-11 px-5 text-sm",
     variant === "primary" &&
-      "bg-[#2563EB] text-white shadow-[0_8px_24px_rgba(37,99,235,0.25)] hover:bg-[#1D4ED8] hover:shadow-[0_12px_32px_rgba(37,99,235,0.30)]",
+      "bg-[#1F7C80] text-white shadow-lg shadow-teal-500/25 hover:bg-[#1A5256] hover:shadow-xl hover:shadow-teal-500/30",
     variant === "secondary" &&
-      "border border-[#E2E8F0] bg-white text-[#0F172A] shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:border-[#CBD5E1] hover:bg-[#F8FAFC]",
-    variant === "ghost" && "text-[#1D4ED8] hover:bg-[#EFF6FF]",
+      "border border-zinc-200 bg-white text-zinc-900 shadow-sm hover:border-zinc-300 hover:bg-zinc-50",
+    variant === "ghost" && "text-[#1F7C80] hover:bg-teal-50",
     className,
   );
 }
@@ -141,7 +141,7 @@ export function SurfaceCard({ className, children }: { className?: string; child
   return (
     <div
       className={cn(
-        "lp-lift rounded-[20px] border border-[#E2E8F0] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:border-[#CBD5E1] hover:shadow-[0_12px_32px_rgba(15,23,42,0.10)]",
+        "lp-lift rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-zinc-300 hover:shadow-md",
         className,
       )}
     >
@@ -162,11 +162,11 @@ export function FeatureCard({
 }) {
   return (
     <SurfaceCard className="h-full">
-      <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-[#EFF6FF] text-[#2563EB]">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-[#1F7C80]">
         {icon}
       </div>
-      <h3 className="mt-5 text-[17px] font-semibold text-[#0F172A]">{title}</h3>
-      <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">{description}</p>
+      <h3 className="mt-5 text-[17px] font-semibold text-zinc-900">{title}</h3>
+      <p className="mt-2 text-[15px] leading-relaxed text-zinc-500">{description}</p>
     </SurfaceCard>
   );
 }
@@ -182,10 +182,10 @@ export function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
-      <div className="text-[28px] font-bold tracking-tight text-[#0F172A]">{value}</div>
-      <div className="mt-1 text-sm font-medium text-[#0F172A]">{label}</div>
-      {hint ? <div className="mt-1 text-xs text-[#64748B]">{hint}</div> : null}
+    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <div className="text-[28px] font-bold tracking-tight text-zinc-900">{value}</div>
+      <div className="mt-1 text-sm font-medium text-zinc-900">{label}</div>
+      {hint ? <div className="mt-1 text-xs text-zinc-400">{hint}</div> : null}
     </div>
   );
 }
@@ -193,18 +193,18 @@ export function StatCard({
 /* ── Inline check / cross used in lists and tables ────────────────── */
 export function YesMark({ label }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[#16A34A]">
+    <span className="inline-flex items-center gap-1.5 text-[#1F7C80]">
       <Check className="h-4 w-4" aria-hidden />
-      {label ? <span className="text-sm text-[#475569]">{label}</span> : <span className="sr-only">Yes</span>}
+      {label ? <span className="text-sm text-zinc-500">{label}</span> : <span className="sr-only">Yes</span>}
     </span>
   );
 }
 
 export function NoMark({ label }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[#94A3B8]">
+    <span className="inline-flex items-center gap-1.5 text-zinc-300">
       <Minus className="h-4 w-4" aria-hidden />
-      {label ? <span className="text-sm text-[#94A3B8]">{label}</span> : <span className="sr-only">No</span>}
+      {label ? <span className="text-sm text-zinc-300">{label}</span> : <span className="sr-only">No</span>}
     </span>
   );
 }

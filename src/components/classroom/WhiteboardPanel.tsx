@@ -12,7 +12,7 @@ export function WhiteboardPanel({ title, content, highlight, step }: WhiteboardP
     <div className="card h-full flex flex-col overflow-hidden">
       <div className="flex h-10 items-center justify-between border-b border-gray-100 px-4 text-xs font-medium text-gray-500">
         <span className="flex items-center gap-2">
-          <PencilRuler size={14} className="text-blue-600" />
+          <PencilRuler size={14} className="text-[#1F7C80]" />
           Whiteboard
         </span>
         <span className="text-[10px] uppercase tracking-wide">{step || "Lesson"}</span>
@@ -44,7 +44,7 @@ export function WhiteboardPanel({ title, content, highlight, step }: WhiteboardP
                   key={index}
                   className={`rounded-md px-3 py-2 transition-colors ${
                     isHighlight
-                      ? "bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600"
+                      ? "bg-[#e8f5f5] text-[#1A5256] font-semibold border-l-4 border-[#1F7C80]"
                       : isEmpty
                         ? "text-gray-300"
                         : "text-gray-700"

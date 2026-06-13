@@ -7,6 +7,10 @@ interface AppShellProps {
   children?: ReactNode;
 }
 
+/**
+ * @deprecated Use `DashboardShell` for new dashboards. This layout exists
+ * for legacy student sub-pages (StudentShell) that haven't been migrated yet.
+ */
 export function AppShell({ children }: AppShellProps) {
   return (
     <div className="dashboard-layout">

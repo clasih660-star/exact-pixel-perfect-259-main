@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { StudentShell } from "@/components/student/StudentShell";
 import { CheckCircle2, PlayCircle, Lock, RotateCcw, Clock } from "lucide-react";
+import { requireStudent } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/_authenticated/student/courses/$courseId/lessons")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: CourseLessons,
 });
 
@@ -47,7 +49,7 @@ function CourseLessons() {
         <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">{COURSE_TITLE}</h2>
         <div className="mt-4 flex items-center gap-4">
           <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[var(--gray-100)]">
-            <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600" style={{ width: `${pct}%` }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-[#1F7C80] to-[#1A5256]" style={{ width: `${pct}%` }} />
           </div>
           <span className="text-sm font-bold text-[var(--gray-700)]">{done}/{LESSONS.length} lessons · {pct}%</span>
         </div>

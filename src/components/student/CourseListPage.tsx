@@ -48,7 +48,7 @@ export function CourseListPage() {
       subject: "Mathematics",
       level: "Form 2",
       description: "Master quadratic equations, trigonometry, and advanced algebra",
-      color: "from-purple-500 to-indigo-500",
+      color: "from-purple-500 to-[#e8f5f5]0",
       progressPercentage: 65,
       totalLessons: 24,
       completedLessons: 16,
@@ -63,7 +63,7 @@ export function CourseListPage() {
       subject: "Physics",
       level: "Form 1",
       description: "Learn fundamental physics concepts from motion to energy",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-[#e8f5f5]0 to-cyan-500",
       progressPercentage: 0,
       totalLessons: 20,
       completedLessons: 0,
@@ -135,7 +135,7 @@ export function CourseListPage() {
                 placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#1F7C80]"
               />
             </div>
 
@@ -146,7 +146,7 @@ export function CourseListPage() {
                   onClick={() => setSelectedFilter(filter)}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
                     selectedFilter === filter
-                      ? "bg-blue-600 text-white"
+                      ? "bg-[#1F7C80] text-white"
                       : "bg-white text-gray-700 border border-gray-300 hover:border-gray-400"
                   }`}
                 >
@@ -163,7 +163,7 @@ export function CourseListPage() {
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded transition-colors ${
                   viewMode === "grid"
-                    ? "bg-blue-100 text-blue-600"
+                    ? "bg-[#d1eceb] text-[#1F7C80]"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
@@ -173,7 +173,7 @@ export function CourseListPage() {
                 onClick={() => setViewMode("list")}
                 className={`p-2 rounded transition-colors ${
                   viewMode === "list"
-                    ? "bg-blue-100 text-blue-600"
+                    ? "bg-[#d1eceb] text-[#1F7C80]"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >

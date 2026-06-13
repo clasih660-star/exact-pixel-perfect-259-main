@@ -5,16 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /**
  * Event Recording System
  * ----------------------
- * The audit trail / proof-of-delivery layer for the AI teacher. Every meaningful
- * thing that happens inside a classroom session is recorded to `session_events`
- * so institutions can later report on, replay, and trust what was taught.
- *
- * Canonical event_type values (free-form text, but keep to this vocabulary):
- *   session_started, session_resumed, session_completed,
- *   section_started, board_written, teacher_explained,
- *   question_asked, question_answered, checkpoint_triggered,
- *   practice_attempted, practice_correct, hand_raised,
- *   notes_saved, misconception_detected
+ * In demo mode (Supabase not configured), all functions silently no-op
+ * so the classroom never blocks on telemetry.
  */
 
 const ACTOR_ROLES = ["student", "teacher", "ai_teacher", "system"] as const;
@@ -29,13 +21,14 @@ const RecordSchema = z.object({
 });
 
 /**
- * Record a single classroom event. Derives institution/course/lesson from the
- * session so callers only need the session_id plus the event details.
+ * Record a single classroom event.
  */
 export const recordSessionEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => RecordSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
+    if (!context.supabase) return { id: `demo-event-${Date.now()}`, created_at: new Date().toISOString() };
+
     const { data: session, error: sErr } = await context.supabase
       .from("classroom_sessions")
       .select("institution_id, course_id, lesson_id")
@@ -64,14 +57,16 @@ export const recordSessionEvent = createServerFn({ method: "POST" })
   });
 
 /**
- * Full ordered event log for one session — drives session replay & audit.
+ * Full ordered event log for one session.
  */
 export const listSessionEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { session_id: string }) =>
     z.object({ session_id: z.string().uuid() }).parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
+    if (!context.supabase) return { events: [] };
+
     const { data: rows, error } = await context.supabase
       .from("session_events")
       .select("id, event_type, actor_role, event_source, payload_json, student_id, created_at")
@@ -83,8 +78,7 @@ export const listSessionEvents = createServerFn({ method: "GET" })
   });
 
 /**
- * Recent activity feed for an institution dashboard — the latest events across
- * every course/session, newest first.
+ * Recent activity feed for an institution dashboard.
  */
 export const getInstitutionActivity = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -96,7 +90,9 @@ export const getInstitutionActivity = createServerFn({ method: "GET" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
+    if (!context.supabase) return { events: [] };
+
     const { data: rows, error } = await context.supabase
       .from("session_events")
       .select("id, event_type, actor_role, course_id, lesson_id, session_id, payload_json, created_at")

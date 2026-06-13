@@ -118,7 +118,7 @@ export function AnimatedWhiteboard({
           if (boardRect) {
             setHandPosition({
               x: rect.right + 10,
-              y: rect.top - boardRect.top + boardRef.current?.scrollTop + 20,
+              y: rect.top - boardRect.top + (boardRef.current ? boardRef.current.scrollTop : 0) + 20,
             });
           }
         }
@@ -138,8 +138,10 @@ export function AnimatedWhiteboard({
       bullet: "text-xl ml-6 relative before:content-['•'] before:absolute before:left-0",
       equation: "text-2xl font-bold font-mono",
       calculation: "text-xl font-mono",
-      question: "text-lg italic text-blue-700",
+      question: "text-lg italic text-[#1A5256]",
       answer: "text-lg font-semibold text-green-700",
+      diagram_label: "text-lg text-slate-700",
+      step_number: "text-lg font-semibold text-slate-600",
     };
     return `${baseClass} ${typeClasses[item.type] || ""}`;
   };
@@ -167,7 +169,7 @@ export function AnimatedWhiteboard({
       {/* Whiteboard Container */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto bg-gradient-to-br from-white via-blue-50/30 to-white relative"
+        className="flex-1 overflow-y-auto bg-gradient-to-br from-white via-[#e8f5f5]/30 to-white relative"
       >
         {/* Whiteboard Content */}
         <div
@@ -230,7 +232,7 @@ export function AnimatedWhiteboard({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

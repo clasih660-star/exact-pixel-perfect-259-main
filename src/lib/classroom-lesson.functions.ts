@@ -6,10 +6,8 @@
  * between institution-generated lessons (lessons → lesson_sections →
  * teaching_items) and the polished teacher-first runtime.
  *
- * Crucially, it also gathers the course's own material text and attaches it as
- * `materialContext`, so the AI teacher answers learner questions grounded in the
- * institution's approved materials (RAG) rather than the model's general
- * knowledge.
+ * In demo mode (Supabase not configured), returns null so the caller falls
+ * back to the demo lesson registry.
  */
 
 import { createServerFn } from "@tanstack/react-start";
@@ -81,8 +79,13 @@ function toSectionKey(sectionType: string): string {
 export const loadClassroomLesson = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }): Promise<{ content: ClassroomLessonContent | null }> => {
+  .handler(async ({ data, context }: any): Promise<{ content: ClassroomLessonContent | null }> => {
     const { supabase } = context;
+
+    // Demo mode — no database available
+    if (!supabase) {
+      return { content: null };
+    }
 
     // 1. Lesson + course/institution context.
     const { data: lessonRow, error: lErr } = await supabase
@@ -94,8 +97,6 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
       .eq("id", data.lesson_id)
       .single();
     if (lErr || !lessonRow) return { content: null };
-    // The generated DB types aren't wired into this project, so Supabase rows are
-    // treated as loosely-typed (matches the rest of the server functions).
     const lesson = lessonRow as any;
 
     // 2. Sections (ordered) + their teaching items (ordered).
@@ -119,9 +120,7 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
     const items = (itemsRaw ?? []) as any[];
     if (!sections.length || !items.length) return { content: null };
 
-    // 3. Flatten sections → items into the ordered teaching sequence the board
-    //    plays through. Items carry their section key for the "current goal"
-    //    banner and lesson-plan navigation.
+    // 3. Flatten sections → items into the ordered teaching sequence.
     const orderedSections = [...sections].sort((a, b) => a.order_index - b.order_index);
 
     const sequence: MathTeachingItem[] = [];
@@ -140,7 +139,6 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
       for (const it of sectionItems) {
         const board = (it.board_text ?? it.exact_spoken_text ?? "").trim();
         if (!board) continue;
-        // First renderable item of this section marks where the section begins.
         if (!sectionStarted) {
           sectionStops.push({ key, startIndex: sequence.length });
           sectionStarted = true;
@@ -162,8 +160,7 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
 
     if (!sequence.length) return { content: null };
 
-    // 4. Material context for grounded (RAG) question answering — the
-    //    institution's own approved material text, capped to a sane size.
+    // 4. Material context for grounded (RAG) question answering.
     const { data: materials } = await supabase
       .from("course_materials")
       .select("extracted_text")
@@ -176,8 +173,6 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
       .slice(0, 6000)
       .trim();
 
-    // courses(...) is a to-one relation but Supabase may surface it as an object
-    // or a single-element array depending on inference — normalise both.
     const courseRel = lesson.courses;
     const course = (Array.isArray(courseRel) ? courseRel[0] : courseRel) as
       | { title?: string; subject?: string; level?: string; institutions?: { name?: string } | { name?: string }[] }
@@ -206,8 +201,6 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
       sectionStops: sectionStops.length ? sectionStops : [{ key: "concept", startIndex: 0 }],
       sectionRecaps: {},
       thinkingPauses: {},
-      // No authored MCQ checkpoints from generated lessons yet → skip rather than
-      // invent a question the classroom can't grade fairly.
       middleQuestion: undefined,
       confidenceOptions: DEFAULT_CONFIDENCE_OPTIONS,
       practiceProblems: [],

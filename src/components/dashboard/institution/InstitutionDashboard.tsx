@@ -97,7 +97,7 @@ export default function InstitutionDashboard() {
           </p>
           <Link
             to="/institutions/register"
-            className="mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#2563EB] px-5 text-sm font-bold text-white transition-all hover:bg-[#1D4ED8]"
+            className="mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#1F7C80] px-5 text-sm font-bold text-white transition-all hover:bg-[#1A5256]"
           >
             <Plus className="h-4 w-4" /> Register Institution
           </Link>
@@ -120,11 +120,11 @@ function InstitutionHeader({ name }: { name: string }) {
     <section className="mb-8 rounded-2xl border border-[#E2E8F0] bg-white p-6 lg:p-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-5">
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-2xl font-bold text-white">
+          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] text-2xl font-bold text-white">
             {name.slice(0, 1).toUpperCase()}
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#1F7C80]">
               Institution Dashboard
             </p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#0F172A] lg:text-3xl">
@@ -138,28 +138,28 @@ function InstitutionHeader({ name }: { name: string }) {
         <div className="flex flex-wrap gap-2">
           <Link
             to="/institution/courses/new"
-            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl bg-[#2563EB] px-5 text-sm font-bold text-white shadow-lg shadow-[#2563EB]/25 transition-all hover:bg-[#1D4ED8]"
+            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl bg-[#1F7C80] px-5 text-sm font-bold text-white shadow-lg shadow-[#1F7C80]/25 transition-all hover:bg-[#1A5256]"
           >
             <Plus className="h-4 w-4" />
             Create Course
           </Link>
           <Link
             to="/institution/resources/upload"
-            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#2563EB] transition-all hover:bg-[#F8FAFC]"
+            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#1F7C80] transition-all hover:bg-[#F8FAFC]"
           >
             <Upload className="h-4 w-4" />
             Upload Resource
           </Link>
           <Link
             to="/institution/students/invite"
-            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#2563EB] transition-all hover:bg-[#F8FAFC]"
+            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#1F7C80] transition-all hover:bg-[#F8FAFC]"
           >
             <UserPlus className="h-4 w-4" />
             Invite Student
           </Link>
           <Link
             to="/institution/teachers/invite"
-            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#2563EB] transition-all hover:bg-[#F8FAFC]"
+            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-xl border border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#1F7C80] transition-all hover:bg-[#F8FAFC]"
           >
             <GraduationCap className="h-4 w-4" />
             Invite Teacher
@@ -221,7 +221,7 @@ function KpiSection({ stats }: { stats: NonNullable<DashboardData["stats"]> }) {
 
 function MainContentGrid({ data }: { data: DashboardData }) {
   // Convert activity to ActivityFeed format
-  const activityItems = (data.activity || []).slice(0, 8).map((a: any) => ({
+  const activityItems = (data.activity || []).slice(0, 8).map((a: { id: string; event_type: string; actor_role: string; created_at: string }) => ({
     id: a.id,
     action: eventLabel(a.event_type),
     description: `${a.actor_role.replace(/_/g, " ")}`,
@@ -238,14 +238,14 @@ function MainContentGrid({ data }: { data: DashboardData }) {
       <div className="space-y-6 lg:col-span-1">
         <RealtimeMetricCard
           title="Students Online"
-          value={data.stats?.students || "0"}
+          value={String(data.stats?.students ?? 0)}
           subtitle="Across all courses"
           isLive={true}
           icon={Users}
         />
         <RealtimeMetricCard
           title="Teachers Online"
-          value={data.stats?.teachers || "0"}
+          value={String(data.stats?.teachers ?? 0)}
           subtitle="Teaching right now"
           isLive={true}
           icon={GraduationCap}
@@ -269,7 +269,7 @@ function CoursesOverviewPanel({ courses }: { courses: DashboardData["courses"] }
         </div>
         <Link
           to="/institution/courses"
-          className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]"
+          className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]"
         >
           View all
         </Link>
@@ -283,9 +283,9 @@ function CoursesOverviewPanel({ courses }: { courses: DashboardData["courses"] }
           {courses.map((c) => (
             <article
               key={c.id}
-              className="flex flex-col gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#2563EB]/30 hover:shadow-md sm:flex-row sm:items-center"
+              className="flex flex-col gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#1F7C80]/30 hover:shadow-md sm:flex-row sm:items-center"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-xs font-bold text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#1F7C80] to-[#1A5256] text-xs font-bold text-white">
                 {c.title.slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
@@ -304,7 +304,7 @@ function CoursesOverviewPanel({ courses }: { courses: DashboardData["courses"] }
                 <Link
                   to="/institution/courses/$courseId"
                   params={{ courseId: c.id }}
-                  className="inline-flex h-9 items-center rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-bold text-[#2563EB] transition-all hover:bg-[#EFF6FF]"
+                  className="inline-flex h-9 items-center rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-bold text-[#1F7C80] transition-all hover:bg-[#EFF6FF]"
                 >
                   Open
                 </Link>
@@ -333,7 +333,7 @@ function ActiveSessionsPanel({ sessions }: { sessions: DashboardData["activeSess
               key={s.id}
               to="/classroom/session/$sessionId"
               params={{ sessionId: s.id }}
-              className="flex items-center justify-between gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 transition-all hover:border-[#2563EB]/30 hover:shadow-sm"
+              className="flex items-center justify-between gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3 transition-all hover:border-[#1F7C80]/30 hover:shadow-sm"
             >
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-[#0F172A]">{s.title}</p>
@@ -363,7 +363,7 @@ function ResourceLibraryPanel({ materials }: { materials: DashboardData["recentM
             No materials uploaded yet.
           </p>
         ) : (
-          materials.slice(0, 3).map((r: any) => (
+          materials.slice(0, 3).map((r: { id: string; title: string; type: string; processing_status: string }) => (
             <div
               key={r.id}
               className="flex items-center justify-between gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3"
@@ -388,14 +388,14 @@ function ResourceLibraryPanel({ materials }: { materials: DashboardData["recentM
       <div className="mt-4 flex gap-2">
         <Link
           to="/institution/resources/upload"
-          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-4 text-sm font-bold text-white transition-all hover:bg-[#1D4ED8]"
+          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[#1F7C80] px-4 text-sm font-bold text-white transition-all hover:bg-[#1A5256]"
         >
           <Upload className="h-4 w-4" />
           Upload
         </Link>
         <Link
           to="/institution/resources"
-          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#2563EB] transition-all hover:bg-[#F8FAFC]"
+          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#1F7C80] transition-all hover:bg-[#F8FAFC]"
         >
           <FileText className="h-4 w-4" />
           Library
