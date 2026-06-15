@@ -1,4 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState, forwardRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  forwardRef,
+} from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -50,7 +58,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { speak, stopSpeech, pauseSpeech, resumeSpeech, startListening, stopListening as stopVoiceListening } from "@/lib/speech";
+import {
+  speak,
+  stopSpeech,
+  pauseSpeech,
+  resumeSpeech,
+  startListening,
+  stopListening as stopVoiceListening,
+} from "@/lib/speech";
 import type {
   VideoClassroomState,
   LearningMode,
@@ -130,53 +145,237 @@ const SAMPLE_BOARD_SEQUENCE: BoardWriteItem[] = [
 
 const STEP_BOARDS: Record<string, BoardWriteItem[]> = {
   hook: [
-    { id: "h1", type: "heading", text: "Quadratic Equations", readExactly: true, accessibleDescription: "Title: Quadratic Equations." },
-    { id: "h2", type: "bullet", text: "We will move from big idea to worked example.", readExactly: true, accessibleDescription: "We will move from big idea to worked example." },
-    { id: "h3", type: "bullet", text: "Then practice, quiz, and summary.", readExactly: true, accessibleDescription: "Then practice, quiz, and summary." },
+    {
+      id: "h1",
+      type: "heading",
+      text: "Quadratic Equations",
+      readExactly: true,
+      accessibleDescription: "Title: Quadratic Equations.",
+    },
+    {
+      id: "h2",
+      type: "bullet",
+      text: "We will move from big idea to worked example.",
+      readExactly: true,
+      accessibleDescription: "We will move from big idea to worked example.",
+    },
+    {
+      id: "h3",
+      type: "bullet",
+      text: "Then practice, quiz, and summary.",
+      readExactly: true,
+      accessibleDescription: "Then practice, quiz, and summary.",
+    },
   ],
   concept: [
-    { id: "c1", type: "heading", text: "Quadratic Form", readExactly: true, accessibleDescription: "Title: Quadratic Form." },
-    { id: "c2", type: "equation", text: "ax² + bx + c = 0", readExactly: true, accessibleDescription: "a x squared plus b x plus c equals zero." },
-    { id: "c3", type: "bullet", text: "a cannot be 0.", readExactly: true, accessibleDescription: "a cannot be zero." },
+    {
+      id: "c1",
+      type: "heading",
+      text: "Quadratic Form",
+      readExactly: true,
+      accessibleDescription: "Title: Quadratic Form.",
+    },
+    {
+      id: "c2",
+      type: "equation",
+      text: "ax² + bx + c = 0",
+      readExactly: true,
+      accessibleDescription: "a x squared plus b x plus c equals zero.",
+    },
+    {
+      id: "c3",
+      type: "bullet",
+      text: "a cannot be 0.",
+      readExactly: true,
+      accessibleDescription: "a cannot be zero.",
+    },
   ],
   worked_example: [
-    { id: "w1", type: "heading", text: "Worked Example", readExactly: true, accessibleDescription: "Title: Worked Example." },
-    { id: "w2", type: "equation", text: "x² - 5x + 6 = 0", readExactly: true, accessibleDescription: "x squared minus five x plus six equals zero." },
-    { id: "w3", type: "calculation", text: "(x - 2)(x - 3) = 0", readExactly: true, accessibleDescription: "Open paren x minus 2 close paren times open paren x minus 3 close paren equals zero." },
-    { id: "w4", type: "answer", text: "x = 2  or  x = 3", readExactly: true, accessibleDescription: "x equals 2 or x equals 3." },
+    {
+      id: "w1",
+      type: "heading",
+      text: "Worked Example",
+      readExactly: true,
+      accessibleDescription: "Title: Worked Example.",
+    },
+    {
+      id: "w2",
+      type: "equation",
+      text: "x² - 5x + 6 = 0",
+      readExactly: true,
+      accessibleDescription: "x squared minus five x plus six equals zero.",
+    },
+    {
+      id: "w3",
+      type: "calculation",
+      text: "(x - 2)(x - 3) = 0",
+      readExactly: true,
+      accessibleDescription:
+        "Open paren x minus 2 close paren times open paren x minus 3 close paren equals zero.",
+    },
+    {
+      id: "w4",
+      type: "answer",
+      text: "x = 2  or  x = 3",
+      readExactly: true,
+      accessibleDescription: "x equals 2 or x equals 3.",
+    },
   ],
   guided_practice: [
-    { id: "g1", type: "heading", text: "Practice Together", readExactly: true, accessibleDescription: "Title: Practice Together." },
-    { id: "g2", type: "equation", text: "x² + 7x + 12 = 0", readExactly: true, accessibleDescription: "x squared plus seven x plus twelve equals zero." },
-    { id: "g3", type: "bullet", text: "Which pair works?", readExactly: true, accessibleDescription: "Which pair of numbers works?" },
-    { id: "g4", type: "answer", text: "3 and 4", readExactly: true, accessibleDescription: "The answer is 3 and 4." },
+    {
+      id: "g1",
+      type: "heading",
+      text: "Practice Together",
+      readExactly: true,
+      accessibleDescription: "Title: Practice Together.",
+    },
+    {
+      id: "g2",
+      type: "equation",
+      text: "x² + 7x + 12 = 0",
+      readExactly: true,
+      accessibleDescription: "x squared plus seven x plus twelve equals zero.",
+    },
+    {
+      id: "g3",
+      type: "bullet",
+      text: "Which pair works?",
+      readExactly: true,
+      accessibleDescription: "Which pair of numbers works?",
+    },
+    {
+      id: "g4",
+      type: "answer",
+      text: "3 and 4",
+      readExactly: true,
+      accessibleDescription: "The answer is 3 and 4.",
+    },
   ],
   independent_question: [
-    { id: "i1", type: "heading", text: "Your Turn", readExactly: true, accessibleDescription: "Title: Your Turn." },
-    { id: "i2", type: "equation", text: "x² - 8x + 15 = 0", readExactly: true, accessibleDescription: "x squared minus eight x plus fifteen equals zero." },
-    { id: "i3", type: "bullet", text: "Think of the pair.", readExactly: true, accessibleDescription: "Think of the pair of numbers." },
-    { id: "i4", type: "bullet", text: "Write your answer.", readExactly: true, accessibleDescription: "Write your answer." },
+    {
+      id: "i1",
+      type: "heading",
+      text: "Your Turn",
+      readExactly: true,
+      accessibleDescription: "Title: Your Turn.",
+    },
+    {
+      id: "i2",
+      type: "equation",
+      text: "x² - 8x + 15 = 0",
+      readExactly: true,
+      accessibleDescription: "x squared minus eight x plus fifteen equals zero.",
+    },
+    {
+      id: "i3",
+      type: "bullet",
+      text: "Think of the pair.",
+      readExactly: true,
+      accessibleDescription: "Think of the pair of numbers.",
+    },
+    {
+      id: "i4",
+      type: "bullet",
+      text: "Write your answer.",
+      readExactly: true,
+      accessibleDescription: "Write your answer.",
+    },
   ],
   correction: [
-    { id: "r1", type: "heading", text: "Let's Review", readExactly: true, accessibleDescription: "Title: Let's Review." },
-    { id: "r2", type: "bullet", text: "We need numbers that multiply to 15.", readExactly: true, accessibleDescription: "We need numbers that multiply to fifteen." },
-    { id: "r3", type: "bullet", text: "and add to -8.", readExactly: true, accessibleDescription: "and add to negative eight." },
-    { id: "r4", type: "answer", text: "x = 3  or  x = 5", readExactly: true, accessibleDescription: "x equals three or x equals five." },
+    {
+      id: "r1",
+      type: "heading",
+      text: "Let's Review",
+      readExactly: true,
+      accessibleDescription: "Title: Let's Review.",
+    },
+    {
+      id: "r2",
+      type: "bullet",
+      text: "We need numbers that multiply to 15.",
+      readExactly: true,
+      accessibleDescription: "We need numbers that multiply to fifteen.",
+    },
+    {
+      id: "r3",
+      type: "bullet",
+      text: "and add to -8.",
+      readExactly: true,
+      accessibleDescription: "and add to negative eight.",
+    },
+    {
+      id: "r4",
+      type: "answer",
+      text: "x = 3  or  x = 5",
+      readExactly: true,
+      accessibleDescription: "x equals three or x equals five.",
+    },
   ],
   quiz: [
-    { id: "q1", type: "heading", text: "Quiz Time", readExactly: true, accessibleDescription: "Title: Quiz Time." },
-    { id: "q2", type: "question", text: "Solve: x² - 9x + 20 = 0", readExactly: true, accessibleDescription: "Solve: x squared minus nine x plus twenty equals zero." },
-    { id: "q3", type: "bullet", text: "Choose carefully.", readExactly: true, accessibleDescription: "Choose carefully." },
+    {
+      id: "q1",
+      type: "heading",
+      text: "Quiz Time",
+      readExactly: true,
+      accessibleDescription: "Title: Quiz Time.",
+    },
+    {
+      id: "q2",
+      type: "question",
+      text: "Solve: x² - 9x + 20 = 0",
+      readExactly: true,
+      accessibleDescription: "Solve: x squared minus nine x plus twenty equals zero.",
+    },
+    {
+      id: "q3",
+      type: "bullet",
+      text: "Choose carefully.",
+      readExactly: true,
+      accessibleDescription: "Choose carefully.",
+    },
   ],
   summary: [
-    { id: "s1", type: "heading", text: "Summary", readExactly: true, accessibleDescription: "Title: Summary." },
-    { id: "s2", type: "bullet", text: "Write in standard form.", readExactly: true, accessibleDescription: "Step one: Write in standard form." },
-    { id: "s3", type: "bullet", text: "Find the right pair.", readExactly: true, accessibleDescription: "Step two: Find the right pair." },
-    { id: "s4", type: "bullet", text: "Factor and solve.", readExactly: true, accessibleDescription: "Step three: Factor and solve." },
+    {
+      id: "s1",
+      type: "heading",
+      text: "Summary",
+      readExactly: true,
+      accessibleDescription: "Title: Summary.",
+    },
+    {
+      id: "s2",
+      type: "bullet",
+      text: "Write in standard form.",
+      readExactly: true,
+      accessibleDescription: "Step one: Write in standard form.",
+    },
+    {
+      id: "s3",
+      type: "bullet",
+      text: "Find the right pair.",
+      readExactly: true,
+      accessibleDescription: "Step two: Find the right pair.",
+    },
+    {
+      id: "s4",
+      type: "bullet",
+      text: "Factor and solve.",
+      readExactly: true,
+      accessibleDescription: "Step three: Factor and solve.",
+    },
   ],
 };
 
-const STEP_ORDER = ["hook", "concept", "worked_example", "guided_practice", "independent_question", "correction", "quiz", "summary"] as const;
+const STEP_ORDER = [
+  "hook",
+  "concept",
+  "worked_example",
+  "guided_practice",
+  "independent_question",
+  "correction",
+  "quiz",
+  "summary",
+] as const;
 
 const LEARNING_MODES: { key: LearningMode; label: string }[] = [
   { key: "standard", label: "Standard" },
@@ -195,7 +394,8 @@ const LEARNING_MODES: { key: LearningMode; label: string }[] = [
 /* ─── Writing speed config ───────────────────────────────────── */
 
 function getCharDelay(speed?: WritingSpeed, mode?: LearningMode): number {
-  const base = mode === "adhd_focus" || mode === "extra_support" ? 55 : mode === "dyslexia" ? 60 : 40;
+  const base =
+    mode === "adhd_focus" || mode === "extra_support" ? 55 : mode === "dyslexia" ? 60 : 40;
   if (speed === "slow") return base + 30;
   if (speed === "fast") return Math.max(15, base - 15);
   return base;
@@ -274,7 +474,12 @@ function createInitialState(sessionId: string, learningMode: LearningMode): Vide
     },
     questionState: {
       isPromptOpen: false,
-      inputMode: learningMode === "blind" ? "voice" : learningMode === "speech_difficulty" ? "quick_action" : "text",
+      inputMode:
+        learningMode === "blind"
+          ? "voice"
+          : learningMode === "speech_difficulty"
+            ? "quick_action"
+            : "text",
       isListening: false,
       transcript: "",
       blindState: undefined,
@@ -322,7 +527,14 @@ function reducer(state: VideoClassroomState, action: Action): VideoClassroomStat
     case "SET_TEACHER_STATE":
       return { ...state, teacherState: action.state };
     case "SET_WRITING":
-      return { ...state, boardState: { ...state.boardState, isWriting: action.isWriting, currentWrittenText: action.currentText } };
+      return {
+        ...state,
+        boardState: {
+          ...state.boardState,
+          isWriting: action.isWriting,
+          currentWrittenText: action.currentText,
+        },
+      };
     case "FINISH_ITEM":
       return {
         ...state,
@@ -336,7 +548,17 @@ function reducer(state: VideoClassroomState, action: Action): VideoClassroomStat
     case "SET_CURRENT_ITEM_INDEX":
       return { ...state, boardState: { ...state.boardState, currentItemIndex: action.index } };
     case "SET_BOARD_ITEMS":
-      return { ...state, boardState: { ...state.boardState, items: action.items, writtenItems: [], currentItemIndex: 0, currentWrittenText: "", isWriting: false } };
+      return {
+        ...state,
+        boardState: {
+          ...state.boardState,
+          items: action.items,
+          writtenItems: [],
+          currentItemIndex: 0,
+          currentWrittenText: "",
+          isWriting: false,
+        },
+      };
     case "SET_AUDIO_PLAYING":
       return { ...state, audioState: { ...state.audioState, playing: action.playing } };
     case "SET_AUDIO_ENABLED":
@@ -348,9 +570,25 @@ function reducer(state: VideoClassroomState, action: Action): VideoClassroomStat
     case "OPEN_QUESTION":
       return { ...state, questionState: { ...state.questionState, isPromptOpen: true } };
     case "CLOSE_QUESTION":
-      return { ...state, questionState: { ...state.questionState, isPromptOpen: false, transcript: "", isListening: false, blindState: undefined } };
+      return {
+        ...state,
+        questionState: {
+          ...state.questionState,
+          isPromptOpen: false,
+          transcript: "",
+          isListening: false,
+          blindState: undefined,
+        },
+      };
     case "SET_LISTENING":
-      return { ...state, questionState: { ...state.questionState, isListening: action.isListening, transcript: action.transcript } };
+      return {
+        ...state,
+        questionState: {
+          ...state.questionState,
+          isListening: action.isListening,
+          transcript: action.transcript,
+        },
+      };
     case "SET_BLIND_STATE":
       return { ...state, questionState: { ...state.questionState, blindState: action.blindState } };
     case "ADD_TRANSCRIPT": {
@@ -376,7 +614,10 @@ function reducer(state: VideoClassroomState, action: Action): VideoClassroomStat
     }
     case "SET_STEP_INDEX": {
       const pct = Math.round(((action.index + 1) / state.progress.totalSteps) * 100);
-      return { ...state, progress: { ...state.progress, stepIndex: action.index, percentage: pct } };
+      return {
+        ...state,
+        progress: { ...state.progress, stepIndex: action.index, percentage: pct },
+      };
     }
     case "START_REPLAY":
       return {
@@ -395,7 +636,13 @@ function reducer(state: VideoClassroomState, action: Action): VideoClassroomStat
     case "RESET_BOARD":
       return {
         ...state,
-        boardState: { ...state.boardState, writtenItems: [], currentItemIndex: 0, currentWrittenText: "", isWriting: false },
+        boardState: {
+          ...state.boardState,
+          writtenItems: [],
+          currentItemIndex: 0,
+          currentWrittenText: "",
+          isWriting: false,
+        },
       };
     case "SET_AUTO_SCROLL":
       return { ...state, boardState: { ...state.boardState, autoScroll: action.autoScroll } };
@@ -412,9 +659,19 @@ interface VideoClassroomPageProps {
   onEndLesson?: () => void;
 }
 
-export function VideoClassroomPage({ classroomContext, sessionId = "demo-session", onEndLesson }: VideoClassroomPageProps) {
+export function VideoClassroomPage({
+  classroomContext,
+  sessionId = "demo-session",
+  onEndLesson,
+}: VideoClassroomPageProps) {
   const initialState = useMemo(
-    () => createInitialState(sessionId, classroomContext?.learnerAccessProfile?.lessonPace === "slow" ? "extra_support" : "standard"),
+    () =>
+      createInitialState(
+        sessionId,
+        classroomContext?.learnerAccessProfile?.lessonPace === "slow"
+          ? "extra_support"
+          : "standard",
+      ),
     [sessionId, classroomContext?.learnerAccessProfile?.lessonPace],
   );
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -435,7 +692,9 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   const [exitTicketAnswer, setExitTicketAnswer] = useState("");
   const [exitTicketResult, setExitTicketResult] = useState<"correct" | "incorrect" | null>(null);
   const [requiredQuestionAnswer, setRequiredQuestionAnswer] = useState("");
-  const [requiredQuestionResult, setRequiredQuestionResult] = useState<"correct" | "incorrect" | null>(null);
+  const [requiredQuestionResult, setRequiredQuestionResult] = useState<
+    "correct" | "incorrect" | null
+  >(null);
   const [userNotes, setUserNotes] = useState<string[]>([]);
   const [userNoteInput, setUserNoteInput] = useState("");
   const [completion, setCompletion] = useState<CompletionTracking>(INITIAL_COMPLETION);
@@ -453,7 +712,10 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   const course = classroomContext?.course;
   const activeLesson = lessonRef.current;
 
-  const currentStepLabel = STEP_ORDER[state.progress.stepIndex]?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) ?? "Hook";
+  const currentStepLabel =
+    STEP_ORDER[state.progress.stepIndex]
+      ?.replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase()) ?? "Hook";
 
   /* ── Cleanup ─────────────────────────────────────────────── */
   useEffect(() => {
@@ -515,7 +777,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     if (state.boardState.autoScroll && boardRef.current) {
       boardRef.current.scrollTop = boardRef.current.scrollHeight;
     }
-  }, [state.boardState.writtenItems, state.boardState.currentWrittenText, state.boardState.autoScroll]);
+  }, [
+    state.boardState.writtenItems,
+    state.boardState.currentWrittenText,
+    state.boardState.autoScroll,
+  ]);
 
   /* ── Animate writing a board item ────────────────────────── */
   const animateItem = useCallback(
@@ -525,7 +791,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
         dispatch({ type: "SET_WRITING", isWriting: true, currentText: "" });
         dispatch({ type: "SET_CAPTION", text: item.accessibleDescription });
 
-        trackEvent({ type: "board_item_written", itemId: item.id, timestamp: new Date().toISOString() });
+        trackEvent({
+          type: "board_item_written",
+          itemId: item.id,
+          timestamp: new Date().toISOString(),
+        });
 
         const delay = getCharDelay(item.writingSpeed, state.learningMode);
         const text = item.text;
@@ -536,7 +806,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
           if (charIndex < text.length && isPlayingRef.current) {
             charIndex++;
             currentCharIndexRef.current = charIndex;
-            dispatch({ type: "SET_WRITING", isWriting: true, currentText: text.slice(0, charIndex) });
+            dispatch({
+              type: "SET_WRITING",
+              isWriting: true,
+              currentText: text.slice(0, charIndex),
+            });
 
             const charDelay = text[charIndex - 1] === " " ? delay + 30 : delay;
             writingTimerRef.current = setTimeout(writeNextChar, charDelay);
@@ -586,14 +860,22 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       // 2. Teacher reads exact text (the exact-read rule)
       dispatch({ type: "SET_TEACHER_STATE", state: "speaking" });
       if (item.readExactly) {
-        trackEvent({ type: "teacher_read_board_item", itemId: item.id, timestamp: new Date().toISOString() });
+        trackEvent({
+          type: "teacher_read_board_item",
+          itemId: item.id,
+          timestamp: new Date().toISOString(),
+        });
         await speakText(item.text);
       }
 
       // 3. Teacher gives deeper explanation if available
       if (item.explanation) {
         dispatch({ type: "SET_TEACHER_STATE", state: "explaining" });
-        trackEvent({ type: "teacher_explained_item", itemId: item.id, timestamp: new Date().toISOString() });
+        trackEvent({
+          type: "teacher_explained_item",
+          itemId: item.id,
+          timestamp: new Date().toISOString(),
+        });
         await speakText(item.explanation);
       }
 
@@ -626,7 +908,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
           timestamp: new Date().toISOString(),
         },
       });
-      trackEvent({ type: "question_checkpoint_triggered", checkpointId: `checkpoint_${minute}`, timestamp: new Date().toISOString() });
+      trackEvent({
+        type: "question_checkpoint_triggered",
+        checkpointId: `checkpoint_${minute}`,
+        timestamp: new Date().toISOString(),
+      });
       speakText("Do you have any question before we continue?");
     },
     [speakText],
@@ -643,7 +929,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
     dispatch({ type: "SET_CAPTION", text: activeLesson.requiredMidLessonQuestion.questionText });
 
-    trackEvent({ type: "required_question_asked", questionId: activeLesson.requiredMidLessonQuestion.id, timestamp: new Date().toISOString() });
+    trackEvent({
+      type: "required_question_asked",
+      questionId: activeLesson.requiredMidLessonQuestion.id,
+      timestamp: new Date().toISOString(),
+    });
 
     speakText(activeLesson.requiredMidLessonQuestion.questionText);
   }, [speakText, activeLesson]);
@@ -662,7 +952,12 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       weakAreas: isCorrect ? prev.weakAreas : [...prev.weakAreas, "Factoring number pairs"],
     }));
 
-    trackEvent({ type: "required_question_answered", questionId: q.id, correct: isCorrect, timestamp: new Date().toISOString() });
+    trackEvent({
+      type: "required_question_answered",
+      questionId: q.id,
+      correct: isCorrect,
+      timestamp: new Date().toISOString(),
+    });
 
     if (isCorrect) {
       speakText(q.feedbackCorrect).then(() => {
@@ -700,7 +995,9 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     (type: "guided" | "independent") => {
       const stepIndex = type === "guided" ? 3 : 4; // guided_practice or independent_question
       const stepKey = STEP_ORDER[stepIndex];
-      const practiceStep = activeLesson.steps.find((s) => s.key === stepKey || s.id === `step_${stepIndex + 1}`);
+      const practiceStep = activeLesson.steps.find(
+        (s) => s.key === stepKey || s.id === `step_${stepIndex + 1}`,
+      );
       if (!practiceStep?.practice) return;
 
       setShowPractice(true);
@@ -711,14 +1008,23 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
 
       if (type === "guided") {
-        trackEvent({ type: "guided_practice_started", practiceId: practiceStep.practice.id, timestamp: new Date().toISOString() });
+        trackEvent({
+          type: "guided_practice_started",
+          practiceId: practiceStep.practice.id,
+          timestamp: new Date().toISOString(),
+        });
       } else {
-        trackEvent({ type: "independent_practice_started", practiceId: practiceStep.practice.id, timestamp: new Date().toISOString() });
+        trackEvent({
+          type: "independent_practice_started",
+          practiceId: practiceStep.practice.id,
+          timestamp: new Date().toISOString(),
+        });
       }
 
-      speakText(type === "guided"
-        ? `Let's practice together. ${practiceStep.practice.problemText}`
-        : `Now it's your turn. ${practiceStep.practice.problemText}`
+      speakText(
+        type === "guided"
+          ? `Let's practice together. ${practiceStep.practice.problemText}`
+          : `Now it's your turn. ${practiceStep.practice.problemText}`,
       );
     },
     [activeLesson, speakText],
@@ -734,7 +1040,9 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     if (!currentPractice) return;
 
     const normalized = practiceAnswer.toLowerCase().trim();
-    const isCorrect = currentPractice.acceptableAnswers.some((a) => a.toLowerCase().trim() === normalized);
+    const isCorrect = currentPractice.acceptableAnswers.some(
+      (a) => a.toLowerCase().trim() === normalized,
+    );
 
     setPracticeResult(isCorrect ? "correct" : "incorrect");
 
@@ -745,10 +1053,20 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       guidedPracticeCorrect: isGuided && isCorrect ? true : prev.guidedPracticeCorrect,
       independentPracticeAttempted: !isGuided ? true : prev.independentPracticeAttempted,
       independentPracticeCorrect: !isGuided && isCorrect ? true : prev.independentPracticeCorrect,
-      weakAreas: isCorrect ? prev.weakAreas : [...prev.weakAreas, currentPractice.type === "guided" ? "Guided practice" : "Independent practice"],
+      weakAreas: isCorrect
+        ? prev.weakAreas
+        : [
+            ...prev.weakAreas,
+            currentPractice.type === "guided" ? "Guided practice" : "Independent practice",
+          ],
     }));
 
-    trackEvent({ type: "practice_answer_submitted", practiceId: currentPractice.id, correct: isCorrect, timestamp: new Date().toISOString() });
+    trackEvent({
+      type: "practice_answer_submitted",
+      practiceId: currentPractice.id,
+      correct: isCorrect,
+      timestamp: new Date().toISOString(),
+    });
 
     if (isCorrect) {
       dispatch({ type: "SET_TEACHER_STATE", state: "encouraging" });
@@ -794,7 +1112,9 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   const handleExitTicketSubmit = useCallback(() => {
     if (!activeLesson.exitTicket) return;
     const normalized = exitTicketAnswer.toLowerCase().trim();
-    const isCorrect = activeLesson.exitTicket.acceptableAnswers.some((a) => a.toLowerCase().trim() === normalized);
+    const isCorrect = activeLesson.exitTicket.acceptableAnswers.some(
+      (a) => a.toLowerCase().trim() === normalized,
+    );
 
     setExitTicketResult(isCorrect ? "correct" : "incorrect");
     setCompletion((prev) => ({
@@ -803,9 +1123,17 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       exitTicketCorrect: isCorrect,
     }));
 
-    trackEvent({ type: "exit_ticket_submitted", correct: isCorrect, timestamp: new Date().toISOString() });
+    trackEvent({
+      type: "exit_ticket_submitted",
+      correct: isCorrect,
+      timestamp: new Date().toISOString(),
+    });
 
-    speakText(isCorrect ? activeLesson.exitTicket.feedback : "Not quite. Remember: the numbers must multiply to c and add to b.").then(() => {
+    speakText(
+      isCorrect
+        ? activeLesson.exitTicket.feedback
+        : "Not quite. Remember: the numbers must multiply to c and add to b.",
+    ).then(() => {
       setTimeout(() => {
         setShowExitTicket(false);
         completeLesson();
@@ -857,7 +1185,10 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       idx++;
 
       // Ask question after certain items
-      if (idx < items.length && (items[idx - 1].type === "answer" || items[idx - 1].type === "calculation")) {
+      if (
+        idx < items.length &&
+        (items[idx - 1].type === "answer" || items[idx - 1].type === "calculation")
+      ) {
         dispatch({ type: "SET_TEACHER_STATE", state: "asking_question" });
         dispatch({ type: "OPEN_QUESTION" });
         if (state.learningMode !== "blind") {
@@ -872,11 +1203,24 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
       await speakText("Great job! That is the end of this section.");
 
       // Check if we should trigger exit ticket at end
-      if (state.progress.stepIndex >= STEP_ORDER.length - 1 && !completion.exitTicketAnswered && activeLesson.exitTicket) {
+      if (
+        state.progress.stepIndex >= STEP_ORDER.length - 1 &&
+        !completion.exitTicketAnswered &&
+        activeLesson.exitTicket
+      ) {
         triggerExitTicket();
       }
     }
-  }, [playBoardItem, state.boardState.items, state.boardState.currentItemIndex, state.learningMode, state.progress.stepIndex, completion.exitTicketAnswered, activeLesson.exitTicket, triggerExitTicket]);
+  }, [
+    playBoardItem,
+    state.boardState.items,
+    state.boardState.currentItemIndex,
+    state.learningMode,
+    state.progress.stepIndex,
+    completion.exitTicketAnswered,
+    activeLesson.exitTicket,
+    triggerExitTicket,
+  ]);
 
   // Wire up the ref so handlers defined before playLesson can call it
   playLessonRef.current = playLesson;
@@ -898,19 +1242,16 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   };
 
   /* ── Step navigation ─────────────────────────────────────── */
-  const goToStep = useCallback(
-    (stepIndex: number) => {
-      if (stepIndex < 0 || stepIndex >= STEP_ORDER.length) return;
-      const stepKey = STEP_ORDER[stepIndex];
-      dispatch({ type: "SET_STEP_INDEX", index: stepIndex });
-      dispatch({ type: "SET_BOARD_ITEMS", items: STEP_BOARDS[stepKey] ?? SAMPLE_BOARD_SEQUENCE });
-      dispatch({ type: "SET_TEACHER_STATE", state: "preparing" });
-      isPlayingRef.current = false;
-      setIsPaused(false);
-      stopSpeech();
-    },
-    [],
-  );
+  const goToStep = useCallback((stepIndex: number) => {
+    if (stepIndex < 0 || stepIndex >= STEP_ORDER.length) return;
+    const stepKey = STEP_ORDER[stepIndex];
+    dispatch({ type: "SET_STEP_INDEX", index: stepIndex });
+    dispatch({ type: "SET_BOARD_ITEMS", items: STEP_BOARDS[stepKey] ?? SAMPLE_BOARD_SEQUENCE });
+    dispatch({ type: "SET_TEACHER_STATE", state: "preparing" });
+    isPlayingRef.current = false;
+    setIsPaused(false);
+    stopSpeech();
+  }, []);
 
   /* ── Replay ──────────────────────────────────────────────── */
   const replayFromStart = () => {
@@ -920,7 +1261,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   };
 
   const replayCurrentStep = () => {
-    trackEvent({ type: "lesson_replayed", fromStep: state.boardState.currentItemIndex, timestamp: new Date().toISOString() });
+    trackEvent({
+      type: "lesson_replayed",
+      fromStep: state.boardState.currentItemIndex,
+      timestamp: new Date().toISOString(),
+    });
     dispatch({ type: "START_REPLAY", fromIndex: state.boardState.currentItemIndex });
     setTimeout(() => playLesson(), 300);
   };
@@ -969,7 +1314,12 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
 
     dispatch({
       type: "ADD_TRANSCRIPT",
-      entry: { id: crypto.randomUUID(), role: "student", text: question, timestamp: new Date().toISOString() },
+      entry: {
+        id: crypto.randomUUID(),
+        role: "student",
+        text: question,
+        timestamp: new Date().toISOString(),
+      },
     });
     dispatch({ type: "CLOSE_QUESTION" });
     stopVoiceListening(recognitionRef.current);
@@ -982,9 +1332,18 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
     speakText(answer).then(() => {
       dispatch({
         type: "ADD_TRANSCRIPT",
-        entry: { id: crypto.randomUUID(), role: "teacher", text: answer, timestamp: new Date().toISOString() },
+        entry: {
+          id: crypto.randomUUID(),
+          role: "teacher",
+          text: answer,
+          timestamp: new Date().toISOString(),
+        },
       });
-      trackEvent({ type: "teacher_answered_question", answer, timestamp: new Date().toISOString() });
+      trackEvent({
+        type: "teacher_answered_question",
+        answer,
+        timestamp: new Date().toISOString(),
+      });
       dispatch({ type: "SET_TEACHER_STATE", state: "speaking" });
     });
     setQuestionInput("");
@@ -1034,7 +1393,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
   /* ── Save notes ──────────────────────────────────────────── */
   const handleSaveNotes = () => {
     setCompletion((prev) => ({ ...prev, notesSaved: true }));
-    trackEvent({ type: "lesson_completed", summary: {} as any, timestamp: new Date().toISOString() });
+    trackEvent({
+      type: "lesson_completed",
+      summary: {} as any,
+      timestamp: new Date().toISOString(),
+    });
   };
 
   /* ── Mode defaults ───────────────────────────────────────── */
@@ -1113,7 +1476,11 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
             <button onClick={replayCurrentStep} className="replay-button" title="Replay step">
               <RotateCcw className="h-3.5 w-3.5" /> Replay Step
             </button>
-            <button onClick={replayLastExplanation} className="replay-button" title="Replay last explanation">
+            <button
+              onClick={replayLastExplanation}
+              className="replay-button"
+              title="Replay last explanation"
+            >
               <Volume2 className="h-3.5 w-3.5" /> Replay Explanation
             </button>
             <button onClick={replayFromStart} className="replay-button" title="Replay all">
@@ -1122,12 +1489,20 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
 
             {/* Practice triggers */}
             {!completion.guidedPracticeAttempted && state.progress.stepIndex >= 3 && (
-              <button onClick={() => startPractice("guided")} className="replay-button text-[#1F7C80] border-[#a3d9d8]" title="Guided practice">
+              <button
+                onClick={() => startPractice("guided")}
+                className="replay-button text-[#1F7C80] border-[#a3d9d8]"
+                title="Guided practice"
+              >
                 <Target className="h-3.5 w-3.5" /> Guided Practice
               </button>
             )}
             {!completion.independentPracticeAttempted && state.progress.stepIndex >= 4 && (
-              <button onClick={() => startPractice("independent")} className="replay-button text-purple-600 border-purple-200" title="Independent practice">
+              <button
+                onClick={() => startPractice("independent")}
+                className="replay-button text-purple-600 border-purple-200"
+                title="Independent practice"
+              >
                 <Brain className="h-3.5 w-3.5" /> Independent Practice
               </button>
             )}
@@ -1305,21 +1680,23 @@ export function VideoClassroomPage({ classroomContext, sessionId = "demo-session
               <Sparkles className="h-4 w-4" />
               Welcome to Klassruum
             </div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Your AI teacher is ready.
-            </h2>
+            <h2 className="text-2xl font-bold text-foreground">Your AI teacher is ready.</h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              This lesson includes voice, whiteboard with handwriting, captions, and full accessibility support.
+              This lesson includes voice, whiteboard with handwriting, captions, and full
+              accessibility support.
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
               <Clock className="mr-1 inline h-3 w-3" />
               Estimated duration: {activeLesson.estimatedDurationMinutes} minutes
             </p>
             <div className="mt-6 flex items-center justify-center gap-3">
-              <Button onClick={() => {
-                trackEvent({ type: "session_started", timestamp: new Date().toISOString() });
-                playLesson();
-              }} size="lg">
+              <Button
+                onClick={() => {
+                  trackEvent({ type: "session_started", timestamp: new Date().toISOString() });
+                  playLesson();
+                }}
+                size="lg"
+              >
                 <Play className="mr-2 h-5 w-5" />
                 Start Lesson
               </Button>
@@ -1369,8 +1746,14 @@ function ClassroomTopBar({
   onEndLesson: () => void;
 }) {
   return (
-    <header className="flex h-14 items-center border-b border-border bg-white px-4 shadow-sm" role="banner">
-      <Link to="/student/dashboard" className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+    <header
+      className="flex h-14 items-center border-b border-border bg-white px-4 shadow-sm"
+      role="banner"
+    >
+      <Link
+        to="/student/dashboard"
+        className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" />
         Exit
       </Link>
@@ -1388,10 +1771,18 @@ function ClassroomTopBar({
 
       <div className="ml-auto flex items-center gap-3">
         {/* Live badge */}
-        <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-          liveStatus === "live" ? "bg-red-100 text-red-600" : liveStatus === "paused" ? "bg-yellow-100 text-yellow-700" : "bg-slate-100 text-slate-500"
-        }`}>
-          <span className={`h-2 w-2 rounded-full ${liveStatus === "live" ? "animate-pulse bg-red-500" : liveStatus === "paused" ? "bg-yellow-500" : "bg-slate-400"}`} />
+        <div
+          className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            liveStatus === "live"
+              ? "bg-red-100 text-red-600"
+              : liveStatus === "paused"
+                ? "bg-yellow-100 text-yellow-700"
+                : "bg-slate-100 text-slate-500"
+          }`}
+        >
+          <span
+            className={`h-2 w-2 rounded-full ${liveStatus === "live" ? "animate-pulse bg-red-500" : liveStatus === "paused" ? "bg-yellow-500" : "bg-slate-400"}`}
+          />
           {liveStatus === "live" ? "Live" : liveStatus === "paused" ? "Paused" : "Ready"}
         </div>
 
@@ -1416,31 +1807,49 @@ function ClassroomTopBar({
         {/* Progress */}
         <div className="flex items-center gap-2">
           <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-200">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${progress}%` }}
+            />
           </div>
           <span className="text-xs font-bold text-foreground">{progress}%</span>
         </div>
 
         {/* Learning Mode */}
-        <button onClick={onOpenModeSwitcher} className="learning-mode-badge" aria-label="Change learning mode">
+        <button
+          onClick={onOpenModeSwitcher}
+          className="learning-mode-badge"
+          aria-label="Change learning mode"
+        >
           <Accessibility className="h-3.5 w-3.5" />
           {LEARNING_MODES.find((m) => m.key === learningMode)?.label ?? "Standard"}
         </button>
 
         {/* Notes */}
-        <button onClick={onOpenNotes} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground" aria-label="Open notes">
+        <button
+          onClick={onOpenNotes}
+          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+          aria-label="Open notes"
+        >
           <FileText className="h-3.5 w-3.5" />
           Notes
         </button>
 
         {/* Transcript */}
-        <button onClick={onOpenTranscript} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground" aria-label="Open transcript">
+        <button
+          onClick={onOpenTranscript}
+          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+          aria-label="Open transcript"
+        >
           <BookOpen className="h-3.5 w-3.5" />
           Transcript
         </button>
 
         {/* End Lesson */}
-        <button onClick={onEndLesson} className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-white hover:bg-destructive/90">
+        <button
+          onClick={onEndLesson}
+          className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-white hover:bg-destructive/90"
+        >
           End Lesson
         </button>
       </div>
@@ -1478,46 +1887,79 @@ function TeacherVideoPanel({
   const stateLabel = teacherState.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const stateColor = (() => {
     switch (teacherState) {
-      case "speaking": return "bg-[#d1eceb] text-[#1A5256]";
-      case "writing": return "bg-purple-100 text-purple-700";
-      case "listening": return "bg-green-100 text-green-700";
-      case "thinking": return "bg-orange-100 text-orange-700";
-      case "answering": return "bg-cyan-100 text-cyan-700";
-      case "encouraging": return "bg-pink-100 text-pink-700";
-      case "paused": return "bg-yellow-100 text-yellow-700";
-      case "explaining": return "bg-[#e8f5f5] text-[#1A5256]";
-      case "asking_question": return "bg-amber-100 text-amber-700";
-      case "preparing": return "bg-slate-100 text-slate-600";
-      default: return "bg-slate-100 text-slate-600";
+      case "speaking":
+        return "bg-[#d1eceb] text-[#1A5256]";
+      case "writing":
+        return "bg-purple-100 text-purple-700";
+      case "listening":
+        return "bg-green-100 text-green-700";
+      case "thinking":
+        return "bg-orange-100 text-orange-700";
+      case "answering":
+        return "bg-cyan-100 text-cyan-700";
+      case "encouraging":
+        return "bg-pink-100 text-pink-700";
+      case "paused":
+        return "bg-yellow-100 text-yellow-700";
+      case "explaining":
+        return "bg-[#e8f5f5] text-[#1A5256]";
+      case "asking_question":
+        return "bg-amber-100 text-amber-700";
+      case "preparing":
+        return "bg-slate-100 text-slate-600";
+      default:
+        return "bg-slate-100 text-slate-600";
     }
   })();
 
   // Dynamic activity description based on state
   const activityDescription = (() => {
     switch (teacherState) {
-      case "writing": return "Writing on board...";
-      case "speaking": return "Explaining the lesson...";
-      case "listening": return "Listening for questions...";
-      case "thinking": return "Thinking...";
-      case "answering": return "Answering your question...";
-      case "encouraging": return "Great work!";
-      case "paused": return "Paused";
-      case "preparing": return "Preparing lesson...";
-      case "explaining": return "Giving deeper explanation...";
-      case "asking_question": return "Asking a question...";
-      default: return "Ready";
+      case "writing":
+        return "Writing on board...";
+      case "speaking":
+        return "Explaining the lesson...";
+      case "listening":
+        return "Listening for questions...";
+      case "thinking":
+        return "Thinking...";
+      case "answering":
+        return "Answering your question...";
+      case "encouraging":
+        return "Great work!";
+      case "paused":
+        return "Paused";
+      case "preparing":
+        return "Preparing lesson...";
+      case "explaining":
+        return "Giving deeper explanation...";
+      case "asking_question":
+        return "Asking a question...";
+      default:
+        return "Ready";
     }
   })();
 
   return (
-    <aside className="teacher-video-panel flex w-[280px] min-w-[240px] max-w-[320px] flex-shrink-0 flex-col" role="complementary" aria-label="Teacher video panel">
+    <aside
+      className="teacher-video-panel flex w-[280px] min-w-[240px] max-w-[320px] flex-shrink-0 flex-col"
+      role="complementary"
+      aria-label="Teacher video panel"
+    >
       {/* Header with teacher name and connection status */}
       <div className="flex items-center justify-between px-4 pt-4">
         <span className="text-sm font-bold text-foreground">
-          {teacherMode === "ai_teacher" ? "AI Teacher" : teacherMode === "human_teacher" ? "Teacher" : "Teacher"}
+          {teacherMode === "ai_teacher"
+            ? "AI Teacher"
+            : teacherMode === "human_teacher"
+              ? "Teacher"
+              : "Teacher"}
         </span>
         {/* Connection status */}
-        <div className="flex items-center gap-1.5 text-xs font-medium text-green-600" title="Connected">
+        <div
+          className="flex items-center gap-1.5 text-xs font-medium text-green-600"
+          title="Connected"
+        >
           <Wifi className="h-3 w-3" />
           <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           Online
@@ -1525,7 +1967,10 @@ function TeacherVideoPanel({
       </div>
 
       {/* ── Video Frame / Avatar Area (Phase 1 placeholder) ── */}
-      <div className="relative mx-4 mt-3 overflow-hidden rounded-xl bg-gradient-to-br from-slate-800 to-slate-900" style={{ aspectRatio: "16/10" }}>
+      <div
+        className="relative mx-4 mt-3 overflow-hidden rounded-xl bg-gradient-to-br from-slate-800 to-slate-900"
+        style={{ aspectRatio: "16/10" }}
+      >
         {/* Teacher name overlay */}
         <div className="absolute left-2 top-2 z-10 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white">
           <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
@@ -1535,21 +1980,31 @@ function TeacherVideoPanel({
         {/* Role badge overlay */}
         <div className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full bg-purple-500/80 px-2 py-0.5 text-[10px] font-semibold text-white">
           <Sparkles className="h-2.5 w-2.5" />
-          {teacherMode === "ai_teacher" ? "AI" : teacherMode === "human_teacher" ? "Live" : "Hybrid"}
+          {teacherMode === "ai_teacher"
+            ? "AI"
+            : teacherMode === "human_teacher"
+              ? "Live"
+              : "Hybrid"}
         </div>
 
         {/* Avatar with speaking ring */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`relative h-20 w-20 rounded-full border-4 ${isSpeaking ? "border-[#3fa8ab] shadow-lg shadow-[#3fa8ab]/30" : "border-slate-600"}`}>
+          <div
+            className={`relative h-20 w-20 rounded-full border-4 ${isSpeaking ? "border-[#3fa8ab] shadow-lg shadow-[#3fa8ab]/30" : "border-slate-600"}`}
+          >
             <div className="absolute inset-1 rounded-full bg-gradient-to-br from-[#3fa8ab]/30 to-purple-400/30" />
             <div className="absolute inset-3 flex items-center justify-center rounded-full bg-gradient-to-br from-[#1F7C80]/60 to-purple-500/60">
-              <div className={`h-6 w-6 rounded-full bg-gradient-to-br from-[#3fa8ab] to-purple-400 ${isSpeaking ? "animate-pulse" : ""}`} />
+              <div
+                className={`h-6 w-6 rounded-full bg-gradient-to-br from-[#3fa8ab] to-purple-400 ${isSpeaking ? "animate-pulse" : ""}`}
+              />
             </div>
             {isSpeaking && (
               <div className="absolute inset-0 animate-ping rounded-full border-2 border-[#3fa8ab]/20" />
             )}
             {teacherState === "writing" && (
-              <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs shadow-md">✍️</div>
+              <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs shadow-md">
+                ✍️
+              </div>
             )}
             {teacherState === "thinking" && (
               <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 shadow-md">
@@ -1562,7 +2017,15 @@ function TeacherVideoPanel({
           {isSpeaking && (
             <div className="mt-2 flex items-center gap-[2px]">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-[2px] rounded-full bg-[#3fa8ab]" style={{ height: `${4 + Math.random() * 10}px`, animation: `waveform 0.6s ease-in-out infinite alternate`, animationDelay: `${i * 0.08}s` }} />
+                <div
+                  key={i}
+                  className="w-[2px] rounded-full bg-[#3fa8ab]"
+                  style={{
+                    height: `${4 + Math.random() * 10}px`,
+                    animation: `waveform 0.6s ease-in-out infinite alternate`,
+                    animationDelay: `${i * 0.08}s`,
+                  }}
+                />
               ))}
             </div>
           )}
@@ -1570,8 +2033,14 @@ function TeacherVideoPanel({
 
         {/* Mic/Camera status overlay */}
         <div className="absolute bottom-2 left-2 z-10 flex items-center gap-2">
-          <div className={`flex h-6 w-6 items-center justify-center rounded-full ${audioEnabled ? "bg-green-500/80" : "bg-red-500/80"}`}>
-            {audioEnabled ? <Mic className="h-3 w-3 text-white" /> : <MicOff className="h-3 w-3 text-white" />}
+          <div
+            className={`flex h-6 w-6 items-center justify-center rounded-full ${audioEnabled ? "bg-green-500/80" : "bg-red-500/80"}`}
+          >
+            {audioEnabled ? (
+              <Mic className="h-3 w-3 text-white" />
+            ) : (
+              <MicOff className="h-3 w-3 text-white" />
+            )}
           </div>
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80">
             <VideoOff className="h-3 w-3 text-white" />
@@ -1603,9 +2072,15 @@ function TeacherVideoPanel({
       {/* Status badges */}
       <div className="flex flex-wrap justify-center gap-2 px-4">
         <span className="rounded-full bg-[#e8f5f5] px-2.5 py-1 text-[10px] font-semibold text-[#1F7C80]">
-          {teacherMode === "ai_teacher" ? "AI Teacher" : teacherMode === "human_teacher" ? "Human Teacher" : "Hybrid"}
+          {teacherMode === "ai_teacher"
+            ? "AI Teacher"
+            : teacherMode === "human_teacher"
+              ? "Human Teacher"
+              : "Hybrid"}
         </span>
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${audioEnabled ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-500"}`}>
+        <span
+          className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${audioEnabled ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-500"}`}
+        >
           {audioEnabled ? "Voice Active" : "Voice Off"}
         </span>
         <span className="rounded-full bg-purple-50 px-2.5 py-1 text-[10px] font-semibold text-purple-600">
@@ -1681,19 +2156,35 @@ function TeacherVideoPanel({
 
 /* ─── Learning Whiteboard ────────────────────────────────────── */
 
-const LearningWhiteboard = forwardRef<HTMLDivElement, {
-  writtenItems: BoardWriteItem[];
-  currentItem?: BoardWriteItem;
-  currentWrittenText: string;
-  isWriting: boolean;
-  onScroll: () => void;
-  reducedMotion: boolean;
-  learningMode: LearningMode;
-}>(function LearningWhiteboard(
-  { writtenItems, currentItem, currentWrittenText, isWriting, onScroll, reducedMotion, learningMode },
+const LearningWhiteboard = forwardRef<
+  HTMLDivElement,
+  {
+    writtenItems: BoardWriteItem[];
+    currentItem?: BoardWriteItem;
+    currentWrittenText: string;
+    isWriting: boolean;
+    onScroll: () => void;
+    reducedMotion: boolean;
+    learningMode: LearningMode;
+  }
+>(function LearningWhiteboard(
+  {
+    writtenItems,
+    currentItem,
+    currentWrittenText,
+    isWriting,
+    onScroll,
+    reducedMotion,
+    learningMode,
+  },
   ref,
 ) {
-  const fontSize = learningMode === "low_vision" || learningMode === "deaf_blind" ? "text-3xl" : learningMode === "dyslexia" ? "text-2xl" : "";
+  const fontSize =
+    learningMode === "low_vision" || learningMode === "deaf_blind"
+      ? "text-3xl"
+      : learningMode === "dyslexia"
+        ? "text-2xl"
+        : "";
   const fontFamily = learningMode === "dyslexia" ? "font-sans" : "";
 
   return (
@@ -1717,14 +2208,23 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
       <div className="relative">
         {/* Written items */}
         {writtenItems.map((item) => (
-          <div key={item.id} className={`board-writing-line ${item.type} ${fontSize} ${fontFamily}`}>
+          <div
+            key={item.id}
+            className={`board-writing-line ${item.type} ${fontSize} ${fontFamily}`}
+          >
             {item.type === "heading" && <span className="font-bold">{item.text}</span>}
             {item.type === "bullet" && <span>• {item.text}</span>}
-            {item.type === "equation" && <span className="text-center block text-lg">{item.text}</span>}
-            {item.type === "calculation" && <span>  {item.text}</span>}
-            {item.type === "answer" && <span className="text-green-600 font-semibold">→ {item.text}</span>}
+            {item.type === "equation" && (
+              <span className="text-center block text-lg">{item.text}</span>
+            )}
+            {item.type === "calculation" && <span> {item.text}</span>}
+            {item.type === "answer" && (
+              <span className="text-green-600 font-semibold">→ {item.text}</span>
+            )}
             {item.type === "question" && <span className="text-orange-600">? {item.text}</span>}
-            {!["heading", "bullet", "equation", "calculation", "answer", "question"].includes(item.type) && item.text}
+            {!["heading", "bullet", "equation", "calculation", "answer", "question"].includes(
+              item.type,
+            ) && item.text}
           </div>
         ))}
 
@@ -1739,11 +2239,18 @@ const LearningWhiteboard = forwardRef<HTMLDivElement, {
             <span>{currentWrittenText}</span>
             {/* Writing cursor / hand */}
             {!reducedMotion && (
-              <span className="writing-cursor inline-block w-[2px] animate-pulse bg-[#e8f5f5]0" style={{ height: "1em", verticalAlign: "text-bottom", marginLeft: "2px" }} />
+              <span
+                className="writing-cursor inline-block w-[2px] animate-pulse bg-[#e8f5f5]0"
+                style={{ height: "1em", verticalAlign: "text-bottom", marginLeft: "2px" }}
+              />
             )}
             {/* Hand cursor emoji following text */}
             {!reducedMotion && (
-              <span className="writing-hand ml-1" style={{ position: "relative", top: "-2px" }} aria-hidden="true">
+              <span
+                className="writing-hand ml-1"
+                style={{ position: "relative", top: "-2px" }}
+                aria-hidden="true"
+              >
                 ✍️
               </span>
             )}
@@ -1804,41 +2311,73 @@ function ClassroomControls({
   const btnClass = isLargeButtons ? "h-12 w-12" : "h-10 w-10";
 
   return (
-    <div className="flex h-16 items-center justify-center gap-2 border-t border-border bg-white px-4 shadow-inner" role="toolbar" aria-label="Classroom controls">
+    <div
+      className="flex h-16 items-center justify-center gap-2 border-t border-border bg-white px-4 shadow-inner"
+      role="toolbar"
+      aria-label="Classroom controls"
+    >
       {/* Lesson controls group */}
-      <button onClick={onPrevStep} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Previous step">
+      <button
+        onClick={onPrevStep}
+        className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`}
+        aria-label="Previous step"
+      >
         <SkipBack className="h-4 w-4" />
       </button>
 
       {!isPlaying && !isPaused && (
-        <button onClick={onPlay} className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`} aria-label="Start lesson">
+        <button
+          onClick={onPlay}
+          className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`}
+          aria-label="Start lesson"
+        >
           <Play className="h-5 w-5" />
         </button>
       )}
       {isPlaying && !isPaused && (
-        <button onClick={onPause} className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`} aria-label="Pause">
+        <button
+          onClick={onPause}
+          className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`}
+          aria-label="Pause"
+        >
           <Pause className="h-5 w-5" />
         </button>
       )}
       {isPaused && (
-        <button onClick={onResume} className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`} aria-label="Resume">
+        <button
+          onClick={onResume}
+          className={`${btnClass} flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90`}
+          aria-label="Resume"
+        >
           <Play className="h-5 w-5" />
         </button>
       )}
 
-      <button onClick={onNextStep} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Next step">
+      <button
+        onClick={onNextStep}
+        className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`}
+        aria-label="Next step"
+      >
         <SkipForward className="h-4 w-4" />
       </button>
 
       <div className="mx-1 h-8 w-px bg-border" />
 
       {/* Question controls group */}
-      <button onClick={onAskQuestion} className={`${btnClass} flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-200`} aria-label="Ask question">
+      <button
+        onClick={onAskQuestion}
+        className={`${btnClass} flex items-center justify-center rounded-full bg-green-100 text-green-600 hover:bg-green-200`}
+        aria-label="Ask question"
+      >
         <MessageSquare className="h-4 w-4" />
       </button>
 
       {learningMode !== "speech_difficulty" && (
-        <button onClick={onToggleListening} className={`${btnClass} flex items-center justify-center rounded-full ${isListening ? "bg-red-100 text-red-600 animate-pulse" : "bg-slate-100 text-muted-foreground"}`} aria-label={isListening ? "Stop listening" : "Start voice input"}>
+        <button
+          onClick={onToggleListening}
+          className={`${btnClass} flex items-center justify-center rounded-full ${isListening ? "bg-red-100 text-red-600 animate-pulse" : "bg-slate-100 text-muted-foreground"}`}
+          aria-label={isListening ? "Stop listening" : "Start voice input"}
+        >
           {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         </button>
       )}
@@ -1847,43 +2386,83 @@ function ClassroomControls({
 
       {/* Accessibility controls group */}
       {learningMode !== "blind" && (
-        <button onClick={onToggleAudio} className={`${btnClass} flex items-center justify-center rounded-full ${audioEnabled ? "bg-[#d1eceb] text-[#1F7C80]" : "bg-slate-100 text-muted-foreground"}`} aria-label={audioEnabled ? "Mute audio" : "Unmute audio"}>
+        <button
+          onClick={onToggleAudio}
+          className={`${btnClass} flex items-center justify-center rounded-full ${audioEnabled ? "bg-[#d1eceb] text-[#1F7C80]" : "bg-slate-100 text-muted-foreground"}`}
+          aria-label={audioEnabled ? "Mute audio" : "Unmute audio"}
+        >
           {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
         </button>
       )}
 
-      <button onClick={onToggleCaptions} className={`${btnClass} flex items-center justify-center rounded-full ${captionsEnabled ? "bg-[#d1eceb] text-[#1F7C80]" : "bg-slate-100 text-muted-foreground"}`} aria-label={captionsEnabled ? "Hide captions" : "Show captions"}>
+      <button
+        onClick={onToggleCaptions}
+        className={`${btnClass} flex items-center justify-center rounded-full ${captionsEnabled ? "bg-[#d1eceb] text-[#1F7C80]" : "bg-slate-100 text-muted-foreground"}`}
+        aria-label={captionsEnabled ? "Hide captions" : "Show captions"}
+      >
         <Subtitles className="h-4 w-4" />
       </button>
 
-      <button onClick={onOpenNotes} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Open notes">
+      <button
+        onClick={onOpenNotes}
+        className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`}
+        aria-label="Open notes"
+      >
         <FileText className="h-4 w-4" />
       </button>
 
-      <button onClick={onOpenTimeline} className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`} aria-label="Lesson timeline">
+      <button
+        onClick={onOpenTimeline}
+        className={`${btnClass} flex items-center justify-center rounded-full bg-slate-100 text-muted-foreground hover:bg-slate-200`}
+        aria-label="Lesson timeline"
+      >
         <Target className="h-4 w-4" />
       </button>
 
       <div className="mx-1 h-8 w-px bg-border" />
 
       {/* Future video controls (disabled - Phase 2/3) */}
-      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Camera (coming soon)" title="Camera — Coming in Phase 2">
+      <button
+        disabled
+        className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`}
+        aria-label="Camera (coming soon)"
+        title="Camera — Coming in Phase 2"
+      >
         <Video className="h-4 w-4" />
       </button>
-      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Raise hand (coming soon)" title="Raise Hand — Coming in Phase 2">
+      <button
+        disabled
+        className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`}
+        aria-label="Raise hand (coming soon)"
+        title="Raise Hand — Coming in Phase 2"
+      >
         <HandMetal className="h-4 w-4" />
       </button>
-      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Participants (coming soon)" title="Participants — Coming in Phase 2">
+      <button
+        disabled
+        className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`}
+        aria-label="Participants (coming soon)"
+        title="Participants — Coming in Phase 2"
+      >
         <Users className="h-4 w-4" />
       </button>
-      <button disabled className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`} aria-label="Screen share (coming soon)" title="Screen Share — Coming in Phase 2">
+      <button
+        disabled
+        className={`${btnClass} flex cursor-not-allowed items-center justify-center rounded-full bg-slate-50 text-slate-300 opacity-50`}
+        aria-label="Screen share (coming soon)"
+        title="Screen Share — Coming in Phase 2"
+      >
         <MonitorUp className="h-4 w-4" />
       </button>
 
       <div className="mx-1 h-8 w-px bg-border" />
 
       {/* Session controls */}
-      <button onClick={onEndLesson} className="rounded-lg border-2 border-destructive/30 bg-white px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive hover:text-white" aria-label="End lesson">
+      <button
+        onClick={onEndLesson}
+        className="rounded-lg border-2 border-destructive/30 bg-white px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive hover:text-white"
+        aria-label="End lesson"
+      >
         End Lesson
       </button>
     </div>
@@ -1908,7 +2487,9 @@ function RequiredQuestionPrompt({
   learningMode: LearningMode;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <div className="question-prompt-wrapper" role="dialog" aria-label="Required question">
@@ -1941,17 +2522,23 @@ function RequiredQuestionPrompt({
               </button>
             </div>
             {question.hint && (
-              <p className="mt-3 text-xs text-muted-foreground italic">
-                💡 Hint: {question.hint}
-              </p>
+              <p className="mt-3 text-xs text-muted-foreground italic">💡 Hint: {question.hint}</p>
             )}
           </>
         ) : (
-          <div className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}>
+          <div
+            className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}
+          >
             {result === "correct" ? (
-              <><Check className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{question.feedbackCorrect}</p></>
+              <>
+                <Check className="mx-auto mb-2 h-8 w-8" />
+                <p className="font-semibold">{question.feedbackCorrect}</p>
+              </>
             ) : (
-              <><AlertCircle className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{question.feedbackIncorrect}</p></>
+              <>
+                <AlertCircle className="mx-auto mb-2 h-8 w-8" />
+                <p className="font-semibold">{question.feedbackIncorrect}</p>
+              </>
             )}
           </div>
         )}
@@ -1978,10 +2565,14 @@ function PracticePrompt({
   learningMode: LearningMode;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const guidedPractice = activeLesson.steps.find((s) => s.practice?.type === "guided")?.practice;
-  const independentPractice = activeLesson.steps.find((s) => s.practice?.type === "independent")?.practice;
+  const independentPractice = activeLesson.steps.find(
+    (s) => s.practice?.type === "independent",
+  )?.practice;
   const currentPractice = guidedPractice || independentPractice;
   const isGuided = currentPractice?.type === "guided";
 
@@ -2021,11 +2612,21 @@ function PracticePrompt({
             </button>
           </div>
         ) : (
-          <div className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}>
+          <div
+            className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}
+          >
             {result === "correct" ? (
-              <><Check className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">Correct! Well done.</p></>
+              <>
+                <Check className="mx-auto mb-2 h-8 w-8" />
+                <p className="font-semibold">Correct! Well done.</p>
+              </>
             ) : (
-              <><AlertCircle className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{currentPractice.hintOnIncorrect || "Let me show you the solution."}</p></>
+              <>
+                <AlertCircle className="mx-auto mb-2 h-8 w-8" />
+                <p className="font-semibold">
+                  {currentPractice.hintOnIncorrect || "Let me show you the solution."}
+                </p>
+              </>
             )}
           </div>
         )}
@@ -2052,7 +2653,9 @@ function ExitTicketPrompt({
   learningMode: LearningMode;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <div className="question-prompt-wrapper" role="dialog" aria-label="Exit ticket">
@@ -2084,11 +2687,21 @@ function ExitTicketPrompt({
             </button>
           </div>
         ) : (
-          <div className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}>
+          <div
+            className={`rounded-lg p-4 text-center ${result === "correct" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"}`}
+          >
             {result === "correct" ? (
-              <><Check className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">{exitTicket.feedback}</p></>
+              <>
+                <Check className="mx-auto mb-2 h-8 w-8" />
+                <p className="font-semibold">{exitTicket.feedback}</p>
+              </>
             ) : (
-              <><AlertCircle className="mx-auto mb-2 h-8 w-8" /><p className="font-semibold">Not quite. The key is: numbers must multiply to c and add to b.</p></>
+              <>
+                <AlertCircle className="mx-auto mb-2 h-8 w-8" />
+                <p className="font-semibold">
+                  Not quite. The key is: numbers must multiply to c and add to b.
+                </p>
+              </>
             )}
           </div>
         )}
@@ -2129,12 +2742,21 @@ function QuestionPromptOverlay({
   }, [learningMode]);
 
   // Standard / Default prompt
-  if (learningMode === "standard" || learningMode === "extra_support" || learningMode === "challenge" || learningMode === "dyslexia" || learningMode === "low_vision" || learningMode === "motor_support") {
+  if (
+    learningMode === "standard" ||
+    learningMode === "extra_support" ||
+    learningMode === "challenge" ||
+    learningMode === "dyslexia" ||
+    learningMode === "low_vision" ||
+    learningMode === "motor_support"
+  ) {
     return (
       <div className="question-prompt-wrapper" role="dialog" aria-label="Ask a question">
         <div className="question-prompt-content max-w-md">
           <h3 className="question-prompt-title">Any question?</h3>
-          <p className="text-sm text-muted-foreground mb-3">Do you have any question before we continue?</p>
+          <p className="text-sm text-muted-foreground mb-3">
+            Do you have any question before we continue?
+          </p>
           <div className="flex gap-2">
             <input
               ref={inputRef}
@@ -2145,31 +2767,56 @@ function QuestionPromptOverlay({
               className="question-prompt-input flex-1"
               autoComplete="off"
             />
-            <button onClick={() => onSubmit(questionInput)} className="question-prompt-button primary" aria-label="Send question">
+            <button
+              onClick={() => onSubmit(questionInput)}
+              className="question-prompt-button primary"
+              aria-label="Send question"
+            >
               <Send className="h-4 w-4" />
             </button>
           </div>
           <div className="question-prompt-buttons">
-            <button onClick={() => onQuickAction("no_question")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("no_question")}
+              className="question-prompt-button secondary"
+            >
               No question
             </button>
-            <button onClick={() => onQuickAction("repeat")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("repeat")}
+              className="question-prompt-button secondary"
+            >
               <RotateCcw className="h-3.5 w-3.5" /> Repeat
             </button>
-            <button onClick={() => onQuickAction("dont_understand")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("dont_understand")}
+              className="question-prompt-button secondary"
+            >
               <HelpCircle className="h-3.5 w-3.5" /> I don't understand
             </button>
-            <button onClick={() => onQuickAction("give_example")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("give_example")}
+              className="question-prompt-button secondary"
+            >
               <Lightbulb className="h-3.5 w-3.5" /> Give example
             </button>
-            <button onClick={() => onQuickAction("slow_down")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("slow_down")}
+              className="question-prompt-button secondary"
+            >
               Slow down
             </button>
-            <button onClick={() => onQuickAction("continue")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("continue")}
+              className="question-prompt-button secondary"
+            >
               Continue
             </button>
           </div>
-          <button onClick={onClose} className="mt-3 text-xs text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onClose}
+            className="mt-3 text-xs text-muted-foreground hover:text-foreground"
+          >
             Close
           </button>
         </div>
@@ -2183,7 +2830,9 @@ function QuestionPromptOverlay({
       <div className="question-prompt-wrapper" role="dialog" aria-label="Ask a question">
         <div className="question-prompt-content max-w-md">
           <h3 className="question-prompt-title">Any question?</h3>
-          <p className="mb-3 text-sm text-muted-foreground">Type your question below. No audio required.</p>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Type your question below. No audio required.
+          </p>
           <textarea
             ref={inputRef as any}
             value={questionInput}
@@ -2194,20 +2843,35 @@ function QuestionPromptOverlay({
             autoComplete="off"
           />
           <div className="question-prompt-buttons">
-            <button onClick={() => onSubmit(questionInput)} className="question-prompt-button primary">
+            <button
+              onClick={() => onSubmit(questionInput)}
+              className="question-prompt-button primary"
+            >
               <Send className="h-3.5 w-3.5" /> Send Question
             </button>
-            <button onClick={() => onQuickAction("no_question")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("no_question")}
+              className="question-prompt-button secondary"
+            >
               No Question
             </button>
-            <button onClick={() => onQuickAction("repeat")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("repeat")}
+              className="question-prompt-button secondary"
+            >
               <RotateCcw className="h-3.5 w-3.5" /> Repeat Board Step
             </button>
-            <button onClick={() => onQuickAction("give_example")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("give_example")}
+              className="question-prompt-button secondary"
+            >
               <Lightbulb className="h-3.5 w-3.5" /> Simpler Explanation
             </button>
           </div>
-          <button onClick={onClose} className="mt-3 text-xs text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onClose}
+            className="mt-3 text-xs text-muted-foreground hover:text-foreground"
+          >
             Close
           </button>
         </div>
@@ -2229,7 +2893,9 @@ function QuestionPromptOverlay({
                   <Mic className="h-8 w-8 text-red-500" />
                 </div>
                 <p className="text-sm font-medium text-foreground">
-                  {blindState === "mic_listening" ? "Listening. Say your question, or say \"no question\"." : "Processing..."}
+                  {blindState === "mic_listening"
+                    ? 'Listening. Say your question, or say "no question".'
+                    : "Processing..."}
                 </p>
                 {voiceTranscript && (
                   <p className="mt-2 rounded-lg bg-slate-50 p-3 text-sm text-muted-foreground">
@@ -2242,10 +2908,16 @@ function QuestionPromptOverlay({
                 <p className="text-sm text-foreground">You said:</p>
                 <p className="mt-1 text-lg font-medium text-foreground">"{voiceTranscript}"</p>
                 <div className="question-prompt-buttons mt-4 justify-center">
-                  <button onClick={() => onSubmit(voiceTranscript)} className="question-prompt-button primary">
+                  <button
+                    onClick={() => onSubmit(voiceTranscript)}
+                    className="question-prompt-button primary"
+                  >
                     <Send className="h-3.5 w-3.5" /> Send
                   </button>
-                  <button onClick={() => onQuickAction("no_question")} className="question-prompt-button secondary">
+                  <button
+                    onClick={() => onQuickAction("no_question")}
+                    className="question-prompt-button secondary"
+                  >
                     No Question
                   </button>
                 </div>
@@ -2278,26 +2950,47 @@ function QuestionPromptOverlay({
             autoComplete="off"
           />
           <div className="question-prompt-buttons">
-            <button onClick={() => onSubmit(questionInput)} className="question-prompt-button primary">
+            <button
+              onClick={() => onSubmit(questionInput)}
+              className="question-prompt-button primary"
+            >
               <Send className="h-3.5 w-3.5" /> Send
             </button>
-            <button onClick={() => onQuickAction("no_question")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("no_question")}
+              className="question-prompt-button secondary"
+            >
               No question
             </button>
-            <button onClick={() => onQuickAction("repeat")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("repeat")}
+              className="question-prompt-button secondary"
+            >
               <RotateCcw className="h-3.5 w-3.5" /> Repeat
             </button>
-            <button onClick={() => onQuickAction("dont_understand")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("dont_understand")}
+              className="question-prompt-button secondary"
+            >
               Explain simpler
             </button>
-            <button onClick={() => onQuickAction("give_example")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("give_example")}
+              className="question-prompt-button secondary"
+            >
               <Lightbulb className="h-3.5 w-3.5" /> Give example
             </button>
-            <button onClick={() => onQuickAction("continue")} className="question-prompt-button secondary">
+            <button
+              onClick={() => onQuickAction("continue")}
+              className="question-prompt-button secondary"
+            >
               Continue
             </button>
           </div>
-          <button onClick={onClose} className="mt-3 text-xs text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onClose}
+            className="mt-3 text-xs text-muted-foreground hover:text-foreground"
+          >
             Close
           </button>
         </div>
@@ -2320,15 +3013,33 @@ function QuestionPromptOverlay({
             className="question-prompt-input flex-1"
             autoComplete="off"
           />
-          <button onClick={() => onSubmit(questionInput)} className="question-prompt-button primary">
+          <button
+            onClick={() => onSubmit(questionInput)}
+            className="question-prompt-button primary"
+          >
             <Send className="h-4 w-4" />
           </button>
         </div>
         <div className="question-prompt-buttons">
-          <button onClick={() => onQuickAction("no_question")} className="question-prompt-button secondary">No question</button>
-          <button onClick={() => onQuickAction("continue")} className="question-prompt-button secondary">Continue</button>
+          <button
+            onClick={() => onQuickAction("no_question")}
+            className="question-prompt-button secondary"
+          >
+            No question
+          </button>
+          <button
+            onClick={() => onQuickAction("continue")}
+            className="question-prompt-button secondary"
+          >
+            Continue
+          </button>
         </div>
-        <button onClick={onClose} className="mt-3 text-xs text-muted-foreground hover:text-foreground">Close</button>
+        <button
+          onClick={onClose}
+          className="mt-3 text-xs text-muted-foreground hover:text-foreground"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
@@ -2373,10 +3084,18 @@ function NotesDrawer({
             Lesson Notes
           </h3>
           <div className="flex items-center gap-2">
-            <button onClick={onSaveNotes} className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90" aria-label="Save notes">
+            <button
+              onClick={onSaveNotes}
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90"
+              aria-label="Save notes"
+            >
               <Save className="h-3.5 w-3.5" /> Save
             </button>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100" aria-label="Close notes">
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100"
+              aria-label="Close notes"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -2385,16 +3104,24 @@ function NotesDrawer({
         <div className="transcript-body">
           {/* Lesson objective */}
           <div className="mb-4">
-            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Lesson Objective</h4>
-            <p className="text-sm text-foreground bg-[#e8f5f5] rounded-lg p-3">{lesson.objective}</p>
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+              Lesson Objective
+            </h4>
+            <p className="text-sm text-foreground bg-[#e8f5f5] rounded-lg p-3">
+              {lesson.objective}
+            </p>
           </div>
 
           {/* Key ideas from current step */}
           {currentStep?.learnerNotes && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Key Ideas</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Key Ideas
+              </h4>
               {currentStep.learnerNotes.keyPoints.map((point, i) => (
-                <p key={i} className="text-sm text-foreground py-1">• {point}</p>
+                <p key={i} className="text-sm text-foreground py-1">
+                  • {point}
+                </p>
               ))}
             </div>
           )}
@@ -2402,17 +3129,28 @@ function NotesDrawer({
           {/* Detailed explanation */}
           {currentStep?.learnerNotes?.summary && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Detailed Explanation</h4>
-              <p className="text-sm text-foreground bg-slate-50 rounded-lg p-3">{currentStep.learnerNotes.summary}</p>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Detailed Explanation
+              </h4>
+              <p className="text-sm text-foreground bg-slate-50 rounded-lg p-3">
+                {currentStep.learnerNotes.summary}
+              </p>
             </div>
           )}
 
           {/* Examples */}
           {currentStep?.learnerNotes?.examples && currentStep.learnerNotes.examples.length > 0 && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Examples</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Examples
+              </h4>
               {currentStep.learnerNotes.examples.map((example, i) => (
-                <p key={i} className="text-sm text-foreground py-1 font-mono bg-slate-50 rounded-lg p-2 mb-1">{example}</p>
+                <p
+                  key={i}
+                  className="text-sm text-foreground py-1 font-mono bg-slate-50 rounded-lg p-2 mb-1"
+                >
+                  {example}
+                </p>
               ))}
             </div>
           )}
@@ -2420,29 +3158,48 @@ function NotesDrawer({
           {/* Formulas */}
           {currentStep?.learnerNotes?.formulas && currentStep.learnerNotes.formulas.length > 0 && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Formulas</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Formulas
+              </h4>
               {currentStep.learnerNotes.formulas.map((formula, i) => (
-                <p key={i} className="text-sm text-foreground py-1 font-mono bg-purple-50 rounded-lg p-2 mb-1">{formula}</p>
+                <p
+                  key={i}
+                  className="text-sm text-foreground py-1 font-mono bg-purple-50 rounded-lg p-2 mb-1"
+                >
+                  {formula}
+                </p>
               ))}
             </div>
           )}
 
           {/* Common mistakes */}
-          {currentStep?.learnerNotes?.commonMistakes && currentStep.learnerNotes.commonMistakes.length > 0 && (
-            <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Common Mistakes</h4>
-              {currentStep.learnerNotes.commonMistakes.map((mistake, i) => (
-                <p key={i} className="text-sm text-orange-700 py-1 bg-orange-50 rounded-lg p-2 mb-1">⚠️ {mistake}</p>
-              ))}
-            </div>
-          )}
+          {currentStep?.learnerNotes?.commonMistakes &&
+            currentStep.learnerNotes.commonMistakes.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                  Common Mistakes
+                </h4>
+                {currentStep.learnerNotes.commonMistakes.map((mistake, i) => (
+                  <p
+                    key={i}
+                    className="text-sm text-orange-700 py-1 bg-orange-50 rounded-lg p-2 mb-1"
+                  >
+                    ⚠️ {mistake}
+                  </p>
+                ))}
+              </div>
+            )}
 
           {/* Homework */}
           {lesson.homework && lesson.homework.length > 0 && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Homework</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Homework
+              </h4>
               {lesson.homework.map((hw, i) => (
-                <p key={i} className="text-sm text-foreground py-1">• {hw}</p>
+                <p key={i} className="text-sm text-foreground py-1">
+                  • {hw}
+                </p>
               ))}
             </div>
           )}
@@ -2450,30 +3207,44 @@ function NotesDrawer({
           {/* Teacher notes */}
           {currentStep?.teacherNotes && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Teacher's Explanation</h4>
-              <p className="text-sm text-foreground bg-green-50 rounded-lg p-3">{currentStep.teacherNotes}</p>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Teacher's Explanation
+              </h4>
+              <p className="text-sm text-foreground bg-green-50 rounded-lg p-3">
+                {currentStep.teacherNotes}
+              </p>
             </div>
           )}
 
           {/* Accessibility notes */}
           {currentStep?.accessibility?.simplifiedExplanation && (
             <div className="mb-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Simpler Explanation</h4>
-              <p className="text-sm text-foreground bg-amber-50 rounded-lg p-3">{currentStep.accessibility.simplifiedExplanation}</p>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Simpler Explanation
+              </h4>
+              <p className="text-sm text-foreground bg-amber-50 rounded-lg p-3">
+                {currentStep.accessibility.simplifiedExplanation}
+              </p>
             </div>
           )}
 
           {/* User notes */}
           <div className="mb-4">
-            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">My Notes</h4>
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+              My Notes
+            </h4>
             {userNotes.map((note, i) => (
-              <p key={i} className="text-sm text-foreground py-1 bg-yellow-50 rounded-lg p-2 mb-1">📝 {note}</p>
+              <p key={i} className="text-sm text-foreground py-1 bg-yellow-50 rounded-lg p-2 mb-1">
+                📝 {note}
+              </p>
             ))}
             <div className="flex gap-2 mt-2">
               <input
                 value={userNoteInput}
                 onChange={(e) => setUserNoteInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && userNoteInput.trim() && onAddNote(userNoteInput)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && userNoteInput.trim() && onAddNote(userNoteInput)
+                }
                 placeholder="Add your note..."
                 className="question-prompt-input flex-1 text-sm"
                 autoComplete="off"
@@ -2526,20 +3297,36 @@ function LessonTimelineOverlay({
                 key={step}
                 onClick={() => onSelect(idx)}
                 className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                  isCurrent ? "border-primary bg-primary/5" : isPast ? "border-green-200 bg-green-50/50" : "border-border bg-white"
+                  isCurrent
+                    ? "border-primary bg-primary/5"
+                    : isPast
+                      ? "border-green-200 bg-green-50/50"
+                      : "border-border bg-white"
                 }`}
               >
-                <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                  isCurrent ? "bg-primary text-white" : isPast ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
-                }`}>
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                    isCurrent
+                      ? "bg-primary text-white"
+                      : isPast
+                        ? "bg-green-100 text-green-600"
+                        : "bg-slate-100 text-slate-400"
+                  }`}
+                >
                   {isPast ? <Check className="h-4 w-4" /> : idx + 1}
                 </div>
                 <div className="flex-1">
-                  <p className={`text-sm font-medium ${isCurrent ? "text-primary" : isPast ? "text-green-700" : "text-muted-foreground"}`}>
+                  <p
+                    className={`text-sm font-medium ${isCurrent ? "text-primary" : isPast ? "text-green-700" : "text-muted-foreground"}`}
+                  >
                     {label}
                   </p>
                 </div>
-                {isCurrent && <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full">Current</span>}
+                {isCurrent && (
+                  <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full">
+                    Current
+                  </span>
+                )}
               </button>
             );
           })}
@@ -2549,13 +3336,21 @@ function LessonTimelineOverlay({
         <div className="mt-4 rounded-lg bg-slate-50 p-3">
           <p className="text-xs font-bold text-muted-foreground mb-2">Completion Status</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className={completion.middleQuestionAnswered ? "text-green-600" : "text-slate-400"}>
+            <div
+              className={completion.middleQuestionAnswered ? "text-green-600" : "text-slate-400"}
+            >
               {completion.middleQuestionAnswered ? "✅" : "⬜"} Middle Question
             </div>
-            <div className={completion.guidedPracticeAttempted ? "text-green-600" : "text-slate-400"}>
+            <div
+              className={completion.guidedPracticeAttempted ? "text-green-600" : "text-slate-400"}
+            >
               {completion.guidedPracticeAttempted ? "✅" : "⬜"} Guided Practice
             </div>
-            <div className={completion.independentPracticeAttempted ? "text-green-600" : "text-slate-400"}>
+            <div
+              className={
+                completion.independentPracticeAttempted ? "text-green-600" : "text-slate-400"
+              }
+            >
               {completion.independentPracticeAttempted ? "✅" : "⬜"} Independent Practice
             </div>
             <div className={completion.exitTicketAnswered ? "text-green-600" : "text-slate-400"}>
@@ -2564,7 +3359,10 @@ function LessonTimelineOverlay({
           </div>
         </div>
 
-        <button onClick={onClose} className="mt-4 text-sm text-muted-foreground hover:text-foreground">
+        <button
+          onClick={onClose}
+          className="mt-4 text-sm text-muted-foreground hover:text-foreground"
+        >
           Close
         </button>
       </div>
@@ -2592,12 +3390,16 @@ function LessonCompletionSummaryPanel({
           <Award className="h-8 w-8 text-green-600" />
         </div>
         <h2 className="text-2xl font-bold text-foreground">Lesson Completed!</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Great work today. Here is your summary.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Great work today. Here is your summary.
+        </p>
 
         <div className="mt-6 grid grid-cols-2 gap-3 text-left">
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-muted-foreground">Time Spent</p>
-            <p className="text-lg font-bold text-foreground">{Math.floor(elapsedSeconds / 60)} min</p>
+            <p className="text-lg font-bold text-foreground">
+              {Math.floor(elapsedSeconds / 60)} min
+            </p>
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-muted-foreground">Questions Asked</p>
@@ -2605,26 +3407,50 @@ function LessonCompletionSummaryPanel({
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-muted-foreground">Middle Question</p>
-            <p className={`text-sm font-bold ${completion.middleQuestionCorrect ? "text-green-600" : completion.middleQuestionAnswered ? "text-orange-600" : "text-slate-400"}`}>
-              {completion.middleQuestionCorrect ? "✅ Correct" : completion.middleQuestionAnswered ? "⚠️ Incorrect" : "Not answered"}
+            <p
+              className={`text-sm font-bold ${completion.middleQuestionCorrect ? "text-green-600" : completion.middleQuestionAnswered ? "text-orange-600" : "text-slate-400"}`}
+            >
+              {completion.middleQuestionCorrect
+                ? "✅ Correct"
+                : completion.middleQuestionAnswered
+                  ? "⚠️ Incorrect"
+                  : "Not answered"}
             </p>
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-muted-foreground">Guided Practice</p>
-            <p className={`text-sm font-bold ${completion.guidedPracticeCorrect ? "text-green-600" : completion.guidedPracticeAttempted ? "text-orange-600" : "text-slate-400"}`}>
-              {completion.guidedPracticeAttempted ? completion.guidedPracticeCorrect ? "✅ Completed" : "⚠️ Needs review" : "Not attempted"}
+            <p
+              className={`text-sm font-bold ${completion.guidedPracticeCorrect ? "text-green-600" : completion.guidedPracticeAttempted ? "text-orange-600" : "text-slate-400"}`}
+            >
+              {completion.guidedPracticeAttempted
+                ? completion.guidedPracticeCorrect
+                  ? "✅ Completed"
+                  : "⚠️ Needs review"
+                : "Not attempted"}
             </p>
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-muted-foreground">Independent Practice</p>
-            <p className={`text-sm font-bold ${completion.independentPracticeCorrect ? "text-green-600" : completion.independentPracticeAttempted ? "text-orange-600" : "text-slate-400"}`}>
-              {completion.independentPracticeAttempted ? completion.independentPracticeCorrect ? "✅ Completed" : "⚠️ Needs review" : "Not attempted"}
+            <p
+              className={`text-sm font-bold ${completion.independentPracticeCorrect ? "text-green-600" : completion.independentPracticeAttempted ? "text-orange-600" : "text-slate-400"}`}
+            >
+              {completion.independentPracticeAttempted
+                ? completion.independentPracticeCorrect
+                  ? "✅ Completed"
+                  : "⚠️ Needs review"
+                : "Not attempted"}
             </p>
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-muted-foreground">Exit Ticket</p>
-            <p className={`text-sm font-bold ${completion.exitTicketCorrect ? "text-green-600" : completion.exitTicketAnswered ? "text-orange-600" : "text-slate-400"}`}>
-              {completion.exitTicketAnswered ? completion.exitTicketCorrect ? "✅ Correct" : "⚠️ Review needed" : "Not answered"}
+            <p
+              className={`text-sm font-bold ${completion.exitTicketCorrect ? "text-green-600" : completion.exitTicketAnswered ? "text-orange-600" : "text-slate-400"}`}
+            >
+              {completion.exitTicketAnswered
+                ? completion.exitTicketCorrect
+                  ? "✅ Correct"
+                  : "⚠️ Review needed"
+                : "Not answered"}
             </p>
           </div>
         </div>
@@ -2634,7 +3460,9 @@ function LessonCompletionSummaryPanel({
           <div className="mt-4 rounded-lg bg-orange-50 p-3 text-left">
             <p className="text-xs font-bold text-orange-600 mb-1">Areas to Review</p>
             {completion.weakAreas.map((area, i) => (
-              <p key={i} className="text-sm text-orange-700">• {area}</p>
+              <p key={i} className="text-sm text-orange-700">
+                • {area}
+              </p>
             ))}
           </div>
         )}
@@ -2693,24 +3521,41 @@ function TranscriptDrawer({
             <BookOpen className="h-4 w-4" />
             Transcript & History
           </h3>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100" aria-label="Close transcript">
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-slate-100"
+            aria-label="Close transcript"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div ref={bodyRef} className="transcript-body">
           {entries.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-8">No transcript entries yet. Start the lesson to begin.</p>
+            <p className="text-center text-sm text-muted-foreground py-8">
+              No transcript entries yet. Start the lesson to begin.
+            </p>
           )}
           {entries.map((entry) => (
             <div key={entry.id} className={`transcript-entry ${entry.role}`}>
               <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${
-                  entry.role === "student" ? "bg-[#d1eceb] text-[#1F7C80]" :
-                  entry.role === "teacher" ? "bg-green-100 text-green-600" :
-                  entry.role === "board" ? "bg-purple-100 text-purple-600" :
-                  "bg-slate-100 text-slate-500"
-                }`}>
-                  {entry.role === "student" ? "👤" : entry.role === "teacher" ? "🤖" : entry.role === "board" ? "📝" : "ℹ️"}
+                <span
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${
+                    entry.role === "student"
+                      ? "bg-[#d1eceb] text-[#1F7C80]"
+                      : entry.role === "teacher"
+                        ? "bg-green-100 text-green-600"
+                        : entry.role === "board"
+                          ? "bg-purple-100 text-purple-600"
+                          : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {entry.role === "student"
+                    ? "👤"
+                    : entry.role === "teacher"
+                      ? "🤖"
+                      : entry.role === "board"
+                        ? "📝"
+                        : "ℹ️"}
                 </span>
                 <span className="capitalize">{entry.role}</span>
                 <span className="ml-auto text-[10px] text-muted-foreground/60">
@@ -2759,7 +3604,10 @@ function ModeSwitcherOverlay({
             </button>
           ))}
         </div>
-        <button onClick={onClose} className="mt-4 text-sm text-muted-foreground hover:text-foreground">
+        <button
+          onClick={onClose}
+          className="mt-4 text-sm text-muted-foreground hover:text-foreground"
+        >
           Cancel
         </button>
       </div>

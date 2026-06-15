@@ -11,6 +11,28 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes lp-aurora-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  35% { transform: translate3d(16px, -10px, 0) scale(1.03); }
+  70% { transform: translate3d(-14px, 12px, 0) scale(.98); }
+}
+
+@keyframes lp-orbit {
+  from { transform: rotate(0deg) translateX(8px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(8px) rotate(-360deg); }
+}
+
+@keyframes lp-scan {
+  0% { transform: translateX(-120%); opacity: 0; }
+  18%, 68% { opacity: .9; }
+  100% { transform: translateX(220%); opacity: 0; }
+}
+
+@keyframes lp-equalizer {
+  0%, 100% { transform: scaleY(.42); opacity: .55; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
 .lp-fade-up {
   animation: lp-fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -21,22 +43,166 @@
 .lp-delay-3 { animation-delay: 0.18s; }
 .lp-delay-4 { animation-delay: 0.24s; }
 
+.lp-delay-5 { animation-delay: 0.32s; }
+
 /* Soft, limited background blob — calm, not noisy. */
 .lp-blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.5;
+  filter: blur(92px);
+  opacity: 0.38;
   pointer-events: none;
   z-index: 0;
 }
+
+.lp-aurora-blob {
+  animation: lp-aurora-drift 24s ease-in-out infinite;
+  mix-blend-mode: multiply;
+}
+
+.lp-orbit { animation: lp-orbit 12s linear infinite; }
+
+.lp-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
+  animation: lp-scan 4.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.lp-premium-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.lp-premium-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.88), transparent 44%, rgba(31,124,128,.045)),
+    radial-gradient(circle at 88% 12%, rgba(163,217,216,.18), transparent 34%);
+  opacity: .74;
+  z-index: 0;
+}
+
+.lp-premium-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lp-grid-glow {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, .028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, .028) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at 50% 20%, black, transparent 72%);
+}
+
+.lp-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .2;
+  background-image:
+    radial-gradient(rgba(15, 23, 42, .08) 0.7px, transparent 0.7px),
+    radial-gradient(rgba(31, 124, 128, .08) 0.7px, transparent 0.7px);
+  background-position: 0 0, 12px 12px;
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.8), transparent 90%);
+}
+
+.lp-section-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    linear-gradient(135deg, rgba(31, 124, 128, 0.08), transparent 50%);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(18px);
+}
+
+.lp-dark-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(96,165,250,.14), transparent 28%),
+    radial-gradient(circle at 85% 18%, rgba(165,180,252,.14), transparent 30%),
+    linear-gradient(180deg, rgba(15,23,42,.98), rgba(8,15,31,.98));
+  border: 1px solid rgba(148,163,184,.18);
+  box-shadow: 0 28px 80px rgba(2,8,23,.3);
+}
+
+.lp-hero-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: .55;
+  pointer-events: none;
+}
+
+.lp-eq-bar {
+  transform-origin: bottom;
+  animation: lp-equalizer 1.15s ease-in-out infinite;
+}
+
+.lp-eq-bar:nth-child(2) { animation-delay: .12s; }
+.lp-eq-bar:nth-child(3) { animation-delay: .24s; }
+.lp-eq-bar:nth-child(4) { animation-delay: .08s; }
+.lp-eq-bar:nth-child(5) { animation-delay: .2s; }
+.lp-eq-bar:nth-child(6) { animation-delay: .32s; }
+.lp-eq-bar:nth-child(7) { animation-delay: .16s; }
 
 /* Hover lift for premium cards. */
 .lp-lift {
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .lp-lift:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
+}
+
+.lp-final-cta {
+  isolation: isolate;
+}
+
+.lp-final-cta::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.18), transparent 34%),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.18), transparent 38%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lp-final-cta::after {
+  content: "";
+  position: absolute;
+  inset: auto 10% 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.46), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lp-metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-metric-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.22), transparent 42%);
+  pointer-events: none;
 }
 
 /* Thin, tasteful scrollbar inside mockups. */
@@ -44,12 +210,745 @@
 .lp-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
 .lp-scroll::-webkit-scrollbar-track { background: transparent; }
 
+/* Whiteboard line writing reveal animation */
+@keyframes whiteboard-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.learning-whiteboard div {
+  animation: whiteboard-reveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-fade-up,
   .lp-blob,
-  .lp-lift {
+  .lp-aurora-blob,
+  .lp-orbit,
+  .lp-scan::after,
+  .lp-eq-bar,
+  .lp-lift,
+  .learning-whiteboard div {
     animation: none !important;
     transition: none !important;
   }
   .lp-lift:hover { transform: none; }
 }
+
+/* =============================================================================
+   CINEMATIC PREMIUM INTERACTIONS — cursor, motion, section polish
+   ============================================================================= */
+
+/* Custom cursor — subtle crosshair with a teal pulse dot (disabled for learners) */
+
+.lp-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: exclusion;
+}
+
+.lp-cursor-dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #3fa8ab;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease, opacity 0.15s ease;
+  box-shadow: 0 0 12px rgba(63,168,171,0.8), 0 0 24px rgba(63,168,171,0.4);
+}
+
+.lp-cursor-ring {
+  position: absolute;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(63,168,171,0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease, transform 0.1s ease;
+}
+
+/* When hovering interactive elements — ring expands */
+body.cursor-hover .lp-cursor-ring {
+  width: 54px; height: 54px;
+  border-color: rgba(63,168,171,0.8);
+}
+
+body.cursor-hover .lp-cursor-dot {
+  transform: translate(-50%, -50%) scale(1.6);
+}
+
+body.cursor-magnetic .lp-cursor-ring {
+  width: 64px;
+  height: 64px;
+  border-color: rgba(63,168,171,0.95);
+  box-shadow: 0 0 26px rgba(63,168,171,0.22);
+}
+
+body.cursor-magnetic .lp-cursor-dot {
+  transform: translate(-50%, -50%) scale(1.95);
+}
+
+body.cursor-active .lp-cursor-ring {
+  width: 28px;
+  height: 28px;
+  border-color: rgba(31,124,128,0.95);
+}
+
+body.cursor-active .lp-cursor-dot {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+/* On dark sections — blend mode switches */
+.kr-hero .lp-cursor { mix-blend-mode: normal; }
+
+/* Magnetic button feel — elements slightly pull toward cursor */
+@media (hover: hover) {
+  [data-magnetic] {
+    transition: transform 0.25s cubic-bezier(0.21, 0.8, 0.36, 1);
+  }
+}
+
+.lp-magnetic,
+[data-magnetic] {
+  position: relative;
+  translate: var(--lp-mx, 0px) var(--lp-my, 0px);
+  transition:
+    translate 0.24s cubic-bezier(0.21, 0.8, 0.36, 1),
+    box-shadow 0.24s cubic-bezier(0.21, 0.8, 0.36, 1),
+    border-color 0.24s ease;
+  will-change: translate;
+}
+
+.lp-magnetic::after,
+[data-magnetic]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--lp-spotlight-x, 50%) var(--lp-spotlight-y, 50%), rgba(255,255,255,0.24), transparent 42%);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.lp-magnetic.is-magnetic-active::after,
+[data-magnetic].is-magnetic-active::after {
+  opacity: 1;
+}
+
+.lp-magnetic.is-pressed,
+[data-magnetic].is-pressed {
+  translate: calc(var(--lp-mx, 0px) * 0.35) calc(var(--lp-my, 0px) * 0.35);
+}
+
+/* Section separators — thin architectural lines */
+.lp-section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(31,124,128,0.18) 30%, rgba(31,124,128,0.18) 70%, transparent 100%);
+}
+
+/* Cinematic card — sharper rectangle, deeper depth */
+.lp-cinematic-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 235, 240, 0.8);
+  background: #fff;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 2px 4px rgba(15,23,42,0.04),
+    0 12px 32px rgba(15,23,42,0.06);
+  transition:
+    transform 0.28s cubic-bezier(0.21, 0.8, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.21, 0.8, 0.36, 1),
+    border-color 0.28s ease;
+}
+
+.lp-cinematic-card::before {
+  content: "";
+  position: absolute;
+  inset-x: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  pointer-events: none;
+}
+
+.lp-cinematic-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(163,217,216,0.7);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 4px 8px rgba(15,23,42,0.06),
+    0 24px 56px rgba(31,124,128,0.14);
+}
+
+/* Glow ring for highlighted cards */
+.lp-glow-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #1F7C80, #3fa8ab, #6366f1);
+  opacity: 0;
+  z-index: -1;
+  filter: blur(12px);
+  transition: opacity 0.3s ease;
+}
+
+.lp-cinematic-card:hover .lp-glow-ring {
+  opacity: 0.2;
+}
+
+/* Button press ripple */
+@keyframes lp-ripple {
+  from { transform: scale(0); opacity: 0.4; }
+  to   { transform: scale(2.8); opacity: 0; }
+}
+
+.lp-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  animation: lp-ripple 0.5s cubic-bezier(0.21, 0.8, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+/* Section reveal animation on scroll (IntersectionObserver)
+   Important: content stays visible by default and is only hidden once
+   the interaction layer marks it as reveal-ready. This prevents blank
+   pages on routes that load landing.css without mounting InteractionLayer.
+*/
+.lp-reveal {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lp-reveal[data-reveal-ready="true"]:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(18px);
+  will-change: opacity, transform;
+}
+
+.lp-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lp-reveal-delay-1 { transition-delay: 0.1s; }
+.lp-reveal-delay-2 { transition-delay: 0.2s; }
+.lp-reveal-delay-3 { transition-delay: 0.3s; }
+.lp-reveal-delay-4 { transition-delay: 0.4s; }
+.lp-reveal-delay-5 { transition-delay: 0.5s; }
+
+.lp-parallax,
+[data-parallax] {
+  transform: translate3d(0, var(--lp-parallax-y, 0px), 0);
+  will-change: transform;
+}
+
+/* Teal accent line — left border accent for panels */
+.lp-accent-border {
+  border-left: 3px solid #1F7C80;
+  padding-left: 16px;
+}
+
+/* White sections that follow a dark section get a clean top edge */
+.lp-light-section {
+  background: #ffffff;
+  position: relative;
+}
+
+.lp-light-section::before {
+  content: "";
+  position: absolute;
+  inset-x: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(31,124,128,0.14), transparent);
+  pointer-events: none;
+}
+
+/* Hero section refinements */
+.kr-hero {
+  min-height: 100svh;
+  padding-bottom: 0;
+}
+
+/* Full-bleed width: sections stretch to 100% but content stays at 98% */
+.lp-full-bleed {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Nav hover underline slide */
+@keyframes lp-nav-slide {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Sticky section — glass panel on scroll */
+@keyframes lp-sticky-reveal {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-cursor, .lp-cursor-dot, .lp-cursor-ring { display: none !important; }
+  body { cursor: auto !important; }
+  .lp-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .lp-cinematic-card { transition: none !important; }
+  .lp-cinematic-card:hover { transform: none; }
+  .lp-magnetic,
+  [data-magnetic],
+  .lp-parallax,
+  [data-parallax] {
+    translate: 0 0 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* =============================================================================
+   LANDING PAGE REDESIGN — scoped to the homepage to avoid affecting other pages
+   ============================================================================= */
+
+.landing-page {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.14), transparent 24%),
+    radial-gradient(circle at 100% 12%, rgba(16, 185, 129, 0.12), transparent 20%),
+    linear-gradient(180deg, #f6faff 0%, #eef5fb 28%, #f8fbff 58%, #f3f8fd 100%);
+}
+
+.landing-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.48;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at 50% 10%, black, transparent 78%);
+}
+
+.landing-page::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 920px;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.88), transparent 26%),
+    radial-gradient(circle at 76% 20%, rgba(191, 219, 254, 0.62), transparent 22%),
+    radial-gradient(circle at 58% 36%, rgba(204, 251, 241, 0.44), transparent 20%);
+}
+
+.landing-page .landing-main,
+.landing-page .site-header,
+.landing-page .site-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-page .site-header {
+  border-bottom: 1px solid rgba(206, 220, 232, 0.82);
+  background: rgba(248, 251, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.landing-page .site-header.bg-transparent {
+  background: rgba(248, 251, 255, 0.58) !important;
+  border-bottom-color: rgba(220, 230, 241, 0.46) !important;
+}
+
+.landing-page .site-header.bg-white {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-bottom-color: rgba(206, 220, 232, 0.82) !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+.landing-page .navbar {
+  padding-inline: clamp(0.15rem, 0.8vw, 0.5rem);
+}
+
+.landing-page .brand {
+  letter-spacing: -0.045em;
+}
+
+.landing-page .nav-link {
+  position: relative;
+  color: #53657a;
+}
+
+.landing-page .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1f7c80, #3fa8ab);
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.landing-page .nav-link:hover::after,
+.landing-page .nav-link:focus-visible::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+.landing-page #mobile-menu {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(18px);
+}
+
+.landing-page .btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1f7c80 100%);
+  box-shadow: 0 20px 44px rgba(37, 99, 235, 0.22);
+}
+
+.landing-page .btn-primary:hover {
+  box-shadow: 0 24px 52px rgba(31, 124, 128, 0.2);
+}
+
+.landing-page .btn-secondary {
+  border-color: rgba(179, 197, 212, 0.96);
+  background: rgba(255, 255, 255, 0.78);
+  color: #12345f;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+}
+
+.landing-page .hero {
+  min-height: min(940px, calc(100svh - 76px));
+  padding-block: clamp(4.5rem, 8.5vw, 7rem) clamp(3rem, 6vw, 5rem);
+  border-bottom: 1px solid rgba(216, 228, 238, 0.72);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.94), transparent 22%),
+    radial-gradient(circle at 84% 16%, rgba(59, 130, 246, 0.18), transparent 24%),
+    radial-gradient(circle at 74% 36%, rgba(16, 185, 129, 0.12), transparent 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(237, 245, 255, 0.92) 54%, rgba(232, 245, 245, 0.94));
+}
+
+.landing-page .hero::before {
+  top: -160px;
+  right: -120px;
+  width: 560px;
+  height: 560px;
+  background: rgba(96, 165, 250, 0.18);
+  filter: blur(96px);
+}
+
+.landing-page .hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 160px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(248, 251, 255, 0), rgba(248, 251, 255, 0.85));
+}
+
+.landing-page .hero-grid {
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+.landing-page .hero-content {
+  max-width: 640px;
+  padding-top: clamp(0.25rem, 1vw, 1rem);
+}
+
+.landing-page .hero h1 {
+  max-width: 11ch;
+  font-size: clamp(3.05rem, 5.5vw, 5.85rem);
+  letter-spacing: -0.055em;
+}
+
+.landing-page .hero-description {
+  max-width: 60ch;
+  color: #53657a;
+  line-height: 1.8;
+}
+
+.landing-page .hero-actions {
+  align-items: center;
+  gap: 1rem;
+}
+
+.landing-page .hero-actions .btn {
+  min-width: 210px;
+}
+
+.landing-page .hero-trust {
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 2rem;
+}
+
+.landing-page .hero-trust > span {
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(206, 220, 232, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+}
+
+.landing-page .hero-visual {
+  isolation: isolate;
+}
+
+.landing-page .hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: 12% -4% -10% 14%;
+  z-index: 0;
+  border-radius: 36px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.18), rgba(37, 99, 235, 0));
+  filter: blur(36px);
+}
+
+.landing-page .hero-visual > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-page .product-window,
+.landing-page .lp-premium-card,
+.landing-page .card,
+.landing-page .hero-stats,
+.landing-page .floating-card {
+  border: 1px solid rgba(198, 214, 226, 0.82);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 253, 0.96)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(233, 243, 252, 0.54));
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.09);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+.landing-page .hero-stats {
+  margin-top: clamp(2rem, 5vw, 3.25rem);
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(248, 251, 255, 0.94));
+}
+
+.landing-page .stat-item {
+  min-height: 74px;
+}
+
+.landing-page .stat-icon {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 12px 28px rgba(37, 99, 235, 0.1);
+}
+
+.landing-page .floating-card {
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+.landing-page .section {
+  position: relative;
+}
+
+.landing-page .section::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(31, 124, 128, 0.14), transparent);
+  pointer-events: none;
+}
+
+.landing-page .section-light {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.92));
+}
+
+.landing-page .section-soft {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(219, 234, 254, 0.56), transparent 24%),
+    linear-gradient(180deg, rgba(239, 246, 255, 0.76), rgba(255, 255, 255, 0.94));
+}
+
+.landing-page .accessibility-section {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(16, 185, 129, 0.16), transparent 28%),
+    radial-gradient(circle at 92% 20%, rgba(59, 130, 246, 0.12), transparent 24%),
+    linear-gradient(135deg, rgba(244, 255, 251, 0.96), rgba(238, 248, 255, 0.98));
+}
+
+.landing-page .section-heading {
+  margin-bottom: clamp(2.2rem, 5vw, 4.25rem);
+}
+
+.landing-page .section-heading.center h2,
+.landing-page .section-heading.center p {
+  margin-inline: auto;
+}
+
+.landing-page .section-heading.center h2 {
+  max-width: 14ch;
+}
+
+.landing-page .section-heading p {
+  max-width: 46rem;
+  color: #53657a;
+  line-height: 1.8;
+}
+
+.landing-page .feature-card,
+.landing-page .pricing-card,
+.landing-page .step-card,
+.landing-page .mode-chip {
+  box-shadow: 0 20px 54px rgba(15, 23, 42, 0.08);
+}
+
+.landing-page .mode-chip {
+  border-color: rgba(198, 214, 226, 0.9);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.landing-page .pricing-card {
+  padding-top: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+.landing-page .pricing-card.featured {
+  transform: translateY(-8px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(239, 248, 248, 0.98)),
+    linear-gradient(135deg, rgba(31, 124, 128, 0.08), transparent 46%);
+}
+
+.landing-page .pricing-badge {
+  box-shadow: 0 12px 30px rgba(31, 124, 128, 0.22);
+}
+
+.landing-page .institution-control {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(37, 99, 235, 0.16), transparent 20%),
+    radial-gradient(circle at 84% 12%, rgba(63, 168, 171, 0.18), transparent 22%),
+    linear-gradient(135deg, #071a33 0%, #0b2344 56%, #102a43 100%);
+}
+
+.landing-page .institution-control .product-window,
+.landing-page .institution-control .lp-premium-card {
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(8, 22, 43, 0.96), rgba(10, 28, 54, 0.96)),
+    radial-gradient(circle at 100% 0%, rgba(63, 168, 171, 0.16), transparent 28%);
+  box-shadow: 0 28px 80px rgba(2, 8, 23, 0.34);
+}
+
+.landing-page .site-footer {
+  overflow: hidden;
+  background: linear-gradient(180deg, #0b2344 0%, #071a33 48%, #06101d 100%);
+}
+
+.landing-page .site-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(63, 168, 171, 0.22), transparent 28%),
+    radial-gradient(circle at 84% 16%, rgba(37, 99, 235, 0.18), transparent 24%);
+}
+
+.landing-page .site-footer .container {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-page .footer-banner {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 24px 70px rgba(2, 8, 23, 0.24);
+}
+
+.landing-page .footer-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(63, 168, 171, 0.18), transparent 26%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 38%);
+}
+
+.landing-page .footer-link {
+  display: inline-flex;
+  width: fit-content;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.landing-page .footer-link:hover {
+  transform: translateX(2px);
+}
+
+@media (max-width: 1100px) {
+  .landing-page .hero {
+    min-height: auto;
+  }
+
+  .landing-page .hero h1,
+  .landing-page .section-heading.center h2 {
+    max-width: none;
+  }
+
+  .landing-page .hero-visual::before {
+    inset: 16% -6% -8% 8%;
+  }
+}
+
+@media (max-width: 900px) {
+  .landing-page .hero-trust > span,
+  .landing-page .hero-actions .btn {
+    width: 100%;
+  }
+
+  .landing-page .pricing-card.featured {
+    transform: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .landing-page::before {
+    opacity: 0.28;
+    background-size: 56px 56px;
+  }
+
+  .landing-page .hero {
+    padding-top: 3.4rem;
+  }
+
+  .landing-page .hero-stats {
+    border-radius: 18px;
+  }
+
+  .landing-page .hero-trust {
+    gap: 0.65rem;
+  }
+
+  .landing-page .footer-banner {
+    padding: 1.25rem;
+  }
+}
+
+
+
+

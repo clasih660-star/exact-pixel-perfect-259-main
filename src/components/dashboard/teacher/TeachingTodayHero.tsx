@@ -35,11 +35,9 @@ export function TeachingTodayHero({
               Next Session
             </span>
           </div>
-          
-          <h2 className="text-2xl font-bold text-[var(--gray-900)] lg:text-3xl">
-            {lessonTitle}
-          </h2>
-          
+
+          <h2 className="text-2xl font-bold text-[var(--gray-900)] lg:text-3xl">{lessonTitle}</h2>
+
           <p className="text-sm text-[var(--gray-500)] lg:text-base">
             {courseName} · {scheduledTime}
           </p>

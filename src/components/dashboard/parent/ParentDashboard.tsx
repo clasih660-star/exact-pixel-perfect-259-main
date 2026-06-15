@@ -148,9 +148,7 @@ export function ParentDashboard() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-[#64748B]">Study Streak</p>
-                <p className="mt-1 text-3xl font-bold text-[#0F172A]">
-                  {selectedLearner.streak}
-                </p>
+                <p className="mt-1 text-3xl font-bold text-[#0F172A]">{selectedLearner.streak}</p>
               </div>
             </div>
             <div className="h-3 w-full rounded-full bg-[#E2E8F0]">

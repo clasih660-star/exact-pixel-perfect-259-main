@@ -50,10 +50,8 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "x squared plus five x plus six equals zero.",
     teacherExplanation:
       "This is the equation we want to solve. The x squared term tells us it is quadratic. The number 5 is the coefficient of x, and 6 is the constant term.",
-    whyThisStepMatters:
-      "We first identify the equation before choosing the solving method.",
-    commonMistake:
-      "Some learners forget that the x squared term is what makes this quadratic.",
+    whyThisStepMatters: "We first identify the equation before choosing the solving method.",
+    commonMistake: "Some learners forget that the x squared term is what makes this quadratic.",
     accessibleDescription:
       "The board shows the equation x squared plus five x plus six equals zero.",
     writingSpeed: "slow",
@@ -68,12 +66,10 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Find two numbers that multiply to six.",
     teacherExplanation:
       "The number 6 is the constant term. To factor this quadratic, we need two numbers whose product is 6.",
-    whyThisStepMatters:
-      "This gives the first condition for choosing the correct factor pair.",
+    whyThisStepMatters: "This gives the first condition for choosing the correct factor pair.",
     commonMistake:
       "Do not choose numbers that only add correctly. They must multiply correctly too.",
-    accessibleDescription:
-      "The board asks the learner to find two numbers that multiply to six.",
+    accessibleDescription: "The board asks the learner to find two numbers that multiply to six.",
     writingSpeed: "normal",
   },
 
@@ -85,12 +81,10 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "The same numbers must add to five.",
     teacherExplanation:
       "The number 5 comes from the middle term, 5x. So we are not looking for any two factors of 6. We need two factors of 6 that also add up to 5.",
-    whyThisStepMatters:
-      "This second condition confirms the correct pair.",
+    whyThisStepMatters: "This second condition confirms the correct pair.",
     commonMistake:
       "A learner may choose 1 and 6 because they multiply to 6, but they add to 7, not 5.",
-    accessibleDescription:
-      "The board explains that the same two numbers must also add to five.",
+    accessibleDescription: "The board explains that the same two numbers must also add to five.",
     writingSpeed: "normal",
   },
 
@@ -102,10 +96,8 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Two times three equals six.",
     teacherExplanation:
       "This confirms the multiplication condition. The numbers 2 and 3 multiply to the constant term, which is 6.",
-    whyThisStepMatters:
-      "Verifying the product condition ensures we have the right pair.",
-    accessibleDescription:
-      "The board shows two times three equals six.",
+    whyThisStepMatters: "Verifying the product condition ensures we have the right pair.",
+    accessibleDescription: "The board shows two times three equals six.",
     writingSpeed: "normal",
   },
 
@@ -117,10 +109,8 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Two plus three equals five.",
     teacherExplanation:
       "This confirms the addition condition. The same numbers, 2 and 3, add to the middle coefficient, which is 5.",
-    whyThisStepMatters:
-      "Verifying the sum condition confirms this is the correct factor pair.",
-    accessibleDescription:
-      "The board shows two plus three equals five.",
+    whyThisStepMatters: "Verifying the sum condition confirms this is the correct factor pair.",
+    accessibleDescription: "The board shows two plus three equals five.",
     writingSpeed: "normal",
     pauseAfter: 1000,
   },
@@ -133,8 +123,7 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "x squared plus five x plus six equals x plus two times x plus three.",
     teacherExplanation:
       "Now we have rewritten the quadratic as two brackets. This works because if we expand these brackets, we get the original equation again.",
-    whyThisStepMatters:
-      "This is the key factoring step — rewriting the quadratic in bracket form.",
+    whyThisStepMatters: "This is the key factoring step — rewriting the quadratic in bracket form.",
     commonMistake:
       "Some learners write (x + 2)(x + 3) but expand incorrectly when checking. Always verify.",
     accessibleDescription:
@@ -168,10 +157,8 @@ export const quadraticTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "x plus two equals zero or x plus three equals zero.",
     teacherExplanation:
       "We now solve each small equation separately. Each one gives one possible value of x.",
-    whyThisStepMatters:
-      "This breaks the problem into two simple linear equations.",
-    accessibleDescription:
-      "The board shows x plus two equals zero or x plus three equals zero.",
+    whyThisStepMatters: "This breaks the problem into two simple linear equations.",
+    accessibleDescription: "The board shows x plus two equals zero or x plus three equals zero.",
     writingSpeed: "normal",
   },
 
@@ -248,8 +235,7 @@ export const waterCycleTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Heat changes water into vapor.",
     teacherExplanation:
       "When water is heated, its particles gain energy and move faster. This allows some water to change into vapor.",
-    whyThisStepMatters:
-      "Evaporation is the first stage of the water cycle.",
+    whyThisStepMatters: "Evaporation is the first stage of the water cycle.",
     accessibleDescription: "Heat changes water into vapor.",
   },
   {
@@ -259,8 +245,7 @@ export const waterCycleTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Vapor cools and forms clouds.",
     teacherExplanation:
       "When vapor rises and cools, it condenses into tiny droplets that form clouds.",
-    whyThisStepMatters:
-      "Condensation is how clouds form, which leads to precipitation.",
+    whyThisStepMatters: "Condensation is how clouds form, which leads to precipitation.",
     accessibleDescription: "Vapor cools and forms clouds.",
   },
   {
@@ -270,8 +255,7 @@ export const waterCycleTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Heavy droplets fall as rain.",
     teacherExplanation:
       "When the droplets in clouds become too heavy, gravity pulls them down as rain, completing the cycle.",
-    whyThisStepMatters:
-      "Precipitation returns water to the ground, completing the water cycle.",
+    whyThisStepMatters: "Precipitation returns water to the ground, completing the water cycle.",
     accessibleDescription: "Heavy droplets fall as rain.",
   },
 ];
@@ -286,8 +270,7 @@ export const programmingTeachingSequence: MathTeachingItem[] = [
       "function greet, opening parenthesis, name, closing parenthesis, opening curly brace. return Hello plus name. Closing curly brace.",
     teacherExplanation:
       "This function receives one input called name. The return statement creates a text value by joining Hello with the value passed into the function.",
-    whyThisStepMatters:
-      "Functions are reusable blocks of code that perform specific tasks.",
+    whyThisStepMatters: "Functions are reusable blocks of code that perform specific tasks.",
     accessibleDescription:
       "A function named greet that takes name as input and returns Hello plus the name.",
   },
@@ -302,8 +285,7 @@ export const englishTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "A topic sentence introduces the paragraph.",
     teacherExplanation:
       "A paragraph needs structure. The first sentence tells the reader what the paragraph is about.",
-    whyThisStepMatters:
-      "Without a topic sentence, the reader does not know what to expect.",
+    whyThisStepMatters: "Without a topic sentence, the reader does not know what to expect.",
     accessibleDescription: "A topic sentence introduces the paragraph.",
   },
   {
@@ -313,8 +295,7 @@ export const englishTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "Supporting sentences explain the main idea.",
     teacherExplanation:
       "The supporting sentences add details and evidence to develop the main idea.",
-    whyThisStepMatters:
-      "Supporting sentences give the paragraph substance and credibility.",
+    whyThisStepMatters: "Supporting sentences give the paragraph substance and credibility.",
     accessibleDescription: "Supporting sentences explain the main idea.",
   },
   {
@@ -324,8 +305,7 @@ export const englishTeachingSequence: MathTeachingItem[] = [
     exactSpokenText: "The final sentence closes the paragraph.",
     teacherExplanation:
       "The closing sentence brings the idea to a conclusion and may link to the next paragraph.",
-    whyThisStepMatters:
-      "A good closing sentence gives the paragraph a sense of completion.",
+    whyThisStepMatters: "A good closing sentence gives the paragraph a sense of completion.",
     accessibleDescription: "The final sentence closes the paragraph.",
   },
 ];

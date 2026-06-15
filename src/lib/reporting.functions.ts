@@ -24,8 +24,7 @@ async function resolveInstitution(
     .limit(10);
   if (error || !data?.length) return null;
   // Prefer an admin/owner membership, otherwise the first active one.
-  const preferred =
-    data.find((m: any) => ["owner", "admin"].includes(m.role)) ?? data[0];
+  const preferred = data.find((m: any) => ["owner", "admin"].includes(m.role)) ?? data[0];
   const inst = preferred.institution;
   if (!inst) return null;
   return { id: inst.id, name: inst.name, role: preferred.role };
@@ -43,12 +42,26 @@ export const getInstitutionDashboard = createServerFn({ method: "GET" })
 
     // Demo mode — return empty data
     if (!supabase) {
-      return { institution: null, stats: null, courses: [], activeSessions: [], recentMaterials: [], activity: [] };
+      return {
+        institution: null,
+        stats: null,
+        courses: [],
+        activeSessions: [],
+        recentMaterials: [],
+        activity: [],
+      };
     }
 
     const institution = await resolveInstitution(supabase, userId);
     if (!institution) {
-      return { institution: null, stats: null, courses: [], activeSessions: [], recentMaterials: [], activity: [] };
+      return {
+        institution: null,
+        stats: null,
+        courses: [],
+        activeSessions: [],
+        recentMaterials: [],
+        activity: [],
+      };
     }
     const instId = institution.id;
 
@@ -62,10 +75,20 @@ export const getInstitutionDashboard = createServerFn({ method: "GET" })
       resultsRes,
       activityRes,
     ] = await Promise.all([
-      supabase.from("courses").select("id, title, subject, status, created_at").eq("institution_id", instId),
+      supabase
+        .from("courses")
+        .select("id, title, subject, status, created_at")
+        .eq("institution_id", instId),
       supabase.from("lessons").select("id, course_id, status").eq("institution_id", instId),
-      supabase.from("course_enrollments").select("course_id, student_id, status").eq("institution_id", instId),
-      supabase.from("institution_members").select("role").eq("institution_id", instId).eq("status", "active"),
+      supabase
+        .from("course_enrollments")
+        .select("course_id, student_id, status")
+        .eq("institution_id", instId),
+      supabase
+        .from("institution_members")
+        .select("role")
+        .eq("institution_id", instId)
+        .eq("status", "active"),
       supabase
         .from("course_materials")
         .select("id, title, type, processing_status, created_at")
@@ -79,7 +102,10 @@ export const getInstitutionDashboard = createServerFn({ method: "GET" })
         .in("status", ["live", "scheduled"])
         .order("started_at", { ascending: false })
         .limit(8),
-      supabase.from("learning_results").select("progress_percentage, status").eq("institution_id", instId),
+      supabase
+        .from("learning_results")
+        .select("progress_percentage, status")
+        .eq("institution_id", instId),
       supabase
         .from("session_events")
         .select("id, event_type, actor_role, course_id, lesson_id, created_at")
@@ -105,18 +131,25 @@ export const getInstitutionDashboard = createServerFn({ method: "GET" })
       lessonCountByCourse.set(l.course_id, (lessonCountByCourse.get(l.course_id) ?? 0) + 1);
     }
 
-    const uniqueStudents = new Set(enrollments.filter((e) => !e.status || e.status === "active").map((e) => e.student_id));
-    const teacherCount = members.filter((m) => m.role === "teacher").length;
+    const uniqueStudents = new Set(
+      enrollments
+        .filter((e: any) => !e.status || e.status === "active")
+        .map((e: any) => e.student_id),
+    );
+    const teacherCount = members.filter((m: any) => m.role === "teacher").length;
     const avgProgress =
       results.length > 0
-        ? Math.round(results.reduce((s, r) => s + (r.progress_percentage ?? 0), 0) / results.length)
+        ? Math.round(
+            results.reduce((s: any, r: any) => s + (r.progress_percentage ?? 0), 0) /
+              results.length,
+          )
         : 0;
 
     const courseSummaries = courses
       .slice()
-      .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
+      .sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
       .slice(0, 6)
-      .map((c) => ({
+      .map((c: any) => ({
         id: c.id,
         title: c.title,
         subject: c.subject,
@@ -129,13 +162,13 @@ export const getInstitutionDashboard = createServerFn({ method: "GET" })
       institution,
       stats: {
         courses: courses.length,
-        publishedCourses: courses.filter((c) => c.status === "published").length,
+        publishedCourses: courses.filter((c: any) => c.status === "published").length,
         lessons: lessons.length,
-        publishedLessons: lessons.filter((l) => l.status === "published").length,
+        publishedLessons: lessons.filter((l: any) => l.status === "published").length,
         students: uniqueStudents.size,
         teachers: teacherCount,
-        materials: materialsRes.count ?? (materialsRes.data?.length ?? 0),
-        liveSessions: (sessionsRes.data ?? []).filter((s) => s.status === "live").length,
+        materials: materialsRes.count ?? materialsRes.data?.length ?? 0,
+        liveSessions: (sessionsRes.data ?? []).filter((s: any) => s.status === "live").length,
         avgProgress,
       },
       courses: courseSummaries,
@@ -173,7 +206,9 @@ export const getCourseProgressReport = createServerFn({ method: "GET" })
         .eq("course_id", data.course_id),
       supabase
         .from("learning_results")
-        .select("student_id, progress_percentage, status, time_spent_seconds, questions_asked, practice_attempts, practice_correct, last_active_at")
+        .select(
+          "student_id, progress_percentage, status, time_spent_seconds, questions_asked, practice_attempts, practice_correct, last_active_at",
+        )
         .eq("course_id", data.course_id),
       supabase.from("learner_questions").select("student_id").eq("course_id", data.course_id),
     ]);
@@ -182,16 +217,36 @@ export const getCourseProgressReport = createServerFn({ method: "GET" })
     const questions = questionsRes.data ?? [];
 
     // Aggregate results per student (a student may have several sessions).
-    const byStudent = new Map<string, { progress: number; timeSec: number; questions: number; practiceAttempts: number; practiceCorrect: number; lastActive: string | null; sessions: number }>();
+    const byStudent = new Map<
+      string,
+      {
+        progress: number;
+        timeSec: number;
+        questions: number;
+        practiceAttempts: number;
+        practiceCorrect: number;
+        lastActive: string | null;
+        sessions: number;
+      }
+    >();
     for (const r of results) {
-      const cur = byStudent.get(r.student_id) ?? { progress: 0, timeSec: 0, questions: 0, practiceAttempts: 0, practiceCorrect: 0, lastActive: null, sessions: 0 };
+      const cur = byStudent.get(r.student_id) ?? {
+        progress: 0,
+        timeSec: 0,
+        questions: 0,
+        practiceAttempts: 0,
+        practiceCorrect: 0,
+        lastActive: null,
+        sessions: 0,
+      };
       cur.progress = Math.max(cur.progress, r.progress_percentage ?? 0);
       cur.timeSec += r.time_spent_seconds ?? 0;
       cur.questions += r.questions_asked ?? 0;
       cur.practiceAttempts += r.practice_attempts ?? 0;
       cur.practiceCorrect += r.practice_correct ?? 0;
       cur.sessions += 1;
-      if (!cur.lastActive || (r.last_active_at ?? "") > cur.lastActive) cur.lastActive = r.last_active_at ?? cur.lastActive;
+      if (!cur.lastActive || (r.last_active_at ?? "") > cur.lastActive)
+        cur.lastActive = r.last_active_at ?? cur.lastActive;
       byStudent.set(r.student_id, cur);
     }
     const questionCountByStudent = new Map<string, number>();
@@ -216,15 +271,17 @@ export const getCourseProgressReport = createServerFn({ method: "GET" })
       };
     });
 
-    const active = learners.filter((l) => l.progress > 0);
+    const active = learners.filter((l: any) => l.progress > 0);
     return {
       learners,
       summary: {
         enrolled: learners.length,
         active: active.length,
-        avgProgress: active.length ? Math.round(active.reduce((s, l) => s + l.progress, 0) / active.length) : 0,
+        avgProgress: active.length
+          ? Math.round(active.reduce((s: any, l: any) => s + l.progress, 0) / active.length)
+          : 0,
         totalQuestions: questions.length,
-        totalTimeMinutes: learners.reduce((s, l) => s + l.timeMinutes, 0),
+        totalTimeMinutes: learners.reduce((s: any, l: any) => s + l.timeMinutes, 0),
       },
     };
   });
@@ -249,7 +306,9 @@ export const getInstitutionQuestions = createServerFn({ method: "GET" })
 
     let query = context.supabase
       .from("learner_questions")
-      .select("id, course_id, lesson_id, question_text, answer_text, answer_source, section_type, learning_mode, created_at")
+      .select(
+        "id, course_id, lesson_id, question_text, answer_text, answer_source, section_type, learning_mode, created_at",
+      )
       .eq("institution_id", data.institution_id)
       .order("created_at", { ascending: false })
       .limit(data.limit);
@@ -295,7 +354,7 @@ export const getTeacherSupervision = createServerFn({ method: "GET" })
         .limit(50);
       courses = allRes.data ?? [];
     }
-    const courseIds = courses.map((c) => c.id);
+    const courseIds = courses.map((c: any) => c.id);
 
     const [liveRes, questionsRes, resultsRes] = await Promise.all([
       courseIds.length
@@ -310,18 +369,25 @@ export const getTeacherSupervision = createServerFn({ method: "GET" })
       courseIds.length
         ? supabase
             .from("learner_questions")
-            .select("id, course_id, lesson_id, question_text, answer_text, answer_source, created_at")
+            .select(
+              "id, course_id, lesson_id, question_text, answer_text, answer_source, created_at",
+            )
             .in("course_id", courseIds)
             .order("created_at", { ascending: false })
             .limit(15)
         : Promise.resolve({ data: [] as any[] }),
       courseIds.length
-        ? supabase.from("learning_results").select("student_id, progress_percentage, status").in("course_id", courseIds)
+        ? supabase
+            .from("learning_results")
+            .select("student_id, progress_percentage, status")
+            .in("course_id", courseIds)
         : Promise.resolve({ data: [] as any[] }),
     ]);
 
     const results = (resultsRes as any).data ?? [];
-    const activeLearners = new Set(results.filter((r: any) => (r.progress_percentage ?? 0) > 0).map((r: any) => r.student_id));
+    const activeLearners = new Set(
+      results.filter((r: any) => (r.progress_percentage ?? 0) > 0).map((r: any) => r.student_id),
+    );
 
     return {
       institution,

@@ -27,7 +27,8 @@ export const recordSessionEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => RecordSchema.parse(data))
   .handler(async ({ data, context }: any) => {
-    if (!context.supabase) return { id: `demo-event-${Date.now()}`, created_at: new Date().toISOString() };
+    if (!context.supabase)
+      return { id: `demo-event-${Date.now()}`, created_at: new Date().toISOString() };
 
     const { data: session, error: sErr } = await context.supabase
       .from("classroom_sessions")
@@ -95,7 +96,9 @@ export const getInstitutionActivity = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await context.supabase
       .from("session_events")
-      .select("id, event_type, actor_role, course_id, lesson_id, session_id, payload_json, created_at")
+      .select(
+        "id, event_type, actor_role, course_id, lesson_id, session_id, payload_json, created_at",
+      )
       .eq("institution_id", data.institution_id)
       .order("created_at", { ascending: false })
       .limit(data.limit);

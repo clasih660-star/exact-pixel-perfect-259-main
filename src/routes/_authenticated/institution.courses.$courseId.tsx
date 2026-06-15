@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, BookOpen, Users, Settings as SettingsIcon, FolderUp, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Users,
+  Settings as SettingsIcon,
+  FolderUp,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
 import { CreateLessonDialog } from "@/components/institution/CreateLessonDialog";
@@ -109,11 +116,11 @@ function CourseDetailPage() {
             <Stat label="Lessons" value={lessons.length} />
             <Stat
               label="Published lessons"
-              value={lessons.filter((l) => l.status === "published").length}
+              value={lessons.filter((l: any) => l.status === "published").length}
             />
             <Stat
               label="Enrolled students"
-              value={q.data.enrollments.filter((e) => e.status === "active").length}
+              value={q.data.enrollments.filter((e: any) => e.status === "active").length}
             />
           </div>
         </TabsContent>
@@ -125,7 +132,7 @@ function CourseDetailPage() {
           {lessons.length === 0 ? (
             <p className="text-sm text-muted-foreground">No lessons yet.</p>
           ) : (
-            lessons.map((l) => <LessonRow key={l.id} lesson={l} courseId={courseId} />)
+            lessons.map((l: any) => <LessonRow key={l.id} lesson={l} courseId={courseId} />)
           )}
         </TabsContent>
 
@@ -258,7 +265,7 @@ function EnrollmentsTab({ courseId }: { courseId: string }) {
       ) : (q.data?.enrollments ?? []).length === 0 ? (
         <p className="text-sm text-muted-foreground">No enrollments yet.</p>
       ) : (
-        q.data!.enrollments.map((e) => (
+        q.data!.enrollments.map((e: any) => (
           <Card key={e.id}>
             <CardContent className="flex items-center justify-between p-4">
               <div>

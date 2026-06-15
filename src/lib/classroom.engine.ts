@@ -88,7 +88,7 @@ async function getSessionMeta(supabase: any, sessionId: string) {
 
 export const getStudentDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const userId = context.userId;
     const supabase = context.supabase;
 
@@ -159,14 +159,19 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
     );
     const avgQuizScore =
       quizResults.length > 0
-        ? Math.round(quizResults.reduce((s: number, q: any) => s + (q.percentage ?? 0), 0) / quizResults.length)
+        ? Math.round(
+            quizResults.reduce((s: number, q: any) => s + (q.percentage ?? 0), 0) /
+              quizResults.length,
+          )
         : 0;
     const activeCourses = enrollments.length;
 
     // Build continue learning from most recent in-progress lesson
     const inProgressLessons = progressRows
       .filter((p: any) => p.status === "in_progress")
-      .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+      .sort(
+        (a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+      );
     const continueLearningLesson = inProgressLessons[0];
     const continueLearningCourse = continueLearningLesson
       ? enrollments.find((e: any) => e.course_id === continueLearningLesson.course_id)?.course
@@ -182,6 +187,17 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
       targetUrl: r.target_url,
     }));
 
+    // Lookup lesson title for continue learning
+    let continueLessonTitle = "";
+    if (continueLearningLesson?.lesson_id) {
+      const { data: lessonData } = await supabase
+        .from("lessons")
+        .select("title")
+        .eq("id", continueLearningLesson.lesson_id)
+        .maybeSingle();
+      continueLessonTitle = lessonData?.title ?? "";
+    }
+
     return {
       continueLearning: continueLearningLesson
         ? {
@@ -190,7 +206,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
             currentStep: continueLearningLesson.current_step ?? "hook",
             progressPercentage: continueLearningLesson.progress_percentage ?? 0,
             courseTitle: continueLearningCourse?.title ?? "",
-            lessonTitle: "", // will be filled from lesson lookup
+            lessonTitle: continueLessonTitle,
           }
         : null,
       stats: {
@@ -228,9 +244,12 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         status: s.status,
         startedAt: s.started_at,
         endedAt: s.ended_at,
-        durationMinutes: s.started_at && s.ended_at
-          ? Math.round((new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 60000)
-          : null,
+        durationMinutes:
+          s.started_at && s.ended_at
+            ? Math.round(
+                (new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 60000,
+              )
+            : null,
       })),
       accessProfile: accessProfile
         ? {
@@ -273,7 +292,7 @@ const StartClassroomSchema = z.object({
 export const startOrResumeClassroomV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => StartClassroomSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -396,7 +415,7 @@ export const startOrResumeClassroomV2 = createServerFn({ method: "POST" })
 export const getClassroomContextV2 = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { session_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
 
     const session = await getSessionMeta(supabase, data.session_id);
@@ -510,7 +529,7 @@ const ChatMessageSchema = z.object({
 export const postChatMessageV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ChatMessageSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -541,7 +560,12 @@ export const postChatMessageV2 = createServerFn({ method: "POST" })
       lesson_id: session.lesson_id,
       session_id: data.session_id,
       actor_user_id: context.userId,
-      actor_role: data.sender === "student" ? "student" : data.sender === "ai_teacher" ? "ai_teacher" : "system",
+      actor_role:
+        data.sender === "student"
+          ? "student"
+          : data.sender === "ai_teacher"
+            ? "ai_teacher"
+            : "system",
       event_type: eventType,
       event_source: "chat",
       payload: { messageId: msgRow.id, message: data.message, messageType: data.message_type },
@@ -565,7 +589,7 @@ const QuickActionSchema = z.object({
 export const postQuickActionV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => QuickActionSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -615,7 +639,7 @@ const ChangeStepSchema = z.object({
 export const changeClassroomStepV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ChangeStepSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -624,7 +648,8 @@ export const changeClassroomStepV2 = createServerFn({ method: "POST" })
       current_step: data.targetStep,
       session_id: data.session_id,
     };
-    if (data.progress_percentage !== undefined) progressUpdate.progress_percentage = data.progress_percentage;
+    if (data.progress_percentage !== undefined)
+      progressUpdate.progress_percentage = data.progress_percentage;
     if (data.confusion_score !== undefined) progressUpdate.confusion_score = data.confusion_score;
 
     // Upsert progress
@@ -636,7 +661,10 @@ export const changeClassroomStepV2 = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (existingProgress) {
-      await (supabase as any).from("lesson_progress").update(progressUpdate).eq("id", existingProgress.id);
+      await (supabase as any)
+        .from("lesson_progress")
+        .update(progressUpdate)
+        .eq("id", existingProgress.id);
     } else {
       await (supabase as any).from("lesson_progress").insert({
         institution_id: session.institution_id,
@@ -688,7 +716,7 @@ const SaveBoardNotesSchema = z.object({
 export const saveBoardNotesV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => SaveBoardNotesSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -771,7 +799,7 @@ const AccessProfileSchema = z.object({
 export const updateAccessProfileV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => AccessProfileSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -806,12 +834,15 @@ export const updateAccessProfileV2 = createServerFn({ method: "POST" })
     if (data.captionsEnabled !== undefined) updates.captions_enabled = data.captionsEnabled;
     if (data.transcriptEnabled !== undefined) updates.transcript_enabled = data.transcriptEnabled;
     if (data.audioEnabled !== undefined) updates.audio_enabled = data.audioEnabled;
-    if (data.boardDescriptionsEnabled !== undefined) updates.board_descriptions_enabled = data.boardDescriptionsEnabled;
-    if (data.screenReaderOptimized !== undefined) updates.screen_reader_optimized = data.screenReaderOptimized;
+    if (data.boardDescriptionsEnabled !== undefined)
+      updates.board_descriptions_enabled = data.boardDescriptionsEnabled;
+    if (data.screenReaderOptimized !== undefined)
+      updates.screen_reader_optimized = data.screenReaderOptimized;
     if (data.highContrast !== undefined) updates.high_contrast = data.highContrast;
     if (data.largeText !== undefined) updates.large_text = data.largeText;
     if (data.reducedMotion !== undefined) updates.reduced_motion = data.reducedMotion;
-    if (data.keyboardShortcutsEnabled !== undefined) updates.keyboard_shortcuts_enabled = data.keyboardShortcutsEnabled;
+    if (data.keyboardShortcutsEnabled !== undefined)
+      updates.keyboard_shortcuts_enabled = data.keyboardShortcutsEnabled;
     if (data.voiceInputEnabled !== undefined) updates.voice_input_enabled = data.voiceInputEnabled;
     if (data.speechRate !== undefined) updates.speech_rate = data.speechRate;
     if (data.fontScale !== undefined) updates.font_scale = data.fontScale;
@@ -848,7 +879,9 @@ export const updateAccessProfileV2 = createServerFn({ method: "POST" })
         actor_role: "student",
         event_type: "access_updated",
         event_source: "access_settings",
-        payload: { changes: Object.keys(data).filter((k) => k !== "session_id" && k !== "request_key") },
+        payload: {
+          changes: Object.keys(data).filter((k) => k !== "session_id" && k !== "request_key"),
+        },
         request_key: data.request_key,
       });
     }
@@ -875,7 +908,7 @@ const QuizResultSchema = z.object({
 export const submitQuizResultV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => QuizResultSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -977,7 +1010,7 @@ const EndSessionSchema = z.object({
 export const endSessionV2 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => EndSessionSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -1018,7 +1051,10 @@ export const endSessionV2 = createServerFn({ method: "POST" })
       }
 
       if (existingProgress) {
-        await (supabase as any).from("lesson_progress").update(progressUpdate).eq("id", existingProgress.id);
+        await (supabase as any)
+          .from("lesson_progress")
+          .update(progressUpdate)
+          .eq("id", existingProgress.id);
       } else {
         await (supabase as any).from("lesson_progress").insert({
           institution_id: session.institution_id,
@@ -1059,12 +1095,16 @@ export const endSessionV2 = createServerFn({ method: "POST" })
 export const getSessionSummary = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { session_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
     const [lesson, course, events, quizResults, notes, progress] = await Promise.all([
-      supabase.from("lessons").select("id, title, description").eq("id", session.lesson_id).single(),
+      supabase
+        .from("lessons")
+        .select("id, title, description")
+        .eq("id", session.lesson_id)
+        .single(),
       supabase.from("courses").select("id, title, subject").eq("id", session.course_id).single(),
       supabase
         .from("session_events")
@@ -1091,7 +1131,9 @@ export const getSessionSummary = createServerFn({ method: "GET" })
 
     const eventRows = events.data ?? [];
     const stepsCompleted = new Set(
-      eventRows.filter((e: any) => e.event_type === "step_changed").map((e: any) => e.payload_json?.targetStep),
+      eventRows
+        .filter((e: any) => e.event_type === "step_changed")
+        .map((e: any) => e.payload_json?.targetStep),
     ).size;
 
     const durationMinutes =
@@ -1099,7 +1141,7 @@ export const getSessionSummary = createServerFn({ method: "GET" })
         ? Math.round(
             (new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 60000,
           )
-        : progress.data?.time_spent_minutes ?? 0;
+        : (progress.data?.time_spent_minutes ?? 0);
 
     // Calculate confusion trend from events
     const confusionEvents = eventRows.filter(
@@ -1128,9 +1170,7 @@ export const getSessionSummary = createServerFn({ method: "GET" })
       notes: notes.data ?? [],
       eventCount: eventRows.length,
       confusionTrend,
-      weakTopics: (quizResults.data ?? []).flatMap(
-        (q: any) => q.feedback_json?.weakTopics ?? [],
-      ),
+      weakTopics: (quizResults.data ?? []).flatMap((q: any) => q.feedback_json?.weakTopics ?? []),
     };
   });
 
@@ -1141,7 +1181,7 @@ export const getSessionSummary = createServerFn({ method: "GET" })
 export const getSessionReplay = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { session_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -1207,7 +1247,7 @@ export const getSessionReplay = createServerFn({ method: "GET" })
 
 export const listRecommendations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const supabase = context.supabase;
 
     const { data, error } = await supabase
@@ -1238,7 +1278,7 @@ const SaveEventSchema = z.object({
 export const saveSessionEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => SaveEventSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const session = await getSessionMeta(supabase, data.session_id);
 
@@ -1275,7 +1315,7 @@ const SaveNotesSchema = z.object({
 export const saveNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => SaveNotesSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 

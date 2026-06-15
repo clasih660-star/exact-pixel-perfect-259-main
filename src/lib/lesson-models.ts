@@ -250,10 +250,17 @@ export type LessonCompletionSummary = {
 // Classroom event for tracking
 export type ClassroomEvent =
   | { type: "session_started"; timestamp: string }
+  | { type: "step_started"; stepId: string; timestamp: string }
   | { type: "board_item_written"; itemId: string; timestamp: string }
   | { type: "teacher_read_board_item"; itemId: string; timestamp: string }
   | { type: "teacher_explained_item"; itemId: string; timestamp: string }
   | { type: "question_checkpoint_triggered"; checkpointId: string; timestamp: string }
+  | {
+      type: "question_triggered";
+      questionType: "checkpoint" | "required" | "practice" | "exit";
+      timestamp: string;
+    }
+  | { type: "checkpoint_resolved"; timestamp: string }
   | { type: "learner_asked_question"; question: string; timestamp: string }
   | { type: "teacher_answered_question"; answer: string; timestamp: string }
   | { type: "required_question_asked"; questionId: string; timestamp: string }
@@ -261,7 +268,12 @@ export type ClassroomEvent =
   | { type: "guided_practice_started"; practiceId: string; timestamp: string }
   | { type: "independent_practice_started"; practiceId: string; timestamp: string }
   | { type: "practice_answer_submitted"; practiceId: string; correct: boolean; timestamp: string }
-  | { type: "misconception_detected"; misconceptionType: string; learnerAnswer: string; timestamp: string }
+  | {
+      type: "misconception_detected";
+      misconceptionType: string;
+      learnerAnswer: string;
+      timestamp: string;
+    }
   | { type: "exit_ticket_submitted"; correct: boolean; timestamp: string }
   | { type: "lesson_completed"; summary: LessonCompletionSummary; timestamp: string }
   | { type: "lesson_replayed"; fromStep: number; timestamp: string };
@@ -278,7 +290,8 @@ export const DEMO_LESSON: Lesson = {
   estimatedDurationMinutes: 30,
   objective: "By the end of this lesson, you will factor simple quadratic equations.",
   prerequisiteCheck: {
-    questionText: "Before we begin, do you remember how to multiply two brackets like (x + 2)(x + 3)?",
+    questionText:
+      "Before we begin, do you remember how to multiply two brackets like (x + 2)(x + 3)?",
     options: ["Yes, I remember", "Not sure", "No, I need a review"],
     reviewIfNo: "Let me quickly review multiplying brackets...",
   },
@@ -323,9 +336,11 @@ export const DEMO_LESSON: Lesson = {
           writingSpeed: "normal",
         },
       ],
-      teacherNotes: "Welcome to today's lesson on quadratic equations. We will learn how to factor quadratic equations to find their solutions. This is a foundational skill that you will use throughout your mathematics journey.",
+      teacherNotes:
+        "Welcome to today's lesson on quadratic equations. We will learn how to factor quadratic equations to find their solutions. This is a foundational skill that you will use throughout your mathematics journey.",
       learnerNotes: {
-        summary: "This lesson teaches how to factor quadratic equations of the form ax² + bx + c = 0.",
+        summary:
+          "This lesson teaches how to factor quadratic equations of the form ax² + bx + c = 0.",
         keyPoints: [
           "Quadratic equations have x² as the highest power",
           "Factoring rewrites the equation as a product of two brackets",
@@ -340,8 +355,10 @@ export const DEMO_LESSON: Lesson = {
       },
       accessibility: {
         boardDescription: "Whiteboard shows the lesson title and objective",
-        screenReaderText: "Today we learn to factor quadratic equations. Our goal is to factor simple quadratic equations.",
-        simplifiedExplanation: "We will learn to break down quadratic equations into simpler parts.",
+        screenReaderText:
+          "Today we learn to factor quadratic equations. Our goal is to factor simple quadratic equations.",
+        simplifiedExplanation:
+          "We will learn to break down quadratic equations into simpler parts.",
       },
     },
     {
@@ -402,7 +419,8 @@ export const DEMO_LESSON: Lesson = {
           writingSpeed: "normal",
         },
       ],
-      teacherNotes: "A quadratic equation is an equation where the highest power of x is 2. The standard form is ax² + bx + c = 0, where a, b, and c are constants and a is not zero. In our example x² + 5x + 6 = 0, we have a=1, b=5, and c=6. Notice that x² means x multiplied by itself.",
+      teacherNotes:
+        "A quadratic equation is an equation where the highest power of x is 2. The standard form is ax² + bx + c = 0, where a, b, and c are constants and a is not zero. In our example x² + 5x + 6 = 0, we have a=1, b=5, and c=6. Notice that x² means x multiplied by itself.",
       learnerNotes: {
         summary: "Quadratic equations have x² as the highest power, written as ax² + bx + c = 0.",
         keyPoints: [
@@ -411,13 +429,18 @@ export const DEMO_LESSON: Lesson = {
           "The standard form helps us identify a, b, and c",
         ],
         examples: ["x² + 5x + 6 = 0 (a=1, b=5, c=6)", "2x² - 3x + 1 = 0 (a=2, b=-3, c=1)"],
-        commonMistakes: ["Calling it 'x squared' instead of 'quadratic'", "Forgetting that a cannot be zero"],
+        commonMistakes: [
+          "Calling it 'x squared' instead of 'quadratic'",
+          "Forgetting that a cannot be zero",
+        ],
         formulas: ["Standard form: ax² + bx + c = 0"],
       },
       accessibility: {
         boardDescription: "Whiteboard shows the quadratic form equation",
-        screenReaderText: "The quadratic form is a x squared plus b x plus c equals zero. In our example, x squared plus 5 x plus 6 equals zero.",
-        simplifiedExplanation: "Quadratic equations have x multiplied by itself, plus some other x terms and numbers.",
+        screenReaderText:
+          "The quadratic form is a x squared plus b x plus c equals zero. In our example, x squared plus 5 x plus 6 equals zero.",
+        simplifiedExplanation:
+          "Quadratic equations have x multiplied by itself, plus some other x terms and numbers.",
       },
     },
     {
@@ -482,7 +505,8 @@ export const DEMO_LESSON: Lesson = {
           type: "equation",
           text: "(x + 2)(x + 3) = 0",
           readExactly: true,
-          accessibleDescription: "Open bracket x plus 2 close bracket times open bracket x plus 3 close bracket equals zero",
+          accessibleDescription:
+            "Open bracket x plus 2 close bracket times open bracket x plus 3 close bracket equals zero",
           writingSpeed: "slow",
           pauseAfter: 2000,
         },
@@ -519,7 +543,8 @@ export const DEMO_LESSON: Lesson = {
           writingSpeed: "slow",
         },
       ],
-      teacherNotes: "Now let me show you how to solve this step by step. First, I need to find two numbers. These numbers must multiply to give me 6, which is my c value. The same numbers must also add to give me 5, which is my b value. Let me think... what two numbers multiply to 6? One and six, or two and three. Now which pair adds to 5? Two plus three equals five. Perfect! So my numbers are 2 and 3. Now I can write my factors. The factors are (x + 2) and (x + 3). Setting each bracket to zero gives me x equals negative 2, and x equals negative 3.",
+      teacherNotes:
+        "Now let me show you how to solve this step by step. First, I need to find two numbers. These numbers must multiply to give me 6, which is my c value. The same numbers must also add to give me 5, which is my b value. Let me think... what two numbers multiply to 6? One and six, or two and three. Now which pair adds to 5? Two plus three equals five. Perfect! So my numbers are 2 and 3. Now I can write my factors. The factors are (x + 2) and (x + 3). Setting each bracket to zero gives me x equals negative 2, and x equals negative 3.",
       learnerNotes: {
         summary: "To factor x² + 5x + 6, we find numbers that multiply to 6 and add to 5.",
         keyPoints: [
@@ -528,7 +553,11 @@ export const DEMO_LESSON: Lesson = {
           "Write each factor in brackets",
           "Set each bracket to zero to find solutions",
         ],
-        examples: ["For x² + 5x + 6: numbers are 2 and 3 (2×3=6, 2+3=5)", "Factors: (x + 2)(x + 3) = 0", "Solutions: x = -2 or x = -3"],
+        examples: [
+          "For x² + 5x + 6: numbers are 2 and 3 (2×3=6, 2+3=5)",
+          "Factors: (x + 2)(x + 3) = 0",
+          "Solutions: x = -2 or x = -3",
+        ],
         commonMistakes: [
           "Getting the signs wrong (if c is positive but b is negative, both numbers are negative)",
           "Forgetting to set each bracket to zero",
@@ -538,8 +567,10 @@ export const DEMO_LESSON: Lesson = {
       },
       accessibility: {
         boardDescription: "Step-by-step solution of a quadratic equation",
-        screenReaderText: "To solve x squared plus 5 x plus 6 equals zero, we find two numbers that multiply to 6 and add to 5. The numbers 2 and 3 work. So we factor as open bracket x plus 2 close bracket times open bracket x plus 3 close bracket. Setting each to zero, x equals negative 2 or x equals negative 3.",
-        simplifiedExplanation: "Find two numbers. They must multiply to the number at the end (6) and add to the middle number (5). Then put them in brackets.",
+        screenReaderText:
+          "To solve x squared plus 5 x plus 6 equals zero, we find two numbers that multiply to 6 and add to 5. The numbers 2 and 3 work. So we factor as open bracket x plus 2 close bracket times open bracket x plus 3 close bracket. Setting each to zero, x equals negative 2 or x equals negative 3.",
+        simplifiedExplanation:
+          "Find two numbers. They must multiply to the number at the end (6) and add to the middle number (5). Then put them in brackets.",
       },
     },
     {
@@ -575,7 +606,8 @@ export const DEMO_LESSON: Lesson = {
           writingSpeed: "normal",
         },
       ],
-      teacherNotes: "Now let's practice together. Look at this equation: x² + 7x + 12 = 0. We need to find two numbers. What's our c value? It's 12. What's our b value? It's 7. So we need numbers that multiply to 12 and add to 7. Think about it... the pairs for 12 are 1 and 12, 2 and 6, 3 and 4. Which pair adds to 7? Let me check. Three plus four equals seven. Perfect!",
+      teacherNotes:
+        "Now let's practice together. Look at this equation: x² + 7x + 12 = 0. We need to find two numbers. What's our c value? It's 12. What's our b value? It's 7. So we need numbers that multiply to 12 and add to 7. Think about it... the pairs for 12 are 1 and 12, 2 and 6, 3 and 4. Which pair adds to 7? Let me check. Three plus four equals seven. Perfect!",
       learnerNotes: {
         summary: "Practice finding factor pairs and checking both conditions.",
         keyPoints: [
@@ -583,13 +615,17 @@ export const DEMO_LESSON: Lesson = {
           "Check which pair adds to b",
           "Write the factors and solve",
         ],
-        examples: ["x² + 7x + 12: factors of 12 are (3,4), (3+4=7)", "Solution: (x+3)(x+4)=0, x=-3 or x=-4"],
+        examples: [
+          "x² + 7x + 12: factors of 12 are (3,4), (3+4=7)",
+          "Solution: (x+3)(x+4)=0, x=-3 or x=-4",
+        ],
         commonMistakes: ["Forgetting to check all factor pairs", "Not checking the sum condition"],
         formulas: [],
       },
       accessibility: {
         boardDescription: "Guided practice problem for the learner",
-        screenReaderText: "Let's practice together. Solve x squared plus 7 x plus 12 equals zero. Find numbers that multiply to 12 and add to 7.",
+        screenReaderText:
+          "Let's practice together. Solve x squared plus 7 x plus 12 equals zero. Find numbers that multiply to 12 and add to 7.",
         simplifiedExplanation: "We work on this problem together step by step.",
       },
       practice: {
@@ -650,7 +686,8 @@ export const DEMO_LESSON: Lesson = {
           writingSpeed: "normal",
         },
       ],
-      teacherNotes: "Now it's your turn to try one on your own. Solve x² + 6x + 8 = 0. Take your time to think through the steps we learned. Find the two numbers, then write the factors and solve.",
+      teacherNotes:
+        "Now it's your turn to try one on your own. Solve x² + 6x + 8 = 0. Take your time to think through the steps we learned. Find the two numbers, then write the factors and solve.",
       learnerNotes: {
         summary: "Try solving a quadratic equation independently.",
         keyPoints: [
@@ -659,12 +696,16 @@ export const DEMO_LESSON: Lesson = {
           "Don't forget the negative sign in your answer",
         ],
         examples: [],
-        commonMistakes: ["Rushing without checking both conditions", "Forgetting negative signs in final answer"],
+        commonMistakes: [
+          "Rushing without checking both conditions",
+          "Forgetting negative signs in final answer",
+        ],
         formulas: [],
       },
       accessibility: {
         boardDescription: "Independent practice for the learner to solve",
-        screenReaderText: "Your turn. Solve x squared plus 6 x plus 8 equals zero. What are the solutions?",
+        screenReaderText:
+          "Your turn. Solve x squared plus 6 x plus 8 equals zero. What are the solutions?",
         simplifiedExplanation: "Now you solve this problem by yourself using the steps we learned.",
       },
       practice: {
@@ -672,7 +713,15 @@ export const DEMO_LESSON: Lesson = {
         type: "independent",
         problemText: "Solve x² + 6x + 8 = 0. What are the solutions?",
         expectedAnswer: "-2 and -4",
-        acceptableAnswers: ["-2 and -4", "-4 and -2", "x=-2 and x=-4", "x=-4 and x=-2", "negative 2 and negative 4", "-2,-4", "-4,-2"],
+        acceptableAnswers: [
+          "-2 and -4",
+          "-4 and -2",
+          "x=-2 and x=-4",
+          "x=-4 and x=-2",
+          "negative 2 and negative 4",
+          "-2,-4",
+          "-4,-2",
+        ],
         boardSolution: [
           {
             id: "isol1",
@@ -695,7 +744,8 @@ export const DEMO_LESSON: Lesson = {
             type: "equation",
             text: "(x + 2)(x + 4) = 0",
             readExactly: true,
-            accessibleDescription: "Open bracket x plus 2 close bracket times open bracket x plus 4 close bracket equals zero",
+            accessibleDescription:
+              "Open bracket x plus 2 close bracket times open bracket x plus 4 close bracket equals zero",
             writingSpeed: "normal",
           },
           {
@@ -707,7 +757,8 @@ export const DEMO_LESSON: Lesson = {
             writingSpeed: "normal",
           },
         ],
-        hintOnIncorrect: "Remember: the numbers must multiply to 8 and add to 6. What's 2 times 4? What's 2 plus 4?",
+        hintOnIncorrect:
+          "Remember: the numbers must multiply to 8 and add to 6. What's 2 times 4? What's 2 plus 4?",
       },
     },
     {
@@ -766,7 +817,8 @@ export const DEMO_LESSON: Lesson = {
           writingSpeed: "normal",
         },
       ],
-      teacherNotes: "Let me summarize what you learned today. Quadratic equations have x squared. We can solve them by factoring, which means rewriting them as a product of two brackets. The key is finding two numbers that multiply to the constant term and add to the middle coefficient. Once you have the factors, set each bracket to zero to find your solutions. You did great work today!",
+      teacherNotes:
+        "Let me summarize what you learned today. Quadratic equations have x squared. We can solve them by factoring, which means rewriting them as a product of two brackets. The key is finding two numbers that multiply to the constant term and add to the middle coefficient. Once you have the factors, set each bracket to zero to find your solutions. You did great work today!",
       learnerNotes: {
         summary: "Quadratic factoring uses two key conditions: multiply to c, add to b.",
         keyPoints: [
@@ -777,12 +829,18 @@ export const DEMO_LESSON: Lesson = {
         ],
         examples: [],
         commonMistakes: [],
-        formulas: ["For x² + bx + c = 0, find m,n where m×n=c and m+n=b", "Factor: (x+m)(x+n) = 0", "Solve: x = -m or x = -n"],
+        formulas: [
+          "For x² + bx + c = 0, find m,n where m×n=c and m+n=b",
+          "Factor: (x+m)(x+n) = 0",
+          "Solve: x = -m or x = -n",
+        ],
       },
       accessibility: {
         boardDescription: "Summary of today's lesson",
-        screenReaderText: "Today you learned: Quadratic equations have x squared. Factoring rewrites them as two brackets. Check that numbers multiply to c and add to b. Set each bracket to zero. The answers are the solutions.",
-        simplifiedExplanation: "To solve quadratics: find two numbers that multiply and add correctly, then solve each bracket.",
+        screenReaderText:
+          "Today you learned: Quadratic equations have x squared. Factoring rewrites them as two brackets. Check that numbers multiply to c and add to b. Set each bracket to zero. The answers are the solutions.",
+        simplifiedExplanation:
+          "To solve quadratics: find two numbers that multiply and add correctly, then solve each bracket.",
       },
     },
   ],
@@ -822,7 +880,8 @@ export const DEMO_LESSON: Lesson = {
     correctAnswer: "2 and 3",
     acceptableAnswers: ["2 and 3", "3 and 2", "two and three", "2,3", "3,2"],
     feedbackCorrect: "Correct! Two and three multiply to six and add to five. Excellent work.",
-    feedbackIncorrect: "Good effort. Let me check it together. Two times three is six, and two plus three is five. So the answer is 2 and 3.",
+    feedbackIncorrect:
+      "Good effort. Let me check it together. Two times three is six, and two plus three is five. So the answer is 2 and 3.",
     boardCorrection: [
       {
         id: "mid_correct_1",
@@ -858,9 +917,5 @@ export const DEMO_LESSON: Lesson = {
     ],
     feedback: "Correct! We always check that the numbers multiply to c and add to b.",
   },
-  homework: [
-    "Solve x² + 4x + 3 = 0",
-    "Solve x² + 8x + 15 = 0",
-    "Solve x² - 5x + 6 = 0",
-  ],
+  homework: ["Solve x² + 4x + 3 = 0", "Solve x² + 8x + 15 = 0", "Solve x² - 5x + 6 = 0"],
 };

@@ -42,7 +42,8 @@ function toBoardType(dbType: string): MathTeachingItemType {
 function toAcademicLevel(level: string | null | undefined): AcademicLevel {
   const l = (level ?? "").toLowerCase();
   if (/primary|elementary|grade [1-6]\b|kg|kindergarten/.test(l)) return "elementary";
-  if (/secondary|high ?school|form|grade (7|8|9|1[0-2])|o-?level|a-?level/.test(l)) return "secondary";
+  if (/secondary|high ?school|form|grade (7|8|9|1[0-2])|o-?level|a-?level/.test(l))
+    return "secondary";
   if (/college|vocational|diploma|certificate/.test(l)) return "college";
   if (/university|tertiary|undergrad|degree|bachelor|master|phd/.test(l)) return "tertiary";
   if (/adult|professional|cpd|corporate/.test(l)) return "adult";
@@ -175,7 +176,12 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
 
     const courseRel = lesson.courses;
     const course = (Array.isArray(courseRel) ? courseRel[0] : courseRel) as
-      | { title?: string; subject?: string; level?: string; institutions?: { name?: string } | { name?: string }[] }
+      | {
+          title?: string;
+          subject?: string;
+          level?: string;
+          institutions?: { name?: string } | { name?: string }[];
+        }
       | undefined;
     const instRel = course?.institutions;
     const institution = Array.isArray(instRel) ? instRel[0] : instRel;
@@ -194,7 +200,8 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
         lesson.objective ||
         `Welcome. Today's lesson is "${title}". Let's work through it together, step by step.`,
       lessonGoal: lesson.objective || `Understand and apply the key ideas in "${title}".`,
-      whyItMatters: "Each step builds on the last — follow along and ask whenever something is unclear.",
+      whyItMatters:
+        "Each step builds on the last — follow along and ask whenever something is unclear.",
       prerequisiteReview: undefined,
       sequence,
       sectionGoals: { ...DEFAULT_SECTION_GOALS, ...sectionGoals },
@@ -209,7 +216,8 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
         question: "Before we finish — what part should we review again next time?",
         options: ["The main idea", "The worked example", "The practice", "I understood everything"],
       },
-      learnerNotes: learnerNotesParts.join("\n\n") || `Notes for "${title}" will appear as you learn.`,
+      learnerNotes:
+        learnerNotesParts.join("\n\n") || `Notes for "${title}" will appear as you learn.`,
       materialContext: materialContext || undefined,
     };
 

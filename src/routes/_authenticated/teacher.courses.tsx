@@ -13,6 +13,7 @@ import {
   Clock,
   CheckCircle2,
   Search,
+  TrendingUp,
 } from "lucide-react";
 import { requireInstitutionStaff } from "@/lib/route-guards";
 
@@ -47,7 +48,8 @@ const COURSES: Course[] = [
     progress: 65,
     nextSession: "Today, 10:30 AM",
     status: "active",
-    description: "Algebra, quadratic equations, linear functions, and geometry for Form 2 students.",
+    description:
+      "Algebra, quadratic equations, linear functions, and geometry for Form 2 students.",
   },
   {
     id: "course_chem",
@@ -60,7 +62,8 @@ const COURSES: Course[] = [
     progress: 42,
     nextSession: "Today, 2:00 PM",
     status: "active",
-    description: "Comprehensive revision covering organic chemistry, reactions, and the periodic table.",
+    description:
+      "Comprehensive revision covering organic chemistry, reactions, and the periodic table.",
   },
   {
     id: "course_cs",
@@ -81,6 +84,12 @@ const SUBJECT_COLORS: Record<string, string> = {
   Mathematics: "from-[#1F7C80] to-[#3fa8ab]",
   Chemistry: "from-green-600 to-emerald-400",
   "Computer Science": "from-purple-600 to-violet-400",
+};
+
+const SUBJECT_PROGRESS_COLORS: Record<string, string> = {
+  Mathematics: "from-[#3fa8ab] to-[#1F7C80]",
+  Chemistry: "from-emerald-400 to-green-600",
+  "Computer Science": "from-violet-400 to-purple-600",
 };
 
 const config = dashboardConfigs.teacher;
@@ -106,19 +115,28 @@ function TeacherCourses() {
         subtitle="All courses you are responsible for — track progress, manage lessons, and start sessions."
       />
 
-      {/* Summary Stats */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#0F172A]">{COURSES.length}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Active Courses</p>
+      {/* Summary Stats — responsive 2-up on mobile, 3-up on desktop */}
+      <div className="kr-stat-strip kr-stat-strip--3 mb-6">
+        <div className="kr-stat-card-item">
+          <div className="flex items-center justify-center mb-2">
+            <BookOpen className="h-4 w-4 text-[#64748B]" />
+          </div>
+          <p className="kr-stat-value text-[#0F172A]">{COURSES.length}</p>
+          <p className="kr-stat-label">Active Courses</p>
         </div>
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#0F172A]">{totalStudents}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Total Students</p>
+        <div className="kr-stat-card-item">
+          <div className="flex items-center justify-center mb-2">
+            <Users className="h-4 w-4 text-[#64748B]" />
+          </div>
+          <p className="kr-stat-value text-[#0F172A]">{totalStudents}</p>
+          <p className="kr-stat-label">Total Students</p>
         </div>
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#1F7C80]">{avgProgress}%</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Avg. Progress</p>
+        <div className="kr-stat-card-item kr-stat-card-item--brand">
+          <div className="flex items-center justify-center mb-2">
+            <TrendingUp className="h-4 w-4 text-[#1F7C80]" />
+          </div>
+          <p className="kr-stat-value text-[#1F7C80]">{avgProgress}%</p>
+          <p className="kr-stat-label">Avg. Progress</p>
         </div>
       </div>
 
@@ -134,89 +152,105 @@ function TeacherCourses() {
       </div>
 
       {/* Course Cards */}
-      <div className="space-y-5">
-        {filtered.map((course) => {
-          const gradClass = SUBJECT_COLORS[course.subject] ?? "from-slate-600 to-slate-400";
-          return (
-            <article
-              key={course.id}
-              className="rounded-2xl border border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
-            >
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                {/* Icon */}
-                <div
-                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradClass} text-base font-bold text-white`}
-                >
-                  {course.title.slice(0, 2)}
-                </div>
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#E2E8F0] bg-white">
+          <div className="kr-empty-state">
+            <div className="kr-empty-state-icon">
+              <BookOpen className="h-6 w-6 text-[#1F7C80]" />
+            </div>
+            <h3>No courses found</h3>
+            <p>No courses match "{query}". Try a different search term.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {filtered.map((course) => {
+            const gradClass = SUBJECT_COLORS[course.subject] ?? "from-slate-600 to-slate-400";
+            const progressGrad =
+              SUBJECT_PROGRESS_COLORS[course.subject] ?? "from-slate-400 to-slate-600";
+            return (
+              <article
+                key={course.id}
+                className="rounded-2xl border border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
+              >
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                  {/* Subject icon */}
+                  <div
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${gradClass} text-base font-bold text-white shadow-md`}
+                  >
+                    {course.title.slice(0, 2)}
+                  </div>
 
-                {/* Content */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-bold text-[#0F172A]">{course.title}</h3>
-                        <StatusBadge variant="success">Active</StatusBadge>
+                  {/* Content */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-bold text-[#0F172A]">{course.title}</h3>
+                          <StatusBadge variant="success">Active</StatusBadge>
+                        </div>
+                        <p className="text-sm text-[#64748B]">{course.institution}</p>
                       </div>
-                      <p className="text-sm text-[#64748B]">{course.institution}</p>
+                    </div>
+                    <p className="mt-2 text-sm text-[#64748B] line-clamp-1">{course.description}</p>
+
+                    {/* Stats row */}
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-[#64748B]">
+                      <span className="flex items-center gap-1.5">
+                        <Users className="h-4 w-4" /> {course.students} students
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <BookOpen className="h-4 w-4" /> {course.lessons}/{course.lessonsTotal}{" "}
+                        lessons
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" /> Next: {course.nextSession}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" /> {course.progress}%
+                        complete
+                      </span>
+                    </div>
+
+                    {/* Subject-colored progress bar */}
+                    <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-[#E2E8F0]">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${progressGrad} transition-all`}
+                        style={{ width: `${course.progress}%` }}
+                      />
                     </div>
                   </div>
-                  <p className="mt-2 text-sm text-[#64748B] line-clamp-1">{course.description}</p>
 
-                  {/* Stats row */}
-                  <div className="mt-3 flex flex-wrap items-center gap-5 text-sm text-[#64748B]">
-                    <span className="flex items-center gap-1.5">
-                      <Users className="h-4 w-4" /> {course.students} students
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <BookOpen className="h-4 w-4" /> {course.lessons}/{course.lessonsTotal} lessons
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" /> Next: {course.nextSession}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" /> {course.progress}% complete
-                    </span>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="mt-3 h-2 w-full rounded-full bg-[#E2E8F0]">
-                    <div
-                      className="h-full rounded-full bg-[#1F7C80] transition-all"
-                      style={{ width: `${course.progress}%` }}
-                    />
+                  {/* Actions */}
+                  <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+                    <Link
+                      to={"/classroom/session_demo_math" as any}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
+                    >
+                      <Play className="h-4 w-4" />
+                      Start Class
+                    </Link>
+                    <Link
+                      to="/teacher/courses/$courseId/analytics"
+                      params={{ courseId: course.id }}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-4 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] hover:border-[#1F7C80]/30 transition-all"
+                    >
+                      <BarChart2 className="h-4 w-4" />
+                      Analytics
+                    </Link>
+                    <Link
+                      to="/teacher/lessons"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1F7C80] hover:text-[#1A5256] transition-colors"
+                    >
+                      Manage lessons <ChevronRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </div>
-
-                {/* Actions */}
-                <div className="flex shrink-0 flex-col gap-2 sm:items-end">
-                  <Link
-                    to="/classroom/session_demo_math"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1A5256]"
-                  >
-                    <Play className="h-4 w-4" />
-                    Start Class
-                  </Link>
-                  <Link
-                    to="/teacher/courses/$courseId/analytics"
-                    params={{ courseId: course.id }}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-4 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC]"
-                  >
-                    <BarChart2 className="h-4 w-4" />
-                    Analytics
-                  </Link>
-                  <Link
-                    to="/teacher/lessons"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1F7C80] hover:text-[#1A5256]"
-                  >
-                    Manage lessons <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </DashboardShell>
   );
 }

@@ -39,11 +39,9 @@ export function ContinueLearningHero({
               AI Teacher Ready
             </span>
           </div>
-          
-          <h2 className="text-2xl font-bold text-[var(--gray-900)] lg:text-3xl">
-            {lessonTitle}
-          </h2>
-          
+
+          <h2 className="text-2xl font-bold text-[var(--gray-900)] lg:text-3xl">{lessonTitle}</h2>
+
           <p className="text-sm text-[var(--gray-500)] lg:text-base">
             {courseName} · {institutionName}
           </p>
@@ -54,9 +52,7 @@ export function ContinueLearningHero({
               <p className="text-xs text-[var(--gray-500)]">
                 Step {stepNumber} of {totalSteps}
               </p>
-              <p className="text-sm font-semibold text-[var(--gray-900)]">
-                {currentStep}
-              </p>
+              <p className="text-sm font-semibold text-[var(--gray-900)]">{currentStep}</p>
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold text-[var(--primary)]">{progress}%</p>
@@ -66,7 +62,7 @@ export function ContinueLearningHero({
 
           {/* Progress bar */}
           <div className="mt-4 h-2 rounded-full bg-[var(--gray-200)]">
-            <div 
+            <div
               className="h-2 rounded-full bg-[var(--primary)] transition-all duration-300"
               style={{ width: `${progress}%` }}
             />

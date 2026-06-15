@@ -130,10 +130,11 @@ export function StudentDashboardPage() {
               Continue your learning journey
             </h1>
             <p className="mt-4 text-sm leading-7 text-[#334155]">
-              Your next classroom is ready. Continue from where you left off and keep building your skills.
+              Your next classroom is ready. Continue from where you left off and keep building your
+              skills.
             </p>
             <Link
-              to={`/classroom/${mockContinueLearning.lessonId}`}
+              to={`/classroom/${mockContinueLearning.lessonId}` as any}
               className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-6 text-sm font-bold text-white shadow-lg shadow-[#1F7C80]/25 transition-all hover:bg-[#1A5256]"
             >
               Enter Classroom
@@ -179,27 +180,44 @@ export function StudentDashboardPage() {
           <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
             <div>
               <p className="text-sm text-[#334155]">
-                <span className="font-bold">Current Step:</span> Step 3 of 8 · {mockContinueLearning.step}
+                <span className="font-bold">Current Step:</span> Step 3 of 8 ·{" "}
+                {mockContinueLearning.step}
               </p>
               <div className="mt-4 h-3 overflow-hidden rounded-full bg-[#d1eceb]">
-                <div className="h-full rounded-full bg-[#1F7C80]" style={{ width: `${mockContinueLearning.progress}%` }} />
+                <div
+                  className="h-full rounded-full bg-[#1F7C80]"
+                  style={{ width: `${mockContinueLearning.progress}%` }}
+                />
               </div>
             </div>
             <div className="text-left sm:text-right">
-              <p className="text-2xl font-extrabold text-[#1A5256]">{mockContinueLearning.progress}%</p>
-              <p className="mt-1 text-sm text-[#475569]">{mockContinueLearning.estimatedTimeLeft} left</p>
+              <p className="text-2xl font-extrabold text-[#1A5256]">
+                {mockContinueLearning.progress}%
+              </p>
+              <p className="mt-1 text-sm text-[#475569]">
+                {mockContinueLearning.estimatedTimeLeft} left
+              </p>
             </div>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <Link to={`/classroom/${mockContinueLearning.lessonId}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-4 text-sm font-bold text-white transition-all hover:bg-[#1A5256]">
+            <Link
+              to={`/classroom/${mockContinueLearning.lessonId}` as any}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-4 text-sm font-bold text-white transition-all hover:bg-[#1A5256]"
+            >
               Enter Classroom
               <ChevronRight className="h-4 w-4" />
             </Link>
-            <Link to="/student/notes" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#a3d9d8] bg-white px-4 text-sm font-bold text-[#1A5256] transition-all hover:bg-[#e8f5f5]">
+            <Link
+              to="/student/notes"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#a3d9d8] bg-white px-4 text-sm font-bold text-[#1A5256] transition-all hover:bg-[#e8f5f5]"
+            >
               Review Notes
             </Link>
-            <Link to="/student/quizzes" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#a3d9d8] bg-white px-4 text-sm font-bold text-[#1A5256] transition-all hover:bg-[#e8f5f5]">
+            <Link
+              to="/student/quizzes"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#a3d9d8] bg-white px-4 text-sm font-bold text-[#1A5256] transition-all hover:bg-[#e8f5f5]"
+            >
               Quick Quiz
             </Link>
           </div>
@@ -207,11 +225,42 @@ export function StudentDashboardPage() {
       </section>
 
       <section className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-        <KpiCard title="My Classrooms" value="4" subtitle="Active classrooms" href="/student/classrooms" icon={Monitor} />
-        <KpiCard title="Completed Lessons" value="18" subtitle="This month" href="/student/progress" icon={CheckCircle2} />
-        <KpiCard title="Study Time" value="12h 45m" subtitle="This week" href="/student/progress" icon={Clock} />
-        <KpiCard title="Quiz Average" value="86%" subtitle="This month" href="/student/quizzes" icon={Star} trend="+4%" />
-        <KpiCard title="Current Streak" value="7" subtitle="Days in a row" href="/student/progress" icon={Zap} />
+        <KpiCard
+          title="My Classrooms"
+          value="4"
+          subtitle="Active classrooms"
+          href="/student/classrooms"
+          icon={Monitor}
+        />
+        <KpiCard
+          title="Completed Lessons"
+          value="18"
+          subtitle="This month"
+          href="/student/progress"
+          icon={CheckCircle2}
+        />
+        <KpiCard
+          title="Study Time"
+          value="12h 45m"
+          subtitle="This week"
+          href="/student/progress"
+          icon={Clock}
+        />
+        <KpiCard
+          title="Quiz Average"
+          value="86%"
+          subtitle="This month"
+          href="/student/quizzes"
+          icon={Star}
+          trend="+4%"
+        />
+        <KpiCard
+          title="Current Streak"
+          value="7"
+          subtitle="Days in a row"
+          href="/student/progress"
+          icon={Zap}
+        />
       </section>
 
       <section className="grid grid-cols-1 gap-5 xl:grid-cols-[1.22fr_.75fr_.95fr]">
@@ -221,7 +270,10 @@ export function StudentDashboardPage() {
               <h2 className="text-xl font-bold text-[#0F172A]">My Classrooms</h2>
               <p className="mt-0.5 text-sm text-[#64748B]">Continue your active learning spaces</p>
             </div>
-            <Link to="/student/classrooms" className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]">
+            <Link
+              to="/student/classrooms"
+              className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]"
+            >
               View all
             </Link>
           </div>
@@ -233,14 +285,25 @@ export function StudentDashboardPage() {
                 className="grid grid-cols-[48px_1fr_auto] items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-3 transition-all hover:border-[#BFDBFE] hover:bg-[#F8FBFF]"
               >
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#1F7C80] text-sm font-black text-white">
-                  {classroom.title.includes("Mathematics") ? "x²" : classroom.title.includes("Chemistry") ? "Chem" : "Eng"}
+                  {classroom.title.includes("Mathematics")
+                    ? "x²"
+                    : classroom.title.includes("Chemistry")
+                      ? "Chem"
+                      : "Eng"}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="truncate text-sm font-extrabold text-[#0F172A]">{classroom.title}</h3>
-                  <p className="truncate text-xs text-[#64748B]">{classroom.institution} · {classroom.course}</p>
+                  <h3 className="truncate text-sm font-extrabold text-[#0F172A]">
+                    {classroom.title}
+                  </h3>
+                  <p className="truncate text-xs text-[#64748B]">
+                    {classroom.institution} · {classroom.course}
+                  </p>
                   <div className="mt-2 flex items-center gap-3">
                     <div className="h-2 w-28 overflow-hidden rounded-full bg-[#d1eceb]">
-                      <div className="h-full rounded-full bg-[#1F7C80]" style={{ width: `${classroom.progress}%` }} />
+                      <div
+                        className="h-full rounded-full bg-[#1F7C80]"
+                        style={{ width: `${classroom.progress}%` }}
+                      />
                     </div>
                     <span className="text-xs font-bold text-[#1A5256]">{classroom.progress}%</span>
                   </div>
@@ -264,8 +327,13 @@ export function StudentDashboardPage() {
               ["Complete the quick quiz", "5 min"],
               ["Review weak topic: Factoring", "Later"],
             ].map(([title, meta], index) => (
-              <div key={title} className={`flex items-start gap-3 rounded-xl p-3 ${index === 0 ? "bg-[#e8f5f5]" : "bg-[#F8FAFC]"}`}>
-                <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${index === 0 ? "bg-[#1F7C80] text-white" : "bg-[#d1eceb] text-[#1F7C80]"}`}>
+              <div
+                key={title}
+                className={`flex items-start gap-3 rounded-xl p-3 ${index === 0 ? "bg-[#e8f5f5]" : "bg-[#F8FAFC]"}`}
+              >
+                <div
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${index === 0 ? "bg-[#1F7C80] text-white" : "bg-[#d1eceb] text-[#1F7C80]"}`}
+                >
                   {index + 1}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -276,10 +344,17 @@ export function StudentDashboardPage() {
             ))}
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <Link to="/classroom/$lessonId" params={{ lessonId: mockContinueLearning.lessonId }} className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1F7C80] text-sm font-bold text-white">
+            <Link
+              to="/classroom/$lessonId"
+              params={{ lessonId: mockContinueLearning.lessonId }}
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1F7C80] text-sm font-bold text-white"
+            >
               Start Plan
             </Link>
-            <Link to="/student/learning-plan" className="inline-flex h-10 items-center justify-center rounded-xl border border-[#a3d9d8] text-sm font-bold text-[#1A5256]">
+            <Link
+              to="/student/learning-plan"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-[#a3d9d8] text-sm font-bold text-[#1A5256]"
+            >
               Customize
             </Link>
           </div>
@@ -291,7 +366,10 @@ export function StudentDashboardPage() {
               <h2 className="text-xl font-bold text-[#0F172A]">Recent Sessions</h2>
               <p className="mt-0.5 text-sm text-[#64748B]">Your recent learning activity</p>
             </div>
-            <Link to="/student/sessions" className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]">
+            <Link
+              to="/student/sessions"
+              className="text-sm font-bold text-[#1F7C80] hover:text-[#1A5256]"
+            >
               View all
             </Link>
           </div>
@@ -303,10 +381,16 @@ export function StudentDashboardPage() {
                 className="grid grid-cols-[46px_1fr_auto] items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-3 transition-all hover:border-[#BFDBFE] hover:bg-[#F8FBFF]"
               >
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#1F7C80] text-xs font-black text-white">
-                  {session.title.includes("Quadratic") ? "x²" : session.title.includes("Chemical") ? "Lab" : "HTML"}
+                  {session.title.includes("Quadratic")
+                    ? "x²"
+                    : session.title.includes("Chemical")
+                      ? "Lab"
+                      : "HTML"}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="truncate text-sm font-extrabold text-[#0F172A]">{session.title}</h3>
+                  <h3 className="truncate text-sm font-extrabold text-[#0F172A]">
+                    {session.title}
+                  </h3>
                   <p className="truncate text-xs text-[#64748B]">
                     {session.course} · {session.duration}
                   </p>
@@ -338,15 +422,23 @@ export function StudentDashboardPage() {
               ["Keyboard shortcuts", "On"],
               ["Focus mode", "Off"],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+              <div
+                key={label}
+                className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3"
+              >
                 <p className="text-xs font-bold text-[#334155]">{label}</p>
-                <p className={`mt-1 text-sm font-extrabold ${value === "On" ? "text-[#16A34A]" : "text-[#64748B]"}`}>
+                <p
+                  className={`mt-1 text-sm font-extrabold ${value === "On" ? "text-[#16A34A]" : "text-[#64748B]"}`}
+                >
                   {value}
                 </p>
               </div>
             ))}
           </div>
-          <Link to="/student/access" className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1F7C80] px-5 text-sm font-bold text-white">
+          <Link
+            to="/student/access"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1F7C80] px-5 text-sm font-bold text-white"
+          >
             Adjust Access
           </Link>
           <button className="inline-flex h-11 items-center justify-center rounded-xl border border-[#a3d9d8] px-5 text-sm font-bold text-[#1A5256]">

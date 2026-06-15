@@ -55,9 +55,10 @@ export function NotesHubPage() {
     },
   ]);
 
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.body.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.body.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleDelete = (id: string) => {
@@ -132,16 +133,12 @@ export function NotesHubPage() {
           <Card>
             <CardContent className="pt-12 pb-12 text-center">
               <BookOpen size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No notes yet
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No notes yet</h3>
               <p className="text-gray-600 mb-6">
                 Start taking notes during your lessons or export your board
               </p>
               <Link to="/classroom">
-                <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">
-                  Start a Lesson
-                </Button>
+                <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">Start a Lesson</Button>
               </Link>
             </CardContent>
           </Card>
@@ -204,9 +201,7 @@ export function NotesHubPage() {
                       </div>
 
                       {/* Preview */}
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                        {note.body}
-                      </p>
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">{note.body}</p>
 
                       {/* Tags */}
                       <div className="flex items-center gap-2 flex-wrap">
@@ -239,29 +234,21 @@ export function NotesHubPage() {
 
         {/* Collections Preview */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Organize by Course
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Organize by Course</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {["Mathematics Form 2", "Physics Basics", "Chemistry Revision"].map(
-              (course) => (
-                <Card key={course} className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {course}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          12 notes
-                        </p>
-                      </div>
-                      <ChevronRight className="text-gray-300" size={20} />
+            {["Mathematics Form 2", "Physics Basics", "Chemistry Revision"].map((course) => (
+              <Card key={course} className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{course}</h3>
+                      <p className="text-sm text-gray-600 mt-1">12 notes</p>
                     </div>
-                  </CardContent>
-                </Card>
-              )
-            )}
+                    <ChevronRight className="text-gray-300" size={20} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </main>

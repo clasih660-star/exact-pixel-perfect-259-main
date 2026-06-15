@@ -14,7 +14,7 @@ export function RecentSessionCard({ session }: RecentSessionCardProps) {
   };
 
   return (
-    <Link to={`/classroom/session/${session.id}`} className="block">
+    <Link to={`/classroom/session/${session.id}` as any} className="block">
       <div className="session-item">
         <div className="session-thumb">{session.thumbnail || <Play size={20} />}</div>
         <div className="session-info">

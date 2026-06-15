@@ -9,6 +9,7 @@ import {
   Star,
   MessageSquare,
   BarChart2,
+  ArrowUpRight,
 } from "lucide-react";
 import {
   BarChart,
@@ -64,6 +65,52 @@ const topPerformers = [
 
 const COLORS = ["#1F7C80", "#22C55E", "#A855F7", "#F59E0B"];
 
+const KPI_CONFIG = [
+  {
+    label: "Avg Quiz Score",
+    value: "81%",
+    change: "+3% this month",
+    icon: Star,
+    color: "text-[#1F7C80]",
+    iconBg: "linear-gradient(135deg, #e8f5f5, #d1eceb)",
+    borderAccent: "#1F7C80",
+  },
+  {
+    label: "Completion Rate",
+    value: "62%",
+    change: "+8% this month",
+    icon: CheckCircle2,
+    color: "text-green-600",
+    iconBg: "linear-gradient(135deg, #dcfce7, #bbf7d0)",
+    borderAccent: "#22C55E",
+  },
+  {
+    label: "Active Learners",
+    value: "87",
+    change: "+12 this week",
+    icon: Users,
+    color: "text-purple-600",
+    iconBg: "linear-gradient(135deg, #f3e8ff, #e9d5ff)",
+    borderAccent: "#A855F7",
+  },
+  {
+    label: "Questions Answered",
+    value: "87",
+    change: "Last 30 days",
+    icon: MessageSquare,
+    color: "text-amber-600",
+    iconBg: "linear-gradient(135deg, #fef9c3, #fde68a)",
+    borderAccent: "#F59E0B",
+  },
+];
+
+const RANK_COLORS = [
+  "from-[#1F7C80] to-[#3fa8ab]",
+  "from-green-600 to-emerald-400",
+  "from-purple-600 to-violet-400",
+  "from-amber-600 to-yellow-400",
+];
+
 function TeacherAnalytics() {
   return (
     <DashboardShell config={config} activePath="/teacher/analytics">
@@ -73,21 +120,32 @@ function TeacherAnalytics() {
         subtitle="Track quiz scores, completion rates, and student engagement across all your courses."
       />
 
-      {/* KPI Summary */}
-      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[
-          { label: "Avg Quiz Score", value: "81%", change: "+3% this month", icon: Star, color: "text-[#1F7C80]" },
-          { label: "Completion Rate", value: "62%", change: "+8% this month", icon: CheckCircle2, color: "text-green-600" },
-          { label: "Active Learners", value: "87", change: "+12 this week", icon: Users, color: "text-purple-600" },
-          { label: "Questions Answered", value: "87", change: "Last 30 days", icon: MessageSquare, color: "text-amber-600" },
-        ].map((kpi) => (
-          <div key={kpi.label} className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
-            <div className="flex items-center justify-between">
+      {/* KPI Strip — 2-up on mobile, 4-up on desktop */}
+      <div className="kr-stat-strip kr-stat-strip--4 mb-8">
+        {KPI_CONFIG.map((kpi) => (
+          <div
+            key={kpi.label}
+            className="rounded-2xl border border-[#E2E8F0] bg-white p-5 transition-all hover:shadow-md hover:border-[#1F7C80]/20 relative overflow-hidden"
+            style={{
+              boxShadow: "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04)",
+            }}
+          >
+            {/* Left accent bar */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
+              style={{ background: kpi.borderAccent }}
+            />
+            <div className="flex items-center justify-between pl-3">
               <p className="text-sm font-semibold text-[#64748B]">{kpi.label}</p>
-              <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-xl shadow-sm"
+                style={{ background: kpi.iconBg }}
+              >
+                <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
+              </div>
             </div>
-            <p className={`mt-2 text-3xl font-extrabold ${kpi.color}`}>{kpi.value}</p>
-            <p className="mt-1 flex items-center gap-1 text-xs text-green-600">
+            <p className={`mt-2 pl-3 text-3xl font-extrabold ${kpi.color}`}>{kpi.value}</p>
+            <p className="mt-1 pl-3 flex items-center gap-1 text-xs text-green-600">
               <TrendingUp className="h-3 w-3" /> {kpi.change}
             </p>
           </div>
@@ -98,25 +156,57 @@ function TeacherAnalytics() {
       <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Quiz Score Trend */}
         <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-          <div className="mb-4 flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-[#1F7C80]" />
-            <h3 className="font-bold text-[#0F172A]">Quiz Score Trends</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8f5f5] to-[#d1eceb]">
+                <BarChart2 className="h-4 w-4 text-[#1F7C80]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-[#0F172A] leading-tight">Quiz Score Trends</h3>
+                <p className="text-xs text-[#94A3B8]">6-week rolling average</p>
+              </div>
+            </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={quizScoreTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="week" tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
-              <YAxis domain={[60, 100]} tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ border: "1px solid #E2E8F0", borderRadius: 12, fontSize: 12 }}
+              <XAxis
+                dataKey="week"
+                tick={{ fontSize: 11, fill: "#94A3B8" }}
+                axisLine={false}
+                tickLine={false}
               />
-              <Line type="monotone" dataKey="Math" stroke="#1F7C80" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Chemistry" stroke="#22C55E" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="CS" stroke="#A855F7" strokeWidth={2} dot={false} />
+              <YAxis
+                domain={[60, 100]}
+                tick={{ fontSize: 11, fill: "#94A3B8" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  border: "1px solid #E2E8F0",
+                  borderRadius: 12,
+                  fontSize: 12,
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
+                }}
+              />
+              <Line type="monotone" dataKey="Math" stroke="#1F7C80" strokeWidth={2.5} dot={false} />
+              <Line
+                type="monotone"
+                dataKey="Chemistry"
+                stroke="#22C55E"
+                strokeWidth={2.5}
+                dot={false}
+              />
+              <Line type="monotone" dataKey="CS" stroke="#A855F7" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
           <div className="mt-3 flex items-center gap-4 text-xs">
-            {[{ label: "Math F2", color: "#1F7C80" }, { label: "Chemistry", color: "#22C55E" }, { label: "CS Basics", color: "#A855F7" }].map((l) => (
+            {[
+              { label: "Math F2", color: "#1F7C80" },
+              { label: "Chemistry", color: "#22C55E" },
+              { label: "CS Basics", color: "#A855F7" },
+            ].map((l) => (
               <span key={l.label} className="flex items-center gap-1.5 text-[#64748B]">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: l.color }} />
                 {l.label}
@@ -128,19 +218,39 @@ function TeacherAnalytics() {
         {/* Lesson Completion */}
         <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
           <div className="mb-4 flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <h3 className="font-bold text-[#0F172A]">Lesson Completion by Course</h3>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0]">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-[#0F172A] leading-tight">Lesson Completion</h3>
+              <p className="text-xs text-[#94A3B8]">By course, current cycle</p>
+            </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={completionData} barSize={28}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-              <XAxis dataKey="course" tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+              <XAxis
+                dataKey="course"
+                tick={{ fontSize: 11, fill: "#94A3B8" }}
+                axisLine={false}
+                tickLine={false}
+              />
               <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
               <Tooltip
-                contentStyle={{ border: "1px solid #E2E8F0", borderRadius: 12, fontSize: 12 }}
+                contentStyle={{
+                  border: "1px solid #E2E8F0",
+                  borderRadius: 12,
+                  fontSize: 12,
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
+                }}
               />
               <Bar dataKey="completed" name="Completed" fill="#1F7C80" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="incomplete" name="In Progress" fill="#E2E8F0" radius={[6, 6, 0, 0]} />
+              <Bar
+                dataKey="incomplete"
+                name="In Progress"
+                fill="#E2E8F0"
+                radius={[6, 6, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -150,7 +260,15 @@ function TeacherAnalytics() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Engagement Breakdown */}
         <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-          <h3 className="mb-4 font-bold text-[#0F172A]">Engagement Breakdown</h3>
+          <div className="mb-4 flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#f3e8ff] to-[#e9d5ff]">
+              <BarChart2 className="h-4 w-4 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-[#0F172A] leading-tight">Engagement Breakdown</h3>
+              <p className="text-xs text-[#94A3B8]">All courses, last 30 days</p>
+            </div>
+          </div>
           <div className="flex items-center gap-6">
             <PieChart width={140} height={140}>
               <Pie
@@ -171,7 +289,10 @@ function TeacherAnalytics() {
               {engagementData.map((item, idx) => (
                 <div key={item.name} className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm text-[#64748B]">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORS[idx] }} />
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ background: COLORS[idx] }}
+                    />
                     {item.name}
                   </span>
                   <span className="text-sm font-bold text-[#0F172A]">{item.value}</span>
@@ -183,12 +304,28 @@ function TeacherAnalytics() {
 
         {/* Top Performers */}
         <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-          <h3 className="mb-4 font-bold text-[#0F172A]">Top Performers This Month</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#fef9c3] to-[#fde68a]">
+                <Star className="h-4 w-4 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-[#0F172A] leading-tight">Top Performers</h3>
+                <p className="text-xs text-[#94A3B8]">This month</p>
+              </div>
+            </div>
+          </div>
           <div className="space-y-3">
             {topPerformers.map((p, i) => (
-              <div key={p.name} className="flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1F7C80] to-[#3fa8ab] text-xs font-bold text-white">
-                  {i + 1}
+              <div
+                key={p.name}
+                className="flex items-center gap-3 rounded-xl border border-[#F1F5F9] bg-[#FAFCFC] px-3 py-2.5 transition-all hover:border-[#1F7C80]/20 hover:shadow-sm"
+              >
+                {/* Gradient rank badge */}
+                <div
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${RANK_COLORS[i % RANK_COLORS.length]} text-xs font-bold text-white shadow-sm`}
+                >
+                  #{i + 1}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-[#0F172A]">{p.name}</p>
@@ -196,7 +333,10 @@ function TeacherAnalytics() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold text-[#0F172A]">{p.score}%</p>
-                  <p className="text-xs font-semibold text-green-600">{p.trend}</p>
+                  <p className="flex items-center gap-0.5 justify-end text-xs font-semibold text-green-600">
+                    <ArrowUpRight className="h-3 w-3" />
+                    {p.trend}
+                  </p>
                 </div>
               </div>
             ))}

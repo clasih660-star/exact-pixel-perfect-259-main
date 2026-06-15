@@ -29,7 +29,7 @@ export function DashboardEmptyState({
       <div className="mb-4">{icons[icon]}</div>
       <h3 className="text-lg font-semibold text-[var(--gray-900)]">{title}</h3>
       <p className="mt-2 text-sm text-[var(--gray-500)] max-w-md">{description}</p>
-      
+
       {actionLabel && actionHref && (
         <Link
           to={actionHref}

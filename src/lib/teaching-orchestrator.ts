@@ -24,13 +24,13 @@ import type { MathTeachingItem } from "./lesson-models";
 
 export type TeachingPhase =
   | "idle"
-  | "writing"        // Teacher is writing on the board
-  | "reading"        // Teacher reads the board text exactly
-  | "explaining"     // Teacher explains what was written
-  | "warning"        // Teacher warns about common mistakes
-  | "checking"       // Teacher checks understanding
-  | "pausing"        // Pause before next item
-  | "complete";      // This item is done, ready for next
+  | "writing" // Teacher is writing on the board
+  | "reading" // Teacher reads the board text exactly
+  | "explaining" // Teacher explains what was written
+  | "warning" // Teacher warns about common mistakes
+  | "checking" // Teacher checks understanding
+  | "pausing" // Pause before next item
+  | "complete"; // This item is done, ready for next
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Transcript Entry — What was said and when
@@ -88,13 +88,13 @@ export type TeachingState = {
 
 export type TeachingAction =
   | { type: "START_TEACHING"; items: MathTeachingItem[] }
-  | { type: "BOARD_WRITTEN" }       // Board animation finished
-  | { type: "READING_DONE" }        // Teacher finished reading exact text
-  | { type: "EXPLANATION_DONE" }    // Teacher finished explaining
-  | { type: "WARNING_SHOWN" }       // Common mistake warning shown
+  | { type: "BOARD_WRITTEN" } // Board animation finished
+  | { type: "READING_DONE" } // Teacher finished reading exact text
+  | { type: "EXPLANATION_DONE" } // Teacher finished explaining
+  | { type: "WARNING_SHOWN" } // Common mistake warning shown
   | { type: "UNDERSTANDING_CHECKED" } // Learner confirmed understanding
-  | { type: "PAUSE_DONE" }          // Pause timer elapsed
-  | { type: "NEXT_ITEM" }           // Move to next teaching item
+  | { type: "PAUSE_DONE" } // Pause timer elapsed
+  | { type: "NEXT_ITEM" } // Move to next teaching item
   | { type: "RESET" };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -115,10 +115,7 @@ export const initialTeachingState: TeachingState = {
 // Teaching Orchestrator Reducer
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function teachingReducer(
-  state: TeachingState,
-  action: TeachingAction,
-): TeachingState {
+export function teachingReducer(state: TeachingState, action: TeachingAction): TeachingState {
   switch (action.type) {
     // ── Start a new teaching sequence ────────────────────────────────────
     case "START_TEACHING": {
@@ -335,10 +332,7 @@ export function selectCurrentSpeech(state: TeachingState): string | null {
 }
 
 /** Generate learner notes text from the accumulated notes */
-export function generateLearnerNotesText(
-  lessonTitle: string,
-  notes: LearnerNoteEntry[],
-): string {
+export function generateLearnerNotesText(lessonTitle: string, notes: LearnerNoteEntry[]): string {
   const lines: string[] = [];
   lines.push(`Lesson: ${lessonTitle}`);
   lines.push("");
@@ -363,15 +357,15 @@ export function generateLearnerNotesText(
 }
 
 /** Generate transcript text from accumulated transcript entries */
-export function generateTranscriptText(
-  transcript: TeachingTranscriptEntry[],
-): string {
+export function generateTranscriptText(transcript: TeachingTranscriptEntry[]): string {
   const lines: string[] = [];
   for (const entry of transcript) {
     const phaseLabel =
-      entry.phase === "reading" ? "Teacher reads" :
-      entry.phase === "explaining" ? "Teacher explains" :
-      "Teacher warns";
+      entry.phase === "reading"
+        ? "Teacher reads"
+        : entry.phase === "explaining"
+          ? "Teacher explains"
+          : "Teacher warns";
     lines.push(`[${phaseLabel}]`);
     lines.push(entry.spokenText);
     lines.push("");

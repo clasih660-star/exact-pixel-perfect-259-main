@@ -1,41 +1,41 @@
-import React, { useState, useEffect } from 'react'
-import { AnimatedWhiteboard } from './AnimatedWhiteboard'
-import { QuestionSystem } from './QuestionSystem'
-import { LearnerNotesPanel, TeacherNotesPanel } from './IntegratedNotesPanel'
-import { ExitTicketPrompt, LessonCompletionSummary, HomeworkPanel } from './LessonCompletionFlow'
-import { sampleQuadraticsLesson } from '@/lib/sample-lesson'
-import type { Lesson, LessonProgress } from '@/lib/lesson-types'
-import type { LearningMode } from '@/lib/types'
-import { Button } from '@/components/ui/button'
-import { ChevronRight, ChevronLeft, BookOpen, Eye, EyeOff } from 'lucide-react'
+import React, { useState, useEffect } from "react";
+import { AnimatedWhiteboard } from "./AnimatedWhiteboard";
+import { QuestionSystem } from "./QuestionSystem";
+import { LearnerNotesPanel, TeacherNotesPanel } from "./IntegratedNotesPanel";
+import { ExitTicketPrompt, LessonCompletionSummary, HomeworkPanel } from "./LessonCompletionFlow";
+import { sampleQuadraticsLesson } from "@/lib/sample-lesson";
+import type { Lesson, LessonProgress } from "@/lib/lesson-types";
+import type { LearningMode } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, ChevronLeft, BookOpen, Eye, EyeOff } from "lucide-react";
 
 interface EnhancedClassroomPageProps {
-  lessonId?: string
-  userAccessibilityMode?: LearningMode
-  isTeacher?: boolean
+  lessonId?: string;
+  userAccessibilityMode?: LearningMode;
+  isTeacher?: boolean;
 }
 
 export function EnhancedClassroomPage({
   lessonId,
-  userAccessibilityMode = 'standard',
+  userAccessibilityMode = "standard",
   isTeacher = false,
 }: EnhancedClassroomPageProps) {
-  const [lesson, setLesson] = useState<Lesson | null>(null)
-  const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  const [showNotes, setShowNotes] = useState(false)
-  const [timeElapsed, setTimeElapsed] = useState(0)
-  const [showQuestion, setShowQuestion] = useState(false)
-  const [currentQuestionCheckpoint, setCurrentQuestionCheckpoint] = useState(0)
-  const [showExitTicket, setShowExitTicket] = useState(false)
-  const [showCompletion, setShowCompletion] = useState(false)
-  const [progress, setProgress] = useState<LessonProgress | null>(null)
-  const [isAnimating, setIsAnimating] = useState(true)
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [showNotes, setShowNotes] = useState(false);
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [showQuestion, setShowQuestion] = useState(false);
+  const [currentQuestionCheckpoint, setCurrentQuestionCheckpoint] = useState(0);
+  const [showExitTicket, setShowExitTicket] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [progress, setProgress] = useState<LessonProgress | null>(null);
+  const [isAnimating, setIsAnimating] = useState(true);
 
   // Initialize lesson
   useEffect(() => {
     // In real app, fetch from backend based on lessonId
     // For now, use sample lesson
-    setLesson(sampleQuadraticsLesson)
+    setLesson(sampleQuadraticsLesson);
     setProgress({
       lessonId: sampleQuadraticsLesson.id,
       studentId: "demo-student",
@@ -49,63 +49,64 @@ export function EnhancedClassroomPage({
       misconceptionsDetected: [],
       totalTimeMinutes: 0,
       notesCollected: [],
-    })
-  }, [lessonId])
+    });
+  }, [lessonId]);
 
   // Timer for tracking elapsed time
   useEffect(() => {
-    if (!isAnimating || showCompletion) return
+    if (!isAnimating || showCompletion) return;
     const interval = setInterval(() => {
-      setTimeElapsed((t) => t + 1)
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [isAnimating, showCompletion])
+      setTimeElapsed((t) => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isAnimating, showCompletion]);
 
   // Trigger question checkpoints
   useEffect(() => {
-    if (!lesson || !progress || showCompletion) return
+    if (!lesson || !progress || showCompletion) return;
 
-    const checkpointTriggerTime = (lesson.questionCheckpoints[currentQuestionCheckpoint]?.triggerMinute ?? 999) * 60
+    const checkpointTriggerTime =
+      (lesson.questionCheckpoints[currentQuestionCheckpoint]?.triggerMinute ?? 999) * 60;
 
     if (timeElapsed >= checkpointTriggerTime && timeElapsed < checkpointTriggerTime + 2) {
-      setShowQuestion(true)
+      setShowQuestion(true);
     }
-  }, [timeElapsed, lesson, currentQuestionCheckpoint, progress, showCompletion])
+  }, [timeElapsed, lesson, currentQuestionCheckpoint, progress, showCompletion]);
 
   // Trigger mid-lesson question at 50%
   useEffect(() => {
-    if (!lesson || !progress || showCompletion || progress.midLessonQuestionAnswered) return
+    if (!lesson || !progress || showCompletion || progress.midLessonQuestionAnswered) return;
 
-    const midLessonTime = (lesson.estimatedDurationMinutes / 2) * 60
+    const midLessonTime = (lesson.estimatedDurationMinutes / 2) * 60;
     if (timeElapsed >= midLessonTime && timeElapsed < midLessonTime + 2) {
-      setShowQuestion(true)
+      setShowQuestion(true);
     }
-  }, [timeElapsed, lesson, progress, showCompletion])
+  }, [timeElapsed, lesson, progress, showCompletion]);
 
   // Check if should show exit ticket
   useEffect(() => {
-    if (!lesson || !progress || showCompletion) return
+    if (!lesson || !progress || showCompletion) return;
 
     if (currentStepIndex >= lesson.steps.length && !progress.exitTicketAnswered) {
-      setShowExitTicket(true)
-      setIsAnimating(false)
+      setShowExitTicket(true);
+      setIsAnimating(false);
     }
-  }, [currentStepIndex, lesson, progress, showCompletion])
+  }, [currentStepIndex, lesson, progress, showCompletion]);
 
   if (!lesson || !progress) {
-    return <div className="flex items-center justify-center h-screen">Loading lesson...</div>
+    return <div className="flex items-center justify-center h-screen">Loading lesson...</div>;
   }
 
-  const currentStep = lesson.steps[currentStepIndex]
-  const formattedTime = `${Math.floor(timeElapsed / 60)}:${String(timeElapsed % 60).padStart(2, '0')}`
-  const progressPercent = (currentStepIndex / lesson.steps.length) * 100
+  const currentStep = lesson.steps[currentStepIndex];
+  const formattedTime = `${Math.floor(timeElapsed / 60)}:${String(timeElapsed % 60).padStart(2, "0")}`;
+  const progressPercent = (currentStepIndex / lesson.steps.length) * 100;
 
   // Show completion summary
   if (showCompletion) {
-    const practiceCorrectCount = progress.practiceAnswers.filter((answer) => answer.correct).length
+    const practiceCorrectCount = progress.practiceAnswers.filter((answer) => answer.correct).length;
     const practiceScore = progress.practiceAnswers.length
       ? Math.round((practiceCorrectCount / progress.practiceAnswers.length) * 100)
-      : 0
+      : 0;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#e8f5f5] to-[#e8f5f5] p-6">
@@ -118,15 +119,15 @@ export function EnhancedClassroomPage({
             midLessonQuestionCorrect={Boolean(progress.midLessonQuestionAnswered)}
             practiceScore={practiceScore}
             exitTicketScore={progress.exitTicketAnswered ? 100 : undefined}
-            weakTopics={['Sign handling in factoring']}
+            weakTopics={["Sign handling in factoring"]}
             recommendedNext={{
               type: "practice",
               title: "Review factoring with two more examples",
               reason: "A little more repetition will make the factoring pattern feel automatic.",
             }}
-            onBackToDashboard={() => window.location.href = '/student/dashboard'}
+            onBackToDashboard={() => (window.location.href = "/student/dashboard")}
             onRetakeLesson={() => window.location.reload()}
-            onNextLesson={() => window.location.href = '/student/courses'}
+            onNextLesson={() => (window.location.href = "/student/courses")}
           />
           {lesson.homework && (
             <HomeworkPanel
@@ -134,12 +135,12 @@ export function EnhancedClassroomPage({
               problems={lesson.homework.problems}
               estimatedMinutes={lesson.homework.estimatedMinutes}
               reviewMaterial={lesson.homework.reviewMaterial}
-              onStartHomework={() => alert('Starting homework')}
+              onStartHomework={() => alert("Starting homework")}
             />
           )}
         </div>
       </div>
-    )
+    );
   }
 
   // Show exit ticket
@@ -150,18 +151,22 @@ export function EnhancedClassroomPage({
           <ExitTicketPrompt
             ticket={lesson.exitTicket}
             onSubmit={(answer) => {
-              setProgress(prev => prev ? {
-                ...prev,
-                exitTicketAnswered: true,
-                completedAt: new Date().toISOString(),
-              } : prev)
-              setShowCompletion(true)
+              setProgress((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      exitTicketAnswered: true,
+                      completedAt: new Date().toISOString(),
+                    }
+                  : prev,
+              );
+              setShowCompletion(true);
             }}
             isLoading={false}
           />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -179,15 +184,13 @@ export function EnhancedClassroomPage({
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-sm font-medium text-gray-900">{formattedTime}</div>
-                <div className="text-xs text-gray-600">Estimated: {lesson.estimatedDurationMinutes} min</div>
+                <div className="text-xs text-gray-600">
+                  Estimated: {lesson.estimatedDurationMinutes} min
+                </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowNotes(!showNotes)}
-                className="gap-2"
-              >
+              <Button variant="outline" onClick={() => setShowNotes(!showNotes)} className="gap-2">
                 {showNotes ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                {showNotes ? 'Hide' : 'Show'} Notes
+                {showNotes ? "Hide" : "Show"} Notes
               </Button>
             </div>
           </div>
@@ -224,7 +227,7 @@ export function EnhancedClassroomPage({
                       ...progress,
                       completedSteps: [...progress.completedSteps, currentStep.id],
                       currentStepIndex: currentStepIndex + 1,
-                    })
+                    });
                   }
                 }}
               />
@@ -235,8 +238,8 @@ export function EnhancedClassroomPage({
               <Button
                 onClick={() => {
                   if (currentStepIndex > 0) {
-                    setCurrentStepIndex(currentStepIndex - 1)
-                    setIsAnimating(true)
+                    setCurrentStepIndex(currentStepIndex - 1);
+                    setIsAnimating(true);
                   }
                 }}
                 disabled={currentStepIndex === 0}
@@ -247,26 +250,23 @@ export function EnhancedClassroomPage({
                 Previous Step
               </Button>
 
-              <Button
-                onClick={() => setIsAnimating(!isAnimating)}
-                variant="outline"
-              >
-                {isAnimating ? 'Pause' : 'Resume'} Animation
+              <Button onClick={() => setIsAnimating(!isAnimating)} variant="outline">
+                {isAnimating ? "Pause" : "Resume"} Animation
               </Button>
 
               <Button
                 onClick={() => {
                   if (currentStepIndex < lesson.steps.length - 1) {
-                    setCurrentStepIndex(currentStepIndex + 1)
-                    setIsAnimating(true)
+                    setCurrentStepIndex(currentStepIndex + 1);
+                    setIsAnimating(true);
                   } else {
-                    setShowExitTicket(true)
-                    setIsAnimating(false)
+                    setShowExitTicket(true);
+                    setIsAnimating(false);
                   }
                 }}
                 className="gap-2 bg-[#1F7C80] hover:bg-[#1A5256]"
               >
-                {currentStepIndex === lesson.steps.length - 1 ? 'Finish Lesson' : 'Next Step'}
+                {currentStepIndex === lesson.steps.length - 1 ? "Finish Lesson" : "Next Step"}
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -279,7 +279,9 @@ export function EnhancedClassroomPage({
                 <TeacherNotesPanel
                   lessonTitle={lesson.title}
                   keyMessages={lesson.notes?.teacherGuide?.keyMessages || []}
-                  commonStudentConfusions={lesson.notes?.teacherGuide?.commonStudentConfusions || []}
+                  commonStudentConfusions={
+                    lesson.notes?.teacherGuide?.commonStudentConfusions || []
+                  }
                   timingNotes={lesson.notes?.teacherGuide?.timingNotes}
                   adaptations={lesson.notes?.teacherGuide?.adaptations}
                 />
@@ -290,7 +292,7 @@ export function EnhancedClassroomPage({
                   sections={lesson.notes.learnerNotes.sections}
                   formulasAndRules={lesson.notes.learnerNotes.formulasAndRules}
                   commonMistakes={lesson.notes.learnerNotes.commonMistakes}
-                  onDownload={() => alert('Downloading notes...')}
+                  onDownload={() => alert("Downloading notes...")}
                 />
               )}
             </div>
@@ -303,43 +305,53 @@ export function EnhancedClassroomPage({
         mode={userAccessibilityMode}
         isOpen={showQuestion}
         questionText={
-          !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
+          !progress.midLessonQuestionAnswered &&
+          timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
             ? lesson.requiredMidLessonQuestion?.questionText
             : lesson.questionCheckpoints[currentQuestionCheckpoint]?.promptText
         }
         onAnswer={(answer, method) => {
-          const questionText = !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
-            ? lesson.requiredMidLessonQuestion.questionText
-            : lesson.questionCheckpoints[currentQuestionCheckpoint]?.promptText || ""
+          const questionText =
+            !progress.midLessonQuestionAnswered &&
+            timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
+              ? lesson.requiredMidLessonQuestion.questionText
+              : lesson.questionCheckpoints[currentQuestionCheckpoint]?.promptText || "";
 
           setProgress({
             ...progress,
-            askedQuestions: [...progress.askedQuestions, {
-              checkpointId: !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
-                ? "mid-lesson"
-                : lesson.questionCheckpoints[currentQuestionCheckpoint]?.id || `checkpoint-${currentQuestionCheckpoint}`,
-              question: questionText,
-              answer,
-              timestamp: new Date().toISOString(),
-            }],
+            askedQuestions: [
+              ...progress.askedQuestions,
+              {
+                checkpointId:
+                  !progress.midLessonQuestionAnswered &&
+                  timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
+                    ? "mid-lesson"
+                    : lesson.questionCheckpoints[currentQuestionCheckpoint]?.id ||
+                      `checkpoint-${currentQuestionCheckpoint}`,
+                question: questionText,
+                answer,
+                timestamp: new Date().toISOString(),
+              },
+            ],
             midLessonQuestionAnswered:
-              !progress.midLessonQuestionAnswered && timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
+              !progress.midLessonQuestionAnswered &&
+              timeElapsed >= (lesson.estimatedDurationMinutes / 2) * 60
                 ? true
                 : progress.midLessonQuestionAnswered,
-          })
-          setShowQuestion(false)
+          });
+          setShowQuestion(false);
           if (currentQuestionCheckpoint < lesson.questionCheckpoints.length) {
-            setCurrentQuestionCheckpoint(currentQuestionCheckpoint + 1)
+            setCurrentQuestionCheckpoint(currentQuestionCheckpoint + 1);
           }
         }}
         onSkip={() => {
-          setShowQuestion(false)
+          setShowQuestion(false);
           if (currentQuestionCheckpoint < lesson.questionCheckpoints.length) {
-            setCurrentQuestionCheckpoint(currentQuestionCheckpoint + 1)
+            setCurrentQuestionCheckpoint(currentQuestionCheckpoint + 1);
           }
         }}
         onClose={() => setShowQuestion(false)}
       />
     </div>
-  )
+  );
 }

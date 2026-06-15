@@ -1,0 +1,495 @@
+/* Helios Space Experience Design System Styles */
+
+:root {
+  --helios-bg: #000000;
+  --helios-surface: #050505;
+  --helios-glass: rgba(255, 255, 255, 0.04);
+  --helios-glass-hover: rgba(255, 255, 255, 0.07);
+  --helios-primary-green: #00FF88;
+  --helios-secondary-green: #00E676;
+  --helios-glow: rgba(0, 255, 136, 0.25);
+  --helios-text: #FFFFFF;
+  --helios-muted: #A0A0A0;
+  --helios-font: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --helios-border: rgba(0, 255, 136, 0.15);
+  --helios-border-hover: rgba(0, 255, 136, 0.4);
+}
+
+:root:not(.dark) {
+  --helios-bg: #f8fafc;
+  --helios-surface: #ffffff;
+  --helios-glass: rgba(15, 23, 42, 0.03);
+  --helios-glass-hover: rgba(15, 23, 42, 0.06);
+  --helios-primary-green: #059669;
+  --helios-secondary-green: #047857;
+  --helios-glow: rgba(5, 150, 105, 0.12);
+  --helios-text: #0f172a;
+  --helios-muted: #475569;
+  --helios-border: rgba(5, 150, 105, 0.15);
+  --helios-border-hover: rgba(5, 150, 105, 0.35);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--helios-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.15);
+  border-radius: 4px;
+  border: 2px solid var(--helios-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--helios-primary-green);
+  box-shadow: 0 0 10px var(--helios-primary-green);
+}
+
+/* Base Body Style for Helios Landing Page */
+.helios-theme {
+  /* Cascade variable overrides to Tailwind components */
+  --background: var(--helios-bg);
+  --foreground: var(--helios-text);
+  --card: var(--helios-surface);
+  --card-foreground: var(--helios-text);
+  --popover: var(--helios-surface);
+  --popover-foreground: var(--helios-text);
+  --primary: var(--helios-primary-green);
+  --primary-foreground: #ffffff;
+  --primary-dark: var(--helios-secondary-green);
+  --primary-light: var(--helios-glow);
+  --secondary: var(--helios-glass);
+  --secondary-foreground: var(--helios-text);
+  --muted: var(--helios-glass);
+  --muted-foreground: var(--helios-muted);
+  --accent: var(--helios-glow);
+  --accent-foreground: var(--helios-text);
+  --border: var(--helios-border);
+  --input: var(--helios-glass);
+  --ring: var(--helios-primary-green);
+
+  background-color: var(--helios-bg) !important;
+  color: var(--helios-text) !important;
+  font-family: var(--helios-font);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Deep Space Canvas container */
+.helios-canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: #000000;
+}
+
+.helios-canvas-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+}
+
+.helios-static-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: background 600ms ease;
+}
+
+.helios-static-backdrop::before,
+.helios-static-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.helios-static-backdrop::before {
+  background-image:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.52) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.36) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 58% 72%, rgba(255, 255, 255, 0.26) 0 1px, transparent 1.5px);
+  background-size: 160px 160px, 220px 220px, 280px 280px;
+  opacity: 0.42;
+}
+
+.helios-static-backdrop::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.72));
+}
+
+/* Cinematic Typography */
+.helios-title {
+  font-family: var(--helios-font);
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--helios-text);
+  line-height: 1.1;
+  text-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
+}
+
+.helios-glow-text {
+  color: var(--helios-primary-green);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5), 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.helios-subtitle {
+  color: var(--helios-muted);
+  font-size: 1.125rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+}
+
+/* Keep page sections transparent over the landing backdrop */
+.helios-theme section {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.dark .helios-theme h1,
+.dark .helios-theme h2,
+.dark .helios-theme h3,
+.dark .helios-theme h4,
+.dark .helios-theme h5,
+.dark .helios-theme h6,
+.dark .helios-theme .text-slate-900,
+.dark .helios-theme .text-gray-900,
+.dark .helios-theme .text-\[\#0F172A\] {
+  color: #ffffff !important;
+}
+
+.dark .helios-theme p,
+.dark .helios-theme li,
+.dark .helios-theme .text-slate-700,
+.dark .helios-theme .text-gray-700 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.dark .helios-theme .text-slate-600,
+.dark .helios-theme .text-slate-500,
+.dark .helios-theme .text-muted-foreground,
+.dark .helios-theme .text-gray-500,
+.dark .helios-theme .text-gray-600 {
+  color: #a0a0a0 !important;
+}
+
+/* Light mode text color rules */
+:root:not(.dark) .helios-theme h1,
+:root:not(.dark) .helios-theme h2,
+:root:not(.dark) .helios-theme h3,
+:root:not(.dark) .helios-theme h4,
+:root:not(.dark) .helios-theme h5,
+:root:not(.dark) .helios-theme h6,
+:root:not(.dark) .helios-theme .text-white {
+  color: #0f172a !important;
+}
+
+:root:not(.dark) .helios-theme p,
+:root:not(.dark) .helios-theme li,
+:root:not(.dark) .helios-theme .text-slate-300,
+:root:not(.dark) .helios-theme .text-gray-300 {
+  color: #334155 !important;
+}
+
+:root:not(.dark) .helios-theme .text-slate-400,
+:root:not(.dark) .helios-theme .text-gray-400,
+:root:not(.dark) .helios-theme .text-slate-500,
+:root:not(.dark) .helios-theme .text-muted-foreground {
+  color: #64748b !important;
+}
+
+/* Restored Button styles for landing */
+.helios-theme .btn-primary,
+.helios-theme .btn-secondary,
+.helios-theme [class*="kr-button"] {
+  text-decoration: none !important;
+}
+
+
+/* Accessibility mockups dark mode overrides (these represent simulation viewports) */
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"],
+.helios-theme .classroom-mockup-container {
+  background-color: #121620 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] div,
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] p,
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] span {
+  color: #ffffff !important;
+}
+
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] [class*="bg-slate-50"],
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] [class*="bg-amber-50"],
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] [class*="bg-[#FDF6E2]"],
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] [class*="bg-purple-50"],
+.helios-theme .classroom-mockup-container [class*="rounded-[18px]"] [class*="bg-teal-50"] {
+  background-color: #1a202c !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.helios-theme .classroom-mockup-container button {
+  background-color: rgba(0, 255, 136, 0.1) !important;
+  border: 1px solid rgba(0, 255, 136, 0.2) !important;
+  color: #00FF88 !important;
+  text-decoration: none !important;
+}
+
+/* Text readability overrides on dark background */
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h1,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h2,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h3,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h4,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h5,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h6,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) p,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) li,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) span:not(.text-primary):not([class*="text-[#00FF88]"]),
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) a:not(.text-primary):not([class*="text-[#00FF88]"]):not(button) {
+  color: #ffffff !important;
+}
+
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-slate-600,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-slate-500,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-slate-400,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-gray-500,
+.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-muted-foreground {
+  color: #a0a0a0 !important;
+}
+
+/* Accordion details (FAQs) */
+.helios-theme [data-state] {
+  color: #ffffff !important;
+}
+
+/* Dashboard specific dark style overrides */
+.helios-dashboard {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.helios-dashboard .dashboard-aside,
+.helios-dashboard aside {
+  background: rgba(5, 5, 5, 0.8) !important;
+  border-right: 1px solid rgba(0, 255, 136, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.helios-dashboard .dashboard-header,
+.helios-dashboard header {
+  background: rgba(0, 0, 0, 0.75) !important;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.helios-dashboard .card,
+.helios-dashboard .stats-card,
+.helios-dashboard .upcoming-item,
+.helios-dashboard .achievement-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(0, 255, 136, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+}
+
+.helios-dashboard .card:hover {
+  border-color: rgba(0, 255, 136, 0.3) !important;
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+.helios-dashboard .nav-item {
+  color: #A0A0A0 !important;
+}
+
+.helios-dashboard .nav-item:hover {
+  color: var(--helios-primary-green) !important;
+  background: rgba(0, 255, 136, 0.05) !important;
+}
+
+.helios-dashboard .nav-item.active,
+.helios-dashboard .nav-item[data-status="active"],
+.helios-dashboard .nav-item.bg-\[linear-gradient\(135deg\%\2C\#1F7C80\%\2C\#1A5256\)\],
+.helios-dashboard a.bg-\[linear-gradient\(135deg\%\2C\#1F7C80\%\2C\#1A5256\)\] {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 230, 118, 0.05)) !important;
+  color: var(--helios-primary-green) !important;
+  border: 1px solid rgba(0, 255, 136, 0.3) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.1) !important;
+}
+
+/* Input boxes in dashboard */
+.helios-dashboard input {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.helios-dashboard input:focus {
+  border-color: var(--helios-primary-green) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2) !important;
+}
+
+/* Section dividers — invisible over the video bg */
+.helios-theme .lp-section-divider {
+  background: transparent !important;
+}
+
+/* Ensure every section's bg is fully transparent (video shows through) */
+.helios-theme section {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHASE-SPECIFIC STYLES
+   ─────────────────────────────────────────────────────────────── */
+
+/* HERO PHASE: first section gets an extra tall min-height and 
+   the space video is perfectly visible through it */
+.helios-theme[data-scroll-phase="hero"] .kr-hero,
+.helios-theme[data-scroll-phase="portal"] .kr-hero {
+  min-height: 100vh;
+}
+
+/* JOURNEY + APPROACH PHASES: sections get a very subtle dark scrim 
+   so text stays readable while planets fly by */
+.helios-theme[data-scroll-phase="journey"] main section,
+.helios-theme[data-scroll-phase="approach"] main section {
+  position: relative;
+}
+
+.helios-theme[data-scroll-phase="journey"] main section::before,
+.helios-theme[data-scroll-phase="approach"] main section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* EARTH PHASE: sections get a stronger dark scrim so content 
+   is legible over the bright Earth video filling the screen */
+.helios-theme[data-scroll-phase="earth"] main section {
+  position: relative;
+}
+
+.helios-theme[data-scroll-phase="earth"] main section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 15, 0.72);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure section content sits above the ::before scrim */
+.helios-theme main section>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO SECTION — full viewport, video shows through
+   ─────────────────────────────────────────────────────────────── */
+.helios-theme .kr-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  /* Video behind, text on top — no background needed */
+  background: transparent !important;
+}
+
+/* Subtle bottom fade from hero into next section */
+.helios-theme .kr-hero::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE NAVIGATION — Dark theme drawer
+   ─────────────────────────────────────────────────────────────── */
+
+/* Mobile drawer background */
+.helios-theme header #mobile-menu {
+  background: rgba(10, 14, 26, 0.97) !important;
+  border-top: 1px solid rgba(0, 255, 136, 0.12) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* Mobile nav items */
+.helios-theme header #mobile-menu a,
+.helios-theme header #mobile-menu button {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: none !important;
+}
+
+.helios-theme header #mobile-menu a:hover,
+.helios-theme header #mobile-menu button:hover {
+  background: rgba(0, 255, 136, 0.06) !important;
+  color: #00FF88 !important;
+}
+
+/* Mobile nav divider */
+.helios-theme header #mobile-menu .border-t {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Mobile sign-in button */
+.helios-theme header #mobile-menu a[href="/auth"] {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+  color: white !important;
+  text-decoration: none !important;
+}
+
+.helios-theme header #mobile-menu a[href="/auth"]:hover {
+  border-color: rgba(0, 255, 136, 0.3) !important;
+  background: rgba(0, 255, 136, 0.06) !important;
+}
+
+/* Chevron icons in mobile nav */
+.helios-theme header #mobile-menu svg {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Hamburger button — ensure visible on dark bg */
+.helios-theme header button[aria-controls="mobile-menu"] {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.helios-theme header button[aria-controls="mobile-menu"]:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(0, 255, 136, 0.3) !important;
+}

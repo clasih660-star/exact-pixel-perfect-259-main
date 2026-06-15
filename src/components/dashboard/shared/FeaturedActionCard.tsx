@@ -15,14 +15,7 @@ type Props = {
   }>;
 };
 
-export function FeaturedActionCard({
-  icon,
-  badge,
-  title,
-  description,
-  content,
-  actions,
-}: Props) {
+export function FeaturedActionCard({ icon, badge, title, description, content, actions }: Props) {
   return (
     <section className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-gradient-to-br from-white via-[#EFF6FF] to-white p-8 shadow-sm">
       {/* Gradient background accent */}
@@ -36,13 +29,9 @@ export function FeaturedActionCard({
             <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] lg:text-3xl">
               {title}
             </h2>
-            {description && (
-              <p className="mt-1 text-sm text-[#475569]">{description}</p>
-            )}
+            {description && <p className="mt-1 text-sm text-[#475569]">{description}</p>}
           </div>
-          {icon && (
-            <div className="ml-4 flex-shrink-0 text-[#1F7C80]">{icon}</div>
-          )}
+          {icon && <div className="ml-4 flex-shrink-0 text-[#1F7C80]">{icon}</div>}
         </div>
 
         {/* Content */}
@@ -68,9 +57,7 @@ export function FeaturedActionCard({
                 `}
               >
                 <span>{action.label}</span>
-                {action.variant === "tertiary" && (
-                  <ChevronRight className="h-4 w-4" />
-                )}
+                {action.variant === "tertiary" && <ChevronRight className="h-4 w-4" />}
               </Link>
             ))}
           </div>

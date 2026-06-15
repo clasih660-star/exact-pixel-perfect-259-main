@@ -142,7 +142,7 @@ function ClassroomLesson() {
     setTimeout(() => {
       const response = generateTeacherResponse(
         message,
-        classroomContext.progress,
+        classroomContext.progress as any,
         DEMO_QUADRATIC_LESSON,
       );
 
@@ -234,7 +234,9 @@ function ClassroomLesson() {
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Meet Mr. Klass</h1>
               <p className="text-gray-600">
                 Your AI teacher is ready to help you master{" "}
-                <span className="font-semibold text-[#1F7C80]">{classroomContext.lesson.title}</span>
+                <span className="font-semibold text-[#1F7C80]">
+                  {classroomContext.lesson.title}
+                </span>
               </p>
             </div>
 

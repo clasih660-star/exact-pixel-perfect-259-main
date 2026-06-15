@@ -37,7 +37,7 @@ const ListSchema = z.object({
 export const uploadCourseMaterial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => UploadSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     // Verify user is admin/teacher of the course's institution
     const { data: course, error: courseErr } = await context.supabase
       .from("courses")
@@ -95,10 +95,12 @@ export const uploadCourseMaterial = createServerFn({ method: "POST" })
 export const listCourseMaterials = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ListSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: materials, error } = await context.supabase
       .from("course_materials")
-      .select("id, title, type, processing_status, processing_error, file_url, link_url, created_at, uploaded_by")
+      .select(
+        "id, title, type, processing_status, processing_error, file_url, link_url, created_at, uploaded_by",
+      )
       .eq("course_id", data.course_id)
       .order("created_at", { ascending: false });
 
@@ -116,8 +118,10 @@ export const listCourseMaterials = createServerFn({ method: "GET" })
 
 export const getCourseMaterial = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { material_id: string }) => z.object({ material_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .validator((data: { material_id: string }) =>
+    z.object({ material_id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }: any) => {
     const { data: material, error } = await context.supabase
       .from("course_materials")
       .select("*")
@@ -135,7 +139,7 @@ export const getCourseMaterial = createServerFn({ method: "GET" })
 export const updateMaterialStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => UpdateStatusSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("course_materials")
       .update({
@@ -155,7 +159,7 @@ export const updateMaterialStatus = createServerFn({ method: "POST" })
 export const deleteCourseMaterial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => DeleteSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     // Get material to verify ownership
     const { data: material, error: getErr } = await context.supabase
       .from("course_materials")
@@ -200,7 +204,7 @@ export const deleteCourseMaterial = createServerFn({ method: "POST" })
 export const getCourseMateriaisText = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ListSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: materials, error } = await context.supabase
       .from("course_materials")
       .select("title, extracted_text, type, processing_status")
@@ -211,7 +215,7 @@ export const getCourseMateriaisText = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const combinedText = materials
-      ?.map((m) => {
+      ?.map((m: any) => {
         const header = `[${m.title} - ${m.type}]`;
         const content = m.extracted_text || "(No text extracted)";
         return `${header}\n${content}`;
@@ -221,6 +225,6 @@ export const getCourseMateriaisText = createServerFn({ method: "GET" })
     return {
       combinedText: combinedText || "",
       materialCount: materials?.length ?? 0,
-      materialsList: materials?.map((m) => ({ title: m.title, type: m.type })) ?? [],
+      materialsList: materials?.map((m: any) => ({ title: m.title, type: m.type })) ?? [],
     };
   });

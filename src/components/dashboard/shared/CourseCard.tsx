@@ -45,12 +45,8 @@ export function CourseCard({
           <div className="flex-1">
             {badge && <div className="mb-2">{badge}</div>}
             <h3 className="text-base font-bold text-[#0F172A]">{title}</h3>
-            {course && (
-              <p className="mt-0.5 text-xs text-[#64748B]">{course}</p>
-            )}
-            {institution && (
-              <p className="text-xs text-[#64748B]">{institution}</p>
-            )}
+            {course && <p className="mt-0.5 text-xs text-[#64748B]">{course}</p>}
+            {institution && <p className="text-xs text-[#64748B]">{institution}</p>}
           </div>
         </div>
 
@@ -59,9 +55,7 @@ export function CourseCard({
           <div className="mb-4 grid grid-cols-2 gap-3">
             {stats.map((stat, idx) => (
               <div key={idx} className="rounded-lg bg-[#F8FAFC] p-2">
-                <p className="text-[11px] font-semibold text-[#64748B]">
-                  {stat.label}
-                </p>
+                <p className="text-[11px] font-semibold text-[#64748B]">{stat.label}</p>
                 <p className="text-sm font-bold text-[#0F172A]">{stat.value}</p>
               </div>
             ))}

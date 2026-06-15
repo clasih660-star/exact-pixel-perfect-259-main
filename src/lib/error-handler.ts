@@ -39,11 +39,19 @@ export function classifyError(error: unknown): AppError {
   }
 
   if (message.includes("duplicate key") || message.includes("unique constraint")) {
-    return { type: "duplicate_action", message: "This action was already completed.", action: "unknown" };
+    return {
+      type: "duplicate_action",
+      message: "This action was already completed.",
+      action: "unknown",
+    };
   }
 
   if (message.includes("connection") || message.includes("network") || message.includes("fetch")) {
-    return { type: "supabase_error", message: "Connection issue. Please check your internet.", code: "NETWORK" };
+    return {
+      type: "supabase_error",
+      message: "Connection issue. Please check your internet.",
+      code: "NETWORK",
+    };
   }
 
   // AI errors
@@ -61,7 +69,11 @@ export function classifyError(error: unknown): AppError {
       return { type: "missing_lesson", message: "This lesson could not be found.", lessonId: "" };
     }
     if (message.includes("session")) {
-      return { type: "missing_session", message: "This session could not be found.", sessionId: "" };
+      return {
+        type: "missing_session",
+        message: "This session could not be found.",
+        sessionId: "",
+      };
     }
   }
 

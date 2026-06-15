@@ -188,13 +188,16 @@ export function StudentClassroomsPage() {
                 Continue learning in a calm, focused classroom space.
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-7 text-[#61758A] sm:text-base">
-                Pick up exactly where you stopped, keep your progress moving, and keep the screen simple enough for every learner from early grades to university level.
+                Pick up exactly where you stopped, keep your progress moving, and keep the screen
+                simple enough for every learner from early grades to university level.
               </p>
 
               <div className="mt-6 rounded-[24px] border border-[#E7EEF5] bg-white p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7A8FA3]">Current classroom</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7A8FA3]">
+                      Current classroom
+                    </p>
                     <h1 className="mt-2 text-xl font-extrabold tracking-tight text-[#132033] sm:text-2xl">
                       {highlightedClassroom.title}
                     </h1>
@@ -209,26 +212,43 @@ export function StudentClassroomsPage() {
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-2xl bg-[#FAFCFE] p-3 ring-1 ring-[#EDF3F8]">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Current step</p>
-                    <p className="mt-2 text-sm font-bold text-[#132033]">{highlightedClassroom.currentStep}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">
+                      Current step
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-[#132033]">
+                      {highlightedClassroom.currentStep}
+                    </p>
                   </div>
                   <div className="rounded-2xl bg-[#FAFCFE] p-3 ring-1 ring-[#EDF3F8]">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Progress</p>
-                    <p className="mt-2 text-sm font-bold text-[#132033]">{highlightedClassroom.progress}% complete</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">
+                      Progress
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-[#132033]">
+                      {highlightedClassroom.progress}% complete
+                    </p>
                   </div>
                   <div className="rounded-2xl bg-[#FAFCFE] p-3 ring-1 ring-[#EDF3F8]">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">Time left</p>
-                    <p className="mt-2 text-sm font-bold text-[#132033]">{highlightedClassroom.durationLeft}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#7A8FA3]">
+                      Time left
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-[#132033]">
+                      {highlightedClassroom.durationLeft}
+                    </p>
                   </div>
                 </div>
 
                 <div className="mt-5">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-[#41556A]">Lesson progress</p>
-                    <p className="text-sm font-bold text-[#23415D]">{highlightedClassroom.progress}%</p>
+                    <p className="text-sm font-bold text-[#23415D]">
+                      {highlightedClassroom.progress}%
+                    </p>
                   </div>
                   <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#EAF0F5]">
-                    <div className="h-full rounded-full bg-[#86A9C9]" style={{ width: `${highlightedClassroom.progress}%` }} />
+                    <div
+                      className="h-full rounded-full bg-[#86A9C9]"
+                      style={{ width: `${highlightedClassroom.progress}%` }}
+                    />
                   </div>
                 </div>
 
@@ -250,9 +270,15 @@ export function StudentClassroomsPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2 text-xs text-[#6D8093]">
-                  <span className="rounded-full bg-[#F6FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">Captions on</span>
-                  <span className="rounded-full bg-[#F6FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">Voice ready</span>
-                  <span className="rounded-full bg-[#F6FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">Focus mode available</span>
+                  <span className="rounded-full bg-[#F6FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">
+                    Captions on
+                  </span>
+                  <span className="rounded-full bg-[#F6FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">
+                    Voice ready
+                  </span>
+                  <span className="rounded-full bg-[#F6FAFC] px-3 py-1 ring-1 ring-[#E8EEF4]">
+                    Focus mode available
+                  </span>
                 </div>
               </div>
             </div>
@@ -290,8 +316,13 @@ export function StudentClassroomsPage() {
 
             <div className="mt-4 space-y-3">
               {learningSignals.map((item) => (
-                <div key={item.label} className="rounded-2xl bg-[#FBFCFE] p-4 ring-1 ring-[#EEF3F7]">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7A8FA3]">{item.label}</p>
+                <div
+                  key={item.label}
+                  className="rounded-2xl bg-[#FBFCFE] p-4 ring-1 ring-[#EEF3F7]"
+                >
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7A8FA3]">
+                    {item.label}
+                  </p>
                   <p className="mt-2 text-sm font-extrabold text-[#132033]">{item.value}</p>
                   <p className="mt-1 text-xs leading-5 text-[#66798C]">{item.meta}</p>
                 </div>
@@ -306,12 +337,18 @@ export function StudentClassroomsPage() {
             </div>
             <div className="mt-4 space-y-3">
               {quietTools.map((item) => (
-                <div key={item} className="rounded-2xl bg-[#FBFCFE] px-4 py-3 text-sm text-[#54677A] ring-1 ring-[#EEF3F7]">
+                <div
+                  key={item}
+                  className="rounded-2xl bg-[#FBFCFE] px-4 py-3 text-sm text-[#54677A] ring-1 ring-[#EEF3F7]"
+                >
                   {item}
                 </div>
               ))}
             </div>
-            <Link to="/student/access" className="mt-4 inline-flex text-sm font-semibold text-[#365978] transition-colors hover:text-[#1D3E5C]">
+            <Link
+              to="/student/access"
+              className="mt-4 inline-flex text-sm font-semibold text-[#365978] transition-colors hover:text-[#1D3E5C]"
+            >
               Review learning access
             </Link>
           </div>
@@ -319,22 +356,53 @@ export function StudentClassroomsPage() {
       </section>
 
       <section className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard title="Active classrooms" value="4" subtitle="Sessions available now" href="/student/classrooms" icon={Monitor} />
-        <KpiCard title="Continue today" value="2" subtitle="Already in progress" href="/student/lessons" icon={PlayCircle} />
-        <KpiCard title="Study streak" value="7 days" subtitle="Keep the momentum" href="/student/progress" icon={Flame} trend="+2 days" />
-        <KpiCard title="Access support" value="Ready" subtitle="Captions and focus tools" href="/student/access" icon={Accessibility} />
+        <KpiCard
+          title="Active classrooms"
+          value="4"
+          subtitle="Sessions available now"
+          href="/student/classrooms"
+          icon={Monitor}
+        />
+        <KpiCard
+          title="Continue today"
+          value="2"
+          subtitle="Already in progress"
+          href="/student/lessons"
+          icon={PlayCircle}
+        />
+        <KpiCard
+          title="Study streak"
+          value="7 days"
+          subtitle="Keep the momentum"
+          href="/student/progress"
+          icon={Flame}
+          trend="+2 days"
+        />
+        <KpiCard
+          title="Access support"
+          value="Ready"
+          subtitle="Captions and focus tools"
+          href="/student/access"
+          icon={Accessibility}
+        />
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.35fr_.9fr]">
         <div className="space-y-5">
           {classroomGroups.map((group) => (
-            <div key={group.title} className="rounded-[24px] border border-[#E7EEF5] bg-white p-5 shadow-sm">
+            <div
+              key={group.title}
+              className="rounded-[24px] border border-[#E7EEF5] bg-white p-5 shadow-sm"
+            >
               <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="text-xl font-extrabold text-[#132033]">{group.title}</h2>
                   <p className="text-sm text-[#66798C]">{group.subtitle}</p>
                 </div>
-                <Link to="/student/courses" className="text-sm font-semibold text-[#365978] hover:text-[#1D3E5C]">
+                <Link
+                  to="/student/courses"
+                  className="text-sm font-semibold text-[#365978] hover:text-[#1D3E5C]"
+                >
                   Browse courses
                 </Link>
               </div>
@@ -352,8 +420,12 @@ export function StudentClassroomsPage() {
 
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm font-extrabold text-[#132033] sm:text-base">{classroom.name}</h3>
-                        <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-bold ${getProgressTone(classroom.progress)}`}>
+                        <h3 className="text-sm font-extrabold text-[#132033] sm:text-base">
+                          {classroom.name}
+                        </h3>
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-bold ${getProgressTone(classroom.progress)}`}
+                        >
                           {classroom.progress}% complete
                         </span>
                       </div>
@@ -371,7 +443,10 @@ export function StudentClassroomsPage() {
                       <div className="mt-3 grid gap-3">
                         <div>
                           <div className="h-2 overflow-hidden rounded-full bg-[#EAF0F5]">
-                            <div className="h-full rounded-full bg-[#86A9C9]" style={{ width: `${classroom.progress}%` }} />
+                            <div
+                              className="h-full rounded-full bg-[#86A9C9]"
+                              style={{ width: `${classroom.progress}%` }}
+                            />
                           </div>
                           <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-[#708294]">
                             <span className="rounded-full bg-[#F7FAFC] px-2.5 py-1 ring-1 ring-[#E8EEF4]">
@@ -385,7 +460,11 @@ export function StudentClassroomsPage() {
                         <div className="flex items-center justify-between gap-3 pt-1">
                           <p className="text-xs font-bold text-[#365978]">{classroom.nextAction}</p>
                           <span className="text-sm font-semibold text-[#1D3E5C]">
-                            {group.title === "Continue now" ? "Open lesson" : classroom.progress > 0 ? "Resume" : "Start"}
+                            {group.title === "Continue now"
+                              ? "Open lesson"
+                              : classroom.progress > 0
+                                ? "Resume"
+                                : "Start"}
                           </span>
                         </div>
                       </div>
@@ -405,27 +484,37 @@ export function StudentClassroomsPage() {
               </div>
               <div>
                 <h2 className="text-lg font-extrabold text-[#132033]">Recent work</h2>
-                <p className="text-sm text-[#66798C]">A light history of what you have completed or reviewed.</p>
+                <p className="text-sm text-[#66798C]">
+                  A light history of what you have completed or reviewed.
+                </p>
               </div>
             </div>
 
             <div className="mt-4 space-y-3">
               {recentActivity.map((item) => (
-                <div key={item.title} className="flex items-start gap-3 rounded-2xl bg-[#FBFCFE] p-3 ring-1 ring-[#EEF3F7]">
+                <div
+                  key={item.title}
+                  className="flex items-start gap-3 rounded-2xl bg-[#FBFCFE] p-3 ring-1 ring-[#EEF3F7]"
+                >
                   <div className="mt-0.5 grid h-10 w-10 place-items-center rounded-xl bg-[#F4F8FB] text-[#365978]">
                     <BookOpen className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-bold text-[#132033]">{item.title}</p>
-                      <StatusBadge variant={item.status === "Completed" ? "success" : "neutral"}>{item.status}</StatusBadge>
+                      <StatusBadge variant={item.status === "Completed" ? "success" : "neutral"}>
+                        {item.status}
+                      </StatusBadge>
                     </div>
                     <p className="mt-1 text-xs leading-5 text-[#66798C]">{item.meta}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <Link to="/student/sessions" className="mt-4 inline-flex text-sm font-semibold text-[#365978] transition-colors hover:text-[#1D3E5C]">
+            <Link
+              to="/student/sessions"
+              className="mt-4 inline-flex text-sm font-semibold text-[#365978] transition-colors hover:text-[#1D3E5C]"
+            >
               View session history
             </Link>
           </div>
@@ -438,7 +527,10 @@ export function StudentClassroomsPage() {
                 { label: "Review notes", meta: "Before re-entering", icon: Clock },
                 { label: "Enable support", meta: "Captions, focus, voice", icon: Accessibility },
               ].map((item) => (
-                <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-[#EEF3F7] bg-[#FBFCFE] p-3">
+                <div
+                  key={item.label}
+                  className="flex items-center gap-3 rounded-2xl border border-[#EEF3F7] bg-[#FBFCFE] p-3"
+                >
                   <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F4F8FB] text-[#365978]">
                     <item.icon className="h-4 w-4" />
                   </div>

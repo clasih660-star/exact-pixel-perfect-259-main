@@ -41,7 +41,10 @@ export default function TeacherSupervision() {
   if (error || !data || !data.institution) {
     return (
       <DashboardShell config={config} activePath="/teacher/supervision">
-        <DashboardLoadingState type="error" message={(error as Error)?.message || "No supervision data available."} />
+        <DashboardLoadingState
+          type="error"
+          message={(error as Error)?.message || "No supervision data available."}
+        />
       </DashboardShell>
     );
   }
@@ -51,18 +54,47 @@ export default function TeacherSupervision() {
   return (
     <DashboardShell config={config} activePath="/teacher/supervision">
       <header className="mb-6">
-        <p className="text-xs font-bold uppercase tracking-widest text-[var(--primary)]">Supervision</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">Live Class Monitor</h1>
+        <p className="text-xs font-bold uppercase tracking-widest text-[var(--primary)]">
+          Supervision
+        </p>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">
+          Live Class Monitor
+        </h1>
         <p className="mt-0.5 text-sm text-[var(--gray-500)]">
-          Watch live AI-led classes, review learner questions, and track progress across your courses.
+          Watch live AI-led classes, review learner questions, and track progress across your
+          courses.
         </p>
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard title="My Courses" value={stats.courses} subtitle="Assigned" href="/teacher/courses" icon={BookOpen} />
-        <KpiCard title="Live Now" value={stats.liveSessions} subtitle="Active classes" href="/teacher/supervision" icon={Radio} />
-        <KpiCard title="Active Learners" value={stats.activeLearners} subtitle="Have started" href="/teacher/students" icon={Users} />
-        <KpiCard title="Questions" value={stats.questionsToReview} subtitle="To review" href="/teacher/supervision" icon={HelpCircle} />
+        <KpiCard
+          title="My Courses"
+          value={stats.courses}
+          subtitle="Assigned"
+          href="/teacher/courses"
+          icon={BookOpen}
+        />
+        <KpiCard
+          title="Live Now"
+          value={stats.liveSessions}
+          subtitle="Active classes"
+          href="/teacher/supervision"
+          icon={Radio}
+        />
+        <KpiCard
+          title="Active Learners"
+          value={stats.activeLearners}
+          subtitle="Have started"
+          href="/teacher/students"
+          icon={Users}
+        />
+        <KpiCard
+          title="Questions"
+          value={stats.questionsToReview}
+          subtitle="To review"
+          href="/teacher/supervision"
+          icon={HelpCircle}
+        />
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -82,20 +114,30 @@ export default function TeacherSupervision() {
                 No live classrooms at the moment.
               </p>
             ) : (
-              data.liveSessions.map((s: { id: string; lessonId: string; courseId: string; title: string; startedAt: string | null }) => (
-                <Link
-                  key={s.id}
-                  to="/classroom/session/$sessionId"
-                  params={{ sessionId: s.id }}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-[var(--gray-900)]">{s.title}</p>
-                    <p className="text-xs text-[var(--gray-500)]">Started {timeAgo(s.startedAt)}</p>
-                  </div>
-                  <StatusBadge variant="success">Watch</StatusBadge>
-                </Link>
-              ))
+              data.liveSessions.map(
+                (s: {
+                  id: string;
+                  lessonId: string;
+                  courseId: string;
+                  title: string;
+                  startedAt: string | null;
+                }) => (
+                  <Link
+                    key={s.id}
+                    to="/classroom/session/$sessionId"
+                    params={{ sessionId: s.id }}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-[var(--gray-900)]">{s.title}</p>
+                      <p className="text-xs text-[var(--gray-500)]">
+                        Started {timeAgo(s.startedAt)}
+                      </p>
+                    </div>
+                    <StatusBadge variant="success">Watch</StatusBadge>
+                  </Link>
+                ),
+              )
             )}
           </div>
         </div>
@@ -103,7 +145,9 @@ export default function TeacherSupervision() {
         {/* Recent questions */}
         <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-[var(--gray-900)]">Questions to Review</h2>
-          <p className="mt-0.5 text-sm text-[var(--gray-500)]">What learners are asking the AI teacher.</p>
+          <p className="mt-0.5 text-sm text-[var(--gray-500)]">
+            What learners are asking the AI teacher.
+          </p>
           <div className="mt-4 space-y-2">
             {data.recentQuestions.length === 0 ? (
               <p className="rounded-xl border border-dashed border-[var(--gray-200)] p-6 text-center text-sm text-[var(--gray-500)]">
@@ -113,9 +157,21 @@ export default function TeacherSupervision() {
               data.recentQuestions.map((q: any) => (
                 <div key={q.id} className="rounded-xl border border-[var(--gray-200)] p-3">
                   <p className="text-sm font-semibold text-[var(--gray-900)]">{q.question_text}</p>
-                  {q.answer_text && <p className="mt-1 line-clamp-2 text-xs text-[var(--gray-500)]">{q.answer_text}</p>}
+                  {q.answer_text && (
+                    <p className="mt-1 line-clamp-2 text-xs text-[var(--gray-500)]">
+                      {q.answer_text}
+                    </p>
+                  )}
                   <div className="mt-2 flex items-center gap-2">
-                    <StatusBadge variant={q.answer_source === "ai" ? "success" : q.answer_source === "teacher" ? "default" : "warning"}>
+                    <StatusBadge
+                      variant={
+                        q.answer_source === "ai"
+                          ? "success"
+                          : q.answer_source === "teacher"
+                            ? "default"
+                            : "warning"
+                      }
+                    >
                       {q.answer_source}
                     </StatusBadge>
                     <span className="text-xs text-[var(--gray-400)]">{timeAgo(q.created_at)}</span>
@@ -130,12 +186,14 @@ export default function TeacherSupervision() {
       {/* Courses overview */}
       <section className="mt-6 rounded-2xl border border-[var(--gray-200)] bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-[var(--gray-900)]">My Courses</h2>
-        <p className="mt-0.5 text-sm text-[var(--gray-500)]">Open a course to view detailed learner progress.</p>
+        <p className="mt-0.5 text-sm text-[var(--gray-500)]">
+          Open a course to view detailed learner progress.
+        </p>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {data.courses.length === 0 ? (
             <p className="text-sm text-[var(--gray-500)]">No courses assigned.</p>
           ) : (
-            data.courses.map((c) => (
+            data.courses.map((c: any) => (
               <Link
                 key={c.id}
                 to="/institution/courses/$courseId"

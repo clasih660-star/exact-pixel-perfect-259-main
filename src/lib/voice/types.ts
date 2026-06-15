@@ -26,7 +26,13 @@ export type AITeacherProfile = {
   subjectSpecialty?: string;
   imageUrl?: string;
   videoPlaceholderUrl?: string;
-  teachingStyle: "step_by_step" | "concept_first" | "practice_heavy" | "visual" | "extra_support" | "challenge";
+  teachingStyle:
+    | "step_by_step"
+    | "concept_first"
+    | "practice_heavy"
+    | "visual"
+    | "extra_support"
+    | "challenge";
   defaultPace: "slow" | "normal" | "fast";
   explanationDepth: "basic" | "standard" | "detailed" | "advanced";
   encouragementStyle: "gentle" | "direct" | "high_energy";
@@ -71,4 +77,9 @@ export type GenerateTeacherSpeechResult = {
 };
 
 export const DEFAULT_LOCAL_VOICE_PROVIDER: LocalVoiceProvider = "elevenlabs";
-export const LOCAL_VOICE_FALLBACK_ORDER: LocalVoiceProvider[] = ["elevenlabs", "kokoro", "piper", "browser"];
+export const LOCAL_VOICE_FALLBACK_ORDER: LocalVoiceProvider[] = [
+  "elevenlabs",
+  "kokoro",
+  "piper",
+  "browser",
+];

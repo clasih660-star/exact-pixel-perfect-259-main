@@ -8,7 +8,10 @@ export const Route = createFileRoute("/_authenticated/student/dashboard")({
   head: () => ({
     meta: [
       { title: "Learner Dashboard — Klassruum" },
-      { name: "description", content: "Continue learning, enter classrooms, and track your progress." },
+      {
+        name: "description",
+        content: "Continue learning, enter classrooms, and track your progress.",
+      },
     ],
   }),
 });

@@ -4,7 +4,12 @@ import { StepsPanel } from "./StepsPanel";
 import { ChatPanel } from "./ChatPanel";
 import { NotesPanel } from "./NotesPanel";
 import { AccessPanel } from "./AccessPanel";
-import type { ClassroomContext, LearnerAccessProfile, LessonStepKey, ChatMessage } from "@/lib/types";
+import type {
+  ClassroomContext,
+  LearnerAccessProfile,
+  LessonStepKey,
+  ChatMessage,
+} from "@/lib/types";
 
 type TabType = "steps" | "chat" | "notes" | "access";
 
@@ -60,7 +65,9 @@ export function LearnPanel({
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === "steps" && <StepsPanel classroomContext={classroomContext} onStepChange={onStepChange} />}
+        {activeTab === "steps" && (
+          <StepsPanel classroomContext={classroomContext} onStepChange={onStepChange} />
+        )}
         {activeTab === "chat" && (
           <ChatPanel
             classroomContext={classroomContext}
@@ -73,7 +80,11 @@ export function LearnPanel({
           </ChatPanel>
         )}
         {activeTab === "notes" && (
-          <NotesPanel classroomContext={classroomContext} initialNotes={initialNotes} onNotesSave={onNotesSave} />
+          <NotesPanel
+            classroomContext={classroomContext}
+            initialNotes={initialNotes}
+            onNotesSave={onNotesSave}
+          />
         )}
         {activeTab === "access" && (
           <AccessPanel classroomContext={classroomContext} onAccessChange={onAccessChange} />

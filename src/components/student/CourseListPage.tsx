@@ -117,9 +117,7 @@ export function CourseListPage() {
               </p>
             </div>
             <Link to="/student/dashboard">
-              <Button variant="outline">
-                Back to Dashboard
-              </Button>
+              <Button variant="outline">Back to Dashboard</Button>
             </Link>
           </div>
 
@@ -190,19 +188,14 @@ export function CourseListPage() {
           <Card>
             <CardContent className="pt-12 pb-12 text-center">
               <BookOpen size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No courses found
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No courses found</h3>
               <p className="text-gray-600">Try adjusting your filters or search</p>
             </CardContent>
           </Card>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <Card
-                key={course.id}
-                className="hover:shadow-lg transition-shadow overflow-hidden"
-              >
+              <Card key={course.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                 {/* Thumbnail */}
                 <div
                   className={`h-32 bg-gradient-to-br ${
@@ -213,30 +206,21 @@ export function CourseListPage() {
                 </div>
 
                 <CardContent className="pt-4">
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {course.title}
-                  </h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
                   <p className="text-xs text-gray-500 mb-3">
                     {course.subject} • {course.level}
                   </p>
 
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                    {course.description}
-                  </p>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">{course.description}</p>
 
                   {course.enrolled && (
                     <>
                       <div className="mb-3">
                         <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                           <span>Progress</span>
-                          <span className="font-medium">
-                            {course.progressPercentage}%
-                          </span>
+                          <span className="font-medium">{course.progressPercentage}%</span>
                         </div>
-                        <Progress
-                          value={course.progressPercentage}
-                          className="bg-gray-200 h-2"
-                        />
+                        <Progress value={course.progressPercentage} className="bg-gray-200 h-2" />
                       </div>
 
                       <div className="text-xs text-gray-600 mb-4">
@@ -245,14 +229,8 @@ export function CourseListPage() {
                     </>
                   )}
 
-                  <Link
-                    to={`/courses/${course.id}`}
-                    className="block"
-                  >
-                    <Button
-                      className="w-full"
-                      variant={course.enrolled ? "default" : "outline"}
-                    >
+                  <Link to={`/courses/${course.id}` as any} className="block">
+                    <Button className="w-full" variant={course.enrolled ? "default" : "outline"}>
                       {course.enrolled ? "Continue Learning" : "Enroll"}
                       <ArrowRight size={16} className="ml-2" />
                     </Button>
@@ -264,7 +242,7 @@ export function CourseListPage() {
         ) : (
           <div className="space-y-3">
             {filteredCourses.map((course) => (
-              <Link key={course.id} to={`/courses/${course.id}`}>
+              <Link key={course.id} to={`/courses/${course.id}` as any}>
                 <Card className="hover:shadow-md transition-shadow cursor-pointer">
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-start gap-4">
@@ -279,9 +257,7 @@ export function CourseListPage() {
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900">
-                          {course.title}
-                        </h3>
+                        <h3 className="font-semibold text-gray-900">{course.title}</h3>
                         <p className="text-sm text-gray-600 mt-1">
                           {course.subject} • {course.level}
                         </p>
@@ -293,12 +269,9 @@ export function CourseListPage() {
                           <div className="mt-3">
                             <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                               <span>
-                                {course.completedLessons}/{course.totalLessons}{" "}
-                                lessons
+                                {course.completedLessons}/{course.totalLessons} lessons
                               </span>
-                              <span className="font-medium">
-                                {course.progressPercentage}%
-                              </span>
+                              <span className="font-medium">{course.progressPercentage}%</span>
                             </div>
                             <Progress
                               value={course.progressPercentage}

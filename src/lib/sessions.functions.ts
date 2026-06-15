@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const startSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: lesson, error: lErr } = await context.supabase
       .from("lessons")
       .select("id, course_id, institution_id")
@@ -62,7 +62,7 @@ export const startOrResumeClassroom = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     if (data.sessionId) {
       return { sessionId: data.sessionId, redirectUrl: `/classroom/session/${data.sessionId}` };
     }
@@ -116,7 +116,7 @@ export const startOrResumeClassroom = createServerFn({ method: "POST" })
 export const getClassroomContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { session_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: session, error } = await context.supabase
       .from("classroom_sessions")
       .select("*")
@@ -164,7 +164,7 @@ export const postChatMessage = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     // Get session to derive institution_id, course_id, lesson_id
     const { data: session, error: sErr } = await context.supabase
       .from("classroom_sessions")
@@ -202,7 +202,7 @@ export const submitQuizResult = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     // Derive institution_id and course_id from the lesson
     const { data: lesson, error: lErr } = await context.supabase
       .from("lessons")
@@ -234,7 +234,7 @@ export const submitQuizResult = createServerFn({ method: "POST" })
 export const endSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: session } = await context.supabase
       .from("classroom_sessions")
       .select("institution_id, course_id, lesson_id")

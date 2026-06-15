@@ -30,9 +30,7 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
 
   return (
     <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-      {title && (
-        <h3 className="mb-4 text-lg font-bold text-[#0F172A]">{title}</h3>
-      )}
+      {title && <h3 className="mb-4 text-lg font-bold text-[#0F172A]">{title}</h3>}
 
       <div className="space-y-0">
         {displayItems.map((item, index) => {
@@ -43,9 +41,7 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
           return (
             <div key={item.id} className="relative">
               {/* Vertical line */}
-              {!isLast && (
-                <div className="absolute bottom-0 left-1.5 top-10 w-px bg-[#E2E8F0]" />
-              )}
+              {!isLast && <div className="absolute bottom-0 left-1.5 top-10 w-px bg-[#E2E8F0]" />}
 
               {/* Item */}
               <div className="relative pb-6">
@@ -53,17 +49,13 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
                 <div
                   className={`absolute left-0 top-1 flex h-3 w-3 items-center justify-center rounded-full ${cfg.dot}`}
                 >
-                  {Icon && (
-                    <Icon className={`h-2 w-2 text-white`} />
-                  )}
+                  {Icon && <Icon className={`h-2 w-2 text-white`} />}
                 </div>
 
                 {/* Content */}
                 <div className="ml-8">
                   <p className="font-semibold text-[#0F172A]">{item.action}</p>
-                  {item.description && (
-                    <p className="text-sm text-[#64748B]">{item.description}</p>
-                  )}
+                  {item.description && <p className="text-sm text-[#64748B]">{item.description}</p>}
                   <p className="mt-1 text-xs text-[#94A3B8]">{item.timestamp}</p>
                 </div>
               </div>

@@ -93,7 +93,10 @@ export function useClassroomEngine(): ClassroomEngine {
 
   // ── Enter existing classroom ───────────────────────────────────────────
   const enterClassroom = useCallback(async (sessionId: string) => {
-    dispatch({ type: "ENTER_CLASSROOM", payload: { sessionId, courseId: "", lessonId: "", institutionId: "" } });
+    dispatch({
+      type: "ENTER_CLASSROOM",
+      payload: { sessionId, courseId: "", lessonId: "", institutionId: "" },
+    });
 
     try {
       const ctx = await getClassroomContextV2({ data: { session_id: sessionId } });
@@ -115,23 +118,32 @@ export function useClassroomEngine(): ClassroomEngine {
         } as Partial<ClassroomState>,
       });
     } catch (err: any) {
-      dispatch({ type: "SET_ERROR", payload: { error: err.message ?? "Failed to load classroom" } });
+      dispatch({
+        type: "SET_ERROR",
+        payload: { error: err.message ?? "Failed to load classroom" },
+      });
     }
   }, []);
 
   // ── Start or resume ────────────────────────────────────────────────────
-  const startOrResume = useCallback(async (courseId: string, lessonId: string) => {
-    dispatch({ type: "SET_LOADING", payload: { isLoading: true } });
+  const startOrResume = useCallback(
+    async (courseId: string, lessonId: string) => {
+      dispatch({ type: "SET_LOADING", payload: { isLoading: true } });
 
-    try {
-      const result = await startOrResumeClassroomV2({ data: { courseId, lessonId } });
-      if (result?.sessionId) {
-        await enterClassroom(result.sessionId);
+      try {
+        const result = await startOrResumeClassroomV2({ data: { courseId, lessonId } });
+        if (result?.sessionId) {
+          await enterClassroom(result.sessionId);
+        }
+      } catch (err: any) {
+        dispatch({
+          type: "SET_ERROR",
+          payload: { error: err.message ?? "Failed to start classroom" },
+        });
       }
-    } catch (err: any) {
-      dispatch({ type: "SET_ERROR", payload: { error: err.message ?? "Failed to start classroom" } });
-    }
-  }, [enterClassroom]);
+    },
+    [enterClassroom],
+  );
 
   // ── End classroom ──────────────────────────────────────────────────────
   const endClassroom = useCallback(async () => {
@@ -185,59 +197,68 @@ export function useClassroomEngine(): ClassroomEngine {
   }, []);
 
   // ── Send message ───────────────────────────────────────────────────────
-  const sendMessage = useCallback(async (message: string) => {
-    if (!state.sessionId) return;
-    dispatch({ type: "SEND_MESSAGE", payload: { message } });
+  const sendMessage = useCallback(
+    async (message: string) => {
+      if (!state.sessionId) return;
+      dispatch({ type: "SEND_MESSAGE", payload: { message } });
 
-    try {
-      await postChatMessageV2({
-        data: {
-          session_id: state.sessionId,
-          message,
-          sender: "student",
-          request_key: `msg_${Date.now()}`,
-        },
-      });
-    } catch {
-      // Optimistic already applied; log silently
-    }
-  }, [state.sessionId]);
+      try {
+        await postChatMessageV2({
+          data: {
+            session_id: state.sessionId,
+            message,
+            sender: "student",
+            request_key: `msg_${Date.now()}`,
+          },
+        });
+      } catch {
+        // Optimistic already applied; log silently
+      }
+    },
+    [state.sessionId],
+  );
 
   // ── Quick action ───────────────────────────────────────────────────────
-  const triggerQuickAction = useCallback(async (action: string, message: string) => {
-    if (!state.sessionId) return;
-    dispatch({ type: "QUICK_ACTION", payload: { action, message } });
+  const triggerQuickAction = useCallback(
+    async (action: string, message: string) => {
+      if (!state.sessionId) return;
+      dispatch({ type: "QUICK_ACTION", payload: { action, message } });
 
-    try {
-      await postQuickActionV2({
-        data: {
-          session_id: state.sessionId,
-          action,
-          message,
-          request_key: `qa_${state.sessionId}_${action}_${Date.now()}`,
-        },
-      });
-    } catch {
-      // Optimistic already applied
-    }
-  }, [state.sessionId]);
+      try {
+        await postQuickActionV2({
+          data: {
+            session_id: state.sessionId,
+            action,
+            message,
+            request_key: `qa_${state.sessionId}_${action}_${Date.now()}`,
+          },
+        });
+      } catch {
+        // Optimistic already applied
+      }
+    },
+    [state.sessionId],
+  );
 
   // ── Step navigation ────────────────────────────────────────────────────
-  const goToStep = useCallback(async (step: LessonStepKey) => {
-    if (!state.sessionId) return;
-    dispatch({ type: "CHANGE_STEP", payload: { targetStep: step } });
+  const goToStep = useCallback(
+    async (step: LessonStepKey) => {
+      if (!state.sessionId) return;
+      dispatch({ type: "CHANGE_STEP", payload: { targetStep: step } });
 
-    try {
-      await changeClassroomStepV2({
-        data: {
-          session_id: state.sessionId,
-          targetStep: step,
-        },
-      });
-    } catch {
-      // Optimistic already applied
-    }
-  }, [state.sessionId]);
+      try {
+        await changeClassroomStepV2({
+          data: {
+            session_id: state.sessionId,
+            targetStep: step,
+          },
+        });
+      } catch {
+        // Optimistic already applied
+      }
+    },
+    [state.sessionId],
+  );
 
   const nextStep = useCallback(async () => {
     const next = getNextStep(state.currentStepKey);
@@ -264,83 +285,95 @@ export function useClassroomEngine(): ClassroomEngine {
     dispatch({ type: "ANSWER_QUIZ", payload: { answerIndex } });
   }, []);
 
-  const finishQuiz = useCallback(async (score: number, answers: number[], quizId: string) => {
-    dispatch({ type: "FINISH_QUIZ", payload: { score } });
+  const finishQuiz = useCallback(
+    async (score: number, answers: number[], quizId: string) => {
+      dispatch({ type: "FINISH_QUIZ", payload: { score } });
 
-    if (state.sessionId) {
-      try {
-        await submitQuizResultV2({
-          data: {
-            session_id: state.sessionId,
-            quiz_id: quizId,
-            lesson_id: state.lessonId ?? "",
-            score,
-            percentage: score,
-            answers_json: answers,
-            request_key: `quiz_${state.sessionId}_${quizId}`,
-          },
-        });
-      } catch {
-        // Optimistic already applied
+      if (state.sessionId) {
+        try {
+          await submitQuizResultV2({
+            data: {
+              session_id: state.sessionId,
+              quiz_id: quizId,
+              lesson_id: state.lessonId ?? "",
+              score,
+              percentage: score,
+              answers_json: answers,
+              request_key: `quiz_${state.sessionId}_${quizId}`,
+            },
+          });
+        } catch {
+          // Optimistic already applied
+        }
       }
-    }
-  }, [state.sessionId, state.lessonId]);
+    },
+    [state.sessionId, state.lessonId],
+  );
 
   // ── Notes ──────────────────────────────────────────────────────────────
-  const saveCurrentNotes = useCallback(async (notes: string[], title?: string) => {
-    dispatch({ type: "SAVE_NOTES", payload: { notes, title } });
+  const saveCurrentNotes = useCallback(
+    async (notes: string[], title?: string) => {
+      dispatch({ type: "SAVE_NOTES", payload: { notes, title } });
 
-    if (state.sessionId && state.lessonId) {
+      if (state.sessionId && state.lessonId) {
+        try {
+          await saveNotes({
+            data: {
+              session_id: state.sessionId,
+              lesson_id: state.lessonId,
+              title: title ?? "Session Notes",
+              body: notes.join("\n"),
+              notes_json: notes,
+              source_type: "manual",
+            },
+          });
+        } catch {
+          // Optimistic already applied
+        }
+      }
+    },
+    [state.sessionId, state.lessonId],
+  );
+
+  const saveBoardNotes = useCallback(
+    async (lines: string[], description: string, title?: string) => {
+      if (!state.sessionId) return;
+      dispatch({ type: "UPDATE_BOARD", payload: { items: lines, description } });
+
       try {
-        await saveNotes({
+        await saveBoardNotesV2({
           data: {
             session_id: state.sessionId,
-            lesson_id: state.lessonId,
-            title: title ?? "Session Notes",
-            body: notes.join("\n"),
-            notes_json: notes,
-            source_type: "manual",
+            whiteboardContent: lines,
+            description,
+            title: title ?? "Board Notes",
           },
         });
       } catch {
         // Optimistic already applied
       }
-    }
-  }, [state.sessionId, state.lessonId]);
-
-  const saveBoardNotes = useCallback(async (lines: string[], description: string, title?: string) => {
-    if (!state.sessionId) return;
-    dispatch({ type: "UPDATE_BOARD", payload: { items: lines, description } });
-
-    try {
-      await saveBoardNotesV2({
-        data: {
-          session_id: state.sessionId,
-          whiteboardContent: lines,
-          description,
-          title: title ?? "Board Notes",
-        },
-      });
-    } catch {
-      // Optimistic already applied
-    }
-  }, [state.sessionId]);
+    },
+    [state.sessionId],
+  );
 
   // ── Access ─────────────────────────────────────────────────────────────
-  const updateAccess = useCallback(async (changes: Partial<LearnerAccessProfile>) => {
-    dispatch({ type: "UPDATE_ACCESS", payload: changes });
+  const updateAccess = useCallback(
+    async (changes: Partial<LearnerAccessProfile>) => {
+      dispatch({ type: "UPDATE_ACCESS", payload: changes });
 
-    try {
-      await updateAccessProfileV2({
-        data: {
-          session_id: state.sessionId ?? undefined,
-          ...changes,
-        },
-      });
-    } catch {
-      // Optimistic already applied
-    }
-  }, [state.sessionId]);
+      try {
+        await updateAccessProfileV2({
+          data: {
+            session_id: state.sessionId ?? undefined,
+            ...changes,
+          },
+        });
+      } catch {
+        // Optimistic already applied
+      }
+    },
+    [state.sessionId],
+  );
 
   const toggleFocusMode = useCallback(() => {
     dispatch({ type: "TOGGLE_FOCUS_MODE" });

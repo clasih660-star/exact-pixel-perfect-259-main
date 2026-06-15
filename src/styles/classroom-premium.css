@@ -16,7 +16,7 @@
 }
 .vc-lesson-plan-item-jumpable { cursor: pointer; }
 .vc-lesson-plan-item-jumpable:hover {
-  background: rgba(59, 130, 246, 0.16);
+  background: rgba(31, 124, 128, 0.16);
   color: #a3d9d8;
   transform: translateX(2px);
 }
@@ -230,8 +230,8 @@
   min-height: 38px;
 }
 .vc-control-btn:hover {
-  background: rgba(59, 130, 246, 0.16);
-  border-color: rgba(59, 130, 246, 0.40);
+  background: rgba(31, 124, 128, 0.18);
+  border-color: rgba(31, 124, 128, 0.42);
   color: #ffffff;
 }
 .vc-control-btn:focus-visible {
@@ -239,8 +239,8 @@
   outline-offset: 2px;
 }
 .vc-control-btn-active {
-  background: rgba(59, 130, 246, 0.20);
-  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(31, 124, 128, 0.22);
+  border-color: rgba(31, 124, 128, 0.58);
   color: #a3d9d8;
 }
 .vc-control-btn-primary {
@@ -501,17 +501,18 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --kl-bg: #f8fafc;
-  --kl-surface: #ffffff;
-  --kl-border: #e2e8f0;
-  --kl-navy: #0f172a;
-  --kl-slate: #475569;
-  --kl-muted: #64748b;
-  --kl-primary: #1F7C80;
-  --kl-primary-soft: #e8f5f5;
-  --kl-green: #16a34a;
-  --kl-amber: #d97706;
-  --kl-danger: #ef4444;
+  /* Map --kl-* tokens to canonical palette in styles.css */
+  --kl-bg: var(--background);
+  --kl-surface: var(--card);
+  --kl-border: var(--border);
+  --kl-navy: var(--navy);
+  --kl-slate: var(--gray-600);
+  --kl-muted: var(--muted-foreground);
+  --kl-primary: var(--primary);
+  --kl-primary-soft: var(--primary-light);
+  --kl-green: var(--success);
+  --kl-amber: var(--warning);
+  --kl-danger: var(--destructive);
 }
 
 /* ── Top bar ─────────────────────────────────────────────────────────────── */
@@ -863,6 +864,13 @@
   line-height: 1.6;
   font-weight: 500;
   word-break: break-word;
+}
+/* Teacher aside — natural aside between scripted steps */
+.vc-caption-aside {
+  border-left: 3px solid #f59e0b;
+  padding-left: 10px;
+  font-style: italic;
+  color: #fde68a;
 }
 .vc-caption-footer { background: #0b1220; border-top-color: rgba(255,255,255,0.08); }
 
@@ -1579,10 +1587,9 @@
 
 /* Cleaner classroom media and compact control dock */
 .vc-teacher-frame-inner {
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.95), rgba(219,234,254,0.4) 42%, transparent 72%),
-    linear-gradient(180deg, #e8f5f5 0%, #d1eceb 100%) !important;
+  background: linear-gradient(180deg, #e8f5f5 0%, #d1eceb 100%) !important;
   overflow: hidden;
+  position: relative;
 }
 
 .vc-teacher-image-real {
@@ -1590,6 +1597,8 @@
   height: 100% !important;
   object-fit: cover !important;
   object-position: center top !important;
+  position: relative;
+  z-index: 1;
 }
 
 .vc-voice-loading::after,
@@ -1597,14 +1606,14 @@
 .vc-voice-fallback::after {
   content: "";
   position: absolute;
-  inset: 7px;
+  inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  border: 2px solid rgba(31, 124, 128, 0.28);
+  border: none;
 }
 
 .vc-voice-playing::after {
-  animation: vc-speaking-pulse 1.5s ease-in-out infinite;
+  animation: none;
 }
 
 .vc-teacher-fallback-badge {
@@ -1923,6 +1932,221 @@
   color: #fff;
 }
 
+/* Final classroom control-state guard.
+   Some compact control rules intentionally reset the base `.vc-ctl` button to a
+   white surface.  These higher-specificity selectors keep the primary lesson
+   action and the session end action from becoming white-on-white in the bottom
+   dock. */
+.vc-controls .vc-ctl.vc-ctl-primary {
+  background: var(--kl-primary) !important;
+  border-color: var(--kl-primary) !important;
+  color: #fff !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-primary svg,
+.vc-controls .vc-ctl.vc-ctl-primary span {
+  color: #fff !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-primary:hover {
+  background: #1A5256 !important;
+  border-color: #1A5256 !important;
+  color: #fff !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-end {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-end svg,
+.vc-controls .vc-ctl.vc-ctl-end span {
+  color: #fff !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-end:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #fff !important;
+}
+
+/* Premium classroom finish — Synthesia/Qodeca-inspired depth, glass and motion. */
+.vc-root {
+  position: relative;
+  isolation: isolate;
+  color: #102124;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(163, 217, 216, 0.48), transparent 28%),
+    radial-gradient(circle at 88% 6%, rgba(199, 210, 254, 0.36), transparent 26%),
+    linear-gradient(135deg, #f8fcfc 0%, #eef8f7 46%, #f7fbff 100%);
+}
+
+.vc-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(rgba(31, 124, 128, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 124, 128, 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 76%);
+}
+
+.vc-root::after {
+  content: "";
+  position: absolute;
+  inset: 70px 18px 18px;
+  z-index: -1;
+  border-radius: 34px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.18));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  pointer-events: none;
+}
+
+.vc-top-bar {
+  margin: 12px 14px 0;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 22px 70px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(22px) saturate(1.25);
+}
+
+.vc-top-bar-brand,
+.vc-top-pill-btn,
+.vc-live-pill,
+.vc-clock {
+  border-radius: 999px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.vc-live-pill {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #fff;
+  border: 0;
+}
+
+.vc-top-bar-progress-bar {
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.08);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.09);
+}
+
+.vc-top-bar-progress-fill {
+  background: linear-gradient(90deg, #14b8a6, #22d3ee, #818cf8);
+  box-shadow: 0 0 22px rgba(20, 184, 166, 0.46);
+}
+
+.vc-main {
+  gap: 16px;
+  padding: 14px;
+}
+
+.vc-teacher-panel,
+.vc-whiteboard,
+.vc-caption-bar-inner,
+.vc-controls {
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(1.18);
+}
+
+.vc-teacher-panel,
+.vc-whiteboard {
+  border-radius: 30px;
+}
+
+.vc-panel-header,
+.vc-whiteboard-header {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.42));
+}
+
+.vc-panel-header-status {
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  background: rgba(204, 251, 241, 0.55);
+  box-shadow: 0 10px 24px rgba(20, 184, 166, 0.10);
+}
+
+.vc-board-stage {
+  border-radius: 0 0 30px 30px;
+  background:
+    radial-gradient(circle at 20% 14%, rgba(20, 184, 166, 0.08), transparent 24%),
+    linear-gradient(180deg, #ffffff, #f8fbfb);
+}
+
+.vc-whiteboard-content {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.vc-board-tool-btn,
+.vc-ctl {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.vc-board-tool-btn:hover,
+.vc-ctl:hover,
+.vc-top-pill-btn:hover {
+  transform: translateY(-1px);
+}
+
+.vc-controls {
+  margin: 0 14px 12px;
+  border-radius: 26px;
+}
+
+.vc-controls .vc-ctl {
+  border-color: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.07);
+}
+
+.vc-controls .vc-ctl:hover {
+  border-color: rgba(31, 124, 128, 0.26);
+  background: #ffffff;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
+}
+
+.vc-controls .vc-ctl.vc-ctl-primary {
+  background: linear-gradient(135deg, #26a0a5, #1f7c80, #123d40) !important;
+  border-color: rgba(31, 124, 128, 0.35) !important;
+  box-shadow: 0 18px 42px rgba(31, 124, 128, 0.26) !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-end {
+  background: linear-gradient(135deg, #fb7185, #ef4444, #b91c1c) !important;
+  border-color: rgba(239, 68, 68, 0.38) !important;
+  box-shadow: 0 18px 42px rgba(239, 68, 68, 0.20) !important;
+}
+
+.vc-caption-badge {
+  background: linear-gradient(135deg, #ecfeff, #f0fdfa);
+  color: #0f766e;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vc-teacher-panel,
+  .vc-whiteboard,
+  .vc-caption-bar,
+  .vc-controls {
+    animation: vc-premium-enter 540ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  }
+
+  .vc-whiteboard { animation-delay: 70ms; }
+  .vc-caption-bar { animation-delay: 120ms; }
+  .vc-controls { animation-delay: 160ms; }
+}
+
+@keyframes vc-premium-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (max-width: 980px) {
   .vc-root {
     height: auto;
@@ -1938,5 +2162,690 @@
 
   .vc-controls {
     max-height: none;
+  }
+}
+
+/* Final classroom quality pass — calm academic premium palette, no flashy color
+   drift. Captions remain hidden unless enabled by the learner or accessibility
+   mode; this layer only refines visible classroom chrome. */
+:root {
+  /* Map --vc-* tokens to canonical palette in styles.css */
+  --vc-ink: var(--foreground);
+  --vc-muted: var(--muted-foreground);
+  --vc-border: var(--border);
+  --vc-border-strong: #C9D9E2;
+  --vc-surface: var(--card);
+  --vc-soft: #F7FAFA;
+  --vc-soft-2: #EEF6F5;
+  --vc-primary: var(--primary);
+  --vc-primary-dark: var(--primary-dark);
+  --vc-academic-blue: #1D3E5C;
+}
+
+.vc-root {
+  color: var(--vc-ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(191, 229, 226, 0.48), transparent 28%),
+    radial-gradient(circle at 88% 4%, rgba(216, 228, 242, 0.5), transparent 28%),
+    linear-gradient(135deg, #f8fbfc 0%, #f7faf9 52%, #f4f8f7 100%);
+}
+
+.vc-root::before {
+  opacity: 0.45;
+  background-size: 52px 52px;
+  background-image:
+    linear-gradient(rgba(29, 62, 92, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 62, 92, 0.026) 1px, transparent 1px);
+}
+
+.vc-root::after {
+  display: none;
+}
+
+.vc-top-bar {
+  height: 58px;
+  margin: 10px 12px 0;
+  border: 1px solid var(--vc-border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+  backdrop-filter: blur(16px);
+}
+
+.vc-top-bar-brand,
+.vc-top-pill-btn,
+.vc-live-pill,
+.vc-clock {
+  box-shadow: none;
+}
+
+.vc-top-bar-logo,
+.vc-panel-header-title,
+.vc-whiteboard-label,
+.vc-current-goal-label,
+.vc-learning-title {
+  color: var(--vc-ink);
+}
+
+.vc-live-pill {
+  background: #F0FAF8;
+  color: #0F766E;
+  border: 1px solid #BFE5E2;
+}
+
+.vc-live-dot {
+  background: #0F766E;
+}
+
+.vc-top-bar-progress-fill,
+.vc-drawer-progress-track span,
+.vc-progress-trackfill {
+  background: var(--vc-primary);
+  box-shadow: none;
+}
+
+.vc-main {
+  gap: 14px;
+  padding: 12px;
+}
+
+.vc-teacher-panel,
+.vc-whiteboard,
+.vc-caption-bar-inner,
+.vc-controls,
+.vc-learning-drawer {
+  border-color: var(--vc-border);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+  backdrop-filter: blur(12px);
+}
+
+.vc-teacher-panel,
+.vc-whiteboard {
+  border-radius: 22px;
+}
+
+.vc-panel-header,
+.vc-whiteboard-header {
+  background: rgba(255, 255, 255, 0.82);
+  border-bottom-color: var(--vc-border);
+}
+
+.vc-panel-header-status,
+.vc-teacher-live-status,
+.vc-mini-card-on,
+.vc-lesson-plan-item-current,
+.vc-current-goal,
+.vc-learning-action,
+.vc-addnote-btn {
+  border-color: #BFE5E2;
+  background: var(--vc-soft-2);
+  color: var(--vc-primary-dark);
+  box-shadow: none;
+}
+
+.vc-teacher-frame-inner {
+  border: 1px solid var(--vc-border) !important;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.94), rgba(232,245,245,0.72) 42%, transparent 72%),
+    linear-gradient(180deg, #F3FAFA 0%, #E8F5F5 100%) !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.09);
+}
+
+.vc-speaking-ring-active {
+  box-shadow: 0 0 0 4px rgba(31, 124, 128, 0.12), 0 0 0 8px rgba(31, 124, 128, 0.055);
+}
+
+.vc-board-stage {
+  border-radius: 0 0 22px 22px;
+  background: linear-gradient(180deg, #ffffff, #f8fbfc);
+}
+
+.vc-whiteboard-content {
+  border-radius: 0;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.035);
+}
+
+.vc-board-toolstrip {
+  background: #F7FAFA;
+  border-right-color: var(--vc-border);
+}
+
+.vc-board-tool-active,
+.vc-learning-tab.is-active,
+.vc-seg-btn.is-on,
+.vc-settings-done {
+  background: var(--vc-primary);
+  border-color: var(--vc-primary);
+  color: #fff;
+  box-shadow: none;
+}
+
+.vc-board-tool-btn,
+.vc-top-pill-btn,
+.vc-ctl,
+.vc-quick-help-btn,
+.vc-learning-action {
+  border-color: var(--vc-border);
+  background: #fff;
+  color: #405569;
+  box-shadow: none;
+}
+
+.vc-board-tool-btn:hover,
+.vc-top-pill-btn:hover,
+.vc-ctl:hover,
+.vc-quick-help-btn:hover,
+.vc-learning-action:hover {
+  transform: translateY(-1px);
+  border-color: var(--vc-border-strong);
+  background: #F8FBFC;
+  color: var(--vc-primary-dark);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.055);
+}
+
+.vc-controls {
+  margin: 0 12px 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.vc-controls .vc-ctl {
+  min-height: 42px;
+  border-color: var(--vc-border);
+  background: #fff;
+  box-shadow: none;
+}
+
+.vc-controls .vc-ctl:hover {
+  border-color: var(--vc-border-strong);
+  background: #F8FBFC;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.055);
+}
+
+.vc-controls .vc-ctl.vc-ctl-primary {
+  background: var(--vc-academic-blue) !important;
+  border-color: var(--vc-academic-blue) !important;
+  box-shadow: 0 10px 22px rgba(29, 62, 92, 0.18) !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-primary:hover {
+  background: #17324A !important;
+  border-color: #17324A !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-end {
+  background: #C94A4A !important;
+  border-color: #C94A4A !important;
+  box-shadow: 0 10px 22px rgba(201, 74, 74, 0.16) !important;
+}
+
+.vc-controls .vc-ctl.vc-ctl-end:hover {
+  background: #B63E3E !important;
+  border-color: #B63E3E !important;
+}
+
+.vc-caption-bar {
+  border-color: var(--vc-border);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+}
+
+.vc-caption-bar-inner {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.vc-caption-badge {
+  background: #EEF6F5;
+  color: var(--vc-primary-dark);
+}
+
+.vc-caption-text {
+  color: var(--vc-ink);
+}
+
+.vc-caption-footer {
+  background: #F7FAFA;
+  color: var(--vc-muted);
+  border-top-color: var(--vc-border);
+}
+
+.vc-caption-footer-label {
+  color: var(--vc-ink);
+}
+
+.vc-caption-footer-link {
+  color: var(--vc-primary);
+}
+
+.vc-board-line-text,
+.vc-handwriting-text,
+.vc-board-note-hand {
+  color: #1B2F3A;
+}
+
+.vc-board-note-explain {
+  color: var(--vc-primary-dark);
+}
+
+.vc-board-note-answer {
+  color: #15735B;
+}
+
+.vc-board-note-warning {
+  color: #9A5A15;
+}
+
+.vc-learning-drawer,
+.vc-subject-visual,
+.vc-notes-panel {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+}
+
+.vc-learning-drawer-tabs {
+  background: #F7FAFA;
+  border-bottom-color: var(--vc-border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vc-teacher-panel,
+  .vc-whiteboard,
+  .vc-caption-bar,
+  .vc-controls {
+    animation-duration: 320ms;
+  }
+}
+
+/* Final portrait visibility guard: teacher images are portraits, not cover art.
+   Keep the full person visible inside the media tile while preserving video-cover
+   behaviour for future live teacher feeds. */
+.vc-teacher-frame-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.vc-teacher-frame-inner img.vc-teacher-image-real {
+  box-sizing: border-box;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  padding: 8px 8px 0;
+}
+
+.vc-teacher-frame-inner video.vc-teacher-image-real {
+  object-fit: cover !important;
+  object-position: center center !important;
+  padding: 0;
+}
+
+/* =============================================================================
+   FINAL CLASSROOM FIXES — completion overlay, cleaner sidebar outline, and
+   reliable full teacher portrait visibility.
+   ============================================================================= */
+
+/* Completion should never sit inside the flex layout and stretch/distort the
+   classroom. Render it as a contained floating dialog over the board. */
+.vc-completion-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px) saturate(1.05);
+  -webkit-backdrop-filter: blur(8px) saturate(1.05);
+}
+
+.vc-completion-card {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(760px, calc(100dvh - 48px));
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(191, 229, 226, 0.42), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.28);
+  padding: 26px;
+  color: var(--vc-ink, #10212B);
+}
+
+.vc-completion-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #EEF6F5;
+  color: #1F7C80;
+  box-shadow: inset 0 0 0 1px #BFE5E2;
+}
+
+.vc-completion-title {
+  text-align: center;
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  font-weight: 850;
+  line-height: 1.15;
+  color: #10212B;
+}
+
+.vc-completion-subtitle {
+  margin-top: 6px;
+  text-align: center;
+  color: #61758A;
+  font-weight: 650;
+}
+
+.vc-completion-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.vc-completion-stat {
+  min-width: 0;
+  border-radius: 16px;
+  background: #F7FAFA;
+  border: 1px solid #DDE8EE;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.vc-completion-stat-value {
+  color: #10212B;
+  font-size: 1.25rem;
+  font-weight: 850;
+}
+
+.vc-completion-stat-label {
+  margin-top: 4px;
+  color: #61758A;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vc-completion-evidence {
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #DDE8EE;
+  padding: 16px;
+}
+
+.vc-completion-evidence-title {
+  font-weight: 850;
+  color: #10212B;
+  margin-bottom: 10px;
+}
+
+.vc-completion-evidence-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.vc-completion-evidence-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 12px;
+  background: #F7FAFA;
+  padding: 9px 12px;
+  color: #526779;
+  font-size: 0.88rem;
+}
+
+.vc-completion-evidence-list strong {
+  color: #10212B;
+  white-space: nowrap;
+}
+
+.vc-completion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.vc-completion-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  border: 1px solid #DDE8EE;
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.vc-completion-btn-primary {
+  background: #1F7C80;
+  border-color: #1F7C80;
+  color: #ffffff;
+}
+
+.vc-completion-btn-primary:hover {
+  background: #1A686B;
+  border-color: #1A686B;
+}
+
+.vc-completion-btn-secondary {
+  background: #ffffff;
+  color: #405569;
+}
+
+.vc-completion-btn-secondary:hover {
+  background: #F7FAFA;
+  color: #1A686B;
+}
+
+/* Teacher panel/sidebar: calmer hierarchy, always useful, less crowded. */
+.vc-teacher-panel {
+  width: 286px;
+  min-width: 270px;
+  max-width: 306px;
+  padding-bottom: 12px;
+  gap: 0;
+}
+
+.vc-panel-header {
+  margin: 0 12px;
+  padding: 12px 0 10px;
+}
+
+.vc-teacher-identity {
+  padding-top: 10px;
+  padding-bottom: 8px;
+}
+
+.vc-outline {
+  margin: 8px 14px 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  border: 1px solid #DDE8EE;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.045);
+}
+
+.vc-outline-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  color: #61758A;
+}
+
+.vc-outline-course,
+.vc-outline-lesson {
+  min-height: 38px;
+  border-radius: 12px;
+  background: #F7FAFA;
+  border-color: #DDE8EE;
+}
+
+.vc-outline-lessons {
+  padding-left: 0;
+  margin-top: 6px;
+}
+
+.vc-outline-sections {
+  margin-top: 8px;
+  padding-left: 0;
+  gap: 3px;
+}
+
+.vc-outline-sections::before {
+  display: none;
+}
+
+.vc-outline-section {
+  min-height: 34px;
+  border-radius: 11px;
+  padding: 7px 9px;
+}
+
+.vc-outline-section:disabled {
+  opacity: 0.78;
+}
+
+.vc-outline-mark {
+  width: 18px;
+  height: 18px;
+}
+
+.vc-outline-compact .vc-outline-title::after {
+  content: "Current path";
+  font-size: 0.64rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #8AA0B1;
+}
+
+.vc-outline-compact .vc-outline-section:not(.is-current):not(.is-done) {
+  background: transparent;
+}
+
+/* Full portrait fix: reserve a taller tile, keep overlays outside the face, and
+   ensure the image cannot be covered by the speaking badge. */
+.vc-teacher-frame {
+  aspect-ratio: auto !important;
+  padding: 10px 14px 4px !important;
+  background: transparent !important;
+}
+
+.vc-teacher-frame-inner {
+  width: min(210px, 100%) !important;
+  height: 258px !important;
+  margin: 0 auto;
+  overflow: hidden !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  border-radius: 22px !important;
+}
+
+.vc-simple-view .vc-teacher-frame-inner {
+  width: min(198px, 100%) !important;
+  height: 244px !important;
+}
+
+.vc-teacher-frame-inner img.vc-teacher-image-real {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  padding: 8px 8px 0 !important;
+  z-index: 1;
+}
+
+.vc-teacher-frame-inner video.vc-teacher-image-real {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  padding: 0 !important;
+}
+
+.vc-teacher-badge,
+.vc-teacher-voice-indicator,
+.vc-teacher-fallback-badge {
+  z-index: 5;
+  max-width: calc(100% - 20px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: #1A686B !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+}
+
+.vc-teacher-badge {
+  top: 10px !important;
+  left: 10px !important;
+  right: auto !important;
+}
+
+.vc-teacher-voice-indicator {
+  top: auto !important;
+  right: 10px !important;
+  bottom: 10px !important;
+  left: auto !important;
+  opacity: 0;
+}
+
+.vc-teacher-voice-indicator-active {
+  opacity: 1;
+}
+
+.vc-speaking-ring {
+  inset: 4px !important;
+  border-radius: 20px !important;
+  z-index: 4;
+}
+
+@media (max-width: 980px) {
+  .vc-teacher-panel {
+    width: 100%;
+    max-width: none;
+  }
+
+  .vc-teacher-frame-inner,
+  .vc-simple-view .vc-teacher-frame-inner {
+    width: min(190px, 60vw) !important;
+    height: 230px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .vc-completion-card {
+    padding: 20px;
+  }
+
+  .vc-completion-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vc-completion-actions {
+    flex-direction: column;
+  }
+
+  .vc-completion-btn {
+    width: 100%;
   }
 }

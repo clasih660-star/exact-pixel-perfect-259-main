@@ -39,12 +39,7 @@ import {
   Zap,
 } from "lucide-react";
 
-export type DashboardRole =
-  | "learner"
-  | "teacher"
-  | "institution"
-  | "platform_admin"
-  | "parent";
+export type DashboardRole = "learner" | "teacher" | "institution" | "platform_admin" | "parent";
 
 export type SidebarItem = {
   label: string;

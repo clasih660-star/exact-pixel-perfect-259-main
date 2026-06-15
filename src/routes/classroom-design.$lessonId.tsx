@@ -26,6 +26,7 @@ import {
   EyeOff,
   Subtitles,
   Play,
+  Star,
 } from "lucide-react";
 import { getLesson, type Lesson } from "@/lib/lessons";
 import {
@@ -216,7 +217,7 @@ function ClassroomDesign() {
       setError("Voice input isn't supported in this browser. Type instead.");
       return;
     }
-    rec.onresult = (ev) => {
+    rec.onresult = (ev: any) => {
       const transcript = ev.results[0]?.[0]?.transcript ?? "";
       if (transcript) {
         setTeacherState("thinking");
@@ -481,7 +482,7 @@ function AIPanel({ teacherState, step }: { teacherState: TeacherState; step: str
           <span>CURRENT STEP</span>
           <span className="current-step-num">2/5</span>
         </div>
-        <div className="current-step-name">{STEP_LABELS[step]}</div>
+        <div className="current-step-name">{(STEP_LABELS as Record<string, string>)[step]}</div>
         <p className="current-step-desc">Working through the problem together</p>
       </div>
 

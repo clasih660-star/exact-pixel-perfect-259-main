@@ -54,7 +54,11 @@ export function StepsPanel({ classroomContext, onStepChange }: StepsPanelProps) 
                 <div className="flex-1 min-w-0 text-left">
                   <div
                     className={`text-sm font-medium ${
-                      isCurrent ? "text-[#0F172A]" : isCompleted ? "text-green-900" : "text-gray-700"
+                      isCurrent
+                        ? "text-[#0F172A]"
+                        : isCompleted
+                          ? "text-green-900"
+                          : "text-gray-700"
                     }`}
                   >
                     {stepData?.title || step}

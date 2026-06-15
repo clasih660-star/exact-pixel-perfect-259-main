@@ -37,21 +37,15 @@ export function RealtimeMetricCard({
             </div>
           )}
         </div>
-        {Icon && (
-          <Icon className="h-4 w-4 text-[#94A3B8]" />
-        )}
+        {Icon && <Icon className="h-4 w-4 text-[#94A3B8]" />}
       </div>
 
       <div className="flex items-baseline gap-1">
         <p className="text-2xl font-bold text-[#0F172A]">{value}</p>
-        {unit && (
-          <p className="text-xs font-semibold text-[#64748B]">{unit}</p>
-        )}
+        {unit && <p className="text-xs font-semibold text-[#64748B]">{unit}</p>}
       </div>
 
-      {subtitle && (
-        <p className="mt-1 text-xs text-[#64748B]">{subtitle}</p>
-      )}
+      {subtitle && <p className="mt-1 text-xs text-[#64748B]">{subtitle}</p>}
 
       {change && (
         <div className="mt-3 flex items-center gap-1">

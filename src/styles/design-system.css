@@ -3,37 +3,36 @@
    ============================================= */
 
 :root {
-  /* Stormy Jade palette — sophisticated teal institutional scheme */
-  --primary: #1F7C80;
-  --primary-light: #e8f5f5;
-  --primary-dark: #1A5256;
+  /* Colors reference the canonical palette in styles.css */
+  --primary-light: var(--primary-light);
+  --primary-dark: var(--primary-dark);
   --accent: #5F5B46;
   --accent-light: #f5f4f0;
-  --green: #059669;
-  --green-light: #ecfdf5;
-  --orange: #d97706;
-  --orange-light: #fffbeb;
-  --purple: #7c3aed;
-  --purple-light: #f5f3ff;
-  --yellow: #ca8a04;
-  --yellow-light: #fefce8;
-  --red: #dc2626;
-  --red-light: #fef2f2;
-  --success: #059669;
-  --warning: #d97706;
-  --error: #dc2626;
-  --gray-50: #fafafa;
-  --gray-100: #f4f4f5;
-  --gray-200: #e4e4e7;
-  --gray-300: #d4d4d8;
-  --gray-400: #A3ADAD;
-  --gray-500: #71717a;
-  --gray-600: #52525b;
-  --gray-700: #3f3f46;
-  --gray-800: #1A3233;
-  --gray-900: #1A3233;
+  --green: var(--green);
+  --green-light: var(--green-light);
+  --orange: var(--orange);
+  --orange-light: var(--orange-light);
+  --purple: var(--purple);
+  --purple-light: var(--purple-light);
+  --yellow: var(--yellow);
+  --yellow-light: var(--yellow-light);
+  --red: var(--red);
+  --red-light: var(--red-light);
+  --success: var(--success);
+  --warning: var(--warning);
+  --error: var(--error);
+  --gray-50: var(--gray-50);
+  --gray-100: var(--gray-100);
+  --gray-200: var(--gray-200);
+  --gray-300: var(--gray-300);
+  --gray-400: var(--gray-400);
+  --gray-500: var(--gray-500);
+  --gray-600: var(--gray-600);
+  --gray-700: var(--gray-700);
+  --gray-800: var(--gray-800);
+  --gray-900: var(--gray-900);
   --white: #ffffff;
-  --navy: #1A3233;
+  --navy: var(--navy);
   /* Premium shadows — softer, warmer */
   --shadow-sm: 0 1px 3px rgba(26,50,51,0.04), 0 1px 2px rgba(26,50,51,0.02);
   --shadow: 0 2px 8px rgba(26,50,51,0.06), 0 1px 3px rgba(26,50,51,0.04);

@@ -1,13 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import {
-  BookOpen,
-  Users,
-  Video,
-  AlertTriangle,
-  CheckCircle2,
-  Eye,
-} from "lucide-react";
+import { BookOpen, Users, Video, AlertTriangle, CheckCircle2, Eye } from "lucide-react";
 import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
@@ -209,13 +202,17 @@ export default function TeacherDashboard() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-xs font-semibold text-[#64748B]">Mode</p>
-                <p className="mt-1 text-base font-bold text-[#0F172A]">{mockUpcomingSession.mode}</p>
+                <p className="mt-1 text-base font-bold text-[#0F172A]">
+                  {mockUpcomingSession.mode}
+                </p>
               </div>
               <div>
                 <p className="text-xs font-semibold text-[#64748B]">Expected Students</p>
                 <div className="mt-1 flex items-center gap-2">
                   <OnlineStatusDot online={true} animate={false} />
-                  <p className="text-base font-bold text-[#0F172A]">{mockUpcomingSession.expectedStudents}</p>
+                  <p className="text-base font-bold text-[#0F172A]">
+                    {mockUpcomingSession.expectedStudents}
+                  </p>
                 </div>
               </div>
               <div>

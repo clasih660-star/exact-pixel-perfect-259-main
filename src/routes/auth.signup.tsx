@@ -10,7 +10,9 @@ export const Route = createFileRoute("/auth/signup")({
           <p className="text-sm text-[var(--gray-400)]">Coming soon</p>
         </div>
         <div className="text-center text-sm text-[var(--gray-500)]">
-          <Link to="/auth" className="text-[var(--primary)] hover:underline">Back to login</Link>
+          <Link to="/auth" className="text-[var(--primary)] hover:underline">
+            Back to login
+          </Link>
         </div>
       </div>
     </div>

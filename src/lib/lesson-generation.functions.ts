@@ -25,8 +25,17 @@ import { createResilientModelCaller } from "./ai-gateway.server";
 
 const TeachingItemSchema = z.object({
   type: z.enum([
-    "heading", "bullet", "equation", "calculation", "image", "diagram",
-    "question", "answer", "correction", "instruction", "concept",
+    "heading",
+    "bullet",
+    "equation",
+    "calculation",
+    "image",
+    "diagram",
+    "question",
+    "answer",
+    "correction",
+    "instruction",
+    "concept",
   ]),
   boardText: z.string().describe("Short board text. Bullets 5–26 words. Never long paragraphs."),
   exactSpokenText: z.string().describe("Verbatim text the teacher reads after writing."),
@@ -40,10 +49,20 @@ const TeachingItemSchema = z.object({
 const SectionSchema = z.object({
   title: z.string(),
   type: z.enum([
-    "welcome", "objective", "why_it_matters", "prerequisite_check", "concept",
-    "worked_example", "question_checkpoint", "required_middle_question",
-    "guided_practice", "independent_practice", "correction", "summary",
-    "exit_reflection", "homework",
+    "welcome",
+    "objective",
+    "why_it_matters",
+    "prerequisite_check",
+    "concept",
+    "worked_example",
+    "question_checkpoint",
+    "required_middle_question",
+    "guided_practice",
+    "independent_practice",
+    "correction",
+    "summary",
+    "exit_reflection",
+    "homework",
   ]),
   estimatedMinutes: z.number().int().min(1).max(20),
   teachingItems: z.array(TeachingItemSchema).min(1).max(12),
@@ -59,7 +78,10 @@ const LessonSchema = z.object({
 
 const BatchSchema = z.object({
   lessons: z.array(LessonSchema).min(1).max(20),
-  note: z.string().nullable().describe("If content was too limited for the requested count, explain here."),
+  note: z
+    .string()
+    .nullable()
+    .describe("If content was too limited for the requested count, explain here."),
 });
 
 type GeneratedBatch = z.infer<typeof BatchSchema>;
@@ -110,9 +132,13 @@ Return valid JSON matching the schema.`;
 
 // ── Deterministic fallback (no AI key) ────────────────────────────────────────
 
-function fallbackBatch(materialText: string, requestedCount: number, courseTitle: string): GeneratedBatch {
+function fallbackBatch(
+  materialText: string,
+  requestedCount: number,
+  courseTitle: string,
+): GeneratedBatch {
   const clean = materialText.replace(/\s+/g, " ").trim();
-  const sentences = clean.split(/(?<=[.!?])\s+/).filter((s) => s.length > 12);
+  const sentences = clean.split(/(?<=[.!?])\s+/).filter((s: any) => s.length > 12);
   const chunkSize = Math.max(1, Math.ceil(sentences.length / requestedCount));
   const lessons: GeneratedBatch["lessons"] = [];
 
@@ -147,7 +173,7 @@ function fallbackBatch(materialText: string, requestedCount: number, courseTitle
           title: "Concept",
           type: "concept",
           estimatedMinutes: 6,
-          teachingItems: concepts.map((c) => ({
+          teachingItems: concepts.map((c: any) => ({
             type: "bullet" as const,
             boardText: c.split(" ").slice(0, 18).join(" "),
             exactSpokenText: c,
@@ -210,7 +236,7 @@ function fallbackBatch(materialText: string, requestedCount: number, courseTitle
 export const generateLessonsForCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => InputSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     // Load course (RLS-scoped to the caller)
     const { data: course, error: cErr } = await context.supabase
       .from("courses")
@@ -229,8 +255,11 @@ export const generateLessonsForCourse = createServerFn({ method: "POST" })
         .eq("course_id", data.course_id)
         .eq("processing_status", "ready");
       if (materials?.length) {
-        sourceMaterialIds = materials.map((m) => m.id);
-        materialText = materials.map((m) => m.extracted_text ?? "").join("\n\n").trim();
+        sourceMaterialIds = materials.map((m: any) => m.id);
+        materialText = materials
+          .map((m: any) => m.extracted_text ?? "")
+          .join("\n\n")
+          .trim();
       }
     }
     if (!materialText) {

@@ -15,10 +15,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  useTeachingEngine,
-  type TeachingEngine,
-} from "@/hooks/useTeachingEngine";
+import { useTeachingEngine, type TeachingEngine } from "@/hooks/useTeachingEngine";
 import type { MathTeachingItem } from "@/lib/lesson-models";
 import {
   LESSON_TITLE,
@@ -76,9 +73,17 @@ const PHASE_LABELS: Record<string, { label: string; color: string; icon: typeof 
   reading: { label: "Reading", color: "bg-[#e8f5f5] text-[#1A5256]", icon: Volume2 },
   explaining: { label: "Explaining", color: "bg-cyan-100 text-cyan-700", icon: Lightbulb },
   warning: { label: "Common Mistake!", color: "bg-amber-100 text-amber-700", icon: AlertTriangle },
-  checking: { label: "Checking Understanding", color: "bg-green-100 text-green-700", icon: CheckCircle },
+  checking: {
+    label: "Checking Understanding",
+    color: "bg-green-100 text-green-700",
+    icon: CheckCircle,
+  },
   pausing: { label: "Pausing...", color: "bg-gray-100 text-gray-600", icon: Pause },
-  complete: { label: "Lesson Complete!", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle },
+  complete: {
+    label: "Lesson Complete!",
+    color: "bg-emerald-100 text-emerald-700",
+    icon: CheckCircle,
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -203,15 +208,9 @@ export function TeachingFlowUI({
             <h2 className="teaching-start-title">{lessonTitle}</h2>
             <p className="teaching-start-narrative">{openingNarrative}</p>
             <div className="teaching-start-meta">
-              <span className="teaching-start-meta-item">
-                {items.length} teaching steps
-              </span>
-              <span className="teaching-start-meta-item">
-                Interactive whiteboard
-              </span>
-              <span className="teaching-start-meta-item">
-                Full explanations
-              </span>
+              <span className="teaching-start-meta-item">{items.length} teaching steps</span>
+              <span className="teaching-start-meta-item">Interactive whiteboard</span>
+              <span className="teaching-start-meta-item">Full explanations</span>
             </div>
             <Button size="lg" className="teaching-start-btn" onClick={handleStart}>
               <Play className="mr-2 h-4 w-4" />
@@ -273,21 +272,18 @@ export function TeachingFlowUI({
             )}
             {engine.boardLines.map((line, idx) => {
               const isLatestLine =
-                idx === engine.boardLines.length - 1 &&
-                engine.currentPhase === "writing";
+                idx === engine.boardLines.length - 1 && engine.currentPhase === "writing";
               return (
                 <div
                   key={`board-line-${idx}`}
                   className={`teaching-board-line ${
                     isLatestLine ? "teaching-board-line-active" : ""
                   } ${
-                    engine.currentItem?.type === "answer" &&
-                    idx === engine.boardLines.length - 1
+                    engine.currentItem?.type === "answer" && idx === engine.boardLines.length - 1
                       ? "teaching-board-line-answer"
                       : ""
                   } ${
-                    engine.currentItem?.type === "equation" &&
-                    idx === engine.boardLines.length - 1
+                    engine.currentItem?.type === "equation" && idx === engine.boardLines.length - 1
                       ? "teaching-board-line-equation"
                       : ""
                   }`}
@@ -333,8 +329,7 @@ export function TeachingFlowUI({
                   </p>
                   {engine.currentItem.whyThisStepMatters && (
                     <p className="teaching-why-matters">
-                      <strong>Why this matters:</strong>{" "}
-                      {engine.currentItem.whyThisStepMatters}
+                      <strong>Why this matters:</strong> {engine.currentItem.whyThisStepMatters}
                     </p>
                   )}
                 </div>
@@ -349,9 +344,7 @@ export function TeachingFlowUI({
                 <AlertTriangle className="h-4 w-4" />
                 <span>Common Mistake</span>
               </div>
-              <p className="teaching-warning-text">
-                {engine.currentItem.commonMistake}
-              </p>
+              <p className="teaching-warning-text">{engine.currentItem.commonMistake}</p>
             </div>
           )}
 
@@ -371,12 +364,7 @@ export function TeachingFlowUI({
       {/* ── Controls ────────────────────────────────────────────────────── */}
       <div className="teaching-controls">
         <div className="teaching-controls-left">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => engine.pauseTeaching()}
-            title="Pause"
-          >
+          <Button variant="outline" size="sm" onClick={() => engine.pauseTeaching()} title="Pause">
             <Pause className="h-4 w-4" />
           </Button>
           <Button
@@ -405,16 +393,11 @@ export function TeachingFlowUI({
               onClick={() => engine.onUnderstandingChecked()}
               className="teaching-btn-understand"
             >
-              <CheckCircle className="mr-1 h-4 w-4" />
-              I understand, continue
+              <CheckCircle className="mr-1 h-4 w-4" />I understand, continue
             </Button>
           )}
           {engine.currentPhase === "warning" && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => engine.onWarningShown()}
-            >
+            <Button size="sm" variant="outline" onClick={() => engine.onWarningShown()}>
               <ChevronRight className="mr-1 h-4 w-4" />
               Got it, continue
             </Button>
@@ -440,12 +423,7 @@ export function TeachingFlowUI({
             <FileText className="h-4 w-4" />
             <span className="ml-1">Transcript</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleExportNotes}
-            title="Download notes"
-          >
+          <Button variant="ghost" size="sm" onClick={handleExportNotes} title="Download notes">
             <Download className="h-4 w-4" />
           </Button>
         </div>
@@ -456,18 +434,12 @@ export function TeachingFlowUI({
         <div className="teaching-notes-panel">
           <div className="teaching-notes-header">
             <h3>Learner Notes</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleExportNotes}
-            >
+            <Button variant="ghost" size="sm" onClick={handleExportNotes}>
               <Download className="h-4 w-4 mr-1" />
               Export
             </Button>
           </div>
-          <pre className="teaching-notes-content">
-            {engine.getLearnerNotesText(lessonTitle)}
-          </pre>
+          <pre className="teaching-notes-content">{engine.getLearnerNotesText(lessonTitle)}</pre>
         </div>
       )}
 
@@ -476,18 +448,12 @@ export function TeachingFlowUI({
         <div className="teaching-transcript-panel">
           <div className="teaching-transcript-header">
             <h3>Full Transcript</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleExportTranscript}
-            >
+            <Button variant="ghost" size="sm" onClick={handleExportTranscript}>
               <Download className="h-4 w-4 mr-1" />
               Export
             </Button>
           </div>
-          <pre className="teaching-transcript-content">
-            {engine.getTranscriptText()}
-          </pre>
+          <pre className="teaching-transcript-content">{engine.getTranscriptText()}</pre>
         </div>
       )}
 
@@ -505,10 +471,7 @@ export function TeachingFlowUI({
                 <Download className="mr-2 h-4 w-4" />
                 Download Notes
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => engine.resetTeaching()}
-              >
+              <Button variant="outline" onClick={() => engine.resetTeaching()}>
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Replay Lesson
               </Button>

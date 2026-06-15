@@ -31,11 +31,7 @@ function getDemoRole(): UserRole {
 async function fetchUserRole(userId: string): Promise<UserRole | null> {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { data } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
+    const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ((data as any)?.role as UserRole) ?? null;
   } catch {

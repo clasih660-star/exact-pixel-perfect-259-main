@@ -1,4 +1,3 @@
-
 /**
  * Route Guards for Klassruum
  *
@@ -27,11 +26,7 @@ type AuthContext = {
 async function getUserRole(userId: string): Promise<UserRole | null> {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ((data as any)?.role as UserRole) ?? null;
   } catch {
@@ -46,7 +41,7 @@ async function getUserRole(userId: string): Promise<UserRole | null> {
  */
 async function resolveRole(
   userId: string,
-  contextRole?: UserRole | null
+  contextRole?: UserRole | null,
 ): Promise<UserRole | null> {
   if (contextRole) return contextRole;
   return getUserRole(userId);
@@ -70,10 +65,7 @@ export async function requireAuth({ user }: AuthContext) {
  *
  * In demo mode, all role checks pass (the user can explore any dashboard).
  */
-export async function requireRole(
-  { user, role: contextRole }: AuthContext,
-  roles: UserRole[]
-) {
+export async function requireRole({ user, role: contextRole }: AuthContext, roles: UserRole[]) {
   // In demo mode, all role checks pass
   if (!isSupabaseConfigured() || import.meta.env.DEV) {
     return { role: contextRole ?? "student" };
@@ -168,9 +160,7 @@ export function roleDashboardPath(role?: UserRole | null): string {
  *
  * Accepts an optional `contextRole` to avoid a redundant DB call.
  */
-export async function redirectByRole(
-  { user, role: contextRole }: AuthContext
-) {
+export async function redirectByRole({ user, role: contextRole }: AuthContext) {
   if (!user) {
     if (!isSupabaseConfigured() || import.meta.env.DEV) return;
     throw redirect({ to: "/auth" });

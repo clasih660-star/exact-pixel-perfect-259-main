@@ -154,11 +154,13 @@ export function expandCommonAbbreviations(text: string) {
  * Handle large numbers, currency, percentages.
  */
 export function normalizeNumbers(text: string) {
-  return text
-    // Percentages: 50% → "50 percent"
-    .replace(/(\d+)%/g, "$1 percent")
-    // Dollars: $50 → "50 dollars"
-    .replace(/\$(\d+)/g, "$1 dollars")
-    // & → and
-    .replace(/&/g, " and ");
+  return (
+    text
+      // Percentages: 50% → "50 percent"
+      .replace(/(\d+)%/g, "$1 percent")
+      // Dollars: $50 → "50 dollars"
+      .replace(/\$(\d+)/g, "$1 dollars")
+      // & → and
+      .replace(/&/g, " and ")
+  );
 }

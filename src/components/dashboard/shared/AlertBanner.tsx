@@ -74,9 +74,7 @@ export function AlertBanner({
         <Icon className={`h-5 w-5 flex-shrink-0 ${cfg.iconColor}`} />
         <div className="flex-1">
           <h3 className={`font-bold ${cfg.title}`}>{title}</h3>
-          {description && (
-            <p className={`mt-1 text-sm ${cfg.description}`}>{description}</p>
-          )}
+          {description && <p className={`mt-1 text-sm ${cfg.description}`}>{description}</p>}
           {action && (
             <button
               onClick={action.onClick}

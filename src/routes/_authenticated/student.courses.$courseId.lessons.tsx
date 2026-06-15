@@ -45,13 +45,22 @@ function CourseLessons() {
   return (
     <StudentShell title="Course Lessons">
       <div className="kr-pcard mb-6 p-6">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--primary)]">Course</p>
-        <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">{COURSE_TITLE}</h2>
+        <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--primary)]">
+          Course
+        </p>
+        <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">
+          {COURSE_TITLE}
+        </h2>
         <div className="mt-4 flex items-center gap-4">
           <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[var(--gray-100)]">
-            <div className="h-full rounded-full bg-gradient-to-r from-[#1F7C80] to-[#1A5256]" style={{ width: `${pct}%` }} />
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#1F7C80] to-[#1A5256]"
+              style={{ width: `${pct}%` }}
+            />
           </div>
-          <span className="text-sm font-bold text-[var(--gray-700)]">{done}/{LESSONS.length} lessons · {pct}%</span>
+          <span className="text-sm font-bold text-[var(--gray-700)]">
+            {done}/{LESSONS.length} lessons · {pct}%
+          </span>
         </div>
       </div>
 
@@ -59,7 +68,8 @@ function CourseLessons() {
         {LESSONS.map((l) => {
           const meta = STATUS[l.status];
           const isLocked = l.status === "locked" || l.status === "upcoming";
-          const Icon = l.status === "completed" ? CheckCircle2 : l.status === "current" ? PlayCircle : Lock;
+          const Icon =
+            l.status === "completed" ? CheckCircle2 : l.status === "current" ? PlayCircle : Lock;
           return (
             <div
               key={l.index}
@@ -75,7 +85,10 @@ function CourseLessons() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-[var(--gray-400)]">Lesson {l.index}</span>
-                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: meta.bg, color: meta.color }}>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                    style={{ background: meta.bg, color: meta.color }}
+                  >
                     {meta.label}
                   </span>
                 </div>
@@ -87,22 +100,34 @@ function CourseLessons() {
 
               <div className="flex-shrink-0">
                 {l.status === "current" && (
-                  <Link to="/demo/ai-video" className="kr-btn-primary inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white">
+                  <Link
+                    to="/demo/ai-video"
+                    className="kr-btn-primary inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white"
+                  >
                     <PlayCircle className="h-4 w-4" /> Continue
                   </Link>
                 )}
                 {l.status === "completed" && (
                   <div className="flex gap-2">
-                    <Link to="/demo/ai-video" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]">
+                    <Link
+                      to="/demo/ai-video"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]"
+                    >
                       <RotateCcw className="h-3.5 w-3.5" /> Replay
                     </Link>
-                    <Link to="/student/notes" className="inline-flex items-center rounded-lg border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]">
+                    <Link
+                      to="/student/notes"
+                      className="inline-flex items-center rounded-lg border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]"
+                    >
                       Notes
                     </Link>
                   </div>
                 )}
                 {isLocked && (
-                  <span className="text-xs font-medium text-[var(--gray-400)]" title="Complete the current lesson first">
+                  <span
+                    className="text-xs font-medium text-[var(--gray-400)]"
+                    title="Complete the current lesson first"
+                  >
                     Complete Lesson {LESSONS.find((x) => x.status === "current")?.index} first
                   </span>
                 )}
@@ -113,7 +138,10 @@ function CourseLessons() {
       </div>
 
       <div className="mt-6">
-        <Link to="/student/courses" className="text-sm font-semibold text-[var(--primary)] hover:underline">
+        <Link
+          to="/student/courses"
+          className="text-sm font-semibold text-[var(--primary)] hover:underline"
+        >
           ← Back to my courses
         </Link>
         <span className="ml-2 text-xs text-[var(--gray-400)]">({courseId})</span>

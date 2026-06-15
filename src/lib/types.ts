@@ -1,6 +1,12 @@
 import { type ReactNode } from "react";
 
-export type UserRole = "platform_admin" | "institution_admin" | "owner" | "teacher" | "student" | "parent";
+export type UserRole =
+  | "platform_admin"
+  | "institution_admin"
+  | "owner"
+  | "teacher"
+  | "student"
+  | "parent";
 
 export type TeacherState =
   | "idle"
@@ -280,6 +286,8 @@ export type DashboardData = {
     status: string;
     duration: string;
     timestamp?: string;
+    subject?: string;
+    thumbnail?: string;
   }>;
   upcomingSessions?: Array<{
     id: string;
@@ -287,6 +295,7 @@ export type DashboardData = {
     courseTitle: string;
     time: string;
     date: string;
+    type?: string;
   }>;
 };
 
@@ -430,12 +439,7 @@ export type LearningMode =
  * Academic level — drives the teaching style the AI teacher adopts (vocabulary,
  * pacing, depth, amount of encouragement). Set per-learner or per-course.
  */
-export type AcademicLevel =
-  | "elementary"
-  | "secondary"
-  | "college"
-  | "tertiary"
-  | "adult";
+export type AcademicLevel = "elementary" | "secondary" | "college" | "tertiary" | "adult";
 
 /**
  * Structured response from the AI teacher when a learner asks a question.
@@ -486,7 +490,15 @@ export type WritingSpeed = "slow" | "normal" | "fast";
 
 export type BoardWriteItem = {
   id: string;
-  type: "heading" | "bullet" | "equation" | "calculation" | "question" | "answer" | "diagram_label" | "step_number";
+  type:
+    | "heading"
+    | "bullet"
+    | "equation"
+    | "calculation"
+    | "question"
+    | "answer"
+    | "diagram_label"
+    | "step_number";
   text: string;
   readExactly: boolean;
   explanation?: string;
@@ -877,3 +889,25 @@ export type UserPresence = {
 
 /** KingPin course source type */
 export type CourseSourceType = "institution" | "kingpin";
+
+/** Engagement prompt for inline classroom interactions */
+export type EngagementPrompt = {
+  kind:
+    | "recap"
+    | "thinking_pause"
+    | "middle_question"
+    | "confidence_check"
+    | "exit_reflection"
+    | "after_answer"
+    | "checkpoint"
+    | "idle";
+  title: string;
+  body?: string;
+  bodyList?: string[];
+  actions: { id: string; label: string; primary?: boolean }[];
+  feedback?: { tone: "correct" | "incorrect" | "neutral"; text: string };
+  allowTextReply?: boolean;
+};
+
+/** Chat turn re-export from teacher-types */
+export type ChatTurn = { role: "teacher" | "student"; text: string };

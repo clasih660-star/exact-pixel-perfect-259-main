@@ -45,15 +45,8 @@ interface QuizReviewPageProps {
   };
 }
 
-export function QuizReviewPage({
-  sessionId,
-  courseId,
-  lessonId,
-  quizData,
-}: QuizReviewPageProps) {
-  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(
-    new Set()
-  );
+export function QuizReviewPage({ sessionId, courseId, lessonId, quizData }: QuizReviewPageProps) {
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
 
   const defaultData = {
     title: "Quadratic Equations Quiz",
@@ -65,12 +58,7 @@ export function QuizReviewPage({
       {
         id: "1",
         question: "What is the standard form of a quadratic equation?",
-        options: [
-          "ax + b = 0",
-          "ax² + bx + c = 0",
-          "x² + y² = r²",
-          "y = mx + b",
-        ],
+        options: ["ax + b = 0", "ax² + bx + c = 0", "x² + y² = r²", "y = mx + b"],
         correctIndex: 1,
         studentAnswerIndex: 1,
         explanation: "The standard form includes the x² term with coefficient a.",
@@ -79,12 +67,7 @@ export function QuizReviewPage({
       {
         id: "2",
         question: "Factor x² - 5x + 6",
-        options: [
-          "(x-1)(x-6)",
-          "(x-2)(x-3)",
-          "(x+2)(x+3)",
-          "(x+1)(x+6)",
-        ],
+        options: ["(x-1)(x-6)", "(x-2)(x-3)", "(x+2)(x+3)", "(x+1)(x+6)"],
         correctIndex: 1,
         studentAnswerIndex: 1,
         explanation: "Find two numbers that multiply to 6 and add to -5: -2 and -3",
@@ -96,8 +79,7 @@ export function QuizReviewPage({
         options: ["1", "4", "9", "-3"],
         correctIndex: 2,
         studentAnswerIndex: 0,
-        explanation:
-          "Discriminant = b² - 4ac = (-4)² - 4(1)(3) = 16 - 12 = 4",
+        explanation: "Discriminant = b² - 4ac = (-4)² - 4(1)(3) = 16 - 12 = 4",
         difficulty: "hard",
       },
     ],
@@ -129,7 +111,7 @@ export function QuizReviewPage({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
-            to={`/classroom/session/${sessionId}`}
+            to={`/classroom/session/${sessionId}` as any}
             className="flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium"
           >
             <ArrowLeft size={18} />
@@ -147,9 +129,7 @@ export function QuizReviewPage({
           <CardContent className="pt-8 pb-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className={`text-4xl font-bold ${scoreColor} mb-2`}>
-                  {percentage}%
-                </div>
+                <div className={`text-4xl font-bold ${scoreColor} mb-2`}>{percentage}%</div>
                 <div className="text-sm text-gray-600">Score</div>
               </div>
               <div className="text-center">
@@ -159,15 +139,11 @@ export function QuizReviewPage({
                 <div className="text-sm text-gray-600">Points</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-green-600 mb-2">
-                  {data.totalQuestions}
-                </div>
+                <div className="text-4xl font-bold text-green-600 mb-2">{data.totalQuestions}</div>
                 <div className="text-sm text-gray-600">Questions</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-orange-600 mb-2">
-                  {data.timeSpent}m
-                </div>
+                <div className="text-4xl font-bold text-orange-600 mb-2">{data.timeSpent}m</div>
                 <div className="text-sm text-gray-600">Time Spent</div>
               </div>
             </div>
@@ -177,9 +153,7 @@ export function QuizReviewPage({
         {/* Performance by Difficulty */}
         <Card className="mb-8">
           <CardContent className="pt-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Performance by Difficulty
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Performance by Difficulty</h2>
             <div className="space-y-4">
               {[
                 {
@@ -204,10 +178,7 @@ export function QuizReviewPage({
                   ...data.performance.hard,
                 },
               ].map((perf, i) => (
-                <div
-                  key={i}
-                  className={`p-4 rounded-lg ${perf.color}`}
-                >
+                <div key={i} className={`p-4 rounded-lg ${perf.color}`}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{perf.icon}</span>
@@ -229,13 +200,10 @@ export function QuizReviewPage({
 
         {/* Question Review */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Question Review
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Question Review</h2>
           <div className="space-y-3">
             {data.questions.map((question, index) => {
-              const isCorrect =
-                question.studentAnswerIndex === question.correctIndex;
+              const isCorrect = question.studentAnswerIndex === question.correctIndex;
               const isExpanded = expandedQuestions.has(question.id);
 
               return (
@@ -251,12 +219,8 @@ export function QuizReviewPage({
                         <XCircle className="text-red-600 flex-shrink-0 mt-1" size={20} />
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900">
-                          Question {index + 1}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {question.question}
-                        </p>
+                        <h3 className="font-medium text-gray-900">Question {index + 1}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{question.question}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <span
                             className={`text-xs font-medium px-2 py-1 rounded ${
@@ -291,15 +255,11 @@ export function QuizReviewPage({
                   {isExpanded && (
                     <div className="p-4 border-t border-gray-200 bg-gray-50">
                       <div className="mb-4">
-                        <h4 className="font-medium text-gray-900 mb-3">
-                          Options
-                        </h4>
+                        <h4 className="font-medium text-gray-900 mb-3">Options</h4>
                         <div className="space-y-2">
                           {question.options.map((option, optIndex) => {
-                            const isStudentAnswer =
-                              optIndex === question.studentAnswerIndex;
-                            const isCorrectAnswer =
-                              optIndex === question.correctIndex;
+                            const isStudentAnswer = optIndex === question.studentAnswerIndex;
+                            const isCorrectAnswer = optIndex === question.correctIndex;
 
                             return (
                               <div
@@ -314,10 +274,16 @@ export function QuizReviewPage({
                               >
                                 <div className="flex items-start gap-3">
                                   {isCorrectAnswer && (
-                                    <CheckCircle2 className="text-green-600 flex-shrink-0 mt-0.5" size={18} />
+                                    <CheckCircle2
+                                      className="text-green-600 flex-shrink-0 mt-0.5"
+                                      size={18}
+                                    />
                                   )}
                                   {isStudentAnswer && !isCorrectAnswer && (
-                                    <XCircle className="text-red-600 flex-shrink-0 mt-0.5" size={18} />
+                                    <XCircle
+                                      className="text-red-600 flex-shrink-0 mt-0.5"
+                                      size={18}
+                                    />
                                   )}
                                   {!isCorrectAnswer && !isStudentAnswer && (
                                     <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5" />
@@ -334,12 +300,8 @@ export function QuizReviewPage({
                         <div className="flex gap-2">
                           <HelpCircle className="text-[#1F7C80] flex-shrink-0" size={18} />
                           <div>
-                            <h4 className="font-medium text-gray-900 text-sm">
-                              Explanation
-                            </h4>
-                            <p className="text-sm text-gray-700 mt-1">
-                              {question.explanation}
-                            </p>
+                            <h4 className="font-medium text-gray-900 text-sm">Explanation</h4>
+                            <p className="text-sm text-gray-700 mt-1">{question.explanation}</p>
                           </div>
                         </div>
                       </div>
@@ -353,14 +315,10 @@ export function QuizReviewPage({
 
         {/* Action Buttons */}
         <div className="flex items-center justify-center gap-4 mt-8 pb-8">
-          <Link to={`/classroom/${lessonId}`}>
-            <Button variant="outline">
-              Review Lesson
-            </Button>
+          <Link to={`/classroom/${lessonId}` as any}>
+            <Button variant="outline">Review Lesson</Button>
           </Link>
-          <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">
-            Retake Quiz
-          </Button>
+          <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">Retake Quiz</Button>
         </div>
       </main>
     </div>

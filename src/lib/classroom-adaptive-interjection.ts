@@ -27,15 +27,17 @@ const InputSchema = z.object({
     confusionScore: z.number(),
     confusedSections: z.array(z.string()),
     interventionType: z.enum(["recap", "thinking_pause", "encouragement", "none"]),
-    dominantSignal: z.enum([
-      "quick_action_confused",
-      "repeated_question",
-      "long_idle",
-      "multiple_hints",
-      "practice_wrong",
-      "raise_hand",
-      "sentiment_frustrated",
-    ]).nullable(),
+    dominantSignal: z
+      .enum([
+        "quick_action_confused",
+        "repeated_question",
+        "long_idle",
+        "multiple_hints",
+        "practice_wrong",
+        "raise_hand",
+        "sentiment_frustrated",
+      ])
+      .nullable(),
   }),
   context: z.object({
     lessonTitle: z.string(),
@@ -48,16 +50,8 @@ const InputSchema = z.object({
 
 const InterventionSchema = z.object({
   spokenText: z.string().max(300),
-  boardItem: z
-    .object({ type: z.string(), text: z.string() })
-    .optional(),
-  strategy: z.enum([
-    "recap",
-    "simplify",
-    "example",
-    "encourage",
-    "pause_and_ask",
-  ]),
+  boardItem: z.object({ type: z.string(), text: z.string() }).optional(),
+  strategy: z.enum(["recap", "simplify", "example", "encourage", "pause_and_ask"]),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

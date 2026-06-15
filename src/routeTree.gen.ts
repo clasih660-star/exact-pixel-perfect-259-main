@@ -50,6 +50,7 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-passw
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthCompleteProfileRouteImport } from './routes/auth.complete-profile'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
@@ -392,6 +393,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
 const AuthCompleteProfileRoute = AuthCompleteProfileRouteImport.update({
   id: '/complete-profile',
   path: '/complete-profile',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthenticatedDevRouteRoute = AuthenticatedDevRouteRouteImport.update({
@@ -1226,6 +1232,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -1404,6 +1411,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -1584,6 +1592,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/_authenticated/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -1764,6 +1773,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/dev'
+    | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -1942,6 +1952,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/dev'
+    | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -2121,6 +2132,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/_authenticated/dev'
+    | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -2603,6 +2615,13 @@ declare module '@tanstack/react-router' {
       path: '/complete-profile'
       fullPath: '/auth/complete-profile'
       preLoaderRoute: typeof AuthCompleteProfileRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_authenticated/dev': {
@@ -4340,6 +4359,7 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCompleteProfileRoute: typeof AuthCompleteProfileRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -4350,6 +4370,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthCompleteProfileRoute: AuthCompleteProfileRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,

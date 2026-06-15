@@ -9,8 +9,16 @@
  */
 
 import { buildDemoLessonContent } from "../classroom-content.demo";
-import { buildChemistryLessonContent, CHEMISTRY_LESSON_ID, CHEMISTRY_LESSON_TITLE } from "./chemistry-bonding";
-import { buildEnglishLessonContent, ENGLISH_LESSON_ID, ENGLISH_LESSON_TITLE } from "./english-parts-of-speech";
+import {
+  buildChemistryLessonContent,
+  CHEMISTRY_LESSON_ID,
+  CHEMISTRY_LESSON_TITLE,
+} from "./chemistry-bonding";
+import {
+  buildEnglishLessonContent,
+  ENGLISH_LESSON_ID,
+  ENGLISH_LESSON_TITLE,
+} from "./english-parts-of-speech";
 import type { ClassroomLessonContent } from "../classroom-content";
 
 export interface DemoLessonMeta {
@@ -36,7 +44,8 @@ export const DEMO_LESSON_LIST: DemoLessonMeta[] = [
     duration: "~15 min",
     icon: "📐",
     color: "bg-[#2563EB]",
-    description: "Learn to factor quadratic equations step by step — from identifying the equation to finding solutions.",
+    description:
+      "Learn to factor quadratic equations step by step — from identifying the equation to finding solutions.",
   },
   {
     id: CHEMISTRY_LESSON_ID,
@@ -47,7 +56,8 @@ export const DEMO_LESSON_LIST: DemoLessonMeta[] = [
     duration: "~15 min",
     icon: "🔬",
     color: "bg-[#7C3AED]",
-    description: "Explore how atoms bond through electron transfer (ionic) and electron sharing (covalent) with real-world examples.",
+    description:
+      "Explore how atoms bond through electron transfer (ionic) and electron sharing (covalent) with real-world examples.",
   },
   {
     id: ENGLISH_LESSON_ID,
@@ -58,7 +68,8 @@ export const DEMO_LESSON_LIST: DemoLessonMeta[] = [
     duration: "~12 min",
     icon: "📖",
     color: "bg-[#059669]",
-    description: "Master the three core parts of speech — nouns, verbs, and adjectives — with clear examples and practice.",
+    description:
+      "Master the three core parts of speech — nouns, verbs, and adjectives — with clear examples and practice.",
   },
 ];
 

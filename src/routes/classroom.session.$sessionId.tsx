@@ -36,19 +36,19 @@ function LoadingSkeleton() {
           <div className="mb-6 h-6 w-64 animate-pulse rounded bg-[var(--gray-200)]" />
           <div className="mb-6 h-20 w-full animate-pulse rounded-lg bg-[var(--gray-200)]" />
           <div className="space-y-4">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4].map((i: any) => (
               <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-[var(--gray-200)]" />
             ))}
           </div>
         </main>
         <aside className="w-[25%] min-w-[240px] border-l border-[var(--gray-200)] bg-white p-4">
           <div className="mb-4 flex gap-2">
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1, 2, 3, 4, 5].map((i: any) => (
               <div key={i} className="h-8 flex-1 animate-pulse rounded bg-[var(--gray-200)]" />
             ))}
           </div>
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map((i: any) => (
               <div key={i} className="h-16 w-full animate-pulse rounded-lg bg-[var(--gray-200)]" />
             ))}
           </div>
@@ -82,7 +82,8 @@ function ClassroomSessionRoute() {
           </div>
           <h2 className="mb-2 text-xl font-bold text-[var(--gray-900)]">Session not available</h2>
           <p className="mb-6 text-sm leading-relaxed text-[var(--gray-500)]">
-            This classroom session could not be found or may have ended. Return to your dashboard to continue learning.
+            This classroom session could not be found or may have ended. Return to your dashboard to
+            continue learning.
           </p>
           <div className="flex justify-center gap-3">
             <Button asChild>
@@ -96,7 +97,7 @@ function ClassroomSessionRoute() {
 
   return (
     <InteractiveClassroomPage
-      classroomContext={query.data}
+      classroomContext={query.data as any}
       sessionId={sessionId}
       onEndLesson={async () => {
         await endFn({ data: { session_id: sessionId } });

@@ -58,7 +58,7 @@ function Classroom() {
   // render. This avoids direct demo URLs showing only "Preparing your classroom"
   // during SSR and gives the page indexable, useful content immediately.
   const initialDemoContent = !UUID_RE.test(lessonId)
-    ? getDemoLessonContent(lessonId) ?? getDemoLessonContent("demo")
+    ? (getDemoLessonContent(lessonId) ?? getDemoLessonContent("demo"))
     : null;
 
   const [content, setContent] = useState<ClassroomLessonContent | null>(() => initialDemoContent);
@@ -126,10 +126,10 @@ function Classroom() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] text-[#0F172A]">
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground transition-colors duration-200">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[#E2E8F0] border-t-[#1F7C80]" />
-          <p className="text-sm text-[#64748B]">Preparing your classroom…</p>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-border border-t-primary" />
+          <p className="text-sm text-muted-foreground">Preparing your classroom…</p>
         </div>
       </div>
     );
@@ -137,15 +137,15 @@ function Classroom() {
 
   if (status === "error" || !content) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6 text-center text-[#0F172A]">
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center text-foreground transition-colors duration-200">
         <div>
           <h1 className="text-2xl font-semibold">Lesson not available</h1>
-          <p className="mt-2 max-w-md text-sm text-[#64748B]">
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
             This lesson has no published teaching content yet, or you don't have access to it.
           </p>
           <button
             onClick={() => navigate({ to: "/student/dashboard" })}
-            className="mt-6 inline-block rounded-lg bg-[#1F7C80] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1A5256]"
+            className="mt-6 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Back to dashboard
           </button>

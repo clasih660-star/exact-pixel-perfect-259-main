@@ -1,8 +1,8 @@
 /**
  * DashboardPage.tsx
  *
- * Production-grade dashboard that fetches real data from the backend,
- * falling back to demo data when no real data exists.
+ * Production-grade dashboard that fetches real data from the backend.
+ * Shows proper empty states and onboarding when no data exists.
  */
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -10,8 +10,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { CourseCard } from "@/components/dashboard/CourseCard";
 import { RecentSessionCard } from "@/components/dashboard/RecentSessionCard";
 import { useDashboard } from "@/hooks/useDashboard";
-import { DEMO_DASHBOARD_DATA } from "@/lib/demo-data";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   Users,
   BookOpen,
@@ -33,11 +32,6 @@ import {
 
 export function DashboardPage() {
   const { data, isLoading, error, refresh, isUsingDemoData } = useDashboard();
-  const navigate = useNavigate();
-
-  // Fallback to demo data structure for sections not yet populated by real data
-  const demo = DEMO_DASHBOARD_DATA;
-  const { upcomingSessions } = demo;
 
   if (isLoading) {
     return (
@@ -75,11 +69,37 @@ export function DashboardPage() {
   return (
     <AppShell>
       <div>
-        {/* Demo mode indicator */}
-        {isUsingDemoData && (
-          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 text-sm text-amber-700">
-            <Sparkles size={14} />
-            <span>Showing demo data. Start a lesson to see your real progress!</span>
+        {/* Error indicator */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between gap-2 text-sm text-red-700">
+            <span>Failed to load dashboard data. Please try again.</span>
+            <button onClick={refresh} className="text-xs font-medium text-red-800 underline">
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Empty state — no enrollments yet */}
+        {!error && isUsingDemoData && courses.length === 0 && (
+          <div className="mb-6 p-8 bg-gradient-to-br from-[#F0FDFA] to-white border border-[#A3D9D8] rounded-xl text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#1F7C80]/10">
+              <Sparkles size={28} className="text-[#1F7C80]" />
+            </div>
+            <h2 className="text-xl font-bold text-[#1A3233] mb-2">Welcome to Klassruum!</h2>
+            <p className="text-sm text-[#64748B] mb-6 max-w-md mx-auto">
+              You haven't enrolled in any courses yet. Browse available courses to start your
+              learning journey with AI-powered classrooms.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <Link to="/student/courses" className="btn btn-primary">
+                <BookOpen size={16} />
+                Browse Courses
+              </Link>
+              <button onClick={refresh} className="btn btn-ghost">
+                <RefreshCw size={14} />
+                Refresh
+              </button>
+            </div>
           </div>
         )}
 
@@ -98,10 +118,7 @@ export function DashboardPage() {
               <RefreshCw size={14} />
             </button>
             {continueLearning ? (
-              <Link
-                to="/student/classrooms"
-                className="btn btn-primary"
-              >
+              <Link to="/student/classrooms" className="btn btn-primary">
                 <Play size={16} />
                 Continue Learning
               </Link>
@@ -120,9 +137,7 @@ export function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Continue Learning</h2>
-                <p className="text-[#a3d9d8] mb-2">
-                  {continueLearning.courseTitle}
-                </p>
+                <p className="text-[#a3d9d8] mb-2">{continueLearning.courseTitle}</p>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1 text-sm text-[#a3d9d8]">
                     <span>Step: {continueLearning.currentStep}</span>
@@ -235,9 +250,11 @@ export function DashboardPage() {
             </div>
             <div className="classroom-list">
               {courses.length > 0 ? (
-                courses.slice(0, 4).map((course) => (
-                  <CourseCard key={course.id ?? Math.random()} course={course as any} />
-                ))
+                courses
+                  .slice(0, 4)
+                  .map((course) => (
+                    <CourseCard key={course.id ?? Math.random()} course={course as any} />
+                  ))
               ) : (
                 <div className="text-center py-8 text-gray-400">
                   <BookOpen size={32} className="mx-auto mb-2" />
@@ -274,24 +291,24 @@ export function DashboardPage() {
             </div>
             <MiniCalendar />
             <div className="upcoming-list">
-              {upcomingSessions?.slice(0, 3).map((session: any) => (
-                <div key={session.id} className="upcoming-item">
-                  <div
-                    className={`upcoming-icon ${
-                      session.type === "quiz"
-                        ? "bg-orange-100 text-orange-600"
-                        : "bg-[#d1eceb] text-[#1F7C80]"
-                    }`}
-                  >
-                    {session.type === "quiz" ? <Target size={16} /> : <Calendar size={16} />}
+              {recentSessions.length > 0 ? (
+                recentSessions.slice(0, 3).map((session) => (
+                  <div key={session.id} className="upcoming-item">
+                    <div className="upcoming-icon bg-[#d1eceb] text-[#1F7C80]">
+                      <Calendar size={16} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="upcoming-name">{session.lessonTitle}</div>
+                      <div className="upcoming-class">{session.courseTitle}</div>
+                    </div>
+                    <div className="upcoming-time">
+                      {session.startedAt ? new Date(session.startedAt).toLocaleDateString() : "—"}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="upcoming-name">{session.title}</div>
-                    <div className="upcoming-class">{session.courseTitle}</div>
-                  </div>
-                  <div className="upcoming-time">{session.time}</div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-400 text-sm">No upcoming sessions</div>
+              )}
             </div>
           </div>
         </div>
@@ -339,12 +356,46 @@ export function DashboardPage() {
               </Link>
             </div>
             <div className="achievements-row">
-              <AchievementCard icon="🎯" name="First Steps" sub="Complete your first lesson" earned={stats.completedLessons > 0} />
-              <AchievementCard icon="🔥" name="Week Warrior" sub="7-day learning streak" earned={false} />
-              <AchievementCard icon="💯" name="Perfect Score" sub="Score 100% on a quiz" earned={stats.avgQuizScore === 100} inProgress />
-              <AchievementCard icon="🏆" name="Quiz Master" sub="Complete 10 quizzes" earned={false} inProgress />
-              <AchievementCard icon="🧮" name="Math Whiz" sub="Complete all algebra lessons" earned={false} inProgress />
-              <AchievementCard icon="⚡" name="Quick Learner" sub="5 lessons in one day" earned={false} inProgress />
+              <AchievementCard
+                icon="🎯"
+                name="First Steps"
+                sub="Complete your first lesson"
+                earned={stats.completedLessons > 0}
+              />
+              <AchievementCard
+                icon="🔥"
+                name="Week Warrior"
+                sub="7-day learning streak"
+                earned={false}
+              />
+              <AchievementCard
+                icon="💯"
+                name="Perfect Score"
+                sub="Score 100% on a quiz"
+                earned={stats.avgQuizScore === 100}
+                inProgress
+              />
+              <AchievementCard
+                icon="🏆"
+                name="Quiz Master"
+                sub="Complete 10 quizzes"
+                earned={false}
+                inProgress
+              />
+              <AchievementCard
+                icon="🧮"
+                name="Math Whiz"
+                sub="Complete all algebra lessons"
+                earned={false}
+                inProgress
+              />
+              <AchievementCard
+                icon="⚡"
+                name="Quick Learner"
+                sub="5 lessons in one day"
+                earned={false}
+                inProgress
+              />
             </div>
           </div>
         </div>
@@ -353,7 +404,13 @@ export function DashboardPage() {
   );
 }
 
-function AchievementCard({ icon, name, sub, earned, inProgress }: {
+function AchievementCard({
+  icon,
+  name,
+  sub,
+  earned,
+  inProgress,
+}: {
   icon: string;
   name: string;
   sub: string;
@@ -365,7 +422,9 @@ function AchievementCard({ icon, name, sub, earned, inProgress }: {
       <span className="ach-icon">{icon}</span>
       <div className="ach-name">{name}</div>
       <div className="ach-sub">{sub}</div>
-      <div className={`ach-tag badge ${earned ? "badge-green" : inProgress ? "badge-orange" : "badge-blue"}`}>
+      <div
+        className={`ach-tag badge ${earned ? "badge-green" : inProgress ? "badge-orange" : "badge-blue"}`}
+      >
         {earned ? "Earned" : inProgress ? "In progress" : "Locked"}
       </div>
     </div>

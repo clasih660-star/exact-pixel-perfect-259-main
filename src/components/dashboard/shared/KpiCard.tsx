@@ -11,7 +11,15 @@ type Props = {
   trendUp?: boolean;
 };
 
-export function KpiCard({ title, value, subtitle, href, icon: Icon, trend, trendUp = true }: Props) {
+export function KpiCard({
+  title,
+  value,
+  subtitle,
+  href,
+  icon: Icon,
+  trend,
+  trendUp = true,
+}: Props) {
   return (
     <Link
       to={href}
@@ -27,11 +35,7 @@ export function KpiCard({ title, value, subtitle, href, icon: Icon, trend, trend
           <div className="mt-1 flex items-center gap-2">
             <p className="text-xs text-[#64748B]">{subtitle}</p>
             {trend && (
-              <span
-                className={`text-xs font-bold ${
-                  trendUp ? "text-green-600" : "text-red-500"
-                }`}
-              >
+              <span className={`text-xs font-bold ${trendUp ? "text-green-600" : "text-red-500"}`}>
                 {trendUp ? "↑" : "↓"} {trend}
               </span>
             )}

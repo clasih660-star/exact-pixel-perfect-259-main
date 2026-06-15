@@ -10,20 +10,25 @@
 
 /* ---- Dashboard CSS Variables ---- */
 :root {
-  --kr-primary: #1F7C80;
-  --kr-primary-dark: #1A5256;
-  --kr-blue-soft: #e8f5f5;
-  --kr-navy: #1A3233;
-  --kr-muted: #A3ADAD;
-  --kr-bg: #f8fafb;
-  --kr-surface: #ffffff;
-  --kr-border: #d1eceb;
-  --kr-success: #059669;
-  --kr-success-light: #ecfdf5;
-  --kr-warning: #d97706;
-  --kr-warning-light: #fffbeb;
-  --kr-error: #dc2626;
-  --kr-error-light: #fef2f2;
+  /* Map --kr-* tokens to canonical palette in styles.css */
+  --kr-primary: var(--primary);
+  --kr-primary-dark: var(--primary-dark);
+  --kr-blue-soft: var(--primary-light);
+  --kr-navy: var(--navy);
+  --kr-muted: var(--gray-400);
+  --kr-bg: var(--background);
+  --kr-surface: var(--card);
+  --kr-border: var(--border);
+  --kr-ease: cubic-bezier(.21, .8, .36, 1);
+  --kr-glass: rgba(255, 255, 255, 0.78);
+  --kr-glass-border: rgba(255, 255, 255, 0.72);
+  --kr-shadow-premium: 0 24px 70px rgba(15, 23, 42, 0.10);
+  --kr-success: var(--success);
+  --kr-success-light: var(--success-light);
+  --kr-warning: var(--warning);
+  --kr-warning-light: var(--warning-light);
+  --kr-error: var(--error);
+  --kr-error-light: var(--error-light);
   --kr-radius: 18px;
   --kr-radius-sm: 14px;
   --kr-radius-lg: 24px;
@@ -105,7 +110,7 @@
 .kr-nav-item.active {
   background: var(--kr-primary);
   color: white;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 8px rgba(31, 124, 128, 0.28);
 }
 
 .kr-nav-icon {
@@ -151,7 +156,7 @@
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: #dbeafe;
+  background: #e8f5f5;
   color: #1A5256;
   font-weight: 900;
   font-size: 14px;
@@ -198,7 +203,7 @@
 .kr-search input:focus {
   outline: none;
   border-color: var(--kr-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(31, 124, 128, 0.12);
 }
 
 .kr-search-icon {
@@ -290,7 +295,7 @@
 .kr-primary-button {
   background: var(--kr-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(31, 124, 128, 0.24);
 }
 
 .kr-primary-button:hover {
@@ -969,20 +974,23 @@
 /* Ambient, premium page background for every role dashboard */
 .kr-dashboard-shell {
   background:
-    radial-gradient(60% 50% at 100% 0%, rgba(31,124,128,.07), transparent 60%),
-    radial-gradient(45% 40% at 0% 100%, rgba(99,102,241,.06), transparent 60%),
-    #f6f9ff;
+    radial-gradient(60% 50% at 100% 0%, rgba(31,124,128,.10), transparent 62%),
+    radial-gradient(46% 42% at 0% 100%, rgba(99,102,241,.075), transparent 62%),
+    linear-gradient(180deg, #f8fbfc 0%, #f6f9ff 54%, #ffffff 100%);
+  position: relative;
 }
 .kr-dashboard-main {
-  background-image: radial-gradient(rgba(37, 99, 235, .05) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(31,124,128,.055) 1px, transparent 1px);
   background-size: 26px 26px;
 }
 
 /* Sidebar — frosted white with a hairline blue edge */
 .kr-sidebar {
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
-  border-right: 1px solid #e8eefb;
-  box-shadow: 1px 0 0 rgba(37,99,235,.04), 12px 0 40px rgba(15,23,42,.03);
+  background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(251,253,255,.78));
+  border-right: 1px solid rgba(255,255,255,.70);
+  box-shadow: 1px 0 0 rgba(37,99,235,.04), 18px 0 60px rgba(15,23,42,.06);
+  backdrop-filter: blur(22px) saturate(1.25);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
 }
 .kr-brand-mark {
   background: linear-gradient(135deg, #1A5256, #1F7C80);
@@ -999,7 +1007,11 @@
 .kr-kpi-card {
   position: relative;
   border-radius: 20px;
-  border-color: #e9eef9;
+  border-color: var(--kr-glass-border);
+  background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.78));
+  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 16px 44px rgba(31,124,128,.07);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
   overflow: hidden;
   transition: transform .22s var(--kr-ease), box-shadow .22s var(--kr-ease), border-color .22s ease;
 }
@@ -1009,7 +1021,7 @@
   background: linear-gradient(90deg, #3fa8ab, #6366f1);
   opacity: 0; transition: opacity .22s ease;
 }
-.kr-kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 44px rgba(37,99,235,.16); border-color: #cdddff; }
+.kr-kpi-card:hover { transform: translateY(-4px); box-shadow: 0 26px 64px rgba(31,124,128,.14); border-color: rgba(163,217,216,.92); }
 .kr-kpi-card:hover::before { opacity: 1; }
 .kr-kpi-icon {
   background: linear-gradient(135deg, #eff6ff, #dbeafe);
@@ -1026,11 +1038,25 @@
 /* Cards — softer radius, layered shadow, gentle hover */
 .kr-card {
   border-radius: 22px;
-  border-color: #e9eef9;
-  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 30px rgba(37,99,235,.05);
+  border-color: var(--kr-glass-border);
+  background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.80));
+  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 16px 44px rgba(31,124,128,.06);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
   transition: box-shadow .25s var(--kr-ease), transform .25s var(--kr-ease), border-color .25s ease;
 }
-.kr-card:hover { box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 22px 50px rgba(37,99,235,.10); }
+.kr-card:hover { border-color: rgba(163,217,216,.80); box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 26px 64px rgba(31,124,128,.11); }
+
+.kr-dashboard-header,
+.kr-institution-header {
+  background:
+    radial-gradient(circle at 82% 18%, rgba(163,217,216,.26), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.78));
+  border-color: var(--kr-glass-border);
+  box-shadow: var(--kr-shadow-premium);
+  backdrop-filter: blur(18px) saturate(1.16);
+  -webkit-backdrop-filter: blur(18px) saturate(1.16);
+}
 
 /* "Continue learning" hero — richer brand gradient + soft glow */
 .kr-continue-hero {
@@ -1049,6 +1075,30 @@
 }
 .kr-continue-hero.teacher { background: linear-gradient(135deg, #0f766e, #0ea5e9 55%, #38bdf8); }
 .kr-continue-hero.parent { background: linear-gradient(135deg, #6d28d9, #7c3aed 55%, #a78bfa); }
+
+.kr-continue-hero > * { position: relative; z-index: 1; }
+.kr-continue-hero h2 { color: #ffffff; }
+.kr-continue-hero p,
+.kr-continue-hero .kr-progress-block span { color: rgba(255,255,255,.80); }
+.kr-continue-hero .kr-eyebrow { color: #d8f7f4 !important; }
+.kr-continue-hero .kr-meta-grid span,
+.kr-continue-hero .kr-status-pill {
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.22);
+  color: #ffffff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.kr-continue-hero .kr-progress-track,
+.kr-continue-hero .kr-mini-progress { background: rgba(255,255,255,.22); }
+.kr-continue-hero .kr-progress-track div,
+.kr-continue-hero .kr-mini-progress div { background: #ffffff; }
+.kr-continue-hero .kr-secondary-button {
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.28);
+  color: #ffffff;
+}
+.kr-continue-hero .kr-secondary-button:hover { background: rgba(255,255,255,.22); }
 
 /* Primary / secondary dashboard buttons */
 .kr-primary-button {
@@ -1085,3 +1135,213 @@
   .kr-kpi-grid, .kr-kpi-grid.five, .kr-kpi-grid.six { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .kr-dashboard-grid { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 640px) {
+  .kr-kpi-grid,
+  .kr-kpi-grid.five,
+  .kr-kpi-grid.six { grid-template-columns: 1fr; }
+
+  .kr-card,
+  .kr-dashboard-header,
+  .kr-institution-header,
+  .kr-continue-hero { border-radius: 20px; }
+}
+
+/* =============================================================================
+   UNIFIED STAT STRIP SYSTEM
+   Shared responsive grid for all role-specific stat card rows across every
+   dashboard page. Replaces ad-hoc `grid-cols-3` / `grid-cols-4` Tailwind grids.
+   ============================================================================= */
+
+.kr-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* 3-up on most screens, 2-up on mobile */
+@media (max-width: 640px) {
+  .kr-stat-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Explicit column count helpers — usage: class="kr-stat-strip kr-stat-strip--3" */
+.kr-stat-strip--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kr-stat-strip--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kr-stat-strip--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .kr-stat-strip--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kr-stat-strip--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .kr-stat-strip--4,
+  .kr-stat-strip--3,
+  .kr-stat-strip--2 { grid-template-columns: 1fr 1fr; }
+}
+
+/* The individual stat card — premium surface, soft hover */
+.kr-stat-card-item {
+  background: #ffffff;
+  border: 1px solid var(--kr-border, #d1eceb);
+  border-radius: 18px;
+  padding: 16px 18px;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(31, 124, 128, 0.07);
+  transition: transform 0.2s var(--kr-ease, cubic-bezier(0.21, 0.8, 0.36, 1)),
+              box-shadow 0.2s var(--kr-ease, cubic-bezier(0.21, 0.8, 0.36, 1)),
+              border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kr-stat-card-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), transparent 50%);
+  pointer-events: none;
+}
+
+.kr-stat-card-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), 0 18px 44px rgba(31, 124, 128, 0.13);
+  border-color: rgba(163, 217, 216, 0.88);
+}
+
+/* Accent variants for special stat cards */
+.kr-stat-card-item--warning {
+  background: linear-gradient(135deg, #fffbeb, #fff);
+  border-color: #fde68a;
+}
+.kr-stat-card-item--success {
+  background: linear-gradient(135deg, #f0fdf4, #fff);
+  border-color: #bbf7d0;
+}
+.kr-stat-card-item--danger {
+  background: linear-gradient(135deg, #fef2f2, #fff);
+  border-color: #fecaca;
+}
+.kr-stat-card-item--brand {
+  background: linear-gradient(135deg, #e8f5f5, #fff);
+  border-color: #a3d9d8;
+}
+
+/* Stat values */
+.kr-stat-card-item .kr-stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.kr-stat-card-item .kr-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--kr-muted, #A3ADAD);
+  letter-spacing: 0.02em;
+}
+
+/* Table overflow wrapper — prevents horizontal scroll blowout on dense tables */
+.kr-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 18px;
+}
+
+/* Global overflow safety on dashboard main content area */
+.kr-dashboard-main {
+  overflow-x: hidden;
+}
+
+/* Premium empty state for lists/tables with no data */
+.kr-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+.kr-empty-state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #e8f5f5, #f8fbfc);
+  border: 1px solid #d1eceb;
+  box-shadow: 0 4px 14px rgba(31, 124, 128, 0.10);
+  margin-bottom: 4px;
+}
+
+.kr-empty-state h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--kr-navy, #1A3233);
+  margin: 0;
+}
+
+.kr-empty-state p {
+  font-size: 13px;
+  color: var(--kr-muted, #A3ADAD);
+  margin: 0;
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+/* Mobile-only card list alternative to tables */
+.kr-mobile-card-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .kr-hide-on-mobile {
+    display: none !important;
+  }
+  .kr-mobile-card-list {
+    display: grid;
+    gap: 12px;
+  }
+}
+
+/* Student/teacher profile row card (mobile table fallback) */
+.kr-person-card {
+  background: white;
+  border: 1px solid var(--kr-border, #d1eceb);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.kr-person-card:hover {
+  border-color: #a3d9d8;
+  box-shadow: 0 6px 20px rgba(31, 124, 128, 0.10);
+}
+.kr-person-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.kr-person-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.kr-person-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+

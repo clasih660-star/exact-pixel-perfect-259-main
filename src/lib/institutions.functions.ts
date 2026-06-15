@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getMyInstitutions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const { supabase, userId } = context;
     const { data: memberships, error } = await supabase
       .from("institution_members")
@@ -19,7 +19,7 @@ export const getMyInstitutions = createServerFn({ method: "GET" })
 export const getInstitutionOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { institution_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { supabase } = context;
     const [inst, classrooms, members, resources] = await Promise.all([
       supabase.from("institutions").select("*").eq("id", data.institution_id).single(),
@@ -39,14 +39,14 @@ export const getInstitutionOverview = createServerFn({ method: "GET" })
     if (inst.error) throw new Error(inst.error.message);
 
     const memberRows = members.data ?? [];
-    const teacherCount = memberRows.filter((m) => m.role === "teacher").length;
-    const studentCount = memberRows.filter((m) => m.role === "student").length;
+    const teacherCount = memberRows.filter((m: any) => m.role === "teacher").length;
+    const studentCount = memberRows.filter((m: any) => m.role === "student").length;
 
     return {
       institution: inst.data,
       stats: {
         classrooms: classrooms.count ?? 0,
-        active_classrooms: (classrooms.data ?? []).filter((c) => c.status === "active").length,
+        active_classrooms: (classrooms.data ?? []).filter((c: any) => c.status === "active").length,
         teachers: teacherCount,
         students: studentCount,
         resources: resources.count ?? 0,

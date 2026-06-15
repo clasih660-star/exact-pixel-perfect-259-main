@@ -36,10 +36,7 @@ export {
   selectVisibleMessages,
 } from "./classroom.reducer";
 
-export type {
-  ClassroomState,
-  ClassroomAction,
-} from "./classroom.reducer";
+export type { ClassroomState, ClassroomAction } from "./classroom.reducer";
 
 // Recommendations engine
 export {
@@ -48,10 +45,7 @@ export {
   generateAndStoreRecommendations,
 } from "./recommendations.engine";
 
-export type {
-  GeneratedRecommendation,
-  GeneratedSummary,
-} from "./recommendations.engine";
+export type { GeneratedRecommendation, GeneratedSummary } from "./recommendations.engine";
 
 // Analytics engine
 export {
@@ -61,10 +55,7 @@ export {
   markNotificationRead,
 } from "./analytics.engine";
 
-export type {
-  StudentAnalytics,
-  NotificationRule,
-} from "./analytics.engine";
+export type { StudentAnalytics, NotificationRule } from "./analytics.engine";
 
 // Payload types
 export type {

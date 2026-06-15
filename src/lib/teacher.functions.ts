@@ -108,11 +108,15 @@ export const teacherTurn = createServerFn({ method: "POST" })
         // Dev fallback: return a simple teacher response so the UI remains interactive
         return {
           speak: `Hi — I'm Mr. Klass. We don't have an AI key configured, so this is a local demo. Let's begin.`,
-          board: { title: lesson.title, lines: ["Demo mode: no AI key configured."], highlight: null },
+          board: {
+            title: lesson.title,
+            lines: ["Demo mode: no AI key configured."],
+            highlight: undefined,
+          },
           nextStep: "example",
           confusionDelta: 0,
-          evaluation: null,
-          quiz: null,
+          evaluation: undefined,
+          quiz: undefined,
           done: false,
         } as TeacherResponse;
       }

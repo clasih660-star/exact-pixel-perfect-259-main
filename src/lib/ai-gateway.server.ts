@@ -105,9 +105,7 @@ export type ResilientModelCaller = {
  * The caller returns `null` when all providers fail so the consumer can fall
  * back to its deterministic path — the lesson is never blocked by an AI outage.
  */
-export function createResilientModelCaller(
-  purpose: string,
-): ResilientModelCaller | null {
+export function createResilientModelCaller(purpose: string): ResilientModelCaller | null {
   const chain = buildProviderChain();
   if (chain.length === 0) return null;
 
@@ -117,7 +115,8 @@ export function createResilientModelCaller(
     let lastError: unknown = null;
 
     for (const provider of chain) {
-      const modelName = provider.modelMap[purpose] ?? provider.modelMap["teacher_answer"] ?? "gpt-4o-mini";
+      const modelName =
+        provider.modelMap[purpose] ?? provider.modelMap["teacher_answer"] ?? "gpt-4o-mini";
       try {
         const result = await Promise.race([
           generateObject({

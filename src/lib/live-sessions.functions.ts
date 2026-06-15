@@ -58,18 +58,16 @@ export const startLearnerSession = createServerFn({ method: "POST" })
     }
 
     const db = supabase as any;
-    await db
-      .from("session_participants")
-      .upsert(
-        {
-          session_id: sessionId,
-          user_id: userId,
-          role: "student",
-          status: "joined",
-          joined_at: new Date().toISOString(),
-        },
-        { onConflict: "session_id,user_id" },
-      );
+    await db.from("session_participants").upsert(
+      {
+        session_id: sessionId,
+        user_id: userId,
+        role: "student",
+        status: "joined",
+        joined_at: new Date().toISOString(),
+      },
+      { onConflict: "session_id,user_id" },
+    );
 
     return { sessionId };
   });
@@ -181,7 +179,9 @@ export const listActiveSessions = createServerFn({ method: "GET" })
 
     const { data: sessions, error } = await supabase
       .from("classroom_sessions")
-      .select("id, course_id, lesson_id, mode, status, started_at, host_user_id, lessons(title), courses(title)")
+      .select(
+        "id, course_id, lesson_id, mode, status, started_at, host_user_id, lessons(title), courses(title)",
+      )
       .eq("institution_id", data.institution_id)
       .eq("status", "live")
       .order("started_at", { ascending: false });

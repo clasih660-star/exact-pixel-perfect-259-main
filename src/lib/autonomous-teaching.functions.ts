@@ -24,7 +24,7 @@ import {
 export const getOrCreateCognitiveProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { course_id?: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -41,10 +41,7 @@ export const getOrCreateCognitiveProfile = createServerFn({ method: "POST" })
     const institutionId = membership?.institution_id;
 
     // Try to get existing profile
-    let query = supabase
-      .from("student_cognitive_profiles")
-      .select("*")
-      .eq("student_id", userId);
+    let query = supabase.from("student_cognitive_profiles").select("*").eq("student_id", userId);
 
     if (data.course_id) {
       query = query.eq("course_id", data.course_id);
@@ -106,14 +103,16 @@ export const getOrCreateCognitiveProfile = createServerFn({ method: "POST" })
 const ProcessMessageSchema = z.object({
   session_id: z.string().uuid(),
   message: z.string().min(1).max(5000),
-  message_type: z.enum(["text", "voice", "multiple_choice", "skip", "hint_request", "repeat_request"]).default("text"),
+  message_type: z
+    .enum(["text", "voice", "multiple_choice", "skip", "hint_request", "repeat_request"])
+    .default("text"),
   selected_option: z.number().optional(),
 });
 
 export const processStudentMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ProcessMessageSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const engine = getAutonomousTeachingEngine();
 
@@ -169,13 +168,17 @@ export const processStudentMessage = createServerFn({ method: "POST" })
       .eq("student_id", context.userId)
       .maybeSingle();
 
-    let cognitiveState: CognitiveState = cogProfile
+    const cognitiveState: CognitiveState = cogProfile
       ? {
           emotionState: cogProfile.last_emotion_state,
           understandingScore: Number(cogProfile.avg_engagement_score),
           masteredConcepts: cogProfile.strong_topics || [],
           weakConcepts: cogProfile.weak_topics || [],
-          preferredStyle: cogProfile.preferred_learning_style as "visual" | "auditory" | "kinesthetic" | "reading",
+          preferredStyle: cogProfile.preferred_learning_style as
+            | "visual"
+            | "auditory"
+            | "kinesthetic"
+            | "reading",
           optimalPace: Number(cogProfile.optimal_pace),
           streakCount: 0,
           idleSeconds: 0,
@@ -197,7 +200,11 @@ export const processStudentMessage = createServerFn({ method: "POST" })
     };
 
     // Analyze student state
-    const analyzedState = await engine.analyzeStudentState(teachingContext, cognitiveState, interactions);
+    const analyzedState = await engine.analyzeStudentState(
+      teachingContext,
+      cognitiveState,
+      interactions,
+    );
 
     // Decide next action
     const startTime = Date.now();
@@ -320,7 +327,7 @@ const GeneratePracticeSchema = z.object({
 export const generatePracticeProblem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => GeneratePracticeSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const engine = getAutonomousTeachingEngine();
 
@@ -353,7 +360,11 @@ export const generatePracticeProblem = createServerFn({ method: "POST" })
           understandingScore: Number(cogProfile.avg_engagement_score),
           masteredConcepts: cogProfile.strong_topics || [],
           weakConcepts: cogProfile.weak_topics || [],
-          preferredStyle: cogProfile.preferred_learning_style as "visual" | "auditory" | "kinesthetic" | "reading",
+          preferredStyle: cogProfile.preferred_learning_style as
+            | "visual"
+            | "auditory"
+            | "kinesthetic"
+            | "reading",
           optimalPace: Number(cogProfile.optimal_pace),
           streakCount: 0,
           idleSeconds: 0,
@@ -373,7 +384,11 @@ export const generatePracticeProblem = createServerFn({ method: "POST" })
       subject: "General",
     };
 
-    const practice = await engine.generatePracticeProblem(context_, cognitiveState, data.difficulty);
+    const practice = await engine.generatePracticeProblem(
+      context_,
+      cognitiveState,
+      data.difficulty,
+    );
 
     return practice;
   });
@@ -392,7 +407,7 @@ const EvaluateAnswerSchema = z.object({
 export const evaluateStudentAnswer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => EvaluateAnswerSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     const engine = getAutonomousTeachingEngine();
 
@@ -409,7 +424,11 @@ export const evaluateStudentAnswer = createServerFn({ method: "POST" })
           understandingScore: Number(cogProfile.avg_engagement_score),
           masteredConcepts: cogProfile.strong_topics || [],
           weakConcepts: cogProfile.weak_topics || [],
-          preferredStyle: cogProfile.preferred_learning_style as "visual" | "auditory" | "kinesthetic" | "reading",
+          preferredStyle: cogProfile.preferred_learning_style as
+            | "visual"
+            | "auditory"
+            | "kinesthetic"
+            | "reading",
           optimalPace: Number(cogProfile.optimal_pace),
           streakCount: 0,
           idleSeconds: 0,
@@ -430,7 +449,7 @@ export const evaluateStudentAnswer = createServerFn({ method: "POST" })
       .eq("id", session?.lesson_id)
       .single();
 
-    const context: TeachingContext = {
+    const teachingContext: TeachingContext = {
       lessonId: session?.lesson_id || "",
       lessonTitle: lesson?.title || "",
       lessonObjective: lesson?.objective || "",
@@ -443,11 +462,11 @@ export const evaluateStudentAnswer = createServerFn({ method: "POST" })
     };
 
     const evaluation = await engine.evaluateStudentAnswer(
-      context,
+      teachingContext,
       data.problem,
       data.expected_answer,
       data.student_answer,
-      cognitiveState
+      cognitiveState,
     );
 
     // Update topic mastery if we can identify the topic
@@ -505,7 +524,7 @@ const RequestHandoffSchema = z.object({
 export const requestTeacherHandoff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => RequestHandoffSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
 
     // Get session info
@@ -545,7 +564,7 @@ export const requestTeacherHandoff = createServerFn({ method: "POST" })
     if (availableTeachers && availableTeachers.length > 0) {
       // Find teacher with lowest load
       const bestTeacher = availableTeachers.sort(
-        (a, b) => a.current_session_count - b.current_session_count
+        (a: any, b: any) => a.current_session_count - b.current_session_count,
       )[0];
 
       if (bestTeacher && bestTeacher.current_session_count < bestTeacher.max_concurrent_sessions) {
@@ -569,7 +588,8 @@ export const requestTeacherHandoff = createServerFn({ method: "POST" })
     return {
       handoffId: handoff.id,
       status: "pending",
-      message: "Your request has been submitted. A teacher will join as soon as one becomes available.",
+      message:
+        "Your request has been submitted. A teacher will join as soon as one becomes available.",
     };
   });
 
@@ -586,7 +606,7 @@ const UpdateAvailabilitySchema = z.object({
 export const updateTeacherAvailability = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => UpdateAvailabilitySchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
 
     // Get institution
@@ -638,7 +658,7 @@ export const updateTeacherAvailability = createServerFn({ method: "POST" })
         teacher_id: context.userId,
         ...updates,
       },
-      { onConflict: "teacher_id" }
+      { onConflict: "teacher_id" },
     );
 
     if (error) throw new Error(error.message);
@@ -653,7 +673,7 @@ export const updateTeacherAvailability = createServerFn({ method: "POST" })
 export const acceptHandoff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { handoff_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
 
     // Get handoff

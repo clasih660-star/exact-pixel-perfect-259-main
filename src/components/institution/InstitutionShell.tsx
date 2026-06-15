@@ -1,6 +1,18 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { type ReactNode } from "react";
-import { LayoutDashboard, School, FolderUp, Settings, LogOut, BookOpen, Users, GraduationCap, UserCheck, ChartBar as BarChart3, Calendar } from "lucide-react";
+import {
+  LayoutDashboard,
+  School,
+  FolderUp,
+  Settings,
+  LogOut,
+  BookOpen,
+  Users,
+  GraduationCap,
+  UserCheck,
+  ChartBar as BarChart3,
+  Calendar,
+} from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";

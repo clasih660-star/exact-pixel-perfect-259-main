@@ -19,8 +19,7 @@ import process from "node:process";
 export function getServerConfig() {
   return {
     nodeEnv: process.env.NODE_ENV,
-    // Add server-only values here, e.g.:
-    //   databaseUrl: process.env.DATABASE_URL,
-    //   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    appUrl: process.env.APP_URL ?? process.env.VITE_APP_URL ?? process.env.PUBLIC_APP_URL ?? null,
+    emailProvider: process.env.EMAIL_PROVIDER ?? "internal_queue",
   };
 }

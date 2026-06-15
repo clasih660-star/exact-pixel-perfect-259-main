@@ -1,30 +1,23 @@
-/**
- * Klassruum landing — reusable primitives.
- *
- * Small, composable building blocks shared across the landing sections so the
- * design system (spacing, radius, colour, shadow) stays consistent everywhere.
- *
- * Brand tokens are written as literal Tailwind arbitrary values because the app
- * theme globally zeroes the radius scale and remaps colours; literals guarantee
- * the premium look specified in the brand guide.
- */
+/** Shared landing page primitives. */
 
 import { Link } from "@tanstack/react-router";
-import { Check, Minus } from "lucide-react";
+import { Check, Minus, ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/* ── Layout container ─────────────────────────────────────────────── */
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("mx-auto w-full max-w-[1200px] px-5 sm:px-8", className)}>{children}</div>;
+  return (
+    <div className={cn("mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8", className)}>
+      {children}
+    </div>
+  );
 }
 
-/* ── Eyebrow / kicker label ───────────────────────────────────────── */
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700",
+        "inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-emerald-300",
         className,
       )}
     >
@@ -33,7 +26,6 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   );
 }
 
-/* ── Section header (eyebrow + h2 + supporting copy) ──────────────── */
 export function SectionHeader({
   eyebrow,
   title,
@@ -41,6 +33,7 @@ export function SectionHeader({
   align = "center",
   className,
   id,
+  theme = "dark",
 }: {
   eyebrow?: string;
   title: ReactNode;
@@ -48,28 +41,37 @@ export function SectionHeader({
   align?: "center" | "left";
   className?: string;
   id?: string;
+  theme?: "dark" | "light";
 }) {
   return (
     <div
       className={cn(
-        "lp-fade-up",
-        align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-2xl text-left",
+        "lp-reveal",
+        align === "center" ? "mx-auto max-w-[860px] text-center" : "max-w-[660px] text-left",
         className,
       )}
+      data-reveal
     >
       {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
       <h2
         id={id}
         className={cn(
-          "text-[#0F172A] font-bold tracking-tight",
-          "text-[28px] leading-[1.15] sm:text-[34px] md:text-[40px]",
+          "font-bold tracking-normal",
+          theme === "dark" ? "text-white" : "text-[#0F172A]",
+          "text-[28px] leading-tight sm:text-[34px] md:text-[42px]",
           eyebrow ? "mt-4" : "",
         )}
       >
         {title}
       </h2>
       {description ? (
-        <p className={cn("mt-4 text-[17px] leading-relaxed text-[#475569]", align === "center" ? "mx-auto" : "")}>
+        <p
+          className={cn(
+            "mt-4 text-[16px] leading-8 md:text-[17px]",
+            theme === "dark" ? "text-slate-300" : "text-slate-600",
+            align === "center" ? "mx-auto" : "",
+          )}
+        >
           {description}
         </p>
       ) : null}
@@ -77,19 +79,23 @@ export function SectionHeader({
   );
 }
 
-/* ── CTA button (Link, anchor, or button) ─────────────────────────── */
-type CTAVariant = "primary" | "secondary" | "ghost";
-type CTASize = "md" | "lg";
+type CTAVariant = "primary" | "secondary" | "ghost" | "dark";
+type CTASize = "sm" | "md" | "lg";
 
 function ctaClasses(variant: CTAVariant, size: CTASize, className?: string) {
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2",
-    size === "lg" ? "h-12 px-6 text-[15px]" : "h-11 px-5 text-sm",
+    "group relative inline-flex items-center justify-center gap-2 rounded-md border font-semibold no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:translate-y-px",
+    size === "lg" && "min-h-12 px-5 py-3 text-[15px]",
+    size === "md" && "min-h-10 px-4 py-2 text-[14px]",
+    size === "sm" && "min-h-9 px-3 py-1.5 text-[13px]",
     variant === "primary" &&
-      "bg-[#1F7C80] text-white shadow-lg shadow-teal-500/25 hover:bg-[#1A5256] hover:shadow-xl hover:shadow-teal-500/30",
+      "border-emerald-300 bg-emerald-300 text-slate-950 shadow-sm hover:border-emerald-200 hover:bg-emerald-200",
     variant === "secondary" &&
-      "border border-zinc-200 bg-white text-zinc-900 shadow-sm hover:border-zinc-300 hover:bg-zinc-50",
-    variant === "ghost" && "text-[#1F7C80] hover:bg-teal-50",
+      "border-white/15 bg-white/[0.04] text-white hover:border-white/25 hover:bg-white/[0.08]",
+    variant === "ghost" &&
+      "border-transparent bg-transparent text-slate-300 hover:bg-white/[0.06] hover:text-white",
+    variant === "dark" &&
+      "border-slate-700 bg-slate-950 text-white hover:border-slate-500 hover:bg-slate-900",
     className,
   );
 }
@@ -103,6 +109,7 @@ export function CTAButton({
   size = "md",
   className,
   ariaLabel,
+  showArrow,
 }: {
   children: ReactNode;
   to?: string;
@@ -112,45 +119,56 @@ export function CTAButton({
   size?: CTASize;
   className?: string;
   ariaLabel?: string;
+  showArrow?: boolean;
 }) {
   const cls = ctaClasses(variant, size, className);
-  if (to) {
-    // Cast: landing links target real, existing routes.
+  const inner = (
+    <>
+      {children}
+      {showArrow && <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />}
+    </>
+  );
+
+  if (to)
     return (
-      <Link to={to as never} className={cls} aria-label={ariaLabel}>
-        {children}
+      <Link to={to as never} className={cls} aria-label={ariaLabel} onClick={onClick}>
+        {inner}
       </Link>
     );
-  }
-  if (href) {
+  if (href)
     return (
-      <a href={href} className={cls} aria-label={ariaLabel}>
-        {children}
+      <a href={href} className={cls} aria-label={ariaLabel} onClick={onClick}>
+        {inner}
       </a>
     );
-  }
   return (
     <button type="button" onClick={onClick} className={cls} aria-label={ariaLabel}>
-      {children}
+      {inner}
     </button>
   );
 }
 
-/* ── Premium surface card ─────────────────────────────────────────── */
-export function SurfaceCard({ className, children }: { className?: string; children: ReactNode }) {
+export function SurfaceCard({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+  theme?: "dark" | "light";
+}) {
   return (
     <div
       className={cn(
-        "lp-lift rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm hover:border-zinc-300 hover:shadow-md",
+        "group relative rounded-lg border border-white/10 bg-slate-950/70 p-5 shadow-sm shadow-black/10 transition-colors duration-200 hover:border-emerald-300/30 hover:bg-slate-900/80",
         className,
       )}
+      data-reveal
     >
-      {children}
+      <div className="relative text-white">{children}</div>
     </div>
   );
 }
 
-/* ── Feature card ─────────────────────────────────────────────────── */
 export function FeatureCard({
   icon,
   title,
@@ -159,52 +177,51 @@ export function FeatureCard({
   icon: ReactNode;
   title: string;
   description: string;
+  theme?: "dark" | "light";
 }) {
   return (
     <SurfaceCard className="h-full">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-[#1F7C80]">
+      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-300/10 text-emerald-300">
         {icon}
       </div>
-      <h3 className="mt-5 text-[17px] font-semibold text-zinc-900">{title}</h3>
-      <p className="mt-2 text-[15px] leading-relaxed text-zinc-500">{description}</p>
+      <h3 className="mt-4 text-[16px] font-semibold text-white transition-colors group-hover:text-emerald-200">{title}</h3>
+      <p className="mt-2 text-[14px] leading-relaxed text-slate-400">{description}</p>
     </SurfaceCard>
   );
 }
 
-/* ── Stat card ────────────────────────────────────────────────────── */
-export function StatCard({
-  value,
-  label,
-  hint,
-}: {
-  value: string;
-  label: string;
-  hint?: string;
-}) {
+export function StatCard({ value, label, hint }: { value: string; label: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <div className="text-[28px] font-bold tracking-tight text-zinc-900">{value}</div>
-      <div className="mt-1 text-sm font-medium text-zinc-900">{label}</div>
-      {hint ? <div className="mt-1 text-xs text-zinc-400">{hint}</div> : null}
+    <div className="group relative rounded-lg border border-white/10 bg-white/[0.03] p-4 transition-colors duration-200 hover:border-emerald-300/30">
+      <div className="text-[26px] font-bold tracking-normal text-white transition-colors group-hover:text-emerald-200 sm:text-[32px]">{value}</div>
+      <div className="mt-1 text-xs font-semibold text-slate-300 sm:text-sm">{label}</div>
+      {hint ? <div className="mt-1 text-[11px] text-slate-400">{hint}</div> : null}
     </div>
   );
 }
 
-/* ── Inline check / cross used in lists and tables ────────────────── */
 export function YesMark({ label }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[#1F7C80]">
+    <span className="inline-flex items-center gap-1.5 text-emerald-300">
       <Check className="h-4 w-4" aria-hidden />
-      {label ? <span className="text-sm text-zinc-500">{label}</span> : <span className="sr-only">Yes</span>}
+      {label ? (
+        <span className="text-sm text-slate-300">{label}</span>
+      ) : (
+        <span className="sr-only">Yes</span>
+      )}
     </span>
   );
 }
 
 export function NoMark({ label }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-zinc-300">
+    <span className="inline-flex items-center gap-1.5 text-slate-500">
       <Minus className="h-4 w-4" aria-hidden />
-      {label ? <span className="text-sm text-zinc-300">{label}</span> : <span className="sr-only">No</span>}
+      {label ? (
+        <span className="text-sm text-slate-400">{label}</span>
+      ) : (
+        <span className="sr-only">No</span>
+      )}
     </span>
   );
 }

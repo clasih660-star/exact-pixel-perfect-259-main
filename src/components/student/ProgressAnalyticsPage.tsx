@@ -85,9 +85,7 @@ export function ProgressAnalyticsPage() {
     ],
   };
 
-  const maxWeeklyMinutes = Math.max(
-    ...analyticsData.weeklyActivity.map((d) => d.minutes)
-  );
+  const maxWeeklyMinutes = Math.max(...analyticsData.weeklyActivity.map((d) => d.minutes));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -101,9 +99,7 @@ export function ProgressAnalyticsPage() {
             <ArrowLeft size={18} />
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Learning Analytics
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Learning Analytics</h1>
           <div className="w-32" />
         </div>
       </header>
@@ -169,17 +165,12 @@ export function ProgressAnalyticsPage() {
                 {analyticsData.courseProgress.map((course) => (
                   <div key={course.name}>
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium text-gray-900">
-                        {course.name}
-                      </h3>
+                      <h3 className="font-medium text-gray-900">{course.name}</h3>
                       <span className="text-sm font-semibold text-gray-700">
                         {course.progress}%
                       </span>
                     </div>
-                    <Progress
-                      value={course.progress}
-                      className="bg-gray-200 h-2"
-                    />
+                    <Progress value={course.progress} className="bg-gray-200 h-2" />
                     <p className="text-xs text-gray-500 mt-1">
                       {course.lessons}/{course.totalLessons} lessons
                     </p>
@@ -198,19 +189,12 @@ export function ProgressAnalyticsPage() {
               </h2>
               <div className="space-y-3">
                 {analyticsData.achievements.map((achievement, i) => (
-                  <div
-                    key={i}
-                    className="p-3 rounded-lg bg-amber-50 border border-amber-200"
-                  >
+                  <div key={i} className="p-3 rounded-lg bg-amber-50 border border-amber-200">
                     <div className="flex items-start gap-2">
                       <Medal className="text-amber-600 flex-shrink-0 mt-0.5" size={16} />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {achievement.title}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {achievement.description}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900">{achievement.title}</p>
+                        <p className="text-xs text-gray-600">{achievement.description}</p>
                       </div>
                     </div>
                   </div>
@@ -231,9 +215,7 @@ export function ProgressAnalyticsPage() {
               <div className="space-y-3">
                 {analyticsData.weeklyActivity.map((day) => (
                   <div key={day.day} className="flex items-center gap-3">
-                    <span className="w-10 text-sm font-medium text-gray-600">
-                      {day.day}
-                    </span>
+                    <span className="w-10 text-sm font-medium text-gray-600">{day.day}</span>
                     <div className="flex-1 flex items-center gap-2">
                       <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div
@@ -243,9 +225,7 @@ export function ProgressAnalyticsPage() {
                           }}
                         />
                       </div>
-                      <span className="w-12 text-right text-sm text-gray-600">
-                        {day.minutes}m
-                      </span>
+                      <span className="w-12 text-right text-sm text-gray-600">{day.minutes}m</span>
                     </div>
                   </div>
                 ))}
@@ -264,20 +244,11 @@ export function ProgressAnalyticsPage() {
                 {analyticsData.topicPerformance.map((topic) => (
                   <div key={topic.topic}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-900">
-                        {topic.topic}
-                      </span>
-                      <span className="text-sm font-semibold text-gray-700">
-                        {topic.score}%
-                      </span>
+                      <span className="font-medium text-gray-900">{topic.topic}</span>
+                      <span className="text-sm font-semibold text-gray-700">{topic.score}%</span>
                     </div>
-                    <Progress
-                      value={topic.score}
-                      className="bg-gray-200 h-2"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {topic.attempts} attempts
-                    </p>
+                    <Progress value={topic.score} className="bg-gray-200 h-2" />
+                    <p className="text-xs text-gray-500 mt-1">{topic.attempts} attempts</p>
                   </div>
                 ))}
               </div>
@@ -294,26 +265,19 @@ export function ProgressAnalyticsPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-white rounded-lg border border-green-200">
-                <p className="font-medium text-gray-900 mb-1">
-                  Keep Your Streak Going
-                </p>
+                <p className="font-medium text-gray-900 mb-1">Keep Your Streak Going</p>
                 <p className="text-sm text-gray-600">
-                  You're on a 7-day streak! Complete 1 lesson today to keep it
-                  up.
+                  You're on a 7-day streak! Complete 1 lesson today to keep it up.
                 </p>
               </div>
               <div className="p-4 bg-white rounded-lg border border-green-200">
-                <p className="font-medium text-gray-900 mb-1">
-                  Review Weak Topics
-                </p>
+                <p className="font-medium text-gray-900 mb-1">Review Weak Topics</p>
                 <p className="text-sm text-gray-600">
                   Focus on Statistics (72%) to improve overall performance.
                 </p>
               </div>
               <div className="p-4 bg-white rounded-lg border border-green-200">
-                <p className="font-medium text-gray-900 mb-1">
-                  Next Challenge
-                </p>
+                <p className="font-medium text-gray-900 mb-1">Next Challenge</p>
                 <p className="text-sm text-gray-600">
                   Try the Physics course to diversify your learning.
                 </p>

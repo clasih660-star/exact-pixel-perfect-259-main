@@ -38,8 +38,8 @@ function StudentAccess() {
     <StudentShell title="Learning Access">
       <div className="mx-auto max-w-4xl space-y-6">
         <p className="text-[var(--gray-600)]">
-          Adjust how Klassruum looks and reads for you. Changes apply across the whole app instantly —
-          no exams or grades, just comfortable learning.
+          Adjust how Klassruum looks and reads for you. Changes apply across the whole app instantly
+          — no exams or grades, just comfortable learning.
         </p>
 
         {/* Text size — low vision */}
@@ -99,15 +99,36 @@ function StudentAccess() {
         <section className="kr-pcard p-6">
           <h2 className="text-lg font-bold text-[var(--gray-900)]">In-lesson support</h2>
           <div className="mt-4 space-y-3">
-            <ToggleRow icon={Captions} label="Captions" desc="Show everything the teacher says as text." on={captions} onToggle={() => setCaptions((v) => !v)} />
-            <ToggleRow icon={Volume2} label="Teacher voice" desc="Hear the teacher read and explain aloud." on={voice} onToggle={() => setVoice((v) => !v)} />
-            <ToggleRow icon={Keyboard} label="Keyboard shortcuts" desc="Navigate the classroom without a mouse." on={keyboard} onToggle={() => setKeyboard((v) => !v)} />
+            <ToggleRow
+              icon={Captions}
+              label="Captions"
+              desc="Show everything the teacher says as text."
+              on={captions}
+              onToggle={() => setCaptions((v) => !v)}
+            />
+            <ToggleRow
+              icon={Volume2}
+              label="Teacher voice"
+              desc="Hear the teacher read and explain aloud."
+              on={voice}
+              onToggle={() => setVoice((v) => !v)}
+            />
+            <ToggleRow
+              icon={Keyboard}
+              label="Keyboard shortcuts"
+              desc="Navigate the classroom without a mouse."
+              on={keyboard}
+              onToggle={() => setKeyboard((v) => !v)}
+            />
           </div>
         </section>
 
         <div className="flex items-center gap-2 bg-[var(--primary-light)] p-4 text-sm text-[var(--primary)]">
           <Eye className="h-4 w-4" />
-          <span className="font-semibold">Tip: choosing "Low Vision" mode inside a classroom also turns on extra-large text automatically.</span>
+          <span className="font-semibold">
+            Tip: choosing "Low Vision" mode inside a classroom also turns on extra-large text
+            automatically.
+          </span>
         </div>
       </div>
     </StudentShell>
@@ -145,7 +166,9 @@ function ToggleRow({
         onClick={onToggle}
         className={`relative h-6 w-11 flex-shrink-0 rounded-full transition ${on ? "bg-[var(--primary)]" : "bg-[var(--gray-300)]"}`}
       >
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${on ? "left-[22px]" : "left-0.5"}`}
+        />
       </button>
     </div>
   );

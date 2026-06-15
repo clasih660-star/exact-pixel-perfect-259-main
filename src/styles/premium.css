@@ -3,12 +3,12 @@
    Small rounded corners everywhere; circles stay round.
    ============================================================================= */
 [class*="rounded-"]:not(.rounded-full):not([class*="rounded-full"]) {
-  border-radius: 10px !important;
+  border-radius: 12px !important;
 }
 .kr-pcard, .kr-card, .kr-glass, .kr-media, .kr-chip,
 .dashboard-card, .sidebar, .topnav, button, input, textarea, select,
 .card, [data-slot="card"], [data-slot="button"], [data-slot="input"] {
-  border-radius: 10px !important;
+  border-radius: 12px !important;
 }
 /* Keep genuinely circular elements round */
 .rounded-full, [class*="rounded-full"],
@@ -16,6 +16,123 @@
 [role="switch"], [data-slot="switch"], [data-slot="switch-thumb"],
 .kr-status-pill, .badge, [data-slot="avatar"] {
   border-radius: 999px !important;
+}
+
+/* =============================================================================
+   Shared visual system — calmer, more professional surfaces across public,
+   dashboard, auth, and classroom experiences.
+   ============================================================================= */
+:root {
+  /* Map --kr-surface-* tokens to canonical palette */
+  --kr-surface-0: var(--background);
+  --kr-surface-1: rgba(255, 255, 255, 0.72);
+  --kr-surface-2: rgba(255, 255, 255, 0.88);
+  --kr-surface-strong: rgba(255, 255, 255, 0.96);
+  --kr-border-soft: rgba(209, 236, 235, 0.78);
+  --kr-border-strong: rgba(148, 163, 184, 0.16);
+  --kr-text-strong: var(--foreground);
+  --kr-text-muted: var(--muted-foreground);
+  --kr-hero-shadow: 0 24px 80px rgba(15, 23, 42, 0.09);
+  --kr-card-shadow: 0 20px 54px rgba(15, 23, 42, 0.08);
+  --kr-card-shadow-hover: 0 30px 76px rgba(15, 23, 42, 0.13);
+  --kr-glass-highlight: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.34));
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(163, 217, 216, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.82), transparent 32%),
+    linear-gradient(180deg, #f8fbfc 0%, #f6f9ff 52%, #ffffff 100%);
+  color: var(--kr-text-strong);
+}
+
+main,
+section,
+article {
+  scroll-margin-top: 96px;
+}
+
+[data-slot="button"],
+button,
+input,
+textarea,
+select,
+[data-slot="card"],
+.card,
+[role="dialog"] {
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.22s var(--kr-ease),
+    transform 0.18s var(--kr-ease),
+    color 0.18s ease,
+    backdrop-filter 0.22s ease;
+}
+
+[data-slot="button"],
+button {
+  font-weight: 700;
+}
+
+input,
+textarea,
+select {
+  border-color: var(--kr-border-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,251,252,0.92));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 30px rgba(15, 23, 42, 0.05);
+  color: var(--kr-text-strong);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8ba0b3;
+}
+
+.lp-premium-card,
+.kr-pcard,
+.card,
+.dashboard-card,
+[data-slot="card"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 251, 252, 0.9)),
+    var(--kr-glass-highlight);
+  border: 1px solid var(--kr-border-soft);
+  box-shadow: var(--kr-card-shadow);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+.lp-premium-card:hover,
+.kr-pcard:hover,
+.card:hover,
+.dashboard-card:hover,
+[data-slot="card"]:hover {
+  box-shadow: var(--kr-card-shadow-hover);
+  border-color: rgba(163, 217, 216, 0.96);
+}
+
+.kr-section-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.9)),
+    var(--kr-glass-highlight);
+  border: 1px solid var(--kr-border-soft);
+  box-shadow: var(--kr-card-shadow);
+  backdrop-filter: blur(22px) saturate(150%);
+}
+
+.kr-input-shell {
+  border: 1px solid var(--kr-border-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.72));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 32px rgba(15,23,42,0.05);
+}
+
+.kr-pill,
+.badge,
+[data-slot="badge"] {
+  border: 1px solid rgba(209, 236, 235, 0.92);
+  background: linear-gradient(180deg, rgba(247,252,252,0.98), rgba(240,250,250,0.92));
+  color: #1a5256;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.88);
 }
 
 /* =============================================================================
@@ -79,16 +196,17 @@ html[data-reduced-motion] *::after {
    ============================================================================= */
 
 :root {
-  --kr-blue-50:  #e8f5f5;
+  /* Map --kr-blue-* tokens to canonical palette */
+  --kr-blue-50:  var(--primary-light);
   --kr-blue-100: #d1eceb;
   --kr-blue-200: #a3d9d8;
-  --kr-blue-400: #3fa8ab;
-  --kr-blue-500: #1F7C80;
+  --kr-blue-400: var(--primary-glow);
+  --kr-blue-500: var(--primary);
   --kr-blue-600: #1A6B6E;
-  --kr-blue-700: #1A5256;
-  --kr-navy:     #1A3233;
-  --kr-navy-700: #1A3233;
-  --kr-ink:      #1A5256;
+  --kr-blue-700: var(--primary-dark);
+  --kr-navy:     var(--navy);
+  --kr-navy-700: var(--navy);
+  --kr-ink:      var(--primary-dark);
 
   --kr-shadow-soft: 0 1px 3px rgba(26, 50, 51, .04), 0 8px 24px rgba(31, 124, 128, .06);
   --kr-shadow-lift: 0 2px 8px rgba(26, 50, 51, .06), 0 18px 40px rgba(31, 124, 128, .14);
@@ -105,8 +223,8 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Premium blue text selection */
-::selection { background: rgba(37, 99, 235, .18); color: #0f172a; }
+/* Premium brand text selection */
+::selection { background: rgba(37, 99, 235, 0.18); color: #102033; }
 
 /* Accessible, branded focus ring everywhere */
 :where(a, button, [role="button"], input, textarea, select, [tabindex]):focus-visible {
@@ -119,7 +237,7 @@ body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #c7d7f5, #aebfe6);
+  background: linear-gradient(180deg, #d1eceb, #a3d9d8);
   border: 2px solid transparent;
   background-clip: padding-box;
   border-radius: 99px;
@@ -147,9 +265,9 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
   overflow: hidden;
   color: #fff;
   background: linear-gradient(135deg, var(--kr-blue-500), var(--kr-blue-700));
-  box-shadow: 0 10px 26px rgba(37, 99, 235, .32);
+  box-shadow: 0 10px 26px rgba(31, 124, 128, .30);
 }
-.kr-btn-primary:hover { box-shadow: 0 16px 34px rgba(37, 99, 235, .42); }
+.kr-btn-primary:hover { box-shadow: 0 16px 34px rgba(31, 124, 128, .38); }
 .kr-btn-primary::after {
   content: "";
   position: absolute; inset: 0;
@@ -184,7 +302,7 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
 
 /* ---- Color blends ------------------------------------------------------ */
 .kr-gradient-text {
-  background: linear-gradient(115deg, var(--kr-blue-600), #6366f1 55%, var(--kr-blue-500));
+  background: linear-gradient(115deg, #123D40, var(--kr-blue-600) 52%, #8C6F2E);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -192,14 +310,14 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
   animation: kr-gradient-pan 6s ease infinite;
 }
 
-/* Soft light hero/section backdrop with blue/white blend */
+/* Soft light hero/section backdrop with teal, ivory, and restrained gold blend */
 .kr-aurora {
   position: relative;
   background:
     radial-gradient(60% 60% at 15% 10%, rgba(31,124,128,.12), transparent 60%),
-    radial-gradient(50% 50% at 90% 20%, rgba(99,102,241,.12), transparent 60%),
-    radial-gradient(60% 60% at 70% 95%, rgba(96,165,250,.12), transparent 60%),
-    linear-gradient(180deg, #ffffff, #f6f9ff 55%, #eef3ff);
+    radial-gradient(50% 50% at 90% 20%, rgba(140,111,46,.10), transparent 60%),
+    radial-gradient(60% 60% at 70% 95%, rgba(163,217,216,.14), transparent 60%),
+    linear-gradient(180deg, #ffffff, #f7fbfb 55%, #eef7f7);
   overflow: hidden;
 }
 .kr-blob {
@@ -211,12 +329,12 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
   animation: kr-drift 16s ease-in-out infinite;
 }
 .kr-blob-1 { width: 420px; height: 420px; background: #a3d9d8; top: -120px; left: -80px; }
-.kr-blob-2 { width: 360px; height: 360px; background: #c7d2fe; bottom: -120px; right: -60px; animation-delay: -6s; }
+.kr-blob-2 { width: 360px; height: 360px; background: #E7D7AA; bottom: -120px; right: -60px; animation-delay: -6s; }
 .kr-blob-3 { width: 300px; height: 300px; background: #a3d9d8; top: 40%; left: 55%; animation-delay: -11s; }
 
 /* Subtle dotted grid texture for backgrounds */
 .kr-grid {
-  background-image: radial-gradient(rgba(37, 99, 235, .10) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(31, 124, 128, .10) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -495,4 +613,27 @@ button:disabled, [data-slot="button"][disabled], .is-disabled { cursor: not-allo
   .kr-glitter, .kr-shimmer-ribbon, .kr-shine-text, .kr-badge-glitter::after,
   .kr-hero-video { animation: none !important; }
   .kr-hero-video { transform: none; }
+}
+
+/* Hide OS cursor when custom cursor is active */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor body,
+  html.has-custom-cursor a,
+  html.has-custom-cursor button,
+  html.has-custom-cursor [role="button"],
+  html.has-custom-cursor .cursor-pointer,
+  html.has-custom-cursor .mode-chip,
+  html.has-custom-cursor .btn,
+  html.has-custom-cursor .nav-link {
+    cursor: none !important;
+  }
+
+  /* Keep standard cursor for inputs and inputs placeholders */
+  html.has-custom-cursor input,
+  html.has-custom-cursor textarea,
+  html.has-custom-cursor select,
+  html.has-custom-cursor [contenteditable="true"] {
+    cursor: text !important;
+  }
 }

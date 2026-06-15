@@ -20,22 +20,74 @@ type SessionEntry = {
 // Demo schedule for the current month. In production this comes from
 // programme/course timelines + classroom_sessions.
 const SESSIONS: SessionEntry[] = [
-  { day: 9, title: "Quadratic Equations", course: "Mathematics Form 2", time: "3:30–4:30 PM", status: "live" },
-  { day: 9, title: "Chemical Reactions", course: "KCSE Chemistry Revision", time: "5:00–6:00 PM", status: "upcoming" },
-  { day: 11, title: "Factoring Practice", course: "Mathematics Form 2", time: "3:30–4:15 PM", status: "upcoming" },
-  { day: 12, title: "Daily Conversation", course: "English Speaking Practice", time: "4:00–4:45 PM", status: "upcoming" },
-  { day: 4, title: "Algebraic Expressions", course: "Mathematics Form 2", time: "3:30–4:30 PM", status: "completed" },
-  { day: 6, title: "Atomic Structure", course: "KCSE Chemistry Revision", time: "5:00–6:00 PM", status: "review" },
+  {
+    day: 9,
+    title: "Quadratic Equations",
+    course: "Mathematics Form 2",
+    time: "3:30–4:30 PM",
+    status: "live",
+  },
+  {
+    day: 9,
+    title: "Chemical Reactions",
+    course: "KCSE Chemistry Revision",
+    time: "5:00–6:00 PM",
+    status: "upcoming",
+  },
+  {
+    day: 11,
+    title: "Factoring Practice",
+    course: "Mathematics Form 2",
+    time: "3:30–4:15 PM",
+    status: "upcoming",
+  },
+  {
+    day: 12,
+    title: "Daily Conversation",
+    course: "English Speaking Practice",
+    time: "4:00–4:45 PM",
+    status: "upcoming",
+  },
+  {
+    day: 4,
+    title: "Algebraic Expressions",
+    course: "Mathematics Form 2",
+    time: "3:30–4:30 PM",
+    status: "completed",
+  },
+  {
+    day: 6,
+    title: "Atomic Structure",
+    course: "KCSE Chemistry Revision",
+    time: "5:00–6:00 PM",
+    status: "review",
+  },
 ];
 
-const STATUS_META: Record<SessionEntry["status"], { label: string; dot: string; bg: string; fg: string }> = {
+const STATUS_META: Record<
+  SessionEntry["status"],
+  { label: string; dot: string; bg: string; fg: string }
+> = {
   live: { label: "Live", dot: "#2563eb", bg: "#dbeafe", fg: "#1d4ed8" },
   upcoming: { label: "Upcoming", dot: "#64748b", bg: "#f1f5f9", fg: "#475569" },
   completed: { label: "Completed", dot: "#22c55e", bg: "#dcfce7", fg: "#15803d" },
   review: { label: "Needs review", dot: "#f59e0b", bg: "#fffbeb", fg: "#b45309" },
 };
 
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function StudentCalendar() {
@@ -82,7 +134,10 @@ function StudentCalendar() {
 
           <div className="grid grid-cols-7 gap-1 text-center">
             {WEEKDAYS.map((d) => (
-              <div key={d} className="py-2 text-[11px] font-bold uppercase tracking-wide text-[var(--gray-400)]">
+              <div
+                key={d}
+                className="py-2 text-[11px] font-bold uppercase tracking-wide text-[var(--gray-400)]"
+              >
                 {d}
               </div>
             ))}
@@ -99,7 +154,11 @@ function StudentCalendar() {
                   <span className="kr-cal-num">{day}</span>
                   <span className="kr-cal-dots">
                     {items.slice(0, 3).map((s, idx) => (
-                      <span key={idx} className="kr-cal-dot" style={{ background: STATUS_META[s.status].dot }} />
+                      <span
+                        key={idx}
+                        className="kr-cal-dot"
+                        style={{ background: STATUS_META[s.status].dot }}
+                      />
                     ))}
                   </span>
                 </button>
@@ -128,11 +187,17 @@ function StudentCalendar() {
               <p className="text-sm text-[var(--gray-500)]">No sessions scheduled for this day.</p>
             ) : (
               daySessions.map((s, i) => (
-                <div key={i} className="rounded-xl border border-[var(--gray-200)] p-4 transition hover:border-[var(--primary)] hover:shadow-sm">
+                <div
+                  key={i}
+                  className="rounded-xl border border-[var(--gray-200)] p-4 transition hover:border-[var(--primary)] hover:shadow-sm"
+                >
                   <div className="flex items-center justify-between">
                     <span
                       className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
-                      style={{ background: STATUS_META[s.status].bg, color: STATUS_META[s.status].fg }}
+                      style={{
+                        background: STATUS_META[s.status].bg,
+                        color: STATUS_META[s.status].fg,
+                      }}
                     >
                       {STATUS_META[s.status].label}
                     </span>
@@ -144,11 +209,17 @@ function StudentCalendar() {
                   <p className="text-xs text-[var(--gray-500)]">{s.course}</p>
                   <div className="mt-3 flex gap-2">
                     {s.status === "live" ? (
-                      <Link to="/demo/ai-video" className="kr-btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white">
+                      <Link
+                        to="/demo/ai-video"
+                        className="kr-btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
+                      >
                         <Video className="h-3.5 w-3.5" /> Join now
                       </Link>
                     ) : s.status === "completed" || s.status === "review" ? (
-                      <Link to="/student/sessions" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-1.5 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]">
+                      <Link
+                        to="/student/sessions"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-1.5 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]"
+                      >
                         Review
                       </Link>
                     ) : (

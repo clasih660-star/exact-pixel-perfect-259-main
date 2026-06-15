@@ -169,7 +169,10 @@ export const initialClassroomState: ClassroomState = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ClassroomAction =
-  | { type: "ENTER_CLASSROOM"; payload: { sessionId: string; courseId: string; lessonId: string; institutionId: string } }
+  | {
+      type: "ENTER_CLASSROOM";
+      payload: { sessionId: string; courseId: string; lessonId: string; institutionId: string };
+    }
   | { type: "LOAD_CONTEXT"; payload: Partial<ClassroomState> }
   | { type: "LOAD_LESSON_STEPS"; payload: { steps: LessonStep[] } }
   | { type: "START_AUDIO" }
@@ -180,7 +183,10 @@ export type ClassroomAction =
   | { type: "SEND_MESSAGE"; payload: { message: string } }
   | { type: "RECEIVE_TEACHER_MESSAGE"; payload: { message: string; speak?: string } }
   | { type: "QUICK_ACTION"; payload: { action: string; message: string } }
-  | { type: "CHANGE_STEP"; payload: { targetStep: LessonStepKey; progressPercentage?: number; confusionScore?: number } }
+  | {
+      type: "CHANGE_STEP";
+      payload: { targetStep: LessonStepKey; progressPercentage?: number; confusionScore?: number };
+    }
   | { type: "START_QUIZ" }
   | { type: "ANSWER_QUIZ"; payload: { answerIndex: number } }
   | { type: "FINISH_QUIZ"; payload: { score: number } }
@@ -193,7 +199,10 @@ export type ClassroomAction =
   | { type: "CLEAR_CAPTIONS" }
   | { type: "SET_LOADING"; payload: { isLoading: boolean } }
   | { type: "SET_ERROR"; payload: { error: string | null } }
-  | { type: "END_SESSION"; payload: { finalProgressPercentage?: number; finalConfusionScore?: number } }
+  | {
+      type: "END_SESSION";
+      payload: { finalProgressPercentage?: number; finalConfusionScore?: number };
+    }
   | { type: "TICK_TIMER" }
   | { type: "SET_RECOMMENDATIONS"; payload: ClassroomState["recommendations"] };
 
@@ -248,10 +257,7 @@ function stepToClassroomMode(step: LessonStepKey): ClassroomMode {
 // Reducer
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function classroomReducer(
-  state: ClassroomState,
-  action: ClassroomAction,
-): ClassroomState {
+export function classroomReducer(state: ClassroomState, action: ClassroomAction): ClassroomState {
   switch (action.type) {
     // ── Enter classroom ──────────────────────────────────────────────────
     case "ENTER_CLASSROOM": {
@@ -418,7 +424,8 @@ export function classroomReducer(
       const { targetStep, progressPercentage, confusionScore } = action.payload;
       const stepIndex = getStepIndex(targetStep);
       const step = state.steps[stepIndex];
-      const newProgress = progressPercentage ?? Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100);
+      const newProgress =
+        progressPercentage ?? Math.round(((stepIndex + 1) / STEP_ORDER.length) * 100);
 
       return {
         ...state,
@@ -433,10 +440,16 @@ export function classroomReducer(
               items: step.whiteboardContent,
               activeLineIndex: 0,
               description: step.whiteboardDescription,
-              mode: targetStep === "worked_example" ? "example" :
-                    targetStep === "correction" ? "correction" :
-                    targetStep === "quiz" ? "quiz" :
-                    targetStep === "summary" ? "summary" : "lesson",
+              mode:
+                targetStep === "worked_example"
+                  ? "example"
+                  : targetStep === "correction"
+                    ? "correction"
+                    : targetStep === "quiz"
+                      ? "quiz"
+                      : targetStep === "summary"
+                        ? "summary"
+                        : "lesson",
             }
           : state.board,
         captions: step ? [step.captionText] : state.captions,

@@ -73,11 +73,7 @@ function DemoClassroomPage() {
       );
     }
     return (
-      <AIVideoClassroom
-        content={content}
-        onExit={() => setSelectedLesson(null)}
-        autoPlay={true}
-      />
+      <AIVideoClassroom content={content} onExit={() => setSelectedLesson(null)} autoPlay={true} />
     );
   }
 
@@ -115,8 +111,8 @@ function DemoClassroomPage() {
             </span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-[#64748B]">
-            Pick a subject and experience a live AI classroom. Your teacher will write on the whiteboard,
-            explain concepts, and guide you through the lesson — all automated.
+            Pick a subject and experience a live AI classroom. Your teacher will write on the
+            whiteboard, explain concepts, and guide you through the lesson — all automated.
           </p>
         </div>
 
@@ -130,7 +126,9 @@ function DemoClassroomPage() {
               className="group relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white p-6 text-left transition-all hover:border-[#1F7C80] hover:shadow-lg"
             >
               <div className="flex items-start gap-4">
-                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${lesson.color} text-2xl text-white shadow-md`}>
+                <div
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${lesson.color} text-2xl text-white shadow-md`}
+                >
                   {lesson.icon}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -143,9 +141,7 @@ function DemoClassroomPage() {
                 </div>
               </div>
 
-              <p className="mt-4 text-sm leading-relaxed text-[#475569]">
-                {lesson.description}
-              </p>
+              <p className="mt-4 text-sm leading-relaxed text-[#475569]">{lesson.description}</p>
 
               <div className="mt-5 flex items-center justify-between">
                 <div className="flex items-center gap-4 text-xs text-[#94A3B8]">
@@ -169,10 +165,26 @@ function DemoClassroomPage() {
 
         {/* Features */}
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <FeatureCard icon={Video} title="AI Teacher" desc="Voice-first teaching with a real teacher persona" />
-          <FeatureCard icon={Brain} title="Smart Whiteboard" desc="Step-by-step explanations written in real time" />
-          <FeatureCard icon={Accessibility} title="Accessibility" desc="Captions, focus mode, pace control, screen reader" />
-          <FeatureCard icon={Volume2} title="Voice Interaction" desc="Speak or type your questions during the lesson" />
+          <FeatureCard
+            icon={Video}
+            title="AI Teacher"
+            desc="Voice-first teaching with a real teacher persona"
+          />
+          <FeatureCard
+            icon={Brain}
+            title="Smart Whiteboard"
+            desc="Step-by-step explanations written in real time"
+          />
+          <FeatureCard
+            icon={Accessibility}
+            title="Accessibility"
+            desc="Captions, focus mode, pace control, screen reader"
+          />
+          <FeatureCard
+            icon={Volume2}
+            title="Voice Interaction"
+            desc="Speak or type your questions during the lesson"
+          />
         </div>
 
         {/* What to expect */}
@@ -180,10 +192,22 @@ function DemoClassroomPage() {
           <h2 className="text-xl font-semibold text-[#0F172A]">What to expect</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {[
-              ["Meet your AI teacher", "Each subject has a dedicated teacher who guides you through the lesson."],
-              ["Watch the whiteboard", "Concepts, equations, and examples appear step by step as the teacher explains."],
-              ["Ask questions anytime", "Type or speak your question — the teacher responds using the lesson context."],
-              ["Learn at your pace", "The lesson flows automatically. Captions and notes are always available."],
+              [
+                "Meet your AI teacher",
+                "Each subject has a dedicated teacher who guides you through the lesson.",
+              ],
+              [
+                "Watch the whiteboard",
+                "Concepts, equations, and examples appear step by step as the teacher explains.",
+              ],
+              [
+                "Ask questions anytime",
+                "Type or speak your question — the teacher responds using the lesson context.",
+              ],
+              [
+                "Learn at your pace",
+                "The lesson flows automatically. Captions and notes are always available.",
+              ],
             ].map(([title, desc], i) => (
               <div key={title} className="flex gap-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#1F7C80]">

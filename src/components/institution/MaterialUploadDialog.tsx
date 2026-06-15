@@ -107,7 +107,10 @@ export function MaterialUploadDialog({
     },
   });
 
-  const isFormValid = form.title && form.type && (uploadMethod === "file" ? form.file : uploadMethod === "text" ? form.text : form.link);
+  const isFormValid =
+    form.title &&
+    form.type &&
+    (uploadMethod === "file" ? form.file : uploadMethod === "text" ? form.text : form.link);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -201,7 +204,9 @@ export function MaterialUploadDialog({
                   className="min-h-48"
                   maxLength={100000}
                 />
-                <p className="text-xs text-muted-foreground">{form.text.length}/100000 characters</p>
+                <p className="text-xs text-muted-foreground">
+                  {form.text.length}/100000 characters
+                </p>
               </TabsContent>
 
               <TabsContent value="link" className="space-y-3 mt-4">
