@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(Select-String \"src/lib/voice\" -SimpleMatch)"
-    ]
+    "allow": ["Bash(Select-String \"src/lib/voice\" -SimpleMatch)"]
   }
 }

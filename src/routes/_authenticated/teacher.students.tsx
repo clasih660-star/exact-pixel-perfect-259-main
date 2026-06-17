@@ -246,8 +246,8 @@ function TeacherStudents() {
             <AlertTriangle className="h-5 w-5 text-amber-600" />
           </div>
           <p className="text-sm font-semibold text-amber-800">
-            {needsHelp} student{needsHelp > 1 ? "s" : ""} may need your attention — low progress
-            or inactive for 3+ days.
+            {needsHelp} student{needsHelp > 1 ? "s" : ""} may need your attention — low progress or
+            inactive for 3+ days.
           </p>
         </div>
       )}

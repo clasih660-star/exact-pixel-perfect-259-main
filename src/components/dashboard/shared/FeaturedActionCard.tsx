@@ -17,42 +17,41 @@ type Props = {
 
 export function FeaturedActionCard({ icon, badge, title, description, content, actions }: Props) {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-gradient-to-br from-white via-[#EFF6FF] to-white p-8 shadow-sm">
-      {/* Gradient background accent */}
-      <div className="absolute right-0 top-0 h-80 w-80 translate-x-24 -translate-y-24 rounded-full bg-[#1F7C80]/5 blur-3xl" />
-
+    <section className="dashboard-card relative overflow-hidden p-5 sm:p-6">
       <div className="relative z-10">
         {/* Header */}
-        <div className="mb-6 flex items-start justify-between">
+        <div className="mb-5 flex items-start justify-between">
           <div className="flex-1">
             {badge && <div className="mb-3">{badge}</div>}
-            <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] lg:text-3xl">
+            <h2 className="text-xl font-bold leading-tight tracking-tight text-heading lg:text-2xl">
               {title}
             </h2>
-            {description && <p className="mt-1 text-sm text-[#475569]">{description}</p>}
+            {description && (
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-body">{description}</p>
+            )}
           </div>
-          {icon && <div className="ml-4 flex-shrink-0 text-[#1F7C80]">{icon}</div>}
+          {icon && <div className="ml-4 flex-shrink-0 text-academic-blue">{icon}</div>}
         </div>
 
         {/* Content */}
-        <div className="mb-6">{content}</div>
+        <div className="mb-5">{content}</div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
-          <div className="flex flex-col gap-2 lg:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row">
             {actions.map((action, idx) => (
               <Link
                 key={action.href}
                 to={action.href}
                 className={`
                   inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap 
-                  rounded-xl px-5 text-sm font-bold transition-all
+                  rounded-lg px-5 text-sm font-bold transition-all
                   ${
                     action.variant === "primary"
-                      ? "bg-[#1F7C80] text-white shadow-lg shadow-[#1F7C80]/25 hover:bg-[#1A5256]"
+                      ? "bg-academic-blue text-white shadow-lg shadow-academic-blue/25 hover:bg-navy-light"
                       : action.variant === "tertiary"
-                        ? "text-[#1F7C80] hover:text-[#1A5256] flex items-center gap-1"
-                        : "border border-[#E2E8F0] bg-white text-[#0F172A] hover:bg-[#F8FAFC]"
+                        ? "text-academic-blue hover:text-navy-light flex items-center gap-1"
+                        : "border border-border bg-white text-heading hover:bg-page-background-alt"
                   }
                 `}
               >

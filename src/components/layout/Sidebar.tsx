@@ -12,7 +12,7 @@
  */
 import { Link, useLocation } from "@tanstack/react-router";
 import { LogOut, ChevronRight, Sparkles } from "lucide-react";
-import { LogoMark } from "@/components/brand/Logo";
+import { Logo } from "@/components/brand/Logo";
 import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 import { useAuthContext } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,8 +58,7 @@ export function Sidebar() {
     >
       {/* ── Brand ─────────────────────────────────────────────── */}
       <Link to="/" className="sidebar-logo" style={{ textDecoration: "none" }}>
-        <LogoMark size={34} />
-        <div className="logo-text">Klassruum</div>
+        <Logo size={34} />
       </Link>
 
       {/* ── Role label ────────────────────────────────────────── */}

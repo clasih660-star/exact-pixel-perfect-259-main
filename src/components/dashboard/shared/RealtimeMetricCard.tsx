@@ -23,10 +23,10 @@ export function RealtimeMetricCard({
   isLive,
 }: Props) {
   return (
-    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-[#64748B]">{title}</h3>
+          <h3 className="text-sm font-semibold text-muted">{title}</h3>
           {isLive && (
             <div className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5">
               <div className="relative flex h-1.5 w-1.5">
@@ -37,15 +37,15 @@ export function RealtimeMetricCard({
             </div>
           )}
         </div>
-        {Icon && <Icon className="h-4 w-4 text-[#94A3B8]" />}
+        {Icon && <Icon className="h-4 w-4 text-muted" />}
       </div>
 
       <div className="flex items-baseline gap-1">
-        <p className="text-2xl font-bold text-[#0F172A]">{value}</p>
-        {unit && <p className="text-xs font-semibold text-[#64748B]">{unit}</p>}
+        <p className="text-2xl font-bold text-heading">{value}</p>
+        {unit && <p className="text-xs font-semibold text-muted">{unit}</p>}
       </div>
 
-      {subtitle && <p className="mt-1 text-xs text-[#64748B]">{subtitle}</p>}
+      {subtitle && <p className="mt-1 text-xs text-muted">{subtitle}</p>}
 
       {change && (
         <div className="mt-3 flex items-center gap-1">
@@ -62,7 +62,7 @@ export function RealtimeMetricCard({
             </>
           )}
           {status === "neutral" && (
-            <span className="text-xs font-semibold text-[#64748B]">{change}</span>
+            <span className="text-xs font-semibold text-muted">{change}</span>
           )}
         </div>
       )}

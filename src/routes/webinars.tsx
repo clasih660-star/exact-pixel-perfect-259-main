@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/marketing/InfoPage";
+import { Clapperboard, Pen, Accessibility } from "lucide-react";
 
 export const Route = createFileRoute("/webinars")({
   head: () => ({
@@ -20,17 +21,17 @@ export const Route = createFileRoute("/webinars")({
       cta={{ label: "Request an invite", to: "/contact" }}
       sections={[
         {
-          icon: "🎬",
+          icon: <Clapperboard size={20} />,
           title: "Getting started live",
           body: "A guided walkthrough of setting up your institution and first course.",
         },
         {
-          icon: "✍️",
+          icon: <Pen size={20} />,
           title: "Authoring masterclass",
           body: "How to turn your materials into lessons that teach well.",
         },
         {
-          icon: "♿",
+          icon: <Accessibility size={20} />,
           title: "Accessibility deep dive",
           body: "Configuring learning modes and inclusive settings for diverse cohorts.",
         },

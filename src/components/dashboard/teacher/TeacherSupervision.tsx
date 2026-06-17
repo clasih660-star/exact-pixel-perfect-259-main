@@ -2,14 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BookOpen, HelpCircle, Radio, Users } from "lucide-react";
-import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
 import { getTeacherSupervision } from "@/lib/reporting.functions";
-
-const config = dashboardConfigs.teacher;
+import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 
 function timeAgo(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -23,6 +21,7 @@ function timeAgo(iso: string | null | undefined): string {
 }
 
 export default function TeacherSupervision() {
+  const config = useDashboardConfig();
   const fn = useServerFn(getTeacherSupervision);
   const { data, isLoading, error } = useQuery({
     queryKey: ["teacher-supervision"],
@@ -196,7 +195,7 @@ export default function TeacherSupervision() {
             data.courses.map((c: any) => (
               <Link
                 key={c.id}
-                to="/institution/courses/$courseId"
+                to="/teacher/courses/$courseId"
                 params={{ courseId: c.id }}
                 className="rounded-xl border border-[var(--gray-200)] p-4 transition-all hover:border-[var(--primary)]/20 hover:shadow-sm"
               >

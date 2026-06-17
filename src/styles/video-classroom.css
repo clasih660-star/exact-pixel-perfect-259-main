@@ -12,7 +12,11 @@
   height: 100vh;
   overflow: hidden;
   background: var(--navy);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
   color: var(--border);
 }
 
@@ -190,12 +194,13 @@
 }
 
 @keyframes vc-ring-pulse {
-  0%, 100% { 
-    border-color: rgba(59, 130, 246, 0.4); 
+  0%,
+  100% {
+    border-color: rgba(59, 130, 246, 0.4);
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
   }
-  50% { 
-    border-color: rgba(59, 130, 246, 0.9); 
+  50% {
+    border-color: rgba(59, 130, 246, 0.9);
     box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
   }
 }
@@ -226,8 +231,13 @@
 }
 
 @keyframes vc-dot-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .vc-teacher-voice-indicator {
@@ -276,8 +286,13 @@
 }
 
 @keyframes vc-wave-anim {
-  0%, 100% { height: 3px; }
-  50% { height: 16px; }
+  0%,
+  100% {
+    height: 3px;
+  }
+  50% {
+    height: 16px;
+  }
 }
 
 /* ── Teacher State Badge ─────────────────────────────── */
@@ -418,8 +433,7 @@
   flex-direction: column;
   margin: 12px 12px 0 0;
   /* Aluminium frame around a real whiteboard */
-  background:
-    linear-gradient(180deg, #f4f6fa 0%, #dde3ec 45%, #c7cedb 100%);
+  background: linear-gradient(180deg, #f4f6fa 0%, #dde3ec 45%, #c7cedb 100%);
   padding: 10px 10px 22px;
   border-radius: 14px;
   border: 1px solid #b9c2d2;
@@ -432,15 +446,14 @@
 
 /* The board's marker tray (the ledge along the bottom of the frame) */
 .vc-whiteboard::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 14px;
   right: 14px;
   bottom: 6px;
   height: 12px;
   border-radius: 0 0 8px 8px;
-  background:
-    linear-gradient(180deg, #cfd6e2 0%, #aeb7c7 60%, #97a1b3 100%);
+  background: linear-gradient(180deg, #cfd6e2 0%, #aeb7c7 60%, #97a1b3 100%);
   box-shadow:
     inset 0 2px 3px rgba(255, 255, 255, 0.7),
     0 2px 4px rgba(15, 23, 42, 0.18);
@@ -465,7 +478,7 @@
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.35);
 }
 .vc-tray-marker::after {
-  content: '';
+  content: "";
   position: absolute;
   right: -3px;
   top: 1px;
@@ -474,9 +487,15 @@
   border-radius: 1px;
   background: #475569;
 }
-.vc-tray-marker-teal { background: linear-gradient(180deg, var(--primary), var(--primary-dark)); }
-.vc-tray-marker-black { background: linear-gradient(180deg, #475569, #1e293b); }
-.vc-tray-marker-red { background: linear-gradient(180deg, #f87171, #dc2626); }
+.vc-tray-marker-teal {
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+}
+.vc-tray-marker-black {
+  background: linear-gradient(180deg, #475569, #1e293b);
+}
+.vc-tray-marker-red {
+  background: linear-gradient(180deg, #f87171, #dc2626);
+}
 .vc-tray-eraser {
   width: 26px;
   height: 12px;
@@ -510,7 +529,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  color: #5F5B46;
+  color: #5f5b46;
   font-weight: 500;
 }
 
@@ -518,13 +537,20 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #5F5B46;
+  background: #5f5b46;
   animation: vc-pulse 1s ease-in-out infinite;
 }
 
 @keyframes vc-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
 }
 
 /* ── Whiteboard Content Area (the writing surface) ───── */
@@ -535,8 +561,7 @@
   position: relative;
   min-height: 0;
   /* Glossy white board surface */
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fdfefe 55%, #f7fafc 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fdfefe 55%, #f7fafc 100%);
   border-radius: 8px;
   border: 1px solid #d3dae6;
   box-shadow:
@@ -547,11 +572,15 @@
 
 /* Soft diagonal sheen across the board, like light on a glossy surface */
 .vc-whiteboard-content::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(115deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0) 60%);
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
   pointer-events: none;
   border-radius: 8px;
 }
@@ -596,20 +625,32 @@
   background: rgba(251, 191, 36, 0.12);
   border-left: 3px solid #f59e0b;
   border-radius: 0 6px 6px 0;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 /* Whiteboard tool — cursor/select mode */
 .vc-board-line-selected {
   background: rgba(37, 99, 235, 0.08);
   border-left: 3px solid #3b82f6;
   border-radius: 0 6px 6px 0;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 /* Board line is clickable when a tool is active */
-.vc-board-line[role="button"] { cursor: pointer; }
-.vc-board-line[role="button"]:hover { background: rgba(37, 99, 235, 0.04); }
-.vc-board-line-highlighted.vc-board-line[role="button"]:hover { background: rgba(251, 191, 36, 0.18); }
-.vc-board-line-selected.vc-board-line[role="button"]:hover { background: rgba(37, 99, 235, 0.12); }
+.vc-board-line[role="button"] {
+  cursor: pointer;
+}
+.vc-board-line[role="button"]:hover {
+  background: rgba(37, 99, 235, 0.04);
+}
+.vc-board-line-highlighted.vc-board-line[role="button"]:hover {
+  background: rgba(251, 191, 36, 0.18);
+}
+.vc-board-line-selected.vc-board-line[role="button"]:hover {
+  background: rgba(37, 99, 235, 0.12);
+}
 
 /* User annotation below a board line */
 .vc-board-note-annotation {
@@ -623,10 +664,14 @@
   cursor: pointer;
   transition: background 0.15s ease;
 }
-.vc-board-note-annotation:hover { background: rgba(37, 99, 235, 0.1); }
+.vc-board-note-annotation:hover {
+  background: rgba(37, 99, 235, 0.1);
+}
 
 /* Annotation input */
-.vc-board-annotation-input-wrap { margin-top: 6px; }
+.vc-board-annotation-input-wrap {
+  margin-top: 6px;
+}
 .vc-board-annotation-input {
   width: 100%;
   padding: 6px 10px;
@@ -639,7 +684,10 @@
   font-family: inherit;
   box-sizing: border-box;
 }
-.vc-board-annotation-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+.vc-board-annotation-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
 
 /* Tool hint below toolbar */
 .vc-board-tool-hint {
@@ -774,13 +822,25 @@
 }
 
 @keyframes vc-note-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes vc-fade-in {
-  from { opacity: 0; transform: translateY(8px) rotate(-0.35deg); }
-  to { opacity: 1; transform: translateY(0) rotate(-0.35deg); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) rotate(-0.35deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(-0.35deg);
+  }
 }
 
 /* ── Handwriting Animation (currently-writing line) ──── */
@@ -820,11 +880,21 @@
 }
 
 @keyframes vc-pen-write {
-  0%   { transform: translate(0, 0) rotate(-32deg); }
-  25%  { transform: translate(-1px, -2px) rotate(-34deg); }
-  50%  { transform: translate(0, 1px) rotate(-30deg); }
-  75%  { transform: translate(1px, -1px) rotate(-33deg); }
-  100% { transform: translate(0, 0) rotate(-32deg); }
+  0% {
+    transform: translate(0, 0) rotate(-32deg);
+  }
+  25% {
+    transform: translate(-1px, -2px) rotate(-34deg);
+  }
+  50% {
+    transform: translate(0, 1px) rotate(-30deg);
+  }
+  75% {
+    transform: translate(1px, -1px) rotate(-33deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(-32deg);
+  }
 }
 
 /* ── Teacher Explanation Panel (below whiteboard) ────── */
@@ -1636,8 +1706,14 @@
   animation: vc-followup-in 0.3s ease both;
 }
 @keyframes vc-followup-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .vc-followup-text {
   font-size: 0.85rem;
@@ -1738,8 +1814,13 @@
 }
 
 @keyframes vc-mic-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(22, 163, 74, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(22, 163, 74, 0);
+  }
 }
 
 .vc-mic-text {
@@ -2279,8 +2360,14 @@
   animation: vc-moment-in 0.22s ease;
 }
 @keyframes vc-moment-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 .vc-moment-badge {
   display: inline-flex;
@@ -2292,12 +2379,30 @@
   font-weight: 700;
   margin-bottom: 14px;
 }
-.vc-moment-badge-prereq { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-.vc-moment-badge-recap { background: rgba(124, 58, 237, 0.15); color: #a78bfa; }
-.vc-moment-badge-pause { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-.vc-moment-badge-confidence { background: rgba(59, 130, 246, 0.15); color: #3fa8ab; }
-.vc-moment-badge-question { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
-.vc-moment-badge-reflection { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+.vc-moment-badge-prereq {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+.vc-moment-badge-recap {
+  background: rgba(124, 58, 237, 0.15);
+  color: #a78bfa;
+}
+.vc-moment-badge-pause {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+}
+.vc-moment-badge-confidence {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3fa8ab;
+}
+.vc-moment-badge-question {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+}
+.vc-moment-badge-reflection {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+}
 
 .vc-moment-title {
   font-size: 1.05rem;
@@ -2326,24 +2431,32 @@
   color: #e2e8f0;
   font-size: 0.86rem;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    transform 0.1s;
 }
 .vc-moment-option:hover:not(:disabled) {
-  border-color: #1F7C80;
+  border-color: #1f7c80;
   background: rgba(59, 130, 246, 0.1);
 }
-.vc-moment-option:active:not(:disabled) { transform: scale(0.99); }
-.vc-moment-option:disabled { opacity: 0.6; cursor: default; }
+.vc-moment-option:active:not(:disabled) {
+  transform: scale(0.99);
+}
+.vc-moment-option:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 .vc-moment-option-primary {
-  background: #1F7C80;
-  border-color: #1F7C80;
+  background: #1f7c80;
+  border-color: #1f7c80;
   color: #fff;
   text-align: center;
   font-weight: 600;
 }
 .vc-moment-option-primary:hover:not(:disabled) {
-  background: #1F7C80;
-  border-color: #1F7C80;
+  background: #1f7c80;
+  border-color: #1f7c80;
 }
 .vc-moment-option-correct {
   border-color: #22c55e;

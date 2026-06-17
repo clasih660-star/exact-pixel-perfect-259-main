@@ -101,7 +101,7 @@ export const registerInstitution = createServerFn({ method: "POST" })
       .select("id, slug")
       .single();
     if (instErr || !inst) {
-      await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => { });
+      await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
       throw new Error(instErr?.message || "Could not create institution.");
     }
 
@@ -110,8 +110,8 @@ export const registerInstitution = createServerFn({ method: "POST" })
       .from("institution_members")
       .insert({ institution_id: inst.id, user_id: userId, role: "owner", status: "active" });
     if (memErr) {
-      await supabaseAdmin.from("institutions").delete().eq("id", inst.id).catch(() => { });
-      await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => { });
+      await supabaseAdmin.from("institutions").delete().eq("id", inst.id);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
       throw new Error(memErr.message);
     }
 

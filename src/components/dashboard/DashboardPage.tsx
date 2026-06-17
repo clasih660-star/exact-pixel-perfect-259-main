@@ -1,8 +1,5 @@
 /**
- * DashboardPage.tsx
- *
- * Production-grade dashboard that fetches real data from the backend.
- * Shows proper empty states and onboarding when no data exists.
+ * DashboardPage.tsx — Learner dashboard with real data and proper empty states.
  */
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -16,16 +13,10 @@ import {
   BookOpen,
   Clock,
   Target,
-  Award,
   ArrowRight,
   Calendar,
   TrendingUp,
   Sparkles,
-  Trophy,
-  Star,
-  Flame,
-  Brain,
-  Zap,
   RefreshCw,
   Play,
 } from "lucide-react";
@@ -38,8 +29,8 @@ export function DashboardPage() {
       <AppShell>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1F7C80] mx-auto mb-4" />
-            <p className="text-gray-500">Loading your dashboard...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-academic-blue mx-auto mb-4" />
+            <p className="text-muted">Loading your dashboard...</p>
           </div>
         </div>
       </AppShell>
@@ -73,31 +64,26 @@ export function DashboardPage() {
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between gap-2 text-sm text-red-700">
             <span>Failed to load dashboard data. Please try again.</span>
-            <button onClick={refresh} className="text-xs font-medium text-red-800 underline">
-              Retry
-            </button>
+            <button onClick={refresh} className="text-xs font-medium text-red-800 underline">Retry</button>
           </div>
         )}
 
-        {/* Empty state — no enrollments yet */}
+        {/* Empty state */}
         {!error && isUsingDemoData && courses.length === 0 && (
-          <div className="mb-6 p-8 bg-gradient-to-br from-[#F0FDFA] to-white border border-[#A3D9D8] rounded-xl text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#1F7C80]/10">
-              <Sparkles size={28} className="text-[#1F7C80]" />
+          <div className="mb-6 p-8 bg-gradient-to-br from-soft-green to-white border border-border rounded-xl text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-academic-blue/10">
+              <Sparkles size={28} className="text-academic-blue" />
             </div>
-            <h2 className="text-xl font-bold text-[#1A3233] mb-2">Welcome to Klassruum!</h2>
-            <p className="text-sm text-[#64748B] mb-6 max-w-md mx-auto">
-              You haven't enrolled in any courses yet. Browse available courses to start your
-              learning journey with AI-powered classrooms.
+            <h2 className="text-xl font-bold text-heading mb-2">Welcome to Klassruum</h2>
+            <p className="text-sm text-body mb-6 max-w-md mx-auto">
+              You haven't enrolled in any courses yet. Browse available courses to start your learning journey.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <Link to="/student/courses" className="btn btn-primary">
-                <BookOpen size={16} />
-                Browse Courses
+              <Link to="/student/courses" className="inline-flex items-center gap-2 rounded-lg bg-academic-blue px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light transition-colors">
+                <BookOpen size={16} /> Browse Courses
               </Link>
-              <button onClick={refresh} className="btn btn-ghost">
-                <RefreshCw size={14} />
-                Refresh
+              <button onClick={refresh} className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-body hover:bg-page-background-alt transition-colors">
+                <RefreshCw size={14} /> Refresh
               </button>
             </div>
           </div>
@@ -106,26 +92,24 @@ export function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="page-title">Welcome back!</h1>
-            <p className="page-subtitle">
+            <h1 className="text-2xl font-bold text-heading">Welcome back</h1>
+            <p className="text-sm text-body mt-0.5">
               {continueLearning
                 ? "Continue where you left off, or start something new."
-                : "You're making great progress. Keep up the fantastic work!"}
+                : "You're making great progress. Keep it up."}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn btn-ghost btn-sm" onClick={refresh}>
-              <RefreshCw size={14} />
+            <button className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-body hover:bg-page-background-alt transition-colors" onClick={refresh}>
+              <RefreshCw size={13} />
             </button>
             {continueLearning ? (
-              <Link to="/student/classrooms" className="btn btn-primary">
-                <Play size={16} />
-                Continue Learning
+              <Link to="/student/classrooms" className="inline-flex items-center gap-2 rounded-lg bg-academic-blue px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light transition-colors">
+                <Play size={15} /> Continue
               </Link>
             ) : (
-              <Link to="/student/courses" className="btn btn-primary">
-                <Sparkles size={16} />
-                Start new lesson
+              <Link to="/student/courses" className="inline-flex items-center gap-2 rounded-lg bg-academic-blue px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light transition-colors">
+                <Sparkles size={15} /> Start lesson
               </Link>
             )}
           </div>
@@ -133,103 +117,47 @@ export function DashboardPage() {
 
         {/* Continue Learning Hero */}
         {continueLearning && (
-          <div className="card p-6 mb-6 bg-gradient-to-r from-[#1F7C80] to-[#1A5256] text-white">
+          <div className="rounded-xl p-6 mb-6 bg-gradient-to-r from-academic-blue to-navy-light text-white">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Continue Learning</h2>
-                <p className="text-[#a3d9d8] mb-2">{continueLearning.courseTitle}</p>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1 text-sm text-[#a3d9d8]">
-                    <span>Step: {continueLearning.currentStep}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-sm text-[#a3d9d8]">
-                    <span>{continueLearning.progressPercentage}% complete</span>
-                  </div>
+                <p className="text-white/70 mb-2 text-sm">{continueLearning.courseTitle}</p>
+                <div className="flex items-center gap-4 text-sm text-white/60">
+                  <span>Step: {continueLearning.currentStep}</span>
+                  <span>{continueLearning.progressPercentage}% complete</span>
                 </div>
               </div>
-              <Link
-                to="/student/classrooms"
-                className="btn bg-white text-[#1F7C80] hover:bg-[#e8f5f5]"
-              >
-                <Play size={16} />
-                Resume
+              <Link to="/student/classrooms" className="inline-flex items-center gap-2 rounded-lg bg-white text-academic-blue px-4 py-2 text-sm font-semibold hover:bg-white/90 transition-colors">
+                <Play size={15} /> Resume
               </Link>
             </div>
-            <div className="mt-4 bg-[#e8f5f5]0/30 rounded-full h-2">
-              <div
-                className="bg-white rounded-full h-2 transition-all"
-                style={{ width: `${continueLearning.progressPercentage}%` }}
-              />
+            <div className="mt-4 bg-white/20 rounded-full h-1.5">
+              <div className="bg-white rounded-full h-1.5 transition-all" style={{ width: `${continueLearning.progressPercentage}%` }} />
             </div>
           </div>
         )}
 
         {/* Stats Row */}
-        <div className="stats-row">
-          <StatCard
-            title="Classrooms"
-            value={stats.activeCourses}
-            subtitle="Active courses"
-            color="blue"
-            icon={<Users size={20} />}
-            link="/student/courses"
-            linkText="View all"
-          />
-          <StatCard
-            title="Completed"
-            value={stats.completedLessons}
-            subtitle="Lessons finished"
-            color="green"
-            icon={<BookOpen size={20} />}
-            link="/student/sessions"
-            linkText="View progress"
-          />
-          <StatCard
-            title="Study time"
-            value={formatStudyTime(stats.totalTimeMinutes)}
-            subtitle="Total"
-            color="purple"
-            icon={<Clock size={20} />}
-            link="/student/sessions"
-            linkText="View details"
-          />
-          <StatCard
-            title="Quiz average"
-            value={`${stats.avgQuizScore}%`}
-            subtitle="Last 10 quizzes"
-            color="orange"
-            icon={<Target size={20} />}
-            link="/student/quizzes"
-            linkText="View quizzes"
-          />
-          <StatCard
-            title="Sessions"
-            value={stats.recentSessionsCount}
-            subtitle="Recent"
-            color="cyan"
-            icon={<Flame size={20} />}
-            link="/student/sessions"
-            linkText="View all"
-          />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+          <StatCard title="Classrooms" value={stats.activeCourses} subtitle="Active courses" color="blue" icon={<Users size={18} />} link="/student/courses" linkText="View all" />
+          <StatCard title="Completed" value={stats.completedLessons} subtitle="Lessons finished" color="green" icon={<BookOpen size={18} />} link="/student/sessions" linkText="View" />
+          <StatCard title="Study time" value={formatStudyTime(stats.totalTimeMinutes)} subtitle="Total" color="purple" icon={<Clock size={18} />} link="/student/sessions" linkText="View" />
+          <StatCard title="Quiz avg" value={`${stats.avgQuizScore}%`} subtitle="Last 10" color="orange" icon={<Target size={18} />} link="/student/quizzes" linkText="View" />
+          <StatCard title="Sessions" value={stats.recentSessionsCount} subtitle="Recent" color="cyan" icon={<TrendingUp size={18} />} link="/student/sessions" linkText="View" />
         </div>
 
         {/* Recommendations */}
         {recommendations.length > 0 && (
-          <div className="card p-4 mb-6">
-            <div className="section-header">
-              <h2 className="section-title">
-                <Brain size={16} className="inline mr-1" />
-                Recommended for You
-              </h2>
-            </div>
+          <div className="rounded-xl border border-border bg-white p-4 mb-6">
+            <h2 className="text-sm font-bold text-heading mb-3">Recommended for you</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {recommendations.slice(0, 3).map((rec) => (
-                <div key={rec.id} className="p-3 bg-gray-50 rounded-lg">
-                  <div className="font-medium text-sm mb-1">{rec.title}</div>
-                  <div className="text-xs text-gray-500 mb-2">{rec.description}</div>
+                <div key={rec.id} className="p-3 bg-page-background-alt rounded-lg">
+                  <div className="font-medium text-sm text-heading mb-1">{rec.title}</div>
+                  <div className="text-xs text-body mb-2">{rec.description}</div>
                   {rec.targetUrl && (
-                    <Link to={rec.targetUrl} className="text-xs text-[#1F7C80] hover:underline">
-                      Go →
+                    <Link to={rec.targetUrl} className="text-xs text-academic-blue hover:underline font-medium">
+                      Go
                     </Link>
                   )}
                 </div>
@@ -239,163 +167,114 @@ export function DashboardPage() {
         )}
 
         {/* Main Dashboard Grid */}
-        <div className="dashboard-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           {/* Courses Section */}
-          <div className="card" style={{ gridColumn: "span 2" }}>
-            <div className="section-header">
-              <h2 className="section-title">My Courses</h2>
-              <Link to="/student/courses" className="section-link">
-                View all <ArrowRight size={12} />
+          <div className="lg:col-span-2 rounded-xl border border-border bg-white">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="text-sm font-bold text-heading">My Courses</h2>
+              <Link to="/student/courses" className="text-xs text-academic-blue font-medium hover:underline flex items-center gap-1">
+                View all <ArrowRight size={11} />
               </Link>
             </div>
-            <div className="classroom-list">
+            <div className="p-4">
               {courses.length > 0 ? (
-                courses
-                  .slice(0, 4)
-                  .map((course) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {courses.slice(0, 4).map((course) => (
                     <CourseCard key={course.id ?? Math.random()} course={course as any} />
-                  ))
+                  ))}
+                </div>
               ) : (
-                <div className="text-center py-8 text-gray-400">
-                  <BookOpen size={32} className="mx-auto mb-2" />
-                  <p>No courses yet. Browse available courses to get started!</p>
-                  <Link to="/student/courses" className="btn btn-primary mt-3">
+                <div className="text-center py-8 text-muted">
+                  <BookOpen size={28} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No courses yet</p>
+                  <Link to="/student/courses" className="inline-flex items-center gap-1.5 mt-3 rounded-lg bg-academic-blue px-4 py-2 text-sm font-semibold text-white hover:bg-navy-light transition-colors">
                     Browse Courses
                   </Link>
                 </div>
               )}
             </div>
-
-            {/* Start AI Learning Card */}
-            <div className="start-ai-card">
-              <div className="flex-1">
-                <div className="ai-title">Start AI Learning Session</div>
-                <div className="ai-desc">
-                  Begin an interactive lesson with Mr. Klass, your AI teacher
-                </div>
-              </div>
-              <Link to="/student/courses" className="btn btn-primary">
-                <Sparkles size={16} />
-                Start
-              </Link>
-            </div>
           </div>
 
-          {/* Calendar Section */}
-          <div className="card">
-            <div className="section-header">
-              <h2 className="section-title">Schedule</h2>
-              <Link to="/student/calendar" className="section-link">
-                Full calendar <ArrowRight size={12} />
+          {/* Schedule Section */}
+          <div className="rounded-xl border border-border bg-white">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="text-sm font-bold text-heading">Schedule</h2>
+              <Link to="/student/calendar" className="text-xs text-academic-blue font-medium hover:underline flex items-center gap-1">
+                Calendar <ArrowRight size={11} />
               </Link>
             </div>
-            <MiniCalendar />
-            <div className="upcoming-list">
-              {recentSessions.length > 0 ? (
-                recentSessions.slice(0, 3).map((session) => (
-                  <div key={session.id} className="upcoming-item">
-                    <div className="upcoming-icon bg-[#d1eceb] text-[#1F7C80]">
-                      <Calendar size={16} />
+            <div className="p-4">
+              <MiniCalendar />
+              <div className="mt-4 space-y-2">
+                {recentSessions.length > 0 ? (
+                  recentSessions.slice(0, 3).map((session) => (
+                    <div key={session.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-page-background-alt transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-soft-blue flex items-center justify-center text-academic-blue shrink-0">
+                        <Calendar size={14} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-heading truncate">{session.lessonTitle}</div>
+                        <div className="text-[11px] text-muted truncate">{session.courseTitle}</div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="upcoming-name">{session.lessonTitle}</div>
-                      <div className="upcoming-class">{session.courseTitle}</div>
-                    </div>
-                    <div className="upcoming-time">
-                      {session.startedAt ? new Date(session.startedAt).toLocaleDateString() : "—"}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-gray-400 text-sm">No upcoming sessions</div>
-              )}
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-muted text-xs">No upcoming sessions</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="bottom-section">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Recent Sessions */}
-          <div className="card">
-            <div className="section-header">
-              <h2 className="section-title">Recent Sessions</h2>
-              <Link to="/student/sessions" className="section-link">
-                View history <ArrowRight size={12} />
+          <div className="lg:col-span-2 rounded-xl border border-border bg-white">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="text-sm font-bold text-heading">Recent Sessions</h2>
+              <Link to="/student/sessions" className="text-xs text-academic-blue font-medium hover:underline flex items-center gap-1">
+                View history <ArrowRight size={11} />
               </Link>
             </div>
-            <div className="session-list">
+            <div className="p-4">
               {recentSessions.length > 0 ? (
-                recentSessions.slice(0, 5).map((session) => (
-                  <RecentSessionCard
-                    key={session.id}
-                    session={{
-                      id: session.id,
-                      title: session.lessonTitle,
-                      courseTitle: session.courseTitle,
-                      status: session.status as "completed" | "in_progress" | "scheduled",
-                      timestamp: session.startedAt ?? "",
-                      duration: session.durationMinutes ? `${session.durationMinutes} min` : "—",
-                    }}
-                  />
-                ))
+                <div className="space-y-2">
+                  {recentSessions.slice(0, 5).map((session) => (
+                    <RecentSessionCard
+                      key={session.id}
+                      session={{
+                        id: session.id,
+                        title: session.lessonTitle,
+                        courseTitle: session.courseTitle,
+                        status: session.status as "completed" | "in_progress" | "scheduled",
+                        timestamp: session.startedAt ?? "",
+                        duration: session.durationMinutes ? `${session.durationMinutes} min` : "—",
+                      }}
+                    />
+                  ))}
+                </div>
               ) : (
-                <div className="text-center py-8 text-gray-400">
-                  <Clock size={32} className="mx-auto mb-2" />
-                  <p>No sessions yet. Start your first lesson!</p>
+                <div className="text-center py-8 text-muted">
+                  <Clock size={28} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No sessions yet. Start your first lesson.</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Achievements */}
-          <div>
-            <div className="section-header">
-              <h2 className="section-title">Achievements</h2>
-              <Link to="/student/achievements" className="section-link">
-                View all <ArrowRight size={12} />
+          <div className="rounded-xl border border-border bg-white">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="text-sm font-bold text-heading">Achievements</h2>
+              <Link to="/student/achievements" className="text-xs text-academic-blue font-medium hover:underline flex items-center gap-1">
+                View all <ArrowRight size={11} />
               </Link>
             </div>
-            <div className="achievements-row">
-              <AchievementCard
-                icon="🎯"
-                name="First Steps"
-                sub="Complete your first lesson"
-                earned={stats.completedLessons > 0}
-              />
-              <AchievementCard
-                icon="🔥"
-                name="Week Warrior"
-                sub="7-day learning streak"
-                earned={false}
-              />
-              <AchievementCard
-                icon="💯"
-                name="Perfect Score"
-                sub="Score 100% on a quiz"
-                earned={stats.avgQuizScore === 100}
-                inProgress
-              />
-              <AchievementCard
-                icon="🏆"
-                name="Quiz Master"
-                sub="Complete 10 quizzes"
-                earned={false}
-                inProgress
-              />
-              <AchievementCard
-                icon="🧮"
-                name="Math Whiz"
-                sub="Complete all algebra lessons"
-                earned={false}
-                inProgress
-              />
-              <AchievementCard
-                icon="⚡"
-                name="Quick Learner"
-                sub="5 lessons in one day"
-                earned={false}
-                inProgress
-              />
+            <div className="p-4 grid grid-cols-2 gap-2">
+              <AchievementCard name="First Steps" sub="Complete first lesson" earned={stats.completedLessons > 0} />
+              <AchievementCard name="Week Warrior" sub="7-day streak" earned={false} />
+              <AchievementCard name="Perfect Score" sub="100% on a quiz" earned={stats.avgQuizScore === 100} inProgress />
+              <AchievementCard name="Quiz Master" sub="10 quizzes done" earned={false} inProgress />
             </div>
           </div>
         </div>
@@ -405,26 +284,25 @@ export function DashboardPage() {
 }
 
 function AchievementCard({
-  icon,
   name,
   sub,
   earned,
   inProgress,
 }: {
-  icon: string;
   name: string;
   sub: string;
   earned: boolean;
   inProgress?: boolean;
 }) {
   return (
-    <div className={`achievement-card ${earned ? "green" : inProgress ? "blue" : "purple"}`}>
-      <span className="ach-icon">{icon}</span>
-      <div className="ach-name">{name}</div>
-      <div className="ach-sub">{sub}</div>
-      <div
-        className={`ach-tag badge ${earned ? "badge-green" : inProgress ? "badge-orange" : "badge-blue"}`}
-      >
+    <div className={`rounded-lg border p-3 text-center ${
+      earned ? "bg-soft-green border-green-200" : inProgress ? "bg-soft-blue border-blue-200" : "bg-page-background-alt border-border"
+    }`}>
+      <div className="text-sm font-bold text-heading">{name}</div>
+      <div className="text-[11px] text-body mt-0.5">{sub}</div>
+      <div className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${
+        earned ? "bg-education-green text-white" : inProgress ? "bg-academic-blue text-white" : "bg-border text-muted"
+      }`}>
         {earned ? "Earned" : inProgress ? "In progress" : "Locked"}
       </div>
     </div>
@@ -439,30 +317,23 @@ function MiniCalendar() {
 
   return (
     <div>
-      <div className="calendar-nav">
-        <button className="cal-btn">
-          <TrendingUp size={14} />
-        </button>
-        <div className="cal-month">{month}</div>
-        <button className="cal-btn">
-          <TrendingUp size={14} />
-        </button>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-bold text-heading">{month}</span>
       </div>
-      <div className="cal-grid">
+      <div className="grid grid-cols-7 gap-1 text-center">
         {days.map((day) => (
-          <div key={day} className="cal-day-label">
-            {day}
-          </div>
+          <div key={day} className="text-[10px] font-semibold text-muted pb-1">{day}</div>
         ))}
         {Array.from({ length: 35 }, (_, i) => {
           const dayNum = i - 2;
           const isToday = dayNum === today;
           const isOtherMonth = dayNum <= 0 || dayNum > 31;
-
           return (
             <div
               key={i}
-              className={`cal-day ${isToday ? "today" : ""} ${isOtherMonth ? "other-month" : ""}`}
+              className={`text-xs py-1 rounded ${
+                isToday ? "bg-academic-blue text-white font-bold" : isOtherMonth ? "text-border" : "text-body"
+              }`}
             >
               {dayNum > 0 && dayNum <= 31 ? dayNum : ""}
             </div>

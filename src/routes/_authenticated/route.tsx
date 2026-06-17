@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import type { UserRole } from "@/lib/types";
 import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import { requiresEmailVerification } from "@/lib/auth-verification";
 
 /** Demo roles available without Supabase. */
 const DEMO_ROLES: UserRole[] = [
@@ -31,9 +32,9 @@ function getDemoRole(): UserRole {
 async function fetchUserRole(userId: string): Promise<UserRole | null> {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return ((data as any)?.role as UserRole) ?? null;
+    const { data, error } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+    if (error) throw error;
+    return ((data as { role?: UserRole | null } | null)?.role as UserRole | null | undefined) ?? null;
   } catch {
     return null;
   }
@@ -54,15 +55,6 @@ export const Route = createFileRoute("/_authenticated")({
       };
     }
 
-    // ── Dev mode with real Supabase: quick bypass for local dev ──────────
-    if (import.meta.env.DEV) {
-      const role = getDemoRole();
-      return {
-        user: { id: "demo-user-0000", email: "demo@klassruum.com" },
-        role,
-      };
-    }
-
     // ── Production: real Supabase auth ───────────────────────────────────
     try {
       const { supabase } = await import("@/integrations/supabase/client");
@@ -71,8 +63,16 @@ export const Route = createFileRoute("/_authenticated")({
         throw redirect({ to: "/auth" });
       }
 
+      if (requiresEmailVerification(data.user)) {
+        throw redirect({ to: "/auth/verify-email" });
+      }
+
       // Fetch the user's role from their profile
       const role = await fetchUserRole(data.user.id);
+
+      if (!role) {
+        throw redirect({ to: "/auth/complete-profile" });
+      }
 
       return { user: data.user, role };
     } catch (err) {

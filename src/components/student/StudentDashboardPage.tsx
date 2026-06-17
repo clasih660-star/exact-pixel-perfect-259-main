@@ -13,13 +13,49 @@ import {
   Star,
   Zap,
 } from "lucide-react";
-import { dashboardConfigs } from "@/lib/dashboard-config";
+import { type DashboardConfig } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
+import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 
-const config = dashboardConfigs.learner;
+function getLearnerDashboardCopy(role: DashboardConfig["role"]) {
+  switch (role) {
+    case "private_learner":
+      return {
+        welcomeLabel: "Welcome back",
+        heroTitle: "Continue your personal learning journey",
+        heroDescription:
+          "Your private courses, lesson history, and teacher guidance are ready for the next step.",
+        primaryActionLabel: "Continue Learning",
+      };
+    case "teacher_enrolled_learner":
+      return {
+        welcomeLabel: "Welcome back",
+        heroTitle: "Continue learning with your teacher",
+        heroDescription:
+          "Your teacher-assigned lessons, support materials, and next session are ready for you.",
+        primaryActionLabel: "Join Session",
+      };
+    case "institution_learner":
+      return {
+        welcomeLabel: "Welcome back",
+        heroTitle: "Continue your institution learning journey",
+        heroDescription:
+          "Your next class is ready. Continue from where you left off and stay on track with your institution programme.",
+        primaryActionLabel: "Enter Classroom",
+      };
+    default:
+      return {
+        welcomeLabel: "Welcome back",
+        heroTitle: "Continue your learning journey",
+        heroDescription:
+          "Your next classroom is ready. Continue from where you left off and keep building your skills.",
+        primaryActionLabel: "Enter Classroom",
+      };
+  }
+}
 
 const mockContinueLearning = {
   course: "Mathematics Form 2",
@@ -87,6 +123,8 @@ const mockRecentSessions = [
 ];
 
 export function StudentDashboardPage() {
+  const config = useDashboardConfig();
+  const copy = getLearnerDashboardCopy(config.role);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -121,23 +159,20 @@ export function StudentDashboardPage() {
   }
 
   return (
-    <DashboardShell config={config} activePath="/student/dashboard" title="Learner Dashboard">
+    <DashboardShell config={config} activePath="/student/dashboard" title={config.title}>
       <section className="mb-5 grid gap-5 xl:grid-cols-[1fr_1.22fr]">
         <div className="relative overflow-hidden rounded-[22px] border border-[#DCE8F7] bg-gradient-to-br from-white via-[#F6FAFF] to-[#EAF3FF] p-7 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
           <div className="relative z-10 max-w-[58%]">
-            <p className="text-sm font-bold text-[#1F7C80]">Welcome back</p>
+            <p className="text-sm font-bold text-[#1F7C80]">{copy.welcomeLabel}</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#0F172A]">
-              Continue your learning journey
+              {copy.heroTitle}
             </h1>
-            <p className="mt-4 text-sm leading-7 text-[#334155]">
-              Your next classroom is ready. Continue from where you left off and keep building your
-              skills.
-            </p>
+            <p className="mt-4 text-sm leading-7 text-[#334155]">{copy.heroDescription}</p>
             <Link
               to={`/classroom/${mockContinueLearning.lessonId}` as any}
               className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-6 text-sm font-bold text-white shadow-lg shadow-[#1F7C80]/25 transition-all hover:bg-[#1A5256]"
             >
-              Enter Classroom
+              {copy.primaryActionLabel}
               <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -205,7 +240,7 @@ export function StudentDashboardPage() {
               to={`/classroom/${mockContinueLearning.lessonId}` as any}
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1F7C80] px-4 text-sm font-bold text-white transition-all hover:bg-[#1A5256]"
             >
-              Enter Classroom
+              {copy.primaryActionLabel}
               <ChevronRight className="h-4 w-4" />
             </Link>
             <Link

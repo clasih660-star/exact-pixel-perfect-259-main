@@ -24,7 +24,10 @@ export function ThemeToggle() {
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-teal-400" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg backdrop-blur-md">
+      <DropdownMenuContent
+        align="end"
+        className="w-36 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg backdrop-blur-md"
+      >
         <DropdownMenuItem
           onClick={() => setTheme("light")}
           className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent cursor-pointer"

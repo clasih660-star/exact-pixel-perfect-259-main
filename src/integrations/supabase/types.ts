@@ -614,6 +614,8 @@ export type Database = {
           learner_count: number | null;
           logo_url: string | null;
           name: string;
+          onboarding_started_at: string | null;
+          onboarding_status: string | null;
           phone: string | null;
           preferred_use_case: Database["public"]["Enums"]["preferred_use_case"] | null;
           slug: string;
@@ -632,6 +634,8 @@ export type Database = {
           learner_count?: number | null;
           logo_url?: string | null;
           name: string;
+          onboarding_started_at?: string | null;
+          onboarding_status?: string | null;
           phone?: string | null;
           preferred_use_case?: Database["public"]["Enums"]["preferred_use_case"] | null;
           slug: string;
@@ -650,6 +654,8 @@ export type Database = {
           learner_count?: number | null;
           logo_url?: string | null;
           name?: string;
+          onboarding_started_at?: string | null;
+          onboarding_status?: string | null;
           phone?: string | null;
           preferred_use_case?: Database["public"]["Enums"]["preferred_use_case"] | null;
           slug?: string;
@@ -2088,6 +2094,645 @@ export type Database = {
             columns: ["institution_id"];
             isOneToOne: false;
             referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      admission_cycles: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          default_programme_id: string | null;
+          description: string | null;
+          id: string;
+          institution_id: string;
+          opens_at: string | null;
+          closes_at: string | null;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          default_programme_id?: string | null;
+          description?: string | null;
+          id?: string;
+          institution_id: string;
+          opens_at?: string | null;
+          closes_at?: string | null;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          default_programme_id?: string | null;
+          description?: string | null;
+          id?: string;
+          institution_id?: string;
+          opens_at?: string | null;
+          closes_at?: string | null;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "admission_cycles_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      admission_applications: {
+        Row: {
+          admission_cycle_id: string | null;
+          application_notes: string | null;
+          created_at: string;
+          decision_at: string | null;
+          email: string;
+          full_name: string;
+          id: string;
+          institution_id: string;
+          internal_notes: string | null;
+          metadata_json: Json | null;
+          phone: string | null;
+          reviewed_by: string | null;
+          status: string;
+          submitted_at: string | null;
+          submitted_by: string | null;
+          target_course_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          admission_cycle_id?: string | null;
+          application_notes?: string | null;
+          created_at?: string;
+          decision_at?: string | null;
+          email: string;
+          full_name: string;
+          id?: string;
+          institution_id: string;
+          internal_notes?: string | null;
+          metadata_json?: Json | null;
+          phone?: string | null;
+          reviewed_by?: string | null;
+          status?: string;
+          submitted_at?: string | null;
+          submitted_by?: string | null;
+          target_course_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          admission_cycle_id?: string | null;
+          application_notes?: string | null;
+          created_at?: string;
+          decision_at?: string | null;
+          email?: string;
+          full_name?: string;
+          id?: string;
+          institution_id?: string;
+          internal_notes?: string | null;
+          metadata_json?: Json | null;
+          phone?: string | null;
+          reviewed_by?: string | null;
+          status?: string;
+          submitted_at?: string | null;
+          submitted_by?: string | null;
+          target_course_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "admission_applications_admission_cycle_id_fkey";
+            columns: ["admission_cycle_id"];
+            isOneToOne: false;
+            referencedRelation: "admission_cycles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "admission_applications_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "admission_applications_target_course_id_fkey";
+            columns: ["target_course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      audit_logs: {
+        Row: {
+          action: string;
+          actor_role: string | null;
+          actor_user_id: string | null;
+          created_at: string;
+          details_json: Json;
+          entity_id: string | null;
+          entity_type: string;
+          id: string;
+          institution_id: string | null;
+          summary: string | null;
+        };
+        Insert: {
+          action: string;
+          actor_role?: string | null;
+          actor_user_id?: string | null;
+          created_at?: string;
+          details_json?: Json;
+          entity_id?: string | null;
+          entity_type: string;
+          id?: string;
+          institution_id?: string | null;
+          summary?: string | null;
+        };
+        Update: {
+          action?: string;
+          actor_role?: string | null;
+          actor_user_id?: string | null;
+          created_at?: string;
+          details_json?: Json;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: string;
+          institution_id?: string | null;
+          summary?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      calendar_events: {
+        Row: {
+          audience: string;
+          course_id: string;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          ends_at: string | null;
+          id: string;
+          institution_id: string;
+          lesson_id: string;
+          session_id: string;
+          starts_at: string;
+          status: string;
+          timezone: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          audience?: string;
+          course_id: string;
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          institution_id: string;
+          lesson_id: string;
+          session_id: string;
+          starts_at: string;
+          status?: string;
+          timezone?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          audience?: string;
+          course_id?: string;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          institution_id?: string;
+          lesson_id?: string;
+          session_id?: string;
+          starts_at?: string;
+          status?: string;
+          timezone?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "calendar_events_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "calendar_events_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "calendar_events_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "classroom_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      certificates: {
+        Row: {
+          certificate_number: string;
+          completion_rule_id: string | null;
+          course_id: string;
+          created_at: string;
+          id: string;
+          institution_id: string;
+          issued_at: string;
+          issued_by: string;
+          metadata_json: Json;
+          status: string;
+          student_id: string;
+          updated_at: string;
+          verification_code: string;
+        };
+        Insert: {
+          certificate_number: string;
+          completion_rule_id?: string | null;
+          course_id: string;
+          created_at?: string;
+          id?: string;
+          institution_id: string;
+          issued_at?: string;
+          issued_by: string;
+          metadata_json?: Json;
+          status?: string;
+          student_id: string;
+          updated_at?: string;
+          verification_code: string;
+        };
+        Update: {
+          certificate_number?: string;
+          completion_rule_id?: string | null;
+          course_id?: string;
+          created_at?: string;
+          id?: string;
+          institution_id?: string;
+          issued_at?: string;
+          issued_by?: string;
+          metadata_json?: Json;
+          status?: string;
+          student_id?: string;
+          updated_at?: string;
+          verification_code?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "certificates_completion_rule_id_fkey";
+            columns: ["completion_rule_id"];
+            isOneToOne: false;
+            referencedRelation: "completion_rules";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      completion_rules: {
+        Row: {
+          auto_issue_certificate: boolean;
+          course_id: string | null;
+          created_at: string;
+          created_by: string;
+          id: string;
+          institution_id: string;
+          min_progress_percentage: number;
+          min_quiz_percentage: number;
+          require_active_enrollment: boolean;
+          require_quiz_pass: boolean;
+          status: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          auto_issue_certificate?: boolean;
+          course_id?: string | null;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          institution_id: string;
+          min_progress_percentage?: number;
+          min_quiz_percentage?: number;
+          require_active_enrollment?: boolean;
+          require_quiz_pass?: boolean;
+          status?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          auto_issue_certificate?: boolean;
+          course_id?: string | null;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          institution_id?: string;
+          min_progress_percentage?: number;
+          min_quiz_percentage?: number;
+          require_active_enrollment?: boolean;
+          require_quiz_pass?: boolean;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "completion_rules_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "completion_rules_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      data_export_jobs: {
+        Row: {
+          created_at: string;
+          export_type: string;
+          filters_json: Json;
+          id: string;
+          institution_id: string;
+          requested_by: string;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          export_type: string;
+          filters_json?: Json;
+          id?: string;
+          institution_id: string;
+          requested_by: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          export_type?: string;
+          filters_json?: Json;
+          id?: string;
+          institution_id?: string;
+          requested_by?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "data_export_jobs_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      institution_invites: {
+        Row: {
+          accepted_at: string | null;
+          accepted_user_id: string | null;
+          created_at: string;
+          email: string;
+          expires_at: string | null;
+          full_name: string | null;
+          id: string;
+          institution_id: string;
+          invited_by: string;
+          message: string | null;
+          metadata_json: Json | null;
+          role: string;
+          status: string;
+          token_hash: string;
+          updated_at: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          accepted_user_id?: string | null;
+          created_at?: string;
+          email: string;
+          expires_at?: string | null;
+          full_name?: string | null;
+          id?: string;
+          institution_id: string;
+          invited_by: string;
+          message?: string | null;
+          metadata_json?: Json | null;
+          role: string;
+          status?: string;
+          token_hash: string;
+          updated_at?: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_user_id?: string | null;
+          created_at?: string;
+          email?: string;
+          expires_at?: string | null;
+          full_name?: string | null;
+          id?: string;
+          institution_id?: string;
+          invited_by?: string;
+          message?: string | null;
+          metadata_json?: Json | null;
+          role?: string;
+          status?: string;
+          token_hash?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "institution_invites_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      outbound_email_jobs: {
+        Row: {
+          attempt_count: number | null;
+          created_at: string;
+          id: string;
+          idempotency_key: string | null;
+          institution_id: string | null;
+          kind: string;
+          last_error: string | null;
+          payload_json: Json;
+          provider: string;
+          related_invite_id: string | null;
+          related_user_id: string | null;
+          scheduled_for: string;
+          sent_at: string | null;
+          status: string;
+          subject: string;
+          template_key: string | null;
+          to_email: string;
+          to_name: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          attempt_count?: number | null;
+          created_at?: string;
+          id?: string;
+          idempotency_key?: string | null;
+          institution_id?: string | null;
+          kind: string;
+          last_error?: string | null;
+          payload_json?: Json;
+          provider?: string;
+          related_invite_id?: string | null;
+          related_user_id?: string | null;
+          scheduled_for: string;
+          sent_at?: string | null;
+          status?: string;
+          subject: string;
+          template_key?: string | null;
+          to_email: string;
+          to_name?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          attempt_count?: number | null;
+          created_at?: string;
+          id?: string;
+          idempotency_key?: string | null;
+          institution_id?: string | null;
+          kind?: string;
+          last_error?: string | null;
+          payload_json?: Json;
+          provider?: string;
+          related_invite_id?: string | null;
+          related_user_id?: string | null;
+          scheduled_for?: string;
+          sent_at?: string | null;
+          status?: string;
+          subject?: string;
+          template_key?: string | null;
+          to_email?: string;
+          to_name?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "outbound_email_jobs_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      session_reminders: {
+        Row: {
+          calendar_event_id: string;
+          created_at: string;
+          email_job_id: string | null;
+          id: string;
+          institution_id: string;
+          payload_json: Json;
+          reminder_type: string;
+          scheduled_for: string;
+          session_id: string;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          calendar_event_id: string;
+          created_at?: string;
+          email_job_id?: string | null;
+          id?: string;
+          institution_id: string;
+          payload_json?: Json;
+          reminder_type: string;
+          scheduled_for: string;
+          session_id: string;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          calendar_event_id?: string;
+          created_at?: string;
+          email_job_id?: string | null;
+          id?: string;
+          institution_id?: string;
+          payload_json?: Json;
+          reminder_type?: string;
+          scheduled_for?: string;
+          session_id?: string;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "session_reminders_calendar_event_id_fkey";
+            columns: ["calendar_event_id"];
+            isOneToOne: false;
+            referencedRelation: "calendar_events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_reminders_institution_id_fkey";
+            columns: ["institution_id"];
+            isOneToOne: false;
+            referencedRelation: "institutions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_reminders_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "classroom_sessions";
             referencedColumns: ["id"];
           },
         ];

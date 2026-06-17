@@ -25,8 +25,14 @@ type RouteStubPageProps = {
 // role's app (the chrome stays visible — pages open *within*).
 function configForRole(role: string): DashboardConfig | null {
   const r = role.toLowerCase();
-  if (r.includes("student") || r.includes("learner")) return dashboardConfigs.learner;
-  if (r.includes("teacher")) return dashboardConfigs.teacher;
+  if (r.includes("teacher-enrolled learner")) return dashboardConfigs.teacher_enrolled_learner;
+  if (r.includes("institution learner")) return dashboardConfigs.institution_learner;
+  if (r.includes("private learner")) return dashboardConfigs.private_learner;
+  if (r.includes("private teacher")) return dashboardConfigs.private_teacher;
+  if (r.includes("institution teacher")) return dashboardConfigs.institution_teacher;
+  if (r.includes("kingpin teacher")) return dashboardConfigs.kingpin_teacher;
+  if (r.includes("student") || r.includes("learner")) return dashboardConfigs.institution_learner;
+  if (r.includes("teacher")) return dashboardConfigs.institution_teacher;
   if (r.includes("institution")) return dashboardConfigs.institution;
   if (r.includes("platform") || r.includes("admin")) return dashboardConfigs.platform_admin;
   if (r.includes("parent")) return dashboardConfigs.parent;

@@ -3,6 +3,7 @@
 ## What Is Klassruum?
 
 Klassruum is a **real virtual classroom platform** - not just a video player. It features:
+
 - 🎨 **Animated Whiteboard** - Teachers write, students watch in real-time
 - ♿ **Accessibility First** - 6 different UIs for 6 different accessibility needs
 - 📚 **Deep Learning** - 25+ minute structured lessons with progress tracking
@@ -36,22 +37,28 @@ Klassruum is a **real virtual classroom platform** - not just a video player. It
 ### For Developers
 
 1. **Explore the Components:**
+
    ```typescript
-   import { AnimatedWhiteboard } from '@/components/classroom/AnimatedWhiteboard'
-   import { QuestionSystem } from '@/components/classroom/QuestionSystem'
-   import { LearnerNotesPanel, TeacherNotesPanel } from '@/components/classroom/IntegratedNotesPanel'
-   import { LessonCompletionSummary } from '@/components/classroom/LessonCompletionFlow'
+   import { AnimatedWhiteboard } from "@/components/classroom/AnimatedWhiteboard";
+   import { QuestionSystem } from "@/components/classroom/QuestionSystem";
+   import {
+     LearnerNotesPanel,
+     TeacherNotesPanel,
+   } from "@/components/classroom/IntegratedNotesPanel";
+   import { LessonCompletionSummary } from "@/components/classroom/LessonCompletionFlow";
    ```
 
 2. **See How It All Works:**
+
    ```typescript
-   import { sampleQuadraticsLesson } from '@/lib/sample-lesson'
+   import { sampleQuadraticsLesson } from "@/lib/sample-lesson";
    // Complete lesson demonstrating all features
    ```
 
 3. **Learn the Type System:**
+
    ```typescript
-   import type { Lesson, LessonStep, QuestionCheckpoint } from '@/lib/lesson-types'
+   import type { Lesson, LessonStep, QuestionCheckpoint } from "@/lib/lesson-types";
    // 13 types defining the entire lesson architecture
    ```
 
@@ -65,12 +72,14 @@ Klassruum is a **real virtual classroom platform** - not just a video player. It
 ## 📁 File Guide
 
 ### 📋 Documentation (READ THESE FIRST)
+
 - **README_PHASE4.md** ← Overall summary
 - **IMPLEMENTATION_COMPLETE.md** ← Detailed status
 - **INTEGRATION_GUIDE.md** ← Code examples & usage
 - **PHASE5_INTEGRATION_CHECKLIST.md** ← What to do next
 
 ### 💻 Components
+
 ```
 src/components/classroom/
 ├── AnimatedWhiteboard.tsx       ← Handwriting animation
@@ -80,6 +89,7 @@ src/components/classroom/
 ```
 
 ### 📚 Type Systems
+
 ```
 src/lib/
 ├── lesson-types.ts              ← 13 type definitions
@@ -88,6 +98,7 @@ src/lib/
 ```
 
 ### 🎨 Styling
+
 ```
 src/styles/
 ├── dashboard.css                ← All dashboard styling
@@ -99,6 +110,7 @@ src/styles/
 ## 🎯 Main Features
 
 ### 1. **AnimatedWhiteboard** 🎨
+
 ```typescript
 <AnimatedWhiteboard
   items={lesson.steps[0].boardItems}
@@ -106,12 +118,14 @@ src/styles/
   onSequenceComplete={() => goToNextStep()}
 />
 ```
+
 - Character-by-character animation
 - Hand cursor animation
 - Auto-scroll functionality
 - Replay support
 
 ### 2. **QuestionSystem** ❓
+
 ```typescript
 <QuestionSystem
   mode={userMode} // 'standard' | 'deaf' | 'blind' | etc.
@@ -120,6 +134,7 @@ src/styles/
   onAnswer={(answer, method) => handle(answer)}
 />
 ```
+
 - **Standard**: Text + voice input
 - **Deaf**: Popup, text-first, no forced audio
 - **Blind**: Auto-listening, audio ON
@@ -128,6 +143,7 @@ src/styles/
 - **Motor Support**: Large 44px+ targets
 
 ### 3. **Integrated Notes** 📝
+
 ```typescript
 // For students
 <LearnerNotesPanel
@@ -144,6 +160,7 @@ src/styles/
 ```
 
 ### 4. **Completion Flow** 🏁
+
 ```typescript
 // Exit Ticket
 <ExitTicketPrompt
@@ -201,52 +218,54 @@ Every lesson has:
 
 All components support 6 accessibility modes:
 
-| Mode | Best For | UI |
-|------|----------|-----|
-| Standard | General users | Bottom bar with text + voice |
-| Deaf | Deaf/HoH | Popup, text-focused |
-| Blind | Blind/LV | Auto-listening, audio-first |
-| Speech | Speech difficulty | Text-only input |
-| ADHD | ADHD focus needs | Minimal, large buttons |
-| Motor | Motor challenges | Large 44px+ targets |
+| Mode     | Best For          | UI                           |
+| -------- | ----------------- | ---------------------------- |
+| Standard | General users     | Bottom bar with text + voice |
+| Deaf     | Deaf/HoH          | Popup, text-focused          |
+| Blind    | Blind/LV          | Auto-listening, audio-first  |
+| Speech   | Speech difficulty | Text-only input              |
+| ADHD     | ADHD focus needs  | Minimal, large buttons       |
+| Motor    | Motor challenges  | Large 44px+ targets          |
 
 ---
 
 ## 📊 Types Available
 
 ### Core Types
+
 ```typescript
-type LearningMode = 
-  | 'standard'
-  | 'deaf'
-  | 'blind'
-  | 'speech_difficulty'
-  | 'adhd_focus'
-  | 'motor_support'
+type LearningMode =
+  | "standard"
+  | "deaf"
+  | "blind"
+  | "speech_difficulty"
+  | "adhd_focus"
+  | "motor_support";
 
 interface BoardWriteItem {
-  id: string
-  type: 'heading' | 'bullet' | 'equation' | 'calculation' | 'question' | 'answer'
-  text: string
-  explanation?: string
-  accessibleDescription: string
+  id: string;
+  type: "heading" | "bullet" | "equation" | "calculation" | "question" | "answer";
+  text: string;
+  explanation?: string;
+  accessibleDescription: string;
 }
 
 interface Lesson {
-  id: string
-  title: string
-  estimatedDurationMinutes: number // min 25
-  objective: LessonObjective
-  steps: LessonStep[]
-  questionCheckpoints: QuestionCheckpoint[]
-  requiredMidLessonQuestion: RequiredLessonQuestion
-  exitTicket: ExitTicket
-  homework: Homework
+  id: string;
+  title: string;
+  estimatedDurationMinutes: number; // min 25
+  objective: LessonObjective;
+  steps: LessonStep[];
+  questionCheckpoints: QuestionCheckpoint[];
+  requiredMidLessonQuestion: RequiredLessonQuestion;
+  exitTicket: ExitTicket;
+  homework: Homework;
   // ... 20+ more properties
 }
 ```
 
 ### All 13 Types
+
 1. `Lesson` - Complete lesson
 2. `LessonStep` - Individual teaching step
 3. `LessonObjective` - Learning goals
@@ -268,6 +287,7 @@ interface Lesson {
 Complete working example: `src/lib/sample-lesson.ts`
 
 **"Solving Quadratic Equations by Factoring"**
+
 - 35 minutes (exceeds 25-min minimum)
 - 4 teaching steps with 28 board items
 - 3 question checkpoints
@@ -291,6 +311,7 @@ Use this as a reference for creating new lessons.
 ```
 
 Run the build:
+
 ```bash
 npm run build
 ```
@@ -336,6 +357,7 @@ See `PHASE5_INTEGRATION_CHECKLIST.md` for detailed tasks.
 ## 🎓 Quick Examples
 
 ### Use AnimatedWhiteboard
+
 ```typescript
 <AnimatedWhiteboard
   items={[
@@ -348,6 +370,7 @@ See `PHASE5_INTEGRATION_CHECKLIST.md` for detailed tasks.
 ```
 
 ### Use QuestionSystem with Accessibility
+
 ```typescript
 <QuestionSystem
   mode={isDeaf ? 'deaf' : isBlind ? 'blind' : 'standard'}
@@ -358,12 +381,13 @@ See `PHASE5_INTEGRATION_CHECKLIST.md` for detailed tasks.
 ```
 
 ### Load Sample Lesson
-```typescript
-import { sampleQuadraticsLesson } from '@/lib/sample-lesson'
 
-const lesson = sampleQuadraticsLesson
-console.log(lesson.title) // "Solving Quadratic Equations by Factoring"
-console.log(lesson.steps.length) // 4 steps
+```typescript
+import { sampleQuadraticsLesson } from "@/lib/sample-lesson";
+
+const lesson = sampleQuadraticsLesson;
+console.log(lesson.title); // "Solving Quadratic Equations by Factoring"
+console.log(lesson.steps.length); // 4 steps
 ```
 
 ---
@@ -396,18 +420,23 @@ console.log(lesson.steps.length) // 4 steps
 ## 📞 Questions?
 
 ### "How do I use these components?"
+
 → Read `INTEGRATION_GUIDE.md`
 
 ### "What types do I need?"
+
 → Check `src/lib/lesson-types.ts`
 
 ### "Show me an example"
+
 → Look at `src/lib/sample-lesson.ts`
 
 ### "What's next after Phase 4?"
+
 → See `PHASE5_INTEGRATION_CHECKLIST.md`
 
 ### "Is it accessible?"
+
 → Yes! 6 modes, WCAG 2.1 AA compliant
 
 ---
@@ -428,4 +457,3 @@ Everything you need to build an amazing virtual classroom is ready.
 **Build**: ✅ Passing
 
 Let's make education accessible and engaging for everyone! 🚀
-

@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { roleDashboardPath } from "@/lib/route-guards";
+import { clearPendingVerification, requiresEmailVerification } from "@/lib/auth-verification";
 import type { UserRole } from "@/lib/types";
-import { LogoMark } from "@/components/brand/Logo";
+import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,25 +21,25 @@ const ROLE_OPTIONS: Array<{
   description: string;
   icon: typeof GraduationCap;
 }> = [
-  {
-    role: "student",
-    label: "Student",
-    description: "Take lessons, track progress, earn achievements",
-    icon: GraduationCap,
-  },
-  {
-    role: "teacher",
-    label: "Teacher",
-    description: "Create courses, manage classrooms, monitor learners",
-    icon: School,
-  },
-  {
-    role: "parent",
-    label: "Parent",
-    description: "Monitor learner progress, sessions, and reports",
-    icon: Users,
-  },
-];
+    {
+      role: "student",
+      label: "Student",
+      description: "Take lessons, track progress, earn achievements",
+      icon: GraduationCap,
+    },
+    {
+      role: "teacher",
+      label: "Teacher",
+      description: "Create courses, manage classrooms, monitor learners",
+      icon: School,
+    },
+    {
+      role: "parent",
+      label: "Parent",
+      description: "Monitor learner progress, sessions, and reports",
+      icon: Users,
+    },
+  ];
 
 function CompleteProfilePage() {
   const navigate = useNavigate();
@@ -62,6 +63,13 @@ function CompleteProfilePage() {
       }
 
       const user = data.session.user;
+
+      if (requiresEmailVerification(user)) {
+        navigate({ to: "/auth/verify-email" });
+        return;
+      }
+
+      clearPendingVerification();
       setUserId(user.id);
 
       // Pre-fill name from OAuth metadata
@@ -142,11 +150,8 @@ function CompleteProfilePage() {
     <div className="flex min-h-screen items-center justify-center bg-[var(--gray-50)] px-6">
       <div className="w-full max-w-md space-y-8">
         <div className="flex justify-center">
-          <Link to="/" className="flex items-center gap-2.5">
-            <LogoMark size={40} />
-            <span className="text-xl font-extrabold tracking-tight text-foreground">
-              Klass<span className="text-[var(--primary)]">ruum</span>
-            </span>
+          <Link to="/" className="flex items-center">
+            <Logo size={40} />
           </Link>
         </div>
 
@@ -181,18 +186,16 @@ function CompleteProfilePage() {
                   key={role}
                   type="button"
                   onClick={() => setSelectedRole(role)}
-                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${
-                    selectedRole === role
+                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${selectedRole === role
                       ? "border-[#1F7C80] bg-[#F0FDFA] ring-1 ring-[#1F7C80]/20"
                       : "border-[#E2E8F0] bg-white hover:border-[#A3D9D8] hover:bg-[#F0FDFA]"
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                      selectedRole === role
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${selectedRole === role
                         ? "bg-[#1F7C80] text-white"
                         : "bg-[#F1F5F9] text-[#64748B]"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                   </div>
@@ -201,9 +204,8 @@ function CompleteProfilePage() {
                     <p className="truncate text-xs text-[#64748B]">{description}</p>
                   </div>
                   <div
-                    className={`h-4 w-4 rounded-full border-2 ${
-                      selectedRole === role ? "border-[#1F7C80] bg-[#1F7C80]" : "border-[#CBD5E1]"
-                    }`}
+                    className={`h-4 w-4 rounded-full border-2 ${selectedRole === role ? "border-[#1F7C80] bg-[#1F7C80]" : "border-[#CBD5E1]"
+                      }`}
                   >
                     {selectedRole === role && (
                       <svg viewBox="0 0 16 16" fill="white" className="h-full w-full p-0.5">

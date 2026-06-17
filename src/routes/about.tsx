@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/marketing/InfoPage";
+import { Target, GraduationCap, Accessibility, School, Globe, BarChart3 } from "lucide-react";
 
 const SITE_URL = "https://klassruum.com";
 
@@ -58,32 +59,32 @@ export const Route = createFileRoute("/about")({
       cta={{ label: "Try the demo", to: "/demo/classroom" }}
       sections={[
         {
-          icon: "🎯",
+          icon: <Target size={20} />,
           title: "Our mission",
           body: "Make structured, accessible, teacher-led learning available to every institution — regardless of size, budget, or location.",
         },
         {
-          icon: "🧑‍🏫",
+          icon: <GraduationCap size={20} />,
           title: "What we believe",
           body: "A real lesson needs a real teaching loop: introduction, demonstration, explanation, practice, and response. Not a chat window, not a document library.",
         },
         {
-          icon: "♿",
+          icon: <Accessibility size={20} />,
           title: "Accessibility first",
           body: "We believe every learner deserves access to quality teaching. Accessibility is built into the classroom from day one — not bolted on later.",
         },
         {
-          icon: "🏫",
+          icon: <School size={20} />,
           title: "Institution control",
           body: "Schools and organizations should own their content, manage their teachers and learners, and control their data. Klassruum provides the infrastructure.",
         },
         {
-          icon: "🌍",
+          icon: <Globe size={20} />,
           title: "Built for the real world",
           body: "Classrooms run on modest devices and patchy connections. We design for the constraints institutions actually face.",
         },
         {
-          icon: "📊",
+          icon: <BarChart3 size={20} />,
           title: "Evidence over assumption",
           body: "Learning activity — not just completion rates — shows where learners engage and where they need support.",
         },

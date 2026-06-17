@@ -79,7 +79,7 @@ export function CinematicCursor() {
       if (!target) return;
 
       const isInteractive = target.closest(
-        'a, button, [role="button"], .mode-chip, [data-magnetic], .cursor-pointer, input[type="submit"], input[type="button"]'
+        'a, button, [role="button"], .mode-chip, [data-magnetic], .cursor-pointer, input[type="submit"], input[type="button"]',
       );
 
       if (isInteractive) {

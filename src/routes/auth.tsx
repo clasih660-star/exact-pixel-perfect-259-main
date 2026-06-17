@@ -2,11 +2,18 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { LogoMark } from "@/components/brand/Logo";
+import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { resolvePostAuthPath } from "@/lib/auth-redirects";
+import {
+  clearPendingVerification,
+  getAuthCallbackUrl,
+  rememberPendingVerification,
+  requiresEmailVerification,
+} from "@/lib/auth-verification";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
 import { roleDashboardPath } from "@/lib/route-guards";
 import type { UserRole } from "@/lib/types";
@@ -15,11 +22,13 @@ import { GraduationCap, School, Building2, Shield, Users, Play } from "lucide-re
 /** Google OAuth sign-in — redirects to Google consent screen. */
 async function signInWithGoogle() {
   const inviteToken =
-    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("invite") : null;
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("invite")
+      : null;
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/auth/callback${inviteToken ? `?invite=${encodeURIComponent(inviteToken)}` : ""}`,
+      redirectTo: getAuthCallbackUrl(inviteToken),
     },
   });
   if (error) {
@@ -49,14 +58,14 @@ const DEMO_ROLES: Array<{
       label: "Student",
       description: "Enter classrooms, take lessons, track progress",
       icon: GraduationCap,
-      color: "bg-[#1F7C80]",
+      color: "bg-[#10233f]",
     },
     {
       role: "teacher",
       label: "Teacher",
       description: "Manage courses, create lessons, monitor students",
       icon: School,
-      color: "bg-[#1F7C80]",
+      color: "bg-[#10233f]",
     },
     {
       role: "institution_admin",
@@ -81,25 +90,6 @@ const DEMO_ROLES: Array<{
     },
   ];
 
-/**
- * After successful sign-in, fetch the user's role and redirect to
- * the correct dashboard. Falls back to /student/dashboard if the
- * role cannot be determined (e.g. new user without a profile yet).
- */
-async function redirectToDashboardForUser(
-  userId: string,
-  navigate: ReturnType<typeof useNavigate>,
-) {
-  try {
-    const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const role = ((data as any)?.role as UserRole) ?? null;
-    navigate({ to: roleDashboardPath(role) });
-  } catch {
-    navigate({ to: roleDashboardPath(null) });
-  }
-}
-
 function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -110,7 +100,9 @@ function AuthPage() {
   const supabaseReady = isSupabaseConfigured();
   const acceptInviteFn = useServerFn(acceptInstitutionInvite);
   const inviteToken =
-    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("invite") : null;
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("invite")
+      : null;
 
   const acceptPendingInviteIfPresent = async () => {
     if (!inviteToken) return null;
@@ -130,41 +122,40 @@ function AuthPage() {
       if (mode === "signin") {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        if (requiresEmailVerification(data.user)) {
+          rememberPendingVerification(data.user.email ?? email, inviteToken);
+          await supabase.auth.signOut();
+          toast.error("Please verify your email before signing in.");
+          navigate({ to: "/auth/verify-email" });
+          return;
+        }
+
         const acceptedInvite = await acceptPendingInviteIfPresent();
+        clearPendingVerification();
         toast.success("Welcome to Klassruum");
         if (acceptedInvite?.profile_role) {
           navigate({ to: roleDashboardPath(acceptedInvite.profile_role as UserRole) });
           return;
         }
-        await redirectToDashboardForUser(data.user.id, navigate);
+        navigate({ to: await resolvePostAuthPath(data.user.id) });
       } else {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
-            data: { full_name: name },
+            emailRedirectTo: getAuthCallbackUrl(inviteToken),
+            data: { full_name: name.trim() },
           },
         });
         if (error) throw error;
-        let acceptedInvite: Awaited<ReturnType<typeof acceptPendingInviteIfPresent>> | null = null;
-        if (data.session?.user) {
-          acceptedInvite = await acceptPendingInviteIfPresent();
-        }
+        rememberPendingVerification(email, inviteToken);
         toast.success(
-          inviteToken && !data.session?.user
-            ? "Account created! Check your email to verify, then your invite will be completed on sign-in."
-            : "Account created! Check your email to verify.",
+          inviteToken
+            ? "Account created. Verify your email first, then your invite will be completed after confirmation."
+            : "Account created. Check your email to verify your account.",
         );
-        if (acceptedInvite?.profile_role) {
-          navigate({ to: roleDashboardPath(acceptedInvite.profile_role as UserRole) });
-          return;
-        }
-        if (data.user) {
-          await redirectToDashboardForUser(data.user.id, navigate);
-        } else {
-          navigate({ to: "/student/dashboard" });
-        }
+        navigate({ to: "/auth/verify-email" });
       }
     } catch (err) {
       toast.error((err as Error).message);
@@ -180,9 +171,9 @@ function AuthPage() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="auth-tech-page grid min-h-screen lg:grid-cols-2">
       {/* Left panel — branding */}
-      <div className="relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
+      <div className="auth-tech-brand relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
         <img
           src="/images/auth-side.png"
           alt="Students learning together with Klassruum"
@@ -195,19 +186,16 @@ function AuthPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(18,48,71,0.9) 42%, rgba(31,124,128,0.68) 100%)",
+              "linear-gradient(135deg, rgba(3,7,18,0.94) 0%, rgba(7,17,31,0.9) 55%, rgba(16,35,63,0.82) 100%)",
           }}
         />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
           style={{ background: "linear-gradient(to top, rgba(10,24,38,0.88), transparent)" }}
         />
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10" />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[520px] w-[520px] rounded-full bg-white/[0.08]" />
 
-        <Link to="/" className="relative z-10 flex items-center gap-2.5">
-          <LogoMark size={40} />
-          <span className="text-2xl font-extrabold tracking-tight text-white">Klassruum</span>
+        <Link to="/" className="relative z-10 flex items-center">
+          <Logo size={40} variant="light" />
         </Link>
         <div className="relative z-10">
           <h2 className="max-w-md text-4xl font-extrabold leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
@@ -240,19 +228,16 @@ function AuthPage() {
       </div>
 
       {/* Right panel — auth form */}
-      <div className="flex items-center justify-center bg-background p-8">
-        <div className="w-full max-w-sm">
-          <Link to="/" className="mb-8 flex items-center gap-2.5">
-            <LogoMark size={38} />
-            <span className="text-xl font-extrabold tracking-tight text-foreground">
-              Klass<span className="text-[var(--primary)]">ruum</span>
-            </span>
+      <div className="flex items-center justify-center p-6 sm:p-8">
+        <div className="auth-tech-panel w-full max-w-md p-6 sm:p-8">
+          <Link to="/" className="mb-8 flex items-center">
+            <Logo size={38} />
           </Link>
 
           {/* ── Demo mode banner ──────────────────────────────────────── */}
           {!supabaseReady && (
-            <div className="mb-6 rounded-xl border border-[#A3D9D8] bg-[#F0FDFA] p-4">
-              <p className="text-sm font-semibold text-[#1A5256]">Demo Mode</p>
+            <div className="mb-6 rounded-xl border border-border bg-soft-blue p-4">
+              <p className="text-sm font-semibold text-heading">Demo Mode</p>
               <p className="mt-1 text-xs text-[#475569]">
                 Supabase is not configured. Pick a role below to explore the full app with demo
                 data.
@@ -271,7 +256,7 @@ function AuthPage() {
 
           {/* ── Demo role picker ──────────────────────────────────────── */}
           <div className="mt-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#94A3B8]">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">
               {supabaseReady ? "Quick demo" : "Choose your role"}
             </p>
             <div className="grid grid-cols-1 gap-2">
@@ -280,7 +265,7 @@ function AuthPage() {
                   key={role}
                   type="button"
                   onClick={() => enterDemo(role)}
-                  className="group flex items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-3 text-left transition-all hover:border-[#A3D9D8] hover:bg-[#F0FDFA] hover:shadow-sm"
+                  className="auth-role-button group flex items-center gap-3 p-3 text-left transition-all"
                 >
                   <div
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color} text-white`}
@@ -288,10 +273,10 @@ function AuthPage() {
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-[#0F172A]">{label}</p>
-                    <p className="truncate text-xs text-[#64748B]">{description}</p>
+                    <p className="text-sm font-bold text-heading">{label}</p>
+                    <p className="truncate text-xs text-muted">{description}</p>
                   </div>
-                  <Play className="h-4 w-4 shrink-0 text-[#94A3B8] transition-colors group-hover:text-[#1A5256]" />
+                  <Play className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-heading" />
                 </button>
               ))}
             </div>

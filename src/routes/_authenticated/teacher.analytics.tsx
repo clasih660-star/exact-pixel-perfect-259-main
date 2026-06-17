@@ -245,12 +245,7 @@ function TeacherAnalytics() {
                 }}
               />
               <Bar dataKey="completed" name="Completed" fill="#1F7C80" radius={[6, 6, 0, 0]} />
-              <Bar
-                dataKey="incomplete"
-                name="In Progress"
-                fill="#E2E8F0"
-                radius={[6, 6, 0, 0]}
-              />
+              <Bar dataKey="incomplete" name="In Progress" fill="#E2E8F0" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

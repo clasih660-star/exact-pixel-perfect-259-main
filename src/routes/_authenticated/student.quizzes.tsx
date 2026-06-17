@@ -330,9 +330,7 @@ function StudentQuizzes() {
                       <div
                         key={i}
                         className={`flex items-start gap-3 rounded-xl border p-3 ${
-                          q.correct
-                            ? "border-green-100 bg-green-50"
-                            : "border-red-100 bg-red-50"
+                          q.correct ? "border-green-100 bg-green-50" : "border-red-100 bg-red-50"
                         }`}
                       >
                         {q.correct ? (

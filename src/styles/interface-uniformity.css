@@ -1,0 +1,485 @@
+/* Sharp, institutional UI pass for landing, pricing, and dashboards only. */
+
+.landing-page-shell,
+.pricing-page-shell,
+.demo-classroom-shell,
+.kr-dashboard-shell,
+.dashboard-layout {
+  --ui-ink: #07111f;
+  --ui-ink-2: #10233f;
+  --ui-border: #d8e0ea;
+  --ui-border-strong: #b8c7d9;
+  --ui-surface: #ffffff;
+  --ui-soft: #f6f8fb;
+  --ui-radius: 8px;
+  --ui-radius-sm: 6px;
+  --ui-shadow: 0 10px 28px rgba(7, 17, 31, 0.08);
+  --ui-shadow-hover: 0 18px 42px rgba(7, 17, 31, 0.12);
+}
+
+.landing-page-shell .rounded-3xl,
+.landing-page-shell .rounded-2xl,
+.landing-page-shell .rounded-xl,
+.pricing-page-shell .rounded-3xl,
+.pricing-page-shell .rounded-2xl,
+.pricing-page-shell .rounded-xl,
+.demo-classroom-shell .rounded-3xl,
+.demo-classroom-shell .rounded-2xl,
+.demo-classroom-shell .rounded-xl,
+.kr-dashboard-shell .rounded-3xl,
+.kr-dashboard-shell .rounded-2xl,
+.kr-dashboard-shell .rounded-xl,
+.dashboard-layout .rounded-3xl,
+.dashboard-layout .rounded-2xl,
+.dashboard-layout .rounded-xl {
+  border-radius: var(--ui-radius) !important;
+}
+
+.landing-page-shell a.rounded-full,
+.landing-page-shell button.rounded-full,
+.landing-page-shell .rounded-lg,
+.pricing-page-shell a.rounded-full,
+.pricing-page-shell button.rounded-full,
+.pricing-page-shell .rounded-lg,
+.demo-classroom-shell a.rounded-full,
+.demo-classroom-shell button.rounded-full,
+.demo-classroom-shell .rounded-lg,
+.kr-dashboard-shell a.rounded-full,
+.kr-dashboard-shell button.rounded-full,
+.kr-dashboard-shell .rounded-lg,
+.dashboard-layout a.rounded-full,
+.dashboard-layout button.rounded-full,
+.dashboard-layout .rounded-lg {
+  border-radius: var(--ui-radius-sm) !important;
+}
+
+.landing-page-shell .lp-premium-card,
+.landing-page-shell .solutions-panel,
+.landing-page-shell .pricing-track-card,
+.pricing-page-shell [class*="border"],
+.demo-classroom-shell [class*="border"],
+.kr-dashboard-shell .dashboard-card,
+.kr-dashboard-shell .kr-card,
+.kr-dashboard-shell .kr-kpi-card,
+.kr-dashboard-shell .kr-dashboard-header,
+.kr-dashboard-shell .kr-institution-header,
+.kr-dashboard-shell .kr-continue-hero,
+.dashboard-layout .stat-card,
+.dashboard-layout .card,
+.dashboard-layout .classroom-item,
+.dashboard-layout .session-item,
+.dashboard-layout [class*="border"] {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--ui-radius) !important;
+}
+
+.landing-page-shell .lp-premium-card,
+.landing-page-shell .solutions-panel,
+.landing-page-shell .pricing-track-card,
+.pricing-page-shell section [class*="bg-white"],
+.demo-classroom-shell section [class*="bg-white"],
+.kr-dashboard-shell .dashboard-card,
+.kr-dashboard-shell .kr-card,
+.kr-dashboard-shell .kr-kpi-card,
+.dashboard-layout .stat-card,
+.dashboard-layout .card,
+.dashboard-layout .classroom-item,
+.dashboard-layout .session-item {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.86) inset,
+    var(--ui-shadow) !important;
+}
+
+.landing-page-shell .lp-premium-card:hover,
+.landing-page-shell .solutions-panel:hover,
+.pricing-page-shell section [class*="bg-white"]:hover,
+.demo-classroom-shell button[class*="bg-white"]:hover,
+.kr-dashboard-shell .dashboard-card:hover,
+.kr-dashboard-shell .kr-card:hover,
+.kr-dashboard-shell .kr-kpi-card:hover,
+.dashboard-layout .stat-card:hover,
+.dashboard-layout .card:hover,
+.dashboard-layout .classroom-item:hover,
+.dashboard-layout .session-item:hover {
+  border-color: var(--ui-border-strong) !important;
+  box-shadow: var(--ui-shadow-hover) !important;
+}
+
+.landing-page-shell .bg-learning-blue,
+.pricing-page-shell .bg-learning-blue,
+.pricing-page-shell .bg-academic-blue,
+.demo-classroom-shell [class*="bg-[#1F7C80]"],
+.kr-dashboard-shell .bg-academic-blue,
+.kr-dashboard-shell .bg-learning-blue,
+.dashboard-layout .bg-academic-blue,
+.dashboard-layout .bg-learning-blue,
+.kr-dashboard-shell [class*="bg-[#1F7C80]"],
+.dashboard-layout [class*="bg-[#1F7C80]"] {
+  background: var(--ui-ink) !important;
+}
+
+.landing-page-shell a.bg-learning-blue,
+.landing-page-shell button.bg-learning-blue,
+.pricing-page-shell a.bg-learning-blue,
+.pricing-page-shell button.bg-learning-blue,
+.pricing-page-shell a.bg-academic-blue,
+.pricing-page-shell button.bg-academic-blue,
+.demo-classroom-shell a[class*="bg-[#07111F]"],
+.demo-classroom-shell button[class*="bg-[#07111F]"],
+.kr-dashboard-shell a.bg-academic-blue,
+.kr-dashboard-shell button.bg-academic-blue,
+.kr-dashboard-shell a.bg-learning-blue,
+.kr-dashboard-shell button.bg-learning-blue,
+.dashboard-layout a.bg-academic-blue,
+.dashboard-layout button.bg-academic-blue,
+.dashboard-layout a.bg-learning-blue,
+.dashboard-layout button.bg-learning-blue {
+  color: #ffffff !important;
+}
+
+.landing-page-shell .bg-learning-blue *,
+.pricing-page-shell .bg-learning-blue *,
+.pricing-page-shell .bg-academic-blue *,
+.demo-classroom-shell [class*="bg-[#07111F]"] *,
+.kr-dashboard-shell .bg-academic-blue *,
+.kr-dashboard-shell .bg-learning-blue *,
+.dashboard-layout .bg-academic-blue *,
+.dashboard-layout .bg-learning-blue * {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.landing-page-shell .text-learning-blue,
+.pricing-page-shell .text-learning-blue,
+.pricing-page-shell .text-academic-blue,
+.demo-classroom-shell [class*="text-[#1F7C80]"],
+.kr-dashboard-shell .text-academic-blue,
+.kr-dashboard-shell .text-learning-blue,
+.dashboard-layout .text-academic-blue,
+.dashboard-layout .text-learning-blue,
+.kr-dashboard-shell [class*="text-[#1F7C80]"],
+.dashboard-layout [class*="text-[#1F7C80]"] {
+  color: var(--ui-ink-2) !important;
+}
+
+.kr-dashboard-shell [class*="shadow-academic-blue"],
+.kr-dashboard-shell [class*="shadow-[#1F7C80]"],
+.dashboard-layout [class*="shadow-academic-blue"],
+.dashboard-layout [class*="shadow-[#1F7C80]"],
+.landing-page-shell [class*="shadow-learning-blue"],
+.pricing-page-shell [class*="shadow-learning-blue"] {
+  box-shadow: var(--ui-shadow) !important;
+}
+
+.kr-dashboard-shell .btn-primary,
+.kr-dashboard-shell .kr-primary-button,
+.dashboard-layout .btn-primary,
+.dashboard-layout .kr-primary-button,
+.landing-page-shell .btn-primary-academic,
+.pricing-page-shell .btn-primary-academic {
+  border: 1px solid var(--ui-ink) !important;
+  border-radius: var(--ui-radius-sm) !important;
+  background: var(--ui-ink) !important;
+  color: #ffffff !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+.kr-dashboard-shell .btn-primary *,
+.kr-dashboard-shell .kr-primary-button *,
+.kr-dashboard-shell [class*="bg-[#1F7C80]"] *,
+.kr-dashboard-shell [class*="bg-[#07111f]"] *,
+.dashboard-layout .btn-primary *,
+.dashboard-layout .kr-primary-button *,
+.dashboard-layout [class*="bg-[#1F7C80]"] *,
+.dashboard-layout [class*="bg-[#07111f]"] *,
+.pricing-page-shell [class*="bg-[#07111f]"] *,
+.pricing-page-shell [class*="bg-[#0f172a]"] * {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.kr-dashboard-shell a[class*="bg-[#1F7C80]"],
+.kr-dashboard-shell a[class*="bg-[#07111f]"],
+.dashboard-layout a[class*="bg-[#1F7C80]"],
+.dashboard-layout a[class*="bg-[#07111f]"],
+.pricing-page-shell a[class*="bg-[#07111f]"],
+.pricing-page-shell a[class*="bg-[#0f172a]"] {
+  color: #ffffff !important;
+}
+
+.kr-dashboard-shell a[class*="bg-[var(--primary)]"],
+.kr-dashboard-shell button[class*="bg-[var(--primary)]"],
+.dashboard-layout a[class*="bg-[var(--primary)]"],
+.dashboard-layout button[class*="bg-[var(--primary)]"] {
+  background: var(--ui-ink) !important;
+  color: #ffffff !important;
+}
+
+.kr-dashboard-shell a[class*="bg-[var(--primary)]"] *,
+.kr-dashboard-shell button[class*="bg-[var(--primary)]"] *,
+.dashboard-layout a[class*="bg-[var(--primary)]"] *,
+.dashboard-layout button[class*="bg-[var(--primary)]"] * {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.kr-dashboard-shell .btn-secondary,
+.kr-dashboard-shell .kr-secondary-button,
+.dashboard-layout .btn-secondary,
+.dashboard-layout .kr-secondary-button,
+.landing-page-shell .btn-secondary-academic,
+.pricing-page-shell .btn-secondary-academic {
+  border: 1px solid var(--ui-border) !important;
+  border-radius: var(--ui-radius-sm) !important;
+  background: #ffffff !important;
+  color: var(--ui-ink) !important;
+  box-shadow: none !important;
+}
+
+.kr-dashboard-shell input,
+.kr-dashboard-shell textarea,
+.kr-dashboard-shell select,
+.dashboard-layout input,
+.dashboard-layout textarea,
+.dashboard-layout select {
+  border-radius: var(--ui-radius-sm) !important;
+  border-color: var(--ui-border) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.kr-dashboard-shell .kr-nav-item,
+.kr-dashboard-shell .kr-status-pill,
+.kr-dashboard-shell .kr-meta-grid span,
+.dashboard-layout .nav-item,
+.dashboard-layout .learning-access-card,
+.dashboard-layout .user-card,
+.dashboard-layout .sidebar [class*="rounded"] {
+  border-radius: var(--ui-radius-sm) !important;
+}
+
+.kr-dashboard-shell .kr-nav-item.active,
+.dashboard-layout .nav-item.active {
+  background: var(--ui-ink) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.kr-dashboard-shell aside a[class*="bg-heading"],
+.kr-dashboard-shell aside a[class*="bg-heading"] *,
+.kr-dashboard-shell aside a[class*="bg-[#07111f]"],
+.kr-dashboard-shell aside a[class*="bg-[#07111f]"] * {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.kr-dashboard-shell .kr-kpi-icon,
+.dashboard-layout .stat-icon,
+.dashboard-layout .class-icon,
+.dashboard-layout .session-thumb {
+  border-radius: var(--ui-radius-sm) !important;
+  background: #eef3f8 !important;
+  color: var(--ui-ink-2) !important;
+  box-shadow: inset 0 0 0 1px rgba(184, 199, 217, 0.58);
+}
+
+.kr-dashboard-shell .kr-progress-track,
+.kr-dashboard-shell .kr-mini-progress,
+.dashboard-layout .progress-bar {
+  border-radius: var(--ui-radius-sm) !important;
+  background: #e8eef5 !important;
+}
+
+.kr-dashboard-shell .kr-progress-track div,
+.kr-dashboard-shell .kr-mini-progress div,
+.dashboard-layout .progress-fill {
+  border-radius: var(--ui-radius-sm) !important;
+  background: var(--ui-ink) !important;
+}
+
+.kr-dashboard-shell main,
+.dashboard-layout main,
+.dashboard-layout .main-content {
+  max-width: 1220px !important;
+}
+
+.demo-classroom-shell main h1 {
+  font-size: clamp(1.9rem, 3.2vw, 2.7rem) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.demo-classroom-shell main h2 {
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem) !important;
+  line-height: 1.24 !important;
+}
+
+.kr-dashboard-shell {
+  display: block !important;
+  background: #f6f8fb !important;
+  background-image: none !important;
+}
+
+.kr-dashboard-shell main {
+  padding: 20px !important;
+}
+
+.kr-dashboard-shell main > section,
+.dashboard-layout main > section,
+.dashboard-layout .main-content > section {
+  margin-bottom: 20px !important;
+}
+
+.kr-dashboard-shell main h1,
+.dashboard-layout main h1,
+.dashboard-layout .main-content h1 {
+  font-size: clamp(1.65rem, 2.2vw, 2.2rem) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.kr-dashboard-shell main h2,
+.dashboard-layout main h2,
+.dashboard-layout .main-content h2 {
+  font-size: clamp(1.05rem, 1.45vw, 1.45rem) !important;
+  line-height: 1.22 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.kr-dashboard-shell main h3,
+.dashboard-layout main h3,
+.dashboard-layout .main-content h3 {
+  font-size: clamp(0.95rem, 1.05vw, 1.08rem) !important;
+  line-height: 1.28 !important;
+}
+
+.kr-dashboard-shell main p,
+.dashboard-layout main p,
+.dashboard-layout .main-content p {
+  line-height: 1.55 !important;
+}
+
+.kr-dashboard-shell [class*="text-5xl"],
+.kr-dashboard-shell [class*="text-4xl"],
+.dashboard-layout [class*="text-5xl"],
+.dashboard-layout [class*="text-4xl"] {
+  font-size: clamp(1.85rem, 2.35vw, 2.45rem) !important;
+  line-height: 1.12 !important;
+}
+
+.kr-dashboard-shell [class*="text-3xl"],
+.dashboard-layout [class*="text-3xl"] {
+  font-size: clamp(1.45rem, 1.85vw, 1.95rem) !important;
+  line-height: 1.16 !important;
+}
+
+.kr-dashboard-shell [class*="rounded-["],
+.dashboard-layout [class*="rounded-["] {
+  border-radius: var(--ui-radius) !important;
+}
+
+.kr-dashboard-shell .p-8,
+.kr-dashboard-shell .p-7,
+.dashboard-layout .p-8,
+.dashboard-layout .p-7 {
+  padding: clamp(1.25rem, 1.8vw, 1.55rem) !important;
+}
+
+.kr-dashboard-shell .dashboard-card,
+.kr-dashboard-shell .kr-card,
+.kr-dashboard-shell .kr-kpi-card,
+.dashboard-layout .stat-card,
+.dashboard-layout .card {
+  background: #ffffff !important;
+}
+
+.kr-dashboard-shell .kr-kpi-card {
+  min-height: 96px !important;
+}
+
+.kr-dashboard-shell .kr-kpi-card [class*="text-2xl"],
+.dashboard-layout .stat-card [class*="text-2xl"] {
+  font-size: clamp(1.3rem, 1.7vw, 1.7rem) !important;
+  line-height: 1.15 !important;
+}
+
+.kr-dashboard-shell .dashboard-card [class*="grid"],
+.kr-dashboard-shell .kr-card [class*="grid"] {
+  min-width: 0;
+}
+
+.kr-dashboard-shell header {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(16px);
+}
+
+.kr-dashboard-shell header h1 {
+  font-size: 1.05rem !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+}
+
+.kr-dashboard-shell aside {
+  background: #ffffff !important;
+}
+
+.kr-dashboard-shell .absolute[class*="bg-[#d1eceb]"],
+.kr-dashboard-shell [class*="bg-gradient-to-br"] {
+  background: #ffffff !important;
+}
+
+@media (min-width: 768px) {
+  .kr-dashboard-shell main {
+    padding: 24px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .kr-dashboard-shell main {
+    padding: 28px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kr-dashboard-shell > div.relative.z-10 {
+    width: calc(100% - 260px) !important;
+    margin-left: 260px !important;
+  }
+
+  .kr-dashboard-shell header {
+    width: 100% !important;
+  }
+
+  .kr-dashboard-shell main {
+    width: 100% !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .kr-dashboard-shell main,
+  .dashboard-layout main,
+  .dashboard-layout .main-content {
+    padding: 16px !important;
+  }
+
+  .kr-dashboard-shell main h1,
+  .dashboard-layout main h1,
+  .dashboard-layout .main-content h1 {
+    font-size: 1.55rem !important;
+  }
+
+  .kr-dashboard-shell [class*="grid-cols-2"],
+  .dashboard-layout [class*="grid-cols-2"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .kr-dashboard-shell [class*="max-w-[58%]"] {
+    max-width: none !important;
+  }
+
+  .kr-dashboard-shell .absolute.bottom-5.right-8 {
+    display: none !important;
+  }
+}

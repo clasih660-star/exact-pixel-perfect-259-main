@@ -8,33 +8,8 @@
    - Parent Dashboard
    ============================================= */
 
-/* ---- Dashboard CSS Variables ---- */
-:root {
-  /* Map --kr-* tokens to canonical palette in styles.css */
-  --kr-primary: var(--primary);
-  --kr-primary-dark: var(--primary-dark);
-  --kr-blue-soft: var(--primary-light);
-  --kr-navy: var(--navy);
-  --kr-muted: var(--gray-400);
-  --kr-bg: var(--background);
-  --kr-surface: var(--card);
-  --kr-border: var(--border);
-  --kr-ease: cubic-bezier(.21, .8, .36, 1);
-  --kr-glass: rgba(255, 255, 255, 0.78);
-  --kr-glass-border: rgba(255, 255, 255, 0.72);
-  --kr-shadow-premium: 0 24px 70px rgba(15, 23, 42, 0.10);
-  --kr-success: var(--success);
-  --kr-success-light: var(--success-light);
-  --kr-warning: var(--warning);
-  --kr-warning-light: var(--warning-light);
-  --kr-error: var(--error);
-  --kr-error-light: var(--error-light);
-  --kr-radius: 18px;
-  --kr-radius-sm: 14px;
-  --kr-radius-lg: 24px;
-  --kr-shadow: 0 18px 50px rgba(26, 50, 51, 0.1);
-  --kr-shadow-sm: 0 8px 24px rgba(26,50,51,0.055);
-}
+/* NOTE: Dashboard tokens (--kr-*) are defined in tokens.css.
+   Use those variables directly. */
 
 /* ---- Dashboard Shell ---- */
 .kr-dashboard-shell {
@@ -79,7 +54,7 @@
   display: grid;
   place-items: center;
   color: white;
-  background: linear-gradient(135deg, #1A5256, #3fa8ab);
+  background: linear-gradient(135deg, #1a5256, #3fa8ab);
   font-weight: 900;
 }
 
@@ -157,7 +132,7 @@
   display: grid;
   place-items: center;
   background: #e8f5f5;
-  color: #1A5256;
+  color: #1a5256;
   font-weight: 900;
   font-size: 14px;
 }
@@ -627,7 +602,7 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #1A5256, #3fa8ab);
+  background: linear-gradient(135deg, #1a5256, #3fa8ab);
   color: white;
   font-weight: 900;
   text-transform: uppercase;
@@ -734,7 +709,7 @@
   border-radius: 22px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #1A5256, #3fa8ab);
+  background: linear-gradient(135deg, #1a5256, #3fa8ab);
   color: white;
   font-size: 32px;
   font-weight: 900;
@@ -974,33 +949,43 @@
 /* Ambient, premium page background for every role dashboard */
 .kr-dashboard-shell {
   background:
-    radial-gradient(60% 50% at 100% 0%, rgba(31,124,128,.10), transparent 62%),
-    radial-gradient(46% 42% at 0% 100%, rgba(99,102,241,.075), transparent 62%),
+    radial-gradient(60% 50% at 100% 0%, rgba(31, 124, 128, 0.1), transparent 62%),
+    radial-gradient(46% 42% at 0% 100%, rgba(99, 102, 241, 0.075), transparent 62%),
     linear-gradient(180deg, #f8fbfc 0%, #f6f9ff 54%, #ffffff 100%);
   position: relative;
 }
 .kr-dashboard-main {
-  background-image: radial-gradient(rgba(31,124,128,.055) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(31, 124, 128, 0.055) 1px, transparent 1px);
   background-size: 26px 26px;
 }
 
 /* Sidebar — frosted white with a hairline blue edge */
 .kr-sidebar {
-  background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(251,253,255,.78));
-  border-right: 1px solid rgba(255,255,255,.70);
-  box-shadow: 1px 0 0 rgba(37,99,235,.04), 18px 0 60px rgba(15,23,42,.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(251, 253, 255, 0.78));
+  border-right: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    1px 0 0 rgba(37, 99, 235, 0.04),
+    18px 0 60px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(22px) saturate(1.25);
   -webkit-backdrop-filter: blur(22px) saturate(1.25);
 }
 .kr-brand-mark {
-  background: linear-gradient(135deg, #1A5256, #1F7C80);
-  box-shadow: 0 8px 18px rgba(30, 58, 138, .35);
+  background: linear-gradient(135deg, #1a5256, #1f7c80);
+  box-shadow: 0 8px 18px rgba(30, 58, 138, 0.35);
 }
-.kr-nav-item { transition: transform .16s var(--kr-ease), background .16s ease, color .16s ease, box-shadow .16s ease; }
-.kr-nav-item:hover { transform: translateX(2px); }
+.kr-nav-item {
+  transition:
+    transform 0.16s var(--kr-ease),
+    background 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.kr-nav-item:hover {
+  transform: translateX(2px);
+}
 .kr-nav-item.active {
-  background: linear-gradient(135deg, #1F7C80, #1A5256);
-  box-shadow: 0 10px 22px rgba(37, 99, 235, .35);
+  background: linear-gradient(135deg, #1f7c80, #1a5256);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
 }
 
 /* KPI cards — top accent, gradient icon, confident hover */
@@ -1008,50 +993,78 @@
   position: relative;
   border-radius: 20px;
   border-color: var(--kr-glass-border);
-  background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.78));
-  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 16px 44px rgba(31,124,128,.07);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.78));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 16px 44px rgba(31, 124, 128, 0.07);
   backdrop-filter: blur(16px) saturate(1.15);
   -webkit-backdrop-filter: blur(16px) saturate(1.15);
   overflow: hidden;
-  transition: transform .22s var(--kr-ease), box-shadow .22s var(--kr-ease), border-color .22s ease;
+  transition:
+    transform 0.22s var(--kr-ease),
+    box-shadow 0.22s var(--kr-ease),
+    border-color 0.22s ease;
 }
 .kr-kpi-card::before {
   content: "";
-  position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
   background: linear-gradient(90deg, #3fa8ab, #6366f1);
-  opacity: 0; transition: opacity .22s ease;
+  opacity: 0;
+  transition: opacity 0.22s ease;
 }
-.kr-kpi-card:hover { transform: translateY(-4px); box-shadow: 0 26px 64px rgba(31,124,128,.14); border-color: rgba(163,217,216,.92); }
-.kr-kpi-card:hover::before { opacity: 1; }
+.kr-kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 64px rgba(31, 124, 128, 0.14);
+  border-color: rgba(163, 217, 216, 0.92);
+}
+.kr-kpi-card:hover::before {
+  opacity: 1;
+}
 .kr-kpi-icon {
   background: linear-gradient(135deg, #eff6ff, #dbeafe);
-  color: #1A5256;
-  box-shadow: inset 0 0 0 1px rgba(37,99,235,.08);
+  color: #1a5256;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
 }
 
 /* Headline KPI value gets a subtle gradient */
 .kr-kpi-value {
-  background: linear-gradient(120deg, #0f172a, #1A5256);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  background: linear-gradient(120deg, #0f172a, #1a5256);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Cards — softer radius, layered shadow, gentle hover */
 .kr-card {
   border-radius: 22px;
   border-color: var(--kr-glass-border);
-  background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.80));
-  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 16px 44px rgba(31,124,128,.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.8));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 16px 44px rgba(31, 124, 128, 0.06);
   backdrop-filter: blur(18px) saturate(1.15);
   -webkit-backdrop-filter: blur(18px) saturate(1.15);
-  transition: box-shadow .25s var(--kr-ease), transform .25s var(--kr-ease), border-color .25s ease;
+  transition:
+    box-shadow 0.25s var(--kr-ease),
+    transform 0.25s var(--kr-ease),
+    border-color 0.25s ease;
 }
-.kr-card:hover { border-color: rgba(163,217,216,.80); box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 26px 64px rgba(31,124,128,.11); }
+.kr-card:hover {
+  border-color: rgba(163, 217, 216, 0.8);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 26px 64px rgba(31, 124, 128, 0.11);
+}
 
 .kr-dashboard-header,
 .kr-institution-header {
   background:
-    radial-gradient(circle at 82% 18%, rgba(163,217,216,.26), transparent 32%),
-    linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.78));
+    radial-gradient(circle at 82% 18%, rgba(163, 217, 216, 0.26), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.78));
   border-color: var(--kr-glass-border);
   box-shadow: var(--kr-shadow-premium);
   backdrop-filter: blur(18px) saturate(1.16);
@@ -1060,91 +1073,171 @@
 
 /* "Continue learning" hero — richer brand gradient + soft glow */
 .kr-continue-hero {
-  background: linear-gradient(135deg, #1A5256 0%, #1F7C80 55%, #3fa8ab 100%);
-  box-shadow: 0 24px 60px rgba(37, 99, 235, .30);
+  background: linear-gradient(135deg, #1a5256 0%, #1f7c80 55%, #3fa8ab 100%);
+  box-shadow: 0 24px 60px rgba(37, 99, 235, 0.3);
   position: relative;
   overflow: hidden;
 }
 .kr-continue-hero::after {
   content: "";
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(40% 60% at 90% 10%, rgba(255,255,255,.18), transparent 60%),
-    radial-gradient(40% 60% at 10% 100%, rgba(255,255,255,.10), transparent 60%);
+    radial-gradient(40% 60% at 90% 10%, rgba(255, 255, 255, 0.18), transparent 60%),
+    radial-gradient(40% 60% at 10% 100%, rgba(255, 255, 255, 0.1), transparent 60%);
   pointer-events: none;
 }
-.kr-continue-hero.teacher { background: linear-gradient(135deg, #0f766e, #0ea5e9 55%, #38bdf8); }
-.kr-continue-hero.parent { background: linear-gradient(135deg, #6d28d9, #7c3aed 55%, #a78bfa); }
+.kr-continue-hero.teacher {
+  background: linear-gradient(135deg, #0f766e, #0ea5e9 55%, #38bdf8);
+}
+.kr-continue-hero.parent {
+  background: linear-gradient(135deg, #6d28d9, #7c3aed 55%, #a78bfa);
+}
 
-.kr-continue-hero > * { position: relative; z-index: 1; }
-.kr-continue-hero h2 { color: #ffffff; }
+.kr-continue-hero > * {
+  position: relative;
+  z-index: 1;
+}
+.kr-continue-hero h2 {
+  color: #ffffff;
+}
 .kr-continue-hero p,
-.kr-continue-hero .kr-progress-block span { color: rgba(255,255,255,.80); }
-.kr-continue-hero .kr-eyebrow { color: #d8f7f4 !important; }
+.kr-continue-hero .kr-progress-block span {
+  color: rgba(255, 255, 255, 0.8);
+}
+.kr-continue-hero .kr-eyebrow {
+  color: #d8f7f4 !important;
+}
 .kr-continue-hero .kr-meta-grid span,
 .kr-continue-hero .kr-status-pill {
-  background: rgba(255,255,255,.14);
-  border-color: rgba(255,255,255,.22);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
   color: #ffffff;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 .kr-continue-hero .kr-progress-track,
-.kr-continue-hero .kr-mini-progress { background: rgba(255,255,255,.22); }
+.kr-continue-hero .kr-mini-progress {
+  background: rgba(255, 255, 255, 0.22);
+}
 .kr-continue-hero .kr-progress-track div,
-.kr-continue-hero .kr-mini-progress div { background: #ffffff; }
+.kr-continue-hero .kr-mini-progress div {
+  background: #ffffff;
+}
 .kr-continue-hero .kr-secondary-button {
-  background: rgba(255,255,255,.14);
-  border-color: rgba(255,255,255,.28);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
   color: #ffffff;
 }
-.kr-continue-hero .kr-secondary-button:hover { background: rgba(255,255,255,.22); }
+.kr-continue-hero .kr-secondary-button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
 
 /* Primary / secondary dashboard buttons */
 .kr-primary-button {
-  background: linear-gradient(135deg, #1F7C80, #1A5256);
-  box-shadow: 0 10px 24px rgba(37,99,235,.30);
-  transition: transform .16s var(--kr-ease), box-shadow .2s var(--kr-ease), filter .2s ease;
+  background: linear-gradient(135deg, #1f7c80, #1a5256);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+  transition:
+    transform 0.16s var(--kr-ease),
+    box-shadow 0.2s var(--kr-ease),
+    filter 0.2s ease;
 }
-.kr-primary-button:hover { transform: translateY(-1.5px); box-shadow: 0 16px 32px rgba(37,99,235,.40); filter: saturate(1.05); }
-.kr-primary-button:active { transform: translateY(0) scale(.98); }
-.kr-secondary-button { transition: transform .16s var(--kr-ease), background .18s ease, border-color .18s ease; }
-.kr-secondary-button:hover { transform: translateY(-1.5px); }
+.kr-primary-button:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 16px 32px rgba(37, 99, 235, 0.4);
+  filter: saturate(1.05);
+}
+.kr-primary-button:active {
+  transform: translateY(0) scale(0.98);
+}
+.kr-secondary-button {
+  transition:
+    transform 0.16s var(--kr-ease),
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+.kr-secondary-button:hover {
+  transform: translateY(-1.5px);
+}
 
 /* Search field focus glow */
-.kr-search input:focus { box-shadow: 0 0 0 4px rgba(31,124,128,.18); border-color: #1F7C80; }
+.kr-search input:focus {
+  box-shadow: 0 0 0 4px rgba(31, 124, 128, 0.18);
+  border-color: #1f7c80;
+}
 
 /* Topbar action buttons */
-.kr-topbar-actions button { transition: transform .15s var(--kr-ease), background .15s ease, color .15s ease; }
-.kr-topbar-actions button:hover { transform: translateY(-1px); }
+.kr-topbar-actions button {
+  transition:
+    transform 0.15s var(--kr-ease),
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.kr-topbar-actions button:hover {
+  transform: translateY(-1px);
+}
 
 /* Classroom rows lift on hover */
-.kr-classroom-row { border-radius: 16px; transition: transform .18s var(--kr-ease), border-color .18s ease, background .18s ease, box-shadow .18s ease; }
-.kr-classroom-row:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(37,99,235,.10); }
+.kr-classroom-row {
+  border-radius: 16px;
+  transition:
+    transform 0.18s var(--kr-ease),
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.kr-classroom-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.1);
+}
 
 /* Avatars get a soft ring */
-.kr-avatar { box-shadow: inset 0 0 0 2px rgba(37,99,235,.10); }
+.kr-avatar {
+  box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
 
 /* Status pill: live gets a pulse dot via existing markup */
-.kr-status-pill.live { box-shadow: 0 0 0 1px rgba(34,197,94,.25), 0 6px 16px rgba(34,197,94,.18); }
+.kr-status-pill.live {
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.25),
+    0 6px 16px rgba(34, 197, 94, 0.18);
+}
 
 @media (max-width: 900px) {
-  .kr-dashboard-shell { grid-template-columns: 1fr; }
-  .kr-sidebar { transform: translateX(-100%); transition: transform .25s var(--kr-ease); }
-  .kr-dashboard-main { margin-left: 0; padding: 18px 16px 32px; }
-  .kr-kpi-grid, .kr-kpi-grid.five, .kr-kpi-grid.six { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .kr-dashboard-grid { grid-template-columns: 1fr; }
+  .kr-dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+  .kr-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s var(--kr-ease);
+  }
+  .kr-dashboard-main {
+    margin-left: 0;
+    padding: 18px 16px 32px;
+  }
+  .kr-kpi-grid,
+  .kr-kpi-grid.five,
+  .kr-kpi-grid.six {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kr-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
   .kr-kpi-grid,
   .kr-kpi-grid.five,
-  .kr-kpi-grid.six { grid-template-columns: 1fr; }
+  .kr-kpi-grid.six {
+    grid-template-columns: 1fr;
+  }
 
   .kr-card,
   .kr-dashboard-header,
   .kr-institution-header,
-  .kr-continue-hero { border-radius: 20px; }
+  .kr-continue-hero {
+    border-radius: 20px;
+  }
 }
 
 /* =============================================================================
@@ -1168,17 +1261,29 @@
 }
 
 /* Explicit column count helpers — usage: class="kr-stat-strip kr-stat-strip--3" */
-.kr-stat-strip--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.kr-stat-strip--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.kr-stat-strip--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kr-stat-strip--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.kr-stat-strip--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.kr-stat-strip--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 @media (max-width: 900px) {
-  .kr-stat-strip--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .kr-stat-strip--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kr-stat-strip--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kr-stat-strip--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (max-width: 640px) {
   .kr-stat-strip--4,
   .kr-stat-strip--3,
-  .kr-stat-strip--2 { grid-template-columns: 1fr 1fr; }
+  .kr-stat-strip--2 {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* The individual stat card — premium surface, soft hover */
@@ -1188,10 +1293,13 @@
   border-radius: 18px;
   padding: 16px 18px;
   text-align: center;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(31, 124, 128, 0.07);
-  transition: transform 0.2s var(--kr-ease, cubic-bezier(0.21, 0.8, 0.36, 1)),
-              box-shadow 0.2s var(--kr-ease, cubic-bezier(0.21, 0.8, 0.36, 1)),
-              border-color 0.2s ease;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(31, 124, 128, 0.07);
+  transition:
+    transform 0.2s var(--kr-ease, cubic-bezier(0.21, 0.8, 0.36, 1)),
+    box-shadow 0.2s var(--kr-ease, cubic-bezier(0.21, 0.8, 0.36, 1)),
+    border-color 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -1206,7 +1314,9 @@
 
 .kr-stat-card-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), 0 18px 44px rgba(31, 124, 128, 0.13);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.06),
+    0 18px 44px rgba(31, 124, 128, 0.13);
   border-color: rgba(163, 217, 216, 0.88);
 }
 
@@ -1240,7 +1350,7 @@
 .kr-stat-card-item .kr-stat-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--kr-muted, #A3ADAD);
+  color: var(--kr-muted, #a3adad);
   letter-spacing: 0.02em;
 }
 
@@ -1276,20 +1386,20 @@
   place-items: center;
   background: linear-gradient(135deg, #e8f5f5, #f8fbfc);
   border: 1px solid #d1eceb;
-  box-shadow: 0 4px 14px rgba(31, 124, 128, 0.10);
+  box-shadow: 0 4px 14px rgba(31, 124, 128, 0.1);
   margin-bottom: 4px;
 }
 
 .kr-empty-state h3 {
   font-size: 16px;
   font-weight: 700;
-  color: var(--kr-navy, #1A3233);
+  color: var(--kr-navy, #1a3233);
   margin: 0;
 }
 
 .kr-empty-state p {
   font-size: 13px;
-  color: var(--kr-muted, #A3ADAD);
+  color: var(--kr-muted, #a3adad);
   margin: 0;
   max-width: 280px;
   line-height: 1.6;
@@ -1319,11 +1429,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .kr-person-card:hover {
   border-color: #a3d9d8;
-  box-shadow: 0 6px 20px rgba(31, 124, 128, 0.10);
+  box-shadow: 0 6px 20px rgba(31, 124, 128, 0.1);
 }
 .kr-person-card-top {
   display: flex;
@@ -1344,4 +1456,3 @@
   padding-top: 4px;
   border-top: 1px solid #f1f5f9;
 }
-

@@ -35,7 +35,11 @@ function KingpinCoursesPage() {
       />
 
       <div className="mb-6 grid gap-4 md:grid-cols-3">
-        <StatCard label="Catalog courses" value={courses.length} icon={<Layers className="h-5 w-5" />} />
+        <StatCard
+          label="Catalog courses"
+          value={courses.length}
+          icon={<Layers className="h-5 w-5" />}
+        />
         <StatCard
           label="Curriculum modules"
           value={courses.reduce((sum, course) => sum + course.modules.length, 0)}
@@ -44,7 +48,8 @@ function KingpinCoursesPage() {
         <StatCard
           label="Detailed lessons"
           value={courses.reduce(
-            (sum, course) => sum + course.modules.reduce((inner, module) => inner + module.lessons.length, 0),
+            (sum, course) =>
+              sum + course.modules.reduce((inner, module) => inner + module.lessons.length, 0),
             0,
           )}
           icon={<BookOpen className="h-5 w-5" />}
@@ -53,7 +58,10 @@ function KingpinCoursesPage() {
 
       <div className="grid gap-5">
         {courses.map((course) => {
-          const lessonCount = course.modules.reduce((sum, module) => sum + module.lessons.length, 0);
+          const lessonCount = course.modules.reduce(
+            (sum, module) => sum + module.lessons.length,
+            0,
+          );
           return (
             <Card key={course.id} className="border-[#DDE7F0] bg-white/90">
               <CardContent className="p-6">
@@ -68,11 +76,12 @@ function KingpinCoursesPage() {
                       <h2 className="text-2xl font-bold text-[#0F172A]">{course.title}</h2>
                       <p className="mt-1 text-sm text-[#475569]">{course.subtitle}</p>
                     </div>
-                    <p className="max-w-4xl text-sm leading-7 text-[#334155]">{course.description}</p>
+                    <p className="max-w-4xl text-sm leading-7 text-[#334155]">
+                      {course.description}
+                    </p>
                     <div className="flex flex-wrap gap-4 text-sm text-[#475569]">
                       <span className="inline-flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-[#1F7C80]" />
-                        ${course.priceUsd} one-time
+                        <DollarSign className="h-4 w-4 text-[#1F7C80]" />${course.priceUsd} one-time
                       </span>
                       <span className="inline-flex items-center gap-2">
                         <Layers className="h-4 w-4 text-[#1F7C80]" />
@@ -86,13 +95,22 @@ function KingpinCoursesPage() {
                   </div>
 
                   <div className="flex flex-col gap-2 lg:min-w-[220px]">
-                    <a href={`/admin/kingpin-courses/${course.id}`} className="rounded-xl bg-[#1F7C80] px-4 py-2 text-center text-sm font-semibold text-white">
+                    <a
+                      href={`/admin/kingpin-courses/${course.id}`}
+                      className="rounded-xl bg-[#1F7C80] px-4 py-2 text-center text-sm font-semibold text-white"
+                    >
                       Open course overview
                     </a>
-                    <a href={`/admin/kingpin-courses/${course.id}/lessons`} className="rounded-xl border border-[#CBD5E1] px-4 py-2 text-center text-sm font-semibold text-[#0F172A]">
+                    <a
+                      href={`/admin/kingpin-courses/${course.id}/lessons`}
+                      className="rounded-xl border border-[#CBD5E1] px-4 py-2 text-center text-sm font-semibold text-[#0F172A]"
+                    >
                       View lessons
                     </a>
-                    <a href={`/admin/kingpin-courses/${course.id}/materials`} className="rounded-xl border border-[#CBD5E1] px-4 py-2 text-center text-sm font-semibold text-[#0F172A]">
+                    <a
+                      href={`/admin/kingpin-courses/${course.id}/materials`}
+                      className="rounded-xl border border-[#CBD5E1] px-4 py-2 text-center text-sm font-semibold text-[#0F172A]"
+                    >
                       Materials guidance
                     </a>
                   </div>
@@ -111,7 +129,9 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
     <Card className="border-[#DDE7F0] bg-white/90">
       <CardContent className="flex items-center justify-between p-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">{label}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">
+            {label}
+          </p>
           <p className="mt-2 text-3xl font-bold text-[#0F172A]">{value}</p>
         </div>
         <div className="rounded-2xl bg-[#E6F6F3] p-3 text-[#1F7C80]">{icon}</div>

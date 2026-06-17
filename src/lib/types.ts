@@ -8,6 +8,53 @@ export type UserRole =
   | "student"
   | "parent";
 
+export type TeacherType = "private" | "institution" | "kingpin";
+
+export type LearnerType = "institution" | "private" | "teacher_enrolled";
+
+export type EnrollmentSource = "institution" | "private_teacher" | "kingpin" | "self_registered";
+
+export type CourseOwnerType = "institution" | "teacher" | "kingpin";
+
+export type TeacherApplicationStatus = "pending" | "approved" | "rejected" | "suspended";
+
+export type VerificationStatus = "unsubmitted" | "pending" | "verified" | "rejected";
+
+export type UserPersona =
+  | "platform_admin"
+  | "institution_admin"
+  | "private_teacher"
+  | "institution_teacher"
+  | "kingpin_teacher"
+  | "institution_learner"
+  | "private_learner"
+  | "teacher_enrolled_learner"
+  | "parent";
+
+export type TeacherProfile = {
+  teacherType: TeacherType;
+  applicationStatus: TeacherApplicationStatus;
+  verificationStatus: VerificationStatus;
+  institutionId?: string | null;
+  hiredByAdmin?: boolean;
+};
+
+export type LearnerProfile = {
+  learnerType: LearnerType;
+  klassroomStudentId: string;
+  primaryEnrollmentSource: EnrollmentSource;
+  institutionId?: string | null;
+  admissionNumber?: string | null;
+};
+
+export type RoleResolution = {
+  role: UserRole;
+  persona: UserPersona;
+  teacherType?: TeacherType | null;
+  learnerType?: LearnerType | null;
+  institutionId?: string | null;
+};
+
 export type TeacherState =
   | "idle"
   | "preparing"

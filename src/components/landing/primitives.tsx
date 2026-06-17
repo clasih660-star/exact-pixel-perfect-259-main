@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={cn("mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8", className)}>
+    <div className={cn("mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8", className)}>
       {children}
     </div>
   );
@@ -17,7 +17,7 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-emerald-300",
+        "inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-muted",
         className,
       )}
     >
@@ -33,7 +33,7 @@ export function SectionHeader({
   align = "center",
   className,
   id,
-  theme = "dark",
+  theme = "light",
 }: {
   eyebrow?: string;
   title: ReactNode;
@@ -46,18 +46,16 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        "lp-reveal",
         align === "center" ? "mx-auto max-w-[860px] text-center" : "max-w-[660px] text-left",
         className,
       )}
-      data-reveal
     >
       {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
       <h2
         id={id}
         className={cn(
-          "font-bold tracking-normal",
-          theme === "dark" ? "text-white" : "text-[#0F172A]",
+          "font-bold",
+          theme === "dark" ? "text-white" : "text-heading",
           "text-[28px] leading-tight sm:text-[34px] md:text-[42px]",
           eyebrow ? "mt-4" : "",
         )}
@@ -67,8 +65,8 @@ export function SectionHeader({
       {description ? (
         <p
           className={cn(
-            "mt-4 text-[16px] leading-8 md:text-[17px]",
-            theme === "dark" ? "text-slate-300" : "text-slate-600",
+            "mt-4 text-[16px] leading-7 md:text-[17px]",
+            theme === "dark" ? "text-white/60" : "text-body",
             align === "center" ? "mx-auto" : "",
           )}
         >
@@ -84,18 +82,14 @@ type CTASize = "sm" | "md" | "lg";
 
 function ctaClasses(variant: CTAVariant, size: CTASize, className?: string) {
   return cn(
-    "group relative inline-flex items-center justify-center gap-2 rounded-md border font-semibold no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:translate-y-px",
-    size === "lg" && "min-h-12 px-5 py-3 text-[15px]",
-    size === "md" && "min-h-10 px-4 py-2 text-[14px]",
-    size === "sm" && "min-h-9 px-3 py-1.5 text-[13px]",
-    variant === "primary" &&
-      "border-emerald-300 bg-emerald-300 text-slate-950 shadow-sm hover:border-emerald-200 hover:bg-emerald-200",
-    variant === "secondary" &&
-      "border-white/15 bg-white/[0.04] text-white hover:border-white/25 hover:bg-white/[0.08]",
-    variant === "ghost" &&
-      "border-transparent bg-transparent text-slate-300 hover:bg-white/[0.06] hover:text-white",
-    variant === "dark" &&
-      "border-slate-700 bg-slate-950 text-white hover:border-slate-500 hover:bg-slate-900",
+    "group relative inline-flex items-center justify-center gap-2 rounded-md border font-semibold no-underline transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heading focus-visible:ring-offset-2 active:translate-y-px",
+    size === "lg" && "min-h-12 px-6 py-3 text-[15px]",
+    size === "md" && "min-h-10 px-5 py-2 text-[14px]",
+    size === "sm" && "min-h-9 px-4 py-1.5 text-[13px]",
+    variant === "primary" && "border-heading bg-heading text-white shadow-sm hover:bg-navy-light",
+    variant === "secondary" && "border-border bg-white text-heading hover:bg-border-soft",
+    variant === "ghost" && "border-transparent bg-transparent text-body hover:text-heading",
+    variant === "dark" && "border-heading bg-heading text-white hover:bg-navy-light",
     className,
   );
 }
@@ -125,7 +119,9 @@ export function CTAButton({
   const inner = (
     <>
       {children}
-      {showArrow && <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />}
+      {showArrow && (
+        <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+      )}
     </>
   );
 
@@ -148,23 +144,12 @@ export function CTAButton({
   );
 }
 
-export function SurfaceCard({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-  theme?: "dark" | "light";
-}) {
+export function SurfaceCard({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <div
-      className={cn(
-        "group relative rounded-lg border border-white/10 bg-slate-950/70 p-5 shadow-sm shadow-black/10 transition-colors duration-200 hover:border-emerald-300/30 hover:bg-slate-900/80",
-        className,
-      )}
-      data-reveal
+      className={cn("lp-premium-card group relative p-5 transition-all duration-200", className)}
     >
-      <div className="relative text-white">{children}</div>
+      <div className="relative text-heading">{children}</div>
     </div>
   );
 }
@@ -177,35 +162,34 @@ export function FeatureCard({
   icon: ReactNode;
   title: string;
   description: string;
-  theme?: "dark" | "light";
 }) {
   return (
     <SurfaceCard className="h-full">
-      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-300/10 text-emerald-300">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-soft-blue text-academic-blue">
         {icon}
       </div>
-      <h3 className="mt-4 text-[16px] font-semibold text-white transition-colors group-hover:text-emerald-200">{title}</h3>
-      <p className="mt-2 text-[14px] leading-relaxed text-slate-400">{description}</p>
+      <h3 className="mt-4 text-[16px] font-semibold text-heading">{title}</h3>
+      <p className="mt-2 text-[14px] leading-relaxed text-body">{description}</p>
     </SurfaceCard>
   );
 }
 
 export function StatCard({ value, label, hint }: { value: string; label: string; hint?: string }) {
   return (
-    <div className="group relative rounded-lg border border-white/10 bg-white/[0.03] p-4 transition-colors duration-200 hover:border-emerald-300/30">
-      <div className="text-[26px] font-bold tracking-normal text-white transition-colors group-hover:text-emerald-200 sm:text-[32px]">{value}</div>
-      <div className="mt-1 text-xs font-semibold text-slate-300 sm:text-sm">{label}</div>
-      {hint ? <div className="mt-1 text-[11px] text-slate-400">{hint}</div> : null}
+    <div className="lp-premium-card group relative p-4 transition-all duration-200">
+      <div className="text-[26px] font-bold text-heading sm:text-[32px]">{value}</div>
+      <div className="mt-1 text-xs font-semibold text-body sm:text-sm">{label}</div>
+      {hint ? <div className="mt-1 text-[11px] text-muted">{hint}</div> : null}
     </div>
   );
 }
 
 export function YesMark({ label }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-emerald-300">
+    <span className="inline-flex items-center gap-1.5 text-education-green">
       <Check className="h-4 w-4" aria-hidden />
       {label ? (
-        <span className="text-sm text-slate-300">{label}</span>
+        <span className="text-sm text-body">{label}</span>
       ) : (
         <span className="sr-only">Yes</span>
       )}
@@ -215,10 +199,10 @@ export function YesMark({ label }: { label?: string }) {
 
 export function NoMark({ label }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-slate-500">
+    <span className="inline-flex items-center gap-1.5 text-muted">
       <Minus className="h-4 w-4" aria-hidden />
       {label ? (
-        <span className="text-sm text-slate-400">{label}</span>
+        <span className="text-sm text-muted">{label}</span>
       ) : (
         <span className="sr-only">No</span>
       )}

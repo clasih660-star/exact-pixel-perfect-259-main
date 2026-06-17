@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Logo } from "@/components/brand/Logo";
+import { GraduationCap, PenLine, Accessibility, BarChart3, Lock, Globe } from "lucide-react";
 import { registerInstitution } from "@/lib/institutions-register.functions";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -77,32 +78,32 @@ const USE_CASES = [
 
 const BENEFITS = [
   {
-    icon: "🎓",
+    icon: <GraduationCap size={20} />,
     title: "AI teacher-led lessons",
     body: "Virtual teacher delivers structured lessons with voice, captions, and real-time interaction.",
   },
   {
-    icon: "📝",
+    icon: <PenLine size={20} />,
     title: "Materials to lessons",
     body: "Upload PDFs, slides, and documents — AI generates ready-to-teach structured lessons.",
   },
   {
-    icon: "♿",
+    icon: <Accessibility size={20} />,
     title: "Built-in accessibility",
     body: "Live captions, transcripts, learning modes for deaf, blind, ADHD, and more.",
   },
   {
-    icon: "📊",
+    icon: <BarChart3 size={20} />,
     title: "Progress tracking",
     body: "Track lessons started, questions asked, checkpoints reached, and areas needing review.",
   },
   {
-    icon: "🔒",
+    icon: <Lock size={20} />,
     title: "Data control",
     body: "Institution-owned data with role-based access, encrypted storage, and audit logging.",
   },
   {
-    icon: "🌍",
+    icon: <Globe size={20} />,
     title: "Works everywhere",
     body: "Browser-based, low-bandwidth friendly, runs on modest devices and patchy connections.",
   },
@@ -189,7 +190,10 @@ function RegisterPage() {
           {/* Benefits */}
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {BENEFITS.map((b) => (
-              <div key={b.title} className="rounded-xl border border-white/12 bg-[rgba(15,23,42,0.56)] p-4 shadow-[0_12px_28px_rgba(2,8,23,0.18)] backdrop-blur-xl">
+              <div
+                key={b.title}
+                className="rounded-xl border border-white/12 bg-[rgba(15,23,42,0.56)] p-4 shadow-[0_12px_28px_rgba(2,8,23,0.18)] backdrop-blur-xl"
+              >
                 <div className="text-2xl">{b.icon}</div>
                 <h3 className="mt-2 text-sm font-semibold text-white">{b.title}</h3>
                 <p className="mt-1 text-xs leading-relaxed text-slate-200">{b.body}</p>

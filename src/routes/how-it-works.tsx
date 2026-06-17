@@ -1,6 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/marketing/InfoPage";
 import { createSeoHead, faqSchema, webPageSchema } from "@/lib/seo";
+import {
+  School,
+  BookOpen,
+  FolderOpen,
+  Sparkles,
+  GraduationCap,
+  BarChart3,
+  Users,
+  Shield,
+} from "lucide-react";
 
 const DESCRIPTION =
   "See how Klassruum runs from institution setup to course materials, AI lesson generation, teacher review, learner classrooms, parent visibility, and progress evidence.";
@@ -48,47 +58,47 @@ function HowItWorksPage() {
       cta={{ label: "Register your institution", to: "/institutions/register" }}
       sections={[
         {
-          icon: "🏫",
+          icon: <School size={20} />,
           title: "1. Set up the institution",
           body: "Create the institution profile, define programmes, invite institution admins, teachers, learners, and parents, and configure billing, privacy, accessibility, and role access.",
         },
         {
-          icon: "📚",
+          icon: <BookOpen size={20} />,
           title: "2. Build programmes and courses",
           body: "Group learning into programmes, create courses under each programme, assign teachers, enrol learners, and define the subject, level, timeline, and learning outcomes.",
         },
         {
-          icon: "📁",
+          icon: <FolderOpen size={20} />,
           title: "3. Upload approved materials",
           body: "Add syllabi, PDFs, slides, worksheets, documents, links, and images. Klassruum extracts text and visual context so lessons stay grounded in institutional content.",
         },
         {
-          icon: "✨",
+          icon: <Sparkles size={20} />,
           title: "4. Generate structured lessons",
           body: "AI transforms materials into lesson sections, whiteboard teaching items, spoken explanations, accessible descriptions, learner notes, checkpoints, and summaries.",
         },
         {
-          icon: "🧑‍🏫",
+          icon: <GraduationCap size={20} />,
           title: "5. Teacher reviews and publishes",
           body: "Teachers preview the lesson, adjust examples, attach resources, validate accuracy, and choose whether the session runs as AI teacher-led, human-led, or hybrid.",
         },
         {
-          icon: "🎓",
+          icon: <GraduationCap size={20} />,
           title: "6. Learners enter the classroom",
           body: "Learners follow the teacher, whiteboard, captions, notes, transcript, practice checks, accessibility settings, and ask questions by text or voice without losing the lesson flow.",
         },
         {
-          icon: "📊",
+          icon: <BarChart3 size={20} />,
           title: "7. Evidence is captured",
           body: "The platform records session events, questions, board snapshots, notes, time spent, progress percentage, confidence checks, weak areas, and recommendations.",
         },
         {
-          icon: "👪",
+          icon: <Users size={20} />,
           title: "8. Parents and staff support progress",
           body: "Parents view linked learner reports while teachers and institution admins use analytics to plan intervention, messaging, resources, and next lessons.",
         },
         {
-          icon: "🛡️",
+          icon: <Shield size={20} />,
           title: "9. Platform admins keep it reliable",
           body: "Platform admins manage institutions, usage, support, plans, AI settings, audit logs, system health, and reusable KingPin course content.",
         },

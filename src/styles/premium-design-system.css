@@ -10,127 +10,10 @@
    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 */
 
+/* NOTE: All design tokens are defined in tokens.css.
+   Typography scale and spacing kept here for landing page components. */
+
 :root {
-  /* -------------------------------------------------------
-     BRAND COLOURS
-     ------------------------------------------------------- */
-
-  /* Institutional navy */
-  --color-navy-950: #071a33;
-  --color-navy-900: #0b2344;
-  --color-navy-800: #12345f;
-  --color-navy-700: #1c4778;
-
-  /* Main education blue */
-  --color-blue-700: #174ccf;
-  --color-blue-600: #2563eb;
-  --color-blue-500: #3b82f6;
-  --color-blue-400: #60a5fa;
-  --color-blue-100: #dbeafe;
-  --color-blue-50: #eff6ff;
-
-  /* Accessibility and success green */
-  --color-green-700: #047857;
-  --color-green-600: #059669;
-  --color-green-500: #10b981;
-  --color-green-100: #d1fae5;
-  --color-green-50: #ecfdf5;
-
-  /* Supporting teal */
-  --color-teal-700: #0f766e;
-  --color-teal-600: #0d9488;
-  --color-teal-100: #ccfbf1;
-  --color-teal-50: #f0fdfa;
-
-  /* Achievement accent */
-  --color-amber-600: #d97706;
-  --color-amber-500: #f59e0b;
-  --color-amber-100: #fef3c7;
-  --color-amber-50: #fffbeb;
-
-  /* Optional violet for secondary features */
-  --color-violet-600: #7c3aed;
-  --color-violet-100: #ede9fe;
-  --color-violet-50: #f5f3ff;
-
-  /* -------------------------------------------------------
-     NEUTRAL COLOURS
-     ------------------------------------------------------- */
-
-  --color-white: #ffffff;
-  --color-background: #f8fbff;
-  --color-surface-soft: #f3f7fc;
-  --color-surface-blue: #eef6ff;
-
-  --color-text-primary: #0d2342;
-  --color-text-secondary: #53657a;
-  --color-text-muted: #7b8da3;
-
-  --color-border: #dce6f1;
-  --color-border-light: #eaf0f6;
-  --color-border-strong: #c8d7e6;
-
-  /* -------------------------------------------------------
-     SEMANTIC COLOURS
-     ------------------------------------------------------- */
-
-  --color-primary: var(--color-blue-600);
-  --color-primary-hover: var(--color-blue-700);
-  --color-primary-light: var(--color-blue-50);
-
-  --color-success: var(--color-green-600);
-  --color-warning: var(--color-amber-500);
-  --color-danger: #dc2626;
-
-  /* -------------------------------------------------------
-     GRADIENTS
-     ------------------------------------------------------- */
-
-  --gradient-hero:
-    radial-gradient(
-      circle at 82% 24%,
-      rgba(59, 130, 246, 0.20),
-      transparent 34%
-    ),
-    linear-gradient(
-      120deg,
-      #ffffff 0%,
-      #f7fbff 45%,
-      #eaf4ff 100%
-    );
-
-  --gradient-blue:
-    linear-gradient(135deg, #2563eb 0%, #174ccf 100%);
-
-  --gradient-soft-blue:
-    linear-gradient(135deg, #f9fcff 0%, #edf6ff 100%);
-
-  --gradient-green:
-    linear-gradient(135deg, #ecfdf5 0%, #dff8ef 100%);
-
-  --gradient-dark:
-    linear-gradient(135deg, #071a33 0%, #12345f 100%);
-
-  /* -------------------------------------------------------
-     TYPOGRAPHY
-     ------------------------------------------------------- */
-
-  --font-heading:
-    "Manrope",
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-
-  --font-body:
-    "DM Sans",
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -146,10 +29,6 @@
   --line-height-heading: 1.18;
   --line-height-body: 1.7;
 
-  /* -------------------------------------------------------
-     SPACING
-     ------------------------------------------------------- */
-
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -164,106 +43,22 @@
   --space-24: 6rem;
   --space-28: 7rem;
 
-  /* -------------------------------------------------------
-     RADII
-     ------------------------------------------------------- */
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
-  --radius-2xl: 30px;
-  --radius-pill: 999px;
-
-  /* -------------------------------------------------------
-     SHADOWS
-     ------------------------------------------------------- */
-
-  --shadow-sm:
-    0 2px 8px rgba(15, 35, 65, 0.06);
-
-  --shadow-md:
-    0 12px 30px rgba(15, 35, 65, 0.09);
-
-  --shadow-lg:
-    0 24px 60px rgba(15, 35, 65, 0.13);
-
-  --shadow-blue:
-    0 16px 36px rgba(37, 99, 235, 0.22);
-
-  /* -------------------------------------------------------
-     TRANSITIONS
-     ------------------------------------------------------- */
-
   --transition-fast: 160ms ease;
   --transition-base: 240ms ease;
   --transition-slow: 400ms ease;
-
-  /* -------------------------------------------------------
-     CONTAINER WIDTHS
-     ------------------------------------------------------- */
 
   --container-width: 1180px;
   --container-wide: 1320px;
 }
 
-
 /* =========================================================
-   RESET AND BASE
+   RESET AND BASE — handled by Tailwind preflight and @layer base in styles.css
    ========================================================= */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  text-rendering: optimizeLegibility;
-}
-
-body {
-  margin: 0;
-  background: var(--color-background);
-  color: var(--color-text-primary);
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--line-height-body);
-  -webkit-font-smoothing: antialiased;
-}
-
-img,
-picture,
-video,
-canvas,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
 
 ::selection {
   background: var(--color-blue-100);
   color: var(--color-navy-950);
 }
-
 
 /* =========================================================
    TYPOGRAPHY
@@ -332,7 +127,6 @@ p {
   text-transform: uppercase;
 }
 
-
 /* =========================================================
    LAYOUT
    ========================================================= */
@@ -379,7 +173,6 @@ p {
   margin-top: var(--space-5);
   font-size: var(--text-lg);
 }
-
 
 /* =========================================================
    NAVIGATION
@@ -445,7 +238,6 @@ p {
   gap: var(--space-4);
 }
 
-
 /* =========================================================
    BUTTONS
    ========================================================= */
@@ -504,7 +296,6 @@ p {
 .btn-ghost:hover {
   background: var(--color-blue-50);
 }
-
 
 /* =========================================================
    HERO SECTION
@@ -575,7 +366,6 @@ p {
   min-width: 0;
 }
 
-
 /* =========================================================
    PRODUCT MOCKUP
    ========================================================= */
@@ -624,7 +414,6 @@ p {
   backdrop-filter: blur(12px);
 }
 
-
 /* =========================================================
    STAT CARDS
    ========================================================= */
@@ -671,7 +460,6 @@ p {
   line-height: 1.35;
 }
 
-
 /* =========================================================
    CARDS
    ========================================================= */
@@ -716,7 +504,6 @@ p {
   font-size: var(--text-sm);
 }
 
-
 /* =========================================================
    HOW IT WORKS
    ========================================================= */
@@ -749,7 +536,6 @@ p {
   background: var(--color-blue-50);
   color: var(--color-blue-600);
 }
-
 
 /* =========================================================
    FEATURE GRID
@@ -791,7 +577,6 @@ p {
   background: linear-gradient(135deg, #fffdf7, #fff7e6);
 }
 
-
 /* =========================================================
    INSTITUTION CARDS
    ========================================================= */
@@ -826,18 +611,13 @@ p {
   line-height: 1.55;
 }
 
-
 /* =========================================================
    ACCESSIBILITY SECTION
    ========================================================= */
 
 .accessibility-section {
   background:
-    radial-gradient(
-      circle at 15% 20%,
-      rgba(16, 185, 129, 0.12),
-      transparent 32%
-    ),
+    radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.12), transparent 32%),
     linear-gradient(135deg, #f4fffb, #eef8ff);
 }
 
@@ -872,7 +652,6 @@ p {
   background: var(--color-green-50);
   color: var(--color-green-700);
 }
-
 
 /* =========================================================
    DARK INSTITUTION SECTION
@@ -917,7 +696,6 @@ p {
   background: rgba(16, 185, 129, 0.18);
   color: #6ee7b7;
 }
-
 
 /* =========================================================
    PRICING
@@ -973,7 +751,6 @@ p {
   list-style: none;
 }
 
-
 /* =========================================================
    FOOTER
    ========================================================= */
@@ -1015,7 +792,6 @@ p {
 .footer-link:hover {
   color: var(--color-white);
 }
-
 
 /* =========================================================
    RESPONSIVE DESIGN
@@ -1167,7 +943,6 @@ p {
   }
 }
 
-
 /* =========================================================
    ACCESSIBILITY
    ========================================================= */
@@ -1185,5 +960,302 @@ p {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* =========================================================
+   2026 HIGH-TECH PRODUCT REFRESH
+   Clean institutional UI for every non-classroom surface.
+   ========================================================= */
+
+:root {
+  --tech-ink: #07111f;
+  --tech-panel-solid: #ffffff;
+  --tech-blue: #2563eb;
+  --tech-cyan: #10b8d8;
+  --tech-muted: #405168;
+  --tech-radius: 14px;
+  --tech-shadow: 0 20px 54px rgba(7, 17, 31, 0.1);
+}
+
+body {
+  background:
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 44%, #f8fbff 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: 0;
+}
+
+.landing-page-shell,
+.auth-tech-page,
+.dashboard-layout,
+.kr-dashboard-shell {
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 184, 216, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 52%, #f7fbff 100%);
+  background-size:
+    56px 56px,
+    56px 56px,
+    auto;
+}
+
+.landing-nav {
+  height: 76px;
+}
+
+.landing-nav--scrolled,
+.auth-tech-nav,
+.kr-dashboard-shell aside,
+.sidebar,
+.topnav {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(184, 199, 217, 0.58);
+  box-shadow: 0 12px 36px rgba(7, 17, 31, 0.06);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.nav-link-academic,
+.nav-link-academic--light {
+  letter-spacing: 0;
+}
+
+.landing-nav:not(.landing-nav--scrolled) .nav-link-academic,
+.landing-nav:not(.landing-nav--scrolled) .nav-link-academic--light {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.landing-nav--scrolled .nav-link-academic {
+  color: var(--tech-muted);
+}
+
+.nav-link-academic:hover,
+.landing-nav--scrolled .nav-link-academic:hover {
+  color: var(--tech-ink);
+}
+
+.btn-primary-academic,
+.kr-primary-button,
+.kr-btn-primary {
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  background: linear-gradient(135deg, var(--tech-ink), #10233f 52%, var(--tech-blue));
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary-academic:hover,
+.kr-primary-button:hover,
+.kr-btn-primary:hover {
+  border-color: rgba(16, 184, 216, 0.5);
+  box-shadow: 0 22px 46px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-secondary-academic,
+.kr-secondary-button {
+  border: 1px solid rgba(184, 199, 217, 0.82);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--tech-ink);
+  box-shadow: 0 10px 24px rgba(7, 17, 31, 0.06);
+}
+
+.btn-secondary-academic:hover,
+.kr-secondary-button:hover {
+  border-color: rgba(16, 184, 216, 0.5);
+  background: #f7fbff;
+}
+
+.lp-premium-card,
+.dashboard-card,
+.kr-card,
+.kr-kpi-card,
+.kr-stat-card-item,
+.solutions-panel,
+.pricing-track-card,
+[data-slot="card"] {
+  border: 1px solid rgba(184, 199, 217, 0.72);
+  border-radius: var(--tech-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.9)),
+    var(--tech-panel-solid);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.92) inset,
+    0 14px 38px rgba(7, 17, 31, 0.07);
+}
+
+.lp-premium-card:hover,
+.dashboard-card:hover,
+.kr-card:hover,
+.kr-kpi-card:hover,
+.kr-stat-card-item:hover,
+.solutions-panel:hover,
+.pricing-track-card:hover,
+[data-slot="card"]:hover {
+  border-color: rgba(16, 184, 216, 0.46);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 24px 54px rgba(37, 99, 235, 0.12);
+}
+
+.kr-dashboard-shell {
+  color: var(--tech-ink);
+}
+
+.kr-dashboard-shell aside,
+.kr-sidebar,
+.sidebar {
+  border-right: 1px solid rgba(184, 199, 217, 0.58);
+}
+
+.kr-dashboard-shell header,
+.topnav {
+  border-bottom: 1px solid rgba(184, 199, 217, 0.58);
+}
+
+.kr-dashboard-header,
+.kr-institution-header,
+.kr-continue-hero {
+  border-radius: 16px;
+  border: 1px solid rgba(184, 199, 217, 0.65);
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 184, 216, 0.05) 1px, transparent 1px),
+    linear-gradient(135deg, #ffffff, #edf7ff);
+  background-size:
+    32px 32px,
+    32px 32px,
+    auto;
+  box-shadow: var(--tech-shadow);
+}
+
+.kr-continue-hero h2,
+.kr-continue-hero p,
+.kr-continue-hero .kr-progress-block span {
+  color: var(--tech-ink);
+}
+
+.kr-continue-hero .kr-eyebrow {
+  color: var(--tech-blue) !important;
+}
+
+.kr-nav-item.active,
+.nav-item.active {
+  background: linear-gradient(135deg, var(--tech-ink), var(--tech-blue));
+  color: #ffffff;
+}
+
+.kr-kpi-icon,
+.stat-icon,
+.kr-institution-logo,
+.kr-classroom-icon {
+  background: linear-gradient(135deg, #eaf5ff, #dff8ff);
+  color: var(--tech-blue);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.1);
+}
+
+.kr-kpi-value,
+.stat-value {
+  color: var(--tech-ink);
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+}
+
+.auth-tech-page {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-tech-panel {
+  border: 1px solid rgba(184, 199, 217, 0.68);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--tech-shadow);
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+}
+
+.auth-tech-brand {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(96, 165, 250, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 184, 216, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, #030712 0%, #07111f 58%, #10233f 100%);
+  background-size:
+    44px 44px,
+    44px 44px,
+    auto;
+}
+
+.auth-tech-brand h1,
+.auth-tech-brand h2,
+.auth-tech-brand h3 {
+  color: #ffffff !important;
+}
+
+.auth-tech-brand p {
+  color: rgba(226, 239, 255, 0.86) !important;
+}
+
+.auth-tech-brand [class*="text-white"] {
+  color: #ffffff !important;
+}
+
+.auth-role-button {
+  border: 1px solid rgba(184, 199, 217, 0.7);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(7, 17, 31, 0.04);
+}
+
+.auth-role-button:hover {
+  border-color: rgba(16, 184, 216, 0.52);
+  background: #f7fbff;
+  transform: translateY(-1px);
+}
+
+input,
+textarea,
+select {
+  border-radius: 12px;
+  border-color: rgba(184, 199, 217, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--tech-cyan);
+  box-shadow: 0 0 0 4px rgba(16, 184, 216, 0.14);
+}
+
+@media (max-width: 768px) {
+  .landing-nav {
+    height: 68px;
+  }
+
+  .auth-tech-panel {
+    border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(7, 17, 31, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-role-button,
+  .lp-premium-card,
+  .dashboard-card,
+  .kr-card,
+  .kr-kpi-card,
+  .solutions-panel,
+  .pricing-track-card {
+    transition: none !important;
   }
 }

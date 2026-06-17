@@ -1,5 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/marketing/InfoPage";
+import {
+  MessageSquare,
+  PenLine,
+  Key,
+  Eye,
+  Palette,
+  Film,
+  Brain,
+  Volume2,
+  MessageCircle,
+} from "lucide-react";
 
 const SITE_URL = "https://klassruum.com";
 
@@ -59,47 +70,47 @@ export const Route = createFileRoute("/accessibility")({
       cta={{ label: "Try the accessible classroom", to: "/demo/classroom" }}
       sections={[
         {
-          icon: "💬",
+          icon: <MessageSquare size={20} />,
           title: "Live captions",
           body: "Every spoken line is captioned in real time — essential for deaf and hard-of-hearing learners, and useful for everyone.",
         },
         {
-          icon: "📝",
+          icon: <PenLine size={20} />,
           title: "Full transcript",
           body: "A complete, searchable transcript is saved after every session for review and study.",
         },
         {
-          icon: "⌨️",
+          icon: <Key size={20} />,
           title: "Keyboard navigation",
           body: "The entire classroom is navigable by keyboard — no mouse required.",
         },
         {
-          icon: "👁️",
+          icon: <Eye size={20} />,
           title: "Screen reader support",
           body: "ARIA labels, semantic HTML, and focus management ensure screen readers can navigate the classroom.",
         },
         {
-          icon: "🎨",
+          icon: <Palette size={20} />,
           title: "High contrast & large text",
           body: "Visual adjustments for learners who need stronger contrast or larger text sizes.",
         },
         {
-          icon: "🎬",
+          icon: <Film size={20} />,
           title: "Reduced motion",
           body: "Animations and transitions can be reduced for learners with motion sensitivity.",
         },
         {
-          icon: "🧠",
+          icon: <Brain size={20} />,
           title: "Focus mode",
           body: "Minimizes distractions and concentrates attention on the current whiteboard item.",
         },
         {
-          icon: "🔊",
+          icon: <Volume2 size={20} />,
           title: "Adjustable speech speed",
           body: "Control the pace of the AI teacher's speech to match comprehension needs.",
         },
         {
-          icon: "🗣️",
+          icon: <MessageCircle size={20} />,
           title: "Text-first questions",
           body: "Learners who can't speak can ask questions entirely by typing.",
         },

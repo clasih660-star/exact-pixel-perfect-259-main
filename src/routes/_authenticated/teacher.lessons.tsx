@@ -232,11 +232,7 @@ function TeacherLessons() {
               <FileText className="h-6 w-6 text-[#1F7C80]" />
             </div>
             <h3>No lessons found</h3>
-            <p>
-              {query
-                ? `No lessons match "${query}".`
-                : "No lessons in this category yet."}
-            </p>
+            <p>{query ? `No lessons match "${query}".` : "No lessons in this category yet."}</p>
           </div>
         </div>
       ) : (
@@ -264,9 +260,7 @@ function TeacherLessons() {
                       <StatusBadge variant={sc.variant}>{sc.label}</StatusBadge>
                     </div>
                     <p className="mt-0.5 text-sm text-[#64748B]">{lesson.course}</p>
-                    <p className="mt-1 text-xs text-[#94A3B8] line-clamp-1">
-                      {lesson.description}
-                    </p>
+                    <p className="mt-1 text-xs text-[#94A3B8] line-clamp-1">{lesson.description}</p>
 
                     {/* Meta row — wraps on mobile */}
                     <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[#64748B]">

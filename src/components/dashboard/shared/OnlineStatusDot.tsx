@@ -11,7 +11,7 @@ export function OnlineStatusDot({ online, animate = true }: Props) {
       )}
       <div
         className={`relative inline-flex h-3 w-3 rounded-full ${
-          online ? "bg-green-500" : "bg-[#94A3B8]"
+          online ? "bg-green-500" : "bg-muted"
         }`}
       />
     </div>

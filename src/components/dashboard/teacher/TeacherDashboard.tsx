@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { BookOpen, Users, Video, AlertTriangle, CheckCircle2, Eye } from "lucide-react";
-import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
@@ -14,8 +13,65 @@ import { ActivityFeed } from "@/components/dashboard/shared/ActivityFeed";
 import { RealtimeMetricCard } from "@/components/dashboard/shared/RealtimeMetricCard";
 import { OnlineStatusDot } from "@/components/dashboard/shared/OnlineStatusDot";
 import { AlertBanner } from "@/components/dashboard/shared/AlertBanner";
+import { type DashboardConfig } from "@/lib/dashboard-config";
+import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 
-const config = dashboardConfigs.teacher;
+function getTeacherDashboardCopy(role: DashboardConfig["role"]) {
+  switch (role) {
+    case "private_teacher":
+      return {
+        headerLabel: "Private teaching workspace",
+        headerTitle: "Run your independent teaching business",
+        headerSubtitle:
+          "Track verification, manage your own courses, and support private learners across live and AI-assisted sessions.",
+        alertTitle: "Verification and lesson items need your attention",
+        alertDescription:
+          "Complete your profile checks and review pending lesson updates before your next private teaching session.",
+        courseSectionTitle: "My Private Courses",
+        courseSectionSubtitle: "Courses you own and deliver",
+        scheduleTitle: "Upcoming Private Sessions",
+      };
+    case "kingpin_teacher":
+      return {
+        headerLabel: "KingPin teaching workspace",
+        headerTitle: "Deliver official KingPin learning experiences",
+        headerSubtitle:
+          "Manage assigned delivery queues, refine official lessons, and maintain quality across learner groups.",
+        alertTitle: "2 official lessons need your review",
+        alertDescription:
+          "Chemical Bonding and HTML Forms lessons have pending quality and caption updates before release.",
+        courseSectionTitle: "KingPin Course Assignments",
+        courseSectionSubtitle: "Official courses you are assigned to deliver",
+        scheduleTitle: "Delivery Queue",
+      };
+    case "institution_teacher":
+      return {
+        headerLabel: "Institution teaching workspace",
+        headerTitle: "Prepare, teach, and support assigned classes",
+        headerSubtitle:
+          "Manage your institution courses, review lessons, and monitor learner progress across assigned classes.",
+        alertTitle: "2 lessons need your review",
+        alertDescription:
+          "Chemical Bonding and HTML Forms lessons have pending caption and quiz updates.",
+        courseSectionTitle: "Assigned Courses",
+        courseSectionSubtitle: "Courses you are responsible for",
+        scheduleTitle: "Today's Schedule",
+      };
+    default:
+      return {
+        headerLabel: "Teaching workspace",
+        headerTitle: "Prepare, teach, and support learners",
+        headerSubtitle:
+          "Manage your courses, review lessons, and monitor student progress across all assigned classes.",
+        alertTitle: "2 lessons need your review",
+        alertDescription:
+          "Chemical Bonding and HTML Forms lessons have pending caption and quiz updates.",
+        courseSectionTitle: "My Courses",
+        courseSectionSubtitle: "Courses you are responsible for",
+        scheduleTitle: "Today's Schedule",
+      };
+  }
+}
 
 const mockUpcomingSession = {
   title: "Solving Quadratic Equations by Factoring",
@@ -142,6 +198,8 @@ const mockActivity = [
 ];
 
 export default function TeacherDashboard() {
+  const config = useDashboardConfig();
+  const copy = getTeacherDashboardCopy(config.role);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -178,16 +236,16 @@ export default function TeacherDashboard() {
   return (
     <DashboardShell config={config} activePath="/teacher/dashboard">
       <PageHeader
-        label="Teaching workspace"
-        title="Prepare, teach, and support learners"
-        subtitle="Manage your courses, review lessons, and monitor student progress across all assigned classes."
+        label={copy.headerLabel}
+        title={copy.headerTitle}
+        subtitle={copy.headerSubtitle}
       />
 
       {/* Alert for pending reviews */}
       <AlertBanner
         variant="warning"
-        title="2 lessons need your review"
-        description="Chemical Bonding and HTML Forms lessons have pending caption and quiz updates."
+        title={copy.alertTitle}
+        description={copy.alertDescription}
         action={{ label: "Review Now", onClick: () => console.log("Review") }}
         closeable
       />
@@ -288,8 +346,8 @@ export default function TeacherDashboard() {
           <div>
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-[#0F172A]">My Courses</h2>
-                <p className="mt-0.5 text-sm text-[#64748B]">Courses you are responsible for</p>
+                <h2 className="text-xl font-bold text-[#0F172A]">{copy.courseSectionTitle}</h2>
+                <p className="mt-0.5 text-sm text-[#64748B]">{copy.courseSectionSubtitle}</p>
               </div>
               <Link
                 to="/teacher/courses"
@@ -355,7 +413,7 @@ export default function TeacherDashboard() {
           {/* Upcoming Sessions */}
           <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-bold text-[#0F172A]">Today's Schedule</h3>
+              <h3 className="font-bold text-[#0F172A]">{copy.scheduleTitle}</h3>
               <Link
                 to="/teacher/sessions"
                 className="text-xs font-bold text-[#1F7C80] hover:text-[#1A5256]"

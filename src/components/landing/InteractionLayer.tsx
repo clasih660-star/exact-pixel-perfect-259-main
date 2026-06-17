@@ -56,15 +56,16 @@ export function InteractionLayer() {
 
       magneticTargets.forEach((el) => {
         const strength = Number.parseFloat(
-          el.dataset.magneticStrength || (el.classList.contains("lp-magnetic-strong") ? "24" : "14"),
+          el.dataset.magneticStrength ||
+            (el.classList.contains("lp-magnetic-strong") ? "24" : "14"),
         );
 
         const handleMove = (event: MouseEvent) => {
           const rect = el.getBoundingClientRect();
           const localX = event.clientX - rect.left;
           const localY = event.clientY - rect.top;
-          const offsetX = ((localX / rect.width) - 0.5) * strength;
-          const offsetY = ((localY / rect.height) - 0.5) * strength;
+          const offsetX = (localX / rect.width - 0.5) * strength;
+          const offsetY = (localY / rect.height - 0.5) * strength;
 
           el.style.setProperty("--lp-mx", `${offsetX.toFixed(2)}px`);
           el.style.setProperty("--lp-my", `${offsetY.toFixed(2)}px`);

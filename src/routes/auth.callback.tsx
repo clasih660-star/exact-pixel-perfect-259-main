@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
 import { roleDashboardPath } from "@/lib/route-guards";
+import { resolvePostAuthPath } from "@/lib/auth-redirects";
+import { clearPendingVerification, requiresEmailVerification } from "@/lib/auth-verification";
 import type { UserRole } from "@/lib/types";
-import { LogoMark } from "@/components/brand/Logo";
+import { Logo } from "@/components/brand/Logo";
 
 export const Route = createFileRoute("/auth/callback")({
   component: AuthCallbackPage,
@@ -25,7 +27,9 @@ function AuthCallbackPage() {
 
     let cancelled = false;
     const inviteToken =
-      typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("invite") : null;
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("invite")
+        : null;
 
     async function handleCallback() {
       try {
@@ -46,6 +50,14 @@ function AuthCallbackPage() {
 
         const user = data.session.user;
 
+        if (requiresEmailVerification(user)) {
+          if (cancelled) return;
+          navigate({ to: "/auth/verify-email" });
+          return;
+        }
+
+        clearPendingVerification();
+
         if (inviteToken) {
           const acceptedInvite = await acceptInviteFn({ data: { token: inviteToken } });
           if (cancelled) return;
@@ -54,30 +66,9 @@ function AuthCallbackPage() {
           return;
         }
 
-        // Check if the user has a profile
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("id, role, full_name")
-          .eq("id", user.id)
-          .maybeSingle();
-
         if (cancelled) return;
-
-        if (profileError) {
-          console.warn("[Auth Callback] Profile fetch error:", profileError.message);
-        }
-
-        if (!profile) {
-          // New user — needs to complete their profile
-          setStatus("redirecting");
-          navigate({ to: "/auth/complete-profile" });
-          return;
-        }
-
-        // Existing user — redirect to their dashboard
-        const role = (profile.role as UserRole) ?? null;
         setStatus("redirecting");
-        navigate({ to: roleDashboardPath(role) });
+        navigate({ to: await resolvePostAuthPath(user.id) });
       } catch (err) {
         if (cancelled) return;
         const message = (err as Error).message || "Authentication failed.";
@@ -101,7 +92,7 @@ function AuthCallbackPage() {
     <div className="flex min-h-screen items-center justify-center bg-[var(--gray-50)]">
       <div className="w-full max-w-sm space-y-6 text-center">
         <div className="flex justify-center">
-          <LogoMark size={48} />
+          <Logo size={48} />
         </div>
 
         {status === "loading" && (
@@ -109,7 +100,9 @@ function AuthCallbackPage() {
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#1F7C80] border-t-transparent" />
             <div>
               <h2 className="text-lg font-semibold text-[#1A3233]">Signing you in…</h2>
-              <p className="mt-1 text-sm text-[#A3ADAD]">Verifying your credentials with Google.</p>
+              <p className="mt-1 text-sm text-[#A3ADAD]">
+                Finalising your sign-in and preparing your account.
+              </p>
             </div>
           </div>
         )}

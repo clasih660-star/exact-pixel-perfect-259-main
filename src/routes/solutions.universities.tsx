@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/marketing/InfoPage";
+import { GraduationCap, Users, FlaskConical, Accessibility, BarChart3, Link } from "lucide-react";
 
 export const Route = createFileRoute("/solutions/universities")({
   head: () => ({
@@ -20,32 +21,32 @@ export const Route = createFileRoute("/solutions/universities")({
       cta={{ label: "Talk to our team", to: "/contact" }}
       sections={[
         {
-          icon: "🎓",
+          icon: <GraduationCap size={20} />,
           title: "Faculty-grounded",
           body: "Lessons teach from your approved course material, keeping academic accuracy and tone.",
         },
         {
-          icon: "👥",
+          icon: <Users size={20} />,
           title: "Built for large cohorts",
           body: "Thousands of students get the same high-quality teaching and individual question support.",
         },
         {
-          icon: "🧪",
+          icon: <FlaskConical size={20} />,
           title: "Lectures, tutorials, labs",
           body: "Model different session types — from concept lectures to worked tutorial problems.",
         },
         {
-          icon: "♿",
+          icon: <Accessibility size={20} />,
           title: "Accessibility compliance",
           body: "Captions, transcripts and learning modes help meet accessibility obligations out of the box.",
         },
         {
-          icon: "📊",
+          icon: <BarChart3 size={20} />,
           title: "Engagement analytics",
           body: "Understand where cohorts struggle with activity-based evidence, not just exam scores.",
         },
         {
-          icon: "🔗",
+          icon: <Link size={20} />,
           title: "Fits your stack",
           body: "Designed to complement your VLE and existing course delivery.",
         },

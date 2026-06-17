@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
-import { LogoMark } from "@/components/brand/Logo";
+import { Logo } from "@/components/brand/Logo";
 import "../../styles/video-classroom.css";
 import "../../styles/classroom-premium.css";
 import type { MathTeachingItem } from "@/lib/lesson-models";
@@ -3952,8 +3952,7 @@ function ClassroomTopBar({
           </button>
         ) : null}
         <Link to="/" className="vc-top-bar-brand" title="Klassruum home">
-          <LogoMark size={26} />
-          <span className="vc-top-bar-logo">Klassruum</span>
+          <Logo size={26} variant="light" />
         </Link>
 
         <div className="vc-top-bar-breadcrumb">
@@ -4081,7 +4080,10 @@ function CourseOutline({
     : sections;
 
   return (
-    <nav className={`vc-outline ${compact ? "vc-outline-compact" : ""}`} aria-label="Course contents">
+    <nav
+      className={`vc-outline ${compact ? "vc-outline-compact" : ""}`}
+      aria-label="Course contents"
+    >
       <div className="vc-outline-title">My Course</div>
 
       {/* Level 1 — Course */}

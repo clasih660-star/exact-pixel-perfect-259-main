@@ -28,13 +28,13 @@ export function AlertBanner({
 
   const config = {
     info: {
-      bg: "bg-[#e8f5f5]",
-      border: "border-[#a3d9d8]",
+      bg: "bg-soft-blue",
+      border: "border-border",
       icon: Info,
-      iconColor: "text-[#1F7C80]",
-      title: "text-[#0F172A]",
-      description: "text-[#1A5256]",
-      button: "bg-[#1F7C80] hover:bg-[#1A5256]",
+      iconColor: "text-academic-blue",
+      title: "text-heading",
+      description: "text-navy-light",
+      button: "bg-academic-blue hover:bg-navy-light",
     },
     success: {
       bg: "bg-green-50",
@@ -87,7 +87,7 @@ export function AlertBanner({
         {closeable && (
           <button
             onClick={() => setIsOpen(false)}
-            className="flex-shrink-0 text-[#64748B] hover:text-[#0F172A]"
+            className="flex-shrink-0 text-muted hover:text-heading"
             aria-label="Close"
           >
             <X className="h-5 w-5" />

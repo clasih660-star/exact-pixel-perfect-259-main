@@ -1,20 +1,156 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Logo } from "@/components/brand/Logo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { getAuthCallbackUrl, rememberPendingVerification } from "@/lib/auth-verification";
 
 export const Route = createFileRoute("/auth/signup")({
-  component: () => (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--gray-50)]">
-      <div className="w-full max-w-md space-y-6 rounded-xl border border-[var(--gray-200)] bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-[var(--gray-900)]">Signup</h1>
-        <p className="text-sm text-[var(--gray-600)]">This page is coming soon.</p>
-        <div className="rounded-lg border border-dashed border-[var(--gray-300)] p-6 text-center">
-          <p className="text-sm text-[var(--gray-400)]">Coming soon</p>
+  component: SignupPage,
+});
+
+function SignupPage() {
+  const navigate = useNavigate();
+  const supabaseReady = isSupabaseConfigured();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const inviteToken =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("invite")
+      : null;
+  const signInHref = inviteToken ? `/auth/login?invite=${encodeURIComponent(inviteToken)}` : "/auth/login";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!supabaseReady) {
+      toast.error("Supabase is not configured. Use the main auth page demo mode instead.");
+      return;
+    }
+
+    if (!fullName.trim()) {
+      toast.error("Please enter your full name.");
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: getAuthCallbackUrl(inviteToken),
+          data: { full_name: fullName.trim() },
+        },
+      });
+
+      if (error) throw error;
+
+      rememberPendingVerification(email, inviteToken);
+      toast.success("Account created. Check your inbox to verify your email.");
+      navigate({ to: "/auth/verify-email" });
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="auth-tech-page flex min-h-screen items-center justify-center px-6 py-12">
+      <div className="auth-tech-panel w-full max-w-md space-y-8 p-8">
+        <div className="flex justify-center">
+          <Link to="/" className="flex items-center">
+            <Logo size={40} />
+          </Link>
         </div>
-        <div className="text-center text-sm text-[var(--gray-500)]">
-          <Link to="/auth" className="text-[var(--primary)] hover:underline">
-            Back to login
+
+        <div className="text-center">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#1A3233]">Create your account</h1>
+          <p className="mt-2 text-sm text-[#64748B]">
+            Sign up with email, then verify your inbox before accessing Klassruum.
+          </p>
+        </div>
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="space-y-1.5">
+            <Label htmlFor="fullName">Full name</Label>
+            <Input
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Your full name"
+              required
+              autoFocus
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email address</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a secure password"
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              minLength={8}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter your password"
+              required
+            />
+          </div>
+
+          <Button type="submit" className="w-full" size="lg" disabled={busy}>
+            {busy ? "Creating account…" : "Create account"}
+          </Button>
+        </form>
+
+        <div className="text-center text-sm text-[#64748B]">
+          Already have an account?{" "}
+          <Link to={signInHref} className="font-semibold text-[#1F7C80] hover:underline">
+            Sign in
           </Link>
         </div>
       </div>
     </div>
-  ),
-});
+  );
+}

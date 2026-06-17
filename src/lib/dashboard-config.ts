@@ -38,8 +38,20 @@ import {
   Video,
   Zap,
 } from "lucide-react";
+import type { LearnerType, TeacherType, UserPersona, UserRole } from "./types";
 
-export type DashboardRole = "learner" | "teacher" | "institution" | "platform_admin" | "parent";
+export type DashboardRole =
+  | "learner"
+  | "teacher"
+  | "institution"
+  | "platform_admin"
+  | "parent"
+  | "private_teacher"
+  | "institution_teacher"
+  | "kingpin_teacher"
+  | "institution_learner"
+  | "private_learner"
+  | "teacher_enrolled_learner";
 
 export type SidebarItem = {
   label: string;
@@ -66,10 +78,12 @@ export type DashboardConfig = {
   searchPlaceholder: string;
   settingsHref: string;
   roleLabel: string;
+  persona?: UserPersona;
+  teacherType?: TeacherType;
+  learnerType?: LearnerType;
 };
 
 export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
-  /* ─── Learner ──────────────────────────────────────────────────── */
   learner: {
     role: "learner",
     title: "Learner Dashboard",
@@ -97,6 +111,81 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
       { label: "Settings", href: "/student/settings", icon: Settings },
     ],
   },
+  institution_learner: {
+    role: "institution_learner",
+    persona: "institution_learner",
+    learnerType: "institution",
+    title: "Institution Learner Dashboard",
+    subtitle: "Track institution courses, class context, and scheduled learning sessions.",
+    primaryAction: { label: "Enter Classroom", href: "/student/classrooms" },
+    searchPlaceholder: "Search lessons, class resources, notes...",
+    settingsHref: "/student/settings",
+    roleLabel: "Institution Learner",
+    sidebar: [
+      { label: "Dashboard", href: "/student/dashboard", icon: Home },
+      { label: "My Classrooms", href: "/student/classrooms", icon: Monitor },
+      { label: "Institution Courses", href: "/student/courses", icon: BookOpen },
+      { label: "Lessons", href: "/student/lessons", icon: FileText },
+      { label: "Calendar", href: "/student/calendar", icon: Calendar },
+      { label: "Resources", href: "/student/resources", icon: Folder },
+      { label: "Notes", href: "/student/notes", icon: Notebook },
+      { label: "Transcripts", href: "/student/transcripts", icon: ScrollText },
+      { label: "Progress", href: "/student/progress", icon: Activity },
+      { label: "Assignments", href: "/student/assignments", icon: Clipboard },
+      { label: "Quizzes", href: "/student/quizzes", icon: HelpCircle },
+      { label: "Messages", href: "/student/messages", icon: MessageSquare },
+      { label: "Learning Access", href: "/student/access", icon: Accessibility },
+      { label: "Notifications", href: "/student/notifications", icon: Bell },
+      { label: "Settings", href: "/student/settings", icon: Settings },
+    ],
+  },
+  private_learner: {
+    role: "private_learner",
+    persona: "private_learner",
+    learnerType: "private",
+    title: "Private Learner Dashboard",
+    subtitle: "Access your personal courses, sessions, and progress outside institution workflows.",
+    primaryAction: { label: "Continue Learning", href: "/student/courses" },
+    searchPlaceholder: "Search lessons, personal notes, resources...",
+    settingsHref: "/student/settings",
+    roleLabel: "Private Learner",
+    sidebar: [
+      { label: "Dashboard", href: "/student/dashboard", icon: Home },
+      { label: "My Courses", href: "/student/courses", icon: BookOpen },
+      { label: "Lessons", href: "/student/lessons", icon: FileText },
+      { label: "Sessions", href: "/student/classrooms", icon: Video },
+      { label: "Calendar", href: "/student/calendar", icon: Calendar },
+      { label: "Resources", href: "/student/resources", icon: Folder },
+      { label: "Notes", href: "/student/notes", icon: Notebook },
+      { label: "Progress", href: "/student/progress", icon: Activity },
+      { label: "Messages", href: "/student/messages", icon: MessageSquare },
+      { label: "Notifications", href: "/student/notifications", icon: Bell },
+      { label: "Settings", href: "/student/settings", icon: Settings },
+    ],
+  },
+  teacher_enrolled_learner: {
+    role: "teacher_enrolled_learner",
+    persona: "teacher_enrolled_learner",
+    learnerType: "teacher_enrolled",
+    title: "Teacher-Enrolled Learner Dashboard",
+    subtitle: "Follow the courses, sessions, and support channels provided by your teacher.",
+    primaryAction: { label: "Join Session", href: "/student/classrooms" },
+    searchPlaceholder: "Search teacher lessons, notes, resources...",
+    settingsHref: "/student/settings",
+    roleLabel: "Teacher-Enrolled Learner",
+    sidebar: [
+      { label: "Dashboard", href: "/student/dashboard", icon: Home },
+      { label: "Teacher Sessions", href: "/student/classrooms", icon: Monitor },
+      { label: "My Courses", href: "/student/courses", icon: BookOpen },
+      { label: "Lessons", href: "/student/lessons", icon: FileText },
+      { label: "Resources", href: "/student/resources", icon: Folder },
+      { label: "Notes", href: "/student/notes", icon: Notebook },
+      { label: "Progress", href: "/student/progress", icon: Activity },
+      { label: "Messages", href: "/student/messages", icon: MessageSquare },
+      { label: "Notifications", href: "/student/notifications", icon: Bell },
+      { label: "Settings", href: "/student/settings", icon: Settings },
+    ],
+  },
 
   /* ─── Teacher ──────────────────────────────────────────────────── */
   teacher: {
@@ -115,6 +204,74 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
       { label: "Resources", href: "/teacher/resources", icon: Folder },
       { label: "Students", href: "/teacher/students", icon: Users },
       { label: "Supervision", href: "/teacher/supervision", icon: Monitor },
+      { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
+      { label: "Messages", href: "/teacher/messages", icon: MessageSquare },
+      { label: "Settings", href: "/teacher/settings", icon: Settings },
+    ],
+  },
+  private_teacher: {
+    role: "private_teacher",
+    persona: "private_teacher",
+    teacherType: "private",
+    title: "Private Teacher Dashboard",
+    subtitle: "Manage your verification status, courses, learners, and private teaching sessions.",
+    primaryAction: { label: "Create Course", href: "/teacher/courses" },
+    searchPlaceholder: "Search own courses, learners, sessions...",
+    settingsHref: "/teacher/settings",
+    roleLabel: "Private Teacher",
+    sidebar: [
+      { label: "Dashboard", href: "/teacher/dashboard", icon: Home },
+      { label: "Verification", href: "/teacher/settings", icon: FileCheck },
+      { label: "My Courses", href: "/teacher/courses", icon: BookOpen },
+      { label: "Lessons", href: "/teacher/lessons", icon: FileText },
+      { label: "Learners", href: "/teacher/students", icon: Users },
+      { label: "Sessions", href: "/teacher/sessions", icon: Video },
+      { label: "Resources", href: "/teacher/resources", icon: FolderUp },
+      { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
+      { label: "Messages", href: "/teacher/messages", icon: MessageSquare },
+      { label: "Settings", href: "/teacher/settings", icon: Settings },
+    ],
+  },
+  institution_teacher: {
+    role: "institution_teacher",
+    persona: "institution_teacher",
+    teacherType: "institution",
+    title: "Institution Teacher Dashboard",
+    subtitle: "Deliver assigned institution courses, classes, and supervised learning sessions.",
+    primaryAction: { label: "View Assignments", href: "/teacher/courses" },
+    searchPlaceholder: "Search assigned classes, lessons, learners...",
+    settingsHref: "/teacher/settings",
+    roleLabel: "Institution Teacher",
+    sidebar: [
+      { label: "Dashboard", href: "/teacher/dashboard", icon: Home },
+      { label: "Assigned Courses", href: "/teacher/courses", icon: BookOpen },
+      { label: "Lessons", href: "/teacher/lessons", icon: FileText },
+      { label: "Classes & Sessions", href: "/teacher/sessions", icon: Video },
+      { label: "Resources", href: "/teacher/resources", icon: Folder },
+      { label: "Assigned Learners", href: "/teacher/students", icon: Users },
+      { label: "Supervision", href: "/teacher/supervision", icon: Monitor },
+      { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
+      { label: "Messages", href: "/teacher/messages", icon: MessageSquare },
+      { label: "Settings", href: "/teacher/settings", icon: Settings },
+    ],
+  },
+  kingpin_teacher: {
+    role: "kingpin_teacher",
+    persona: "kingpin_teacher",
+    teacherType: "kingpin",
+    title: "KingPin Teacher Dashboard",
+    subtitle: "Deliver KingPin-owned courses and maintain quality across assigned learner groups.",
+    primaryAction: { label: "Open Delivery Queue", href: "/teacher/sessions" },
+    searchPlaceholder: "Search KingPin courses, groups, sessions...",
+    settingsHref: "/teacher/settings",
+    roleLabel: "KingPin Teacher",
+    sidebar: [
+      { label: "Dashboard", href: "/teacher/dashboard", icon: Home },
+      { label: "KingPin Courses", href: "/teacher/courses", icon: School },
+      { label: "Lessons", href: "/teacher/lessons", icon: FileText },
+      { label: "Delivery Queue", href: "/teacher/sessions", icon: Video },
+      { label: "Learner Groups", href: "/teacher/students", icon: Users },
+      { label: "Quality & Supervision", href: "/teacher/supervision", icon: Shield },
       { label: "Analytics", href: "/teacher/analytics", icon: BarChart3 },
       { label: "Messages", href: "/teacher/messages", icon: MessageSquare },
       { label: "Settings", href: "/teacher/settings", icon: Settings },
@@ -198,3 +355,73 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
     ],
   },
 };
+
+export type DashboardPersonaInput = {
+  role: UserRole;
+  persona?: UserPersona | null;
+  teacherType?: TeacherType | null;
+  learnerType?: LearnerType | null;
+};
+
+export function resolveDashboardRole({
+  role,
+  persona,
+  teacherType,
+  learnerType,
+}: DashboardPersonaInput): DashboardRole {
+  if (persona && persona in dashboardConfigs) {
+    return persona as DashboardRole;
+  }
+
+  switch (role) {
+    case "platform_admin":
+      return "platform_admin";
+    case "institution_admin":
+    case "owner":
+      return "institution";
+    case "teacher":
+      switch (teacherType) {
+        case "private":
+          return "private_teacher";
+        case "kingpin":
+          return "kingpin_teacher";
+        case "institution":
+          return "institution_teacher";
+        default:
+          return "teacher";
+      }
+    case "student":
+      switch (learnerType) {
+        case "private":
+          return "private_learner";
+        case "teacher_enrolled":
+          return "teacher_enrolled_learner";
+        case "institution":
+          return "institution_learner";
+        default:
+          return "learner";
+      }
+    case "parent":
+      return "parent";
+    default:
+      return "learner";
+  }
+}
+
+export function isTeacherDashboardRole(role: DashboardRole): boolean {
+  return (
+    role === "teacher" ||
+    role === "private_teacher" ||
+    role === "institution_teacher" ||
+    role === "kingpin_teacher"
+  );
+}
+
+export function isLearnerDashboardRole(role: DashboardRole): boolean {
+  return (
+    role === "learner" ||
+    role === "institution_learner" ||
+    role === "private_learner" ||
+    role === "teacher_enrolled_learner"
+  );
+}

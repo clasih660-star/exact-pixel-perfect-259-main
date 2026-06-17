@@ -1,5 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/marketing/InfoPage";
+import {
+  Rocket,
+  PenLine,
+  School,
+  Accessibility,
+  BarChart3,
+  Shield,
+  Users,
+  FolderOpen,
+} from "lucide-react";
 
 const SITE_URL = "https://klassruum.com";
 
@@ -51,42 +61,42 @@ export const Route = createFileRoute("/help")({
       cta={{ label: "Contact support", to: "/contact" }}
       sections={[
         {
-          icon: "🚀",
+          icon: <Rocket size={20} />,
           title: "Getting started",
           body: "Register your institution, invite teachers and learners, and launch your first course.",
         },
         {
-          icon: "📝",
+          icon: <PenLine size={20} />,
           title: "Authoring lessons",
           body: "Turn your materials into structured, teacher-led lessons grounded in your own content.",
         },
         {
-          icon: "🏫",
+          icon: <School size={20} />,
           title: "Running the classroom",
           body: "How lessons are taught, how questions work, and how learners move through a session.",
         },
         {
-          icon: "♿",
+          icon: <Accessibility size={20} />,
           title: "Accessibility settings",
           body: "Configure learning modes, captions, audio and display for diverse learners.",
         },
         {
-          icon: "📊",
+          icon: <BarChart3 size={20} />,
           title: "Reading the evidence",
           body: "Interpret activity, practice and confidence data for each learner.",
         },
         {
-          icon: "🔐",
+          icon: <Shield size={20} />,
           title: "Data & privacy",
           body: "How learner data is stored, protected and controlled.",
         },
         {
-          icon: "👥",
+          icon: <Users size={20} />,
           title: "Managing users",
           body: "Invite teachers, enroll learners, and manage roles and permissions.",
         },
         {
-          icon: "📁",
+          icon: <FolderOpen size={20} />,
           title: "Uploading materials",
           body: "Supported file types, best practices for content, and how lesson generation works.",
         },

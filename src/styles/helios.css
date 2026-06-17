@@ -5,12 +5,12 @@
   --helios-surface: #050505;
   --helios-glass: rgba(255, 255, 255, 0.04);
   --helios-glass-hover: rgba(255, 255, 255, 0.07);
-  --helios-primary-green: #00FF88;
-  --helios-secondary-green: #00E676;
+  --helios-primary-green: #00ff88;
+  --helios-secondary-green: #00e676;
   --helios-glow: rgba(0, 255, 136, 0.25);
-  --helios-text: #FFFFFF;
-  --helios-muted: #A0A0A0;
-  --helios-font: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --helios-text: #ffffff;
+  --helios-muted: #a0a0a0;
+  --helios-font: "Inter", "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
   --helios-border: rgba(0, 255, 136, 0.15);
   --helios-border-hover: rgba(0, 255, 136, 0.4);
 }
@@ -125,7 +125,10 @@
     radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.52) 0 1px, transparent 1.5px),
     radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.36) 0 1px, transparent 1.5px),
     radial-gradient(circle at 58% 72%, rgba(255, 255, 255, 0.26) 0 1px, transparent 1.5px);
-  background-size: 160px 160px, 220px 220px, 280px 280px;
+  background-size:
+    160px 160px,
+    220px 220px,
+    280px 280px;
   opacity: 0.42;
 }
 
@@ -146,7 +149,9 @@
 
 .helios-glow-text {
   color: var(--helios-primary-green);
-  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5), 0 0 20px rgba(0, 255, 136, 0.2);
+  text-shadow:
+    0 0 10px rgba(0, 255, 136, 0.5),
+    0 0 20px rgba(0, 255, 136, 0.2);
 }
 
 .helios-subtitle {
@@ -222,7 +227,6 @@
   text-decoration: none !important;
 }
 
-
 /* Accessibility mockups dark mode overrides (these represent simulation viewports) */
 .helios-theme .classroom-mockup-container [class*="rounded-[18px]"],
 .helios-theme .classroom-mockup-container {
@@ -251,29 +255,89 @@
 .helios-theme .classroom-mockup-container button {
   background-color: rgba(0, 255, 136, 0.1) !important;
   border: 1px solid rgba(0, 255, 136, 0.2) !important;
-  color: #00FF88 !important;
+  color: #00ff88 !important;
   text-decoration: none !important;
 }
 
 /* Text readability overrides on dark background */
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h1,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h2,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h3,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h4,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h5,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) h6,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) p,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) li,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) span:not(.text-primary):not([class*="text-[#00FF88]"]),
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) a:not(.text-primary):not([class*="text-[#00FF88]"]):not(button) {
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  h1,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  h2,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  h3,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  h4,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  h5,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  h6,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  p,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  li,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  span:not(.text-primary):not([class*="text-[#00FF88]"]),
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  a:not(.text-primary):not([class*="text-[#00FF88]"]):not(button) {
   color: #ffffff !important;
 }
 
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-slate-600,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-slate-500,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-slate-400,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-gray-500,
-.helios-theme :not(.classroom-mockup-container) :not(.classroom-mockup-container *) :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *) .text-muted-foreground {
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  .text-slate-600,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  .text-slate-500,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  .text-slate-400,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  .text-gray-500,
+.helios-theme
+  :not(.classroom-mockup-container)
+  :not(.classroom-mockup-container *)
+  :not([class*="rounded-[18px]"]):not([class*="rounded-[18px]"] *)
+  .text-muted-foreground {
   color: #a0a0a0 !important;
 }
 
@@ -320,7 +384,7 @@
 }
 
 .helios-dashboard .nav-item {
-  color: #A0A0A0 !important;
+  color: #a0a0a0 !important;
 }
 
 .helios-dashboard .nav-item:hover {
@@ -406,7 +470,7 @@
 }
 
 /* Ensure section content sits above the ::before scrim */
-.helios-theme main section>* {
+.helios-theme main section > * {
   position: relative;
   z-index: 1;
 }
@@ -457,7 +521,7 @@
 .helios-theme header #mobile-menu a:hover,
 .helios-theme header #mobile-menu button:hover {
   background: rgba(0, 255, 136, 0.06) !important;
-  color: #00FF88 !important;
+  color: #00ff88 !important;
 }
 
 /* Mobile nav divider */

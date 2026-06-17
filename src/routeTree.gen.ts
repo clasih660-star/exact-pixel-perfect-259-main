@@ -33,6 +33,7 @@ import { Route as SolutionsUniversitiesRouteImport } from './routes/solutions.un
 import { Route as SolutionsTutoringCentersRouteImport } from './routes/solutions.tutoring-centers'
 import { Route as SolutionsTrainingProvidersRouteImport } from './routes/solutions.training-providers'
 import { Route as SolutionsSchoolsRouteImport } from './routes/solutions.schools'
+import { Route as SolutionsOnlineAcademiesRouteImport } from './routes/solutions.online-academies'
 import { Route as SolutionsNgosRouteImport } from './routes/solutions.ngos'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
 import { Route as DemoWhiteboardRouteImport } from './routes/demo.whiteboard'
@@ -43,6 +44,11 @@ import { Route as DemoAccessibilityDemoRouteImport } from './routes/demo.accessi
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
+import { Route as BlogWcag22VirtualClassroomsRouteImport } from './routes/blog.wcag-22-virtual-classrooms'
+import { Route as BlogGdprEdtechGuideRouteImport } from './routes/blog.gdpr-edtech-guide'
+import { Route as BlogFutureStructuredLearningRouteImport } from './routes/blog.future-structured-learning'
+import { Route as BlogAiTeachingVsContentDeliveryRouteImport } from './routes/blog.ai-teaching-vs-content-delivery'
+import { Route as BlogAiClassrooms2026RouteImport } from './routes/blog.ai-classrooms-2026'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthSelectRoleRouteImport } from './routes/auth.select-role'
@@ -309,6 +315,12 @@ const SolutionsSchoolsRoute = SolutionsSchoolsRouteImport.update({
   path: '/solutions/schools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolutionsOnlineAcademiesRoute =
+  SolutionsOnlineAcademiesRouteImport.update({
+    id: '/solutions/online-academies',
+    path: '/solutions/online-academies',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SolutionsNgosRoute = SolutionsNgosRouteImport.update({
   id: '/solutions/ngos',
   path: '/solutions/ngos',
@@ -359,6 +371,34 @@ const ClassroomDesignLessonIdRoute = ClassroomDesignLessonIdRouteImport.update({
   id: '/classroom-design/$lessonId',
   path: '/classroom-design/$lessonId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogWcag22VirtualClassroomsRoute =
+  BlogWcag22VirtualClassroomsRouteImport.update({
+    id: '/wcag-22-virtual-classrooms',
+    path: '/wcag-22-virtual-classrooms',
+    getParentRoute: () => BlogRoute,
+  } as any)
+const BlogGdprEdtechGuideRoute = BlogGdprEdtechGuideRouteImport.update({
+  id: '/gdpr-edtech-guide',
+  path: '/gdpr-edtech-guide',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogFutureStructuredLearningRoute =
+  BlogFutureStructuredLearningRouteImport.update({
+    id: '/future-structured-learning',
+    path: '/future-structured-learning',
+    getParentRoute: () => BlogRoute,
+  } as any)
+const BlogAiTeachingVsContentDeliveryRoute =
+  BlogAiTeachingVsContentDeliveryRouteImport.update({
+    id: '/ai-teaching-vs-content-delivery',
+    path: '/ai-teaching-vs-content-delivery',
+    getParentRoute: () => BlogRoute,
+  } as any)
+const BlogAiClassrooms2026Route = BlogAiClassrooms2026RouteImport.update({
+  id: '/ai-classrooms-2026',
+  path: '/ai-classrooms-2026',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -1217,7 +1257,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
   '/cookie-policy': typeof CookiePolicyRoute
@@ -1240,6 +1280,11 @@ export interface FileRoutesByFullPath {
   '/auth/select-role': typeof AuthSelectRoleRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/blog/ai-classrooms-2026': typeof BlogAiClassrooms2026Route
+  '/blog/ai-teaching-vs-content-delivery': typeof BlogAiTeachingVsContentDeliveryRoute
+  '/blog/future-structured-learning': typeof BlogFutureStructuredLearningRoute
+  '/blog/gdpr-edtech-guide': typeof BlogGdprEdtechGuideRoute
+  '/blog/wcag-22-virtual-classrooms': typeof BlogWcag22VirtualClassroomsRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -1250,6 +1295,7 @@ export interface FileRoutesByFullPath {
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/online-academies': typeof SolutionsOnlineAcademiesRoute
   '/solutions/schools': typeof SolutionsSchoolsRoute
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
@@ -1396,7 +1442,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
   '/cookie-policy': typeof CookiePolicyRoute
@@ -1419,6 +1465,11 @@ export interface FileRoutesByTo {
   '/auth/select-role': typeof AuthSelectRoleRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/blog/ai-classrooms-2026': typeof BlogAiClassrooms2026Route
+  '/blog/ai-teaching-vs-content-delivery': typeof BlogAiTeachingVsContentDeliveryRoute
+  '/blog/future-structured-learning': typeof BlogFutureStructuredLearningRoute
+  '/blog/gdpr-edtech-guide': typeof BlogGdprEdtechGuideRoute
+  '/blog/wcag-22-virtual-classrooms': typeof BlogWcag22VirtualClassroomsRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -1429,6 +1480,7 @@ export interface FileRoutesByTo {
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/online-academies': typeof SolutionsOnlineAcademiesRoute
   '/solutions/schools': typeof SolutionsSchoolsRoute
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
@@ -1577,7 +1629,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
   '/cookie-policy': typeof CookiePolicyRoute
@@ -1600,6 +1652,11 @@ export interface FileRoutesById {
   '/auth/select-role': typeof AuthSelectRoleRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/blog/ai-classrooms-2026': typeof BlogAiClassrooms2026Route
+  '/blog/ai-teaching-vs-content-delivery': typeof BlogAiTeachingVsContentDeliveryRoute
+  '/blog/future-structured-learning': typeof BlogFutureStructuredLearningRoute
+  '/blog/gdpr-edtech-guide': typeof BlogGdprEdtechGuideRoute
+  '/blog/wcag-22-virtual-classrooms': typeof BlogWcag22VirtualClassroomsRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -1610,6 +1667,7 @@ export interface FileRoutesById {
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/online-academies': typeof SolutionsOnlineAcademiesRoute
   '/solutions/schools': typeof SolutionsSchoolsRoute
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
@@ -1781,6 +1839,11 @@ export interface FileRouteTypes {
     | '/auth/select-role'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/blog/ai-classrooms-2026'
+    | '/blog/ai-teaching-vs-content-delivery'
+    | '/blog/future-structured-learning'
+    | '/blog/gdpr-edtech-guide'
+    | '/blog/wcag-22-virtual-classrooms'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -1791,6 +1854,7 @@ export interface FileRouteTypes {
     | '/demo/whiteboard'
     | '/institutions/register'
     | '/solutions/ngos'
+    | '/solutions/online-academies'
     | '/solutions/schools'
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
@@ -1960,6 +2024,11 @@ export interface FileRouteTypes {
     | '/auth/select-role'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/blog/ai-classrooms-2026'
+    | '/blog/ai-teaching-vs-content-delivery'
+    | '/blog/future-structured-learning'
+    | '/blog/gdpr-edtech-guide'
+    | '/blog/wcag-22-virtual-classrooms'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -1970,6 +2039,7 @@ export interface FileRouteTypes {
     | '/demo/whiteboard'
     | '/institutions/register'
     | '/solutions/ngos'
+    | '/solutions/online-academies'
     | '/solutions/schools'
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
@@ -2140,6 +2210,11 @@ export interface FileRouteTypes {
     | '/auth/select-role'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/blog/ai-classrooms-2026'
+    | '/blog/ai-teaching-vs-content-delivery'
+    | '/blog/future-structured-learning'
+    | '/blog/gdpr-edtech-guide'
+    | '/blog/wcag-22-virtual-classrooms'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -2150,6 +2225,7 @@ export interface FileRouteTypes {
     | '/demo/whiteboard'
     | '/institutions/register'
     | '/solutions/ngos'
+    | '/solutions/online-academies'
     | '/solutions/schools'
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
@@ -2298,7 +2374,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccessibilityRoute: typeof AccessibilityRoute
   AuthRoute: typeof AuthRouteWithChildren
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ClassroomRoute: typeof ClassroomRouteWithChildren
   ContactRoute: typeof ContactRoute
   CookiePolicyRoute: typeof CookiePolicyRoute
@@ -2321,6 +2397,7 @@ export interface RootRouteChildren {
   DemoWhiteboardRoute: typeof DemoWhiteboardRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
   SolutionsNgosRoute: typeof SolutionsNgosRoute
+  SolutionsOnlineAcademiesRoute: typeof SolutionsOnlineAcademiesRoute
   SolutionsSchoolsRoute: typeof SolutionsSchoolsRoute
   SolutionsTrainingProvidersRoute: typeof SolutionsTrainingProvidersRoute
   SolutionsTutoringCentersRoute: typeof SolutionsTutoringCentersRoute
@@ -2498,6 +2575,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SolutionsSchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/solutions/online-academies': {
+      id: '/solutions/online-academies'
+      path: '/solutions/online-academies'
+      fullPath: '/solutions/online-academies'
+      preLoaderRoute: typeof SolutionsOnlineAcademiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/solutions/ngos': {
       id: '/solutions/ngos'
       path: '/solutions/ngos'
@@ -2567,6 +2651,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/classroom-design/$lessonId'
       preLoaderRoute: typeof ClassroomDesignLessonIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/wcag-22-virtual-classrooms': {
+      id: '/blog/wcag-22-virtual-classrooms'
+      path: '/wcag-22-virtual-classrooms'
+      fullPath: '/blog/wcag-22-virtual-classrooms'
+      preLoaderRoute: typeof BlogWcag22VirtualClassroomsRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/gdpr-edtech-guide': {
+      id: '/blog/gdpr-edtech-guide'
+      path: '/gdpr-edtech-guide'
+      fullPath: '/blog/gdpr-edtech-guide'
+      preLoaderRoute: typeof BlogGdprEdtechGuideRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/future-structured-learning': {
+      id: '/blog/future-structured-learning'
+      path: '/future-structured-learning'
+      fullPath: '/blog/future-structured-learning'
+      preLoaderRoute: typeof BlogFutureStructuredLearningRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/ai-teaching-vs-content-delivery': {
+      id: '/blog/ai-teaching-vs-content-delivery'
+      path: '/ai-teaching-vs-content-delivery'
+      fullPath: '/blog/ai-teaching-vs-content-delivery'
+      preLoaderRoute: typeof BlogAiTeachingVsContentDeliveryRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/ai-classrooms-2026': {
+      id: '/blog/ai-classrooms-2026'
+      path: '/ai-classrooms-2026'
+      fullPath: '/blog/ai-classrooms-2026'
+      preLoaderRoute: typeof BlogAiClassrooms2026RouteImport
+      parentRoute: typeof BlogRoute
     }
     '/auth/verify-email': {
       id: '/auth/verify-email'
@@ -4382,6 +4501,24 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface BlogRouteChildren {
+  BlogAiClassrooms2026Route: typeof BlogAiClassrooms2026Route
+  BlogAiTeachingVsContentDeliveryRoute: typeof BlogAiTeachingVsContentDeliveryRoute
+  BlogFutureStructuredLearningRoute: typeof BlogFutureStructuredLearningRoute
+  BlogGdprEdtechGuideRoute: typeof BlogGdprEdtechGuideRoute
+  BlogWcag22VirtualClassroomsRoute: typeof BlogWcag22VirtualClassroomsRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogAiClassrooms2026Route: BlogAiClassrooms2026Route,
+  BlogAiTeachingVsContentDeliveryRoute: BlogAiTeachingVsContentDeliveryRoute,
+  BlogFutureStructuredLearningRoute: BlogFutureStructuredLearningRoute,
+  BlogGdprEdtechGuideRoute: BlogGdprEdtechGuideRoute,
+  BlogWcag22VirtualClassroomsRoute: BlogWcag22VirtualClassroomsRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface ClassroomRouteChildren {
   ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
   ClassroomPreviewLessonIdRoute: typeof ClassroomPreviewLessonIdRoute
@@ -4404,7 +4541,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccessibilityRoute: AccessibilityRoute,
   AuthRoute: AuthRouteWithChildren,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   ClassroomRoute: ClassroomRouteWithChildren,
   ContactRoute: ContactRoute,
   CookiePolicyRoute: CookiePolicyRoute,
@@ -4427,6 +4564,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoWhiteboardRoute: DemoWhiteboardRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
   SolutionsNgosRoute: SolutionsNgosRoute,
+  SolutionsOnlineAcademiesRoute: SolutionsOnlineAcademiesRoute,
   SolutionsSchoolsRoute: SolutionsSchoolsRoute,
   SolutionsTrainingProvidersRoute: SolutionsTrainingProvidersRoute,
   SolutionsTutoringCentersRoute: SolutionsTutoringCentersRoute,

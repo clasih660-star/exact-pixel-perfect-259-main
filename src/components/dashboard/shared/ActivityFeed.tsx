@@ -20,7 +20,7 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
 
   const getVariantConfig = (variant: ActivityItem["variant"] = "default") => {
     const config = {
-      default: { dot: "bg-[#94A3B8]", icon: "text-[#64748B]" },
+      default: { dot: "bg-muted", icon: "text-muted" },
       success: { dot: "bg-green-500", icon: "text-green-600" },
       warning: { dot: "bg-amber-500", icon: "text-amber-600" },
       error: { dot: "bg-red-500", icon: "text-red-600" },
@@ -29,8 +29,8 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
   };
 
   return (
-    <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-      {title && <h3 className="mb-4 text-lg font-bold text-[#0F172A]">{title}</h3>}
+    <div className="rounded-2xl border border-border bg-white p-6">
+      {title && <h3 className="mb-4 text-lg font-bold text-heading">{title}</h3>}
 
       <div className="space-y-0">
         {displayItems.map((item, index) => {
@@ -41,7 +41,7 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
           return (
             <div key={item.id} className="relative">
               {/* Vertical line */}
-              {!isLast && <div className="absolute bottom-0 left-1.5 top-10 w-px bg-[#E2E8F0]" />}
+              {!isLast && <div className="absolute bottom-0 left-1.5 top-10 w-px bg-border" />}
 
               {/* Item */}
               <div className="relative pb-6">
@@ -54,9 +54,9 @@ export function ActivityFeed({ title, items, maxItems = 8 }: Props) {
 
                 {/* Content */}
                 <div className="ml-8">
-                  <p className="font-semibold text-[#0F172A]">{item.action}</p>
-                  {item.description && <p className="text-sm text-[#64748B]">{item.description}</p>}
-                  <p className="mt-1 text-xs text-[#94A3B8]">{item.timestamp}</p>
+                  <p className="font-semibold text-heading">{item.action}</p>
+                  {item.description && <p className="text-sm text-muted">{item.description}</p>}
+                  <p className="mt-1 text-xs text-muted">{item.timestamp}</p>
                 </div>
               </div>
             </div>

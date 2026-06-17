@@ -23,7 +23,10 @@ function KingpinCourseMaterialsPage() {
         title={course ? `${course.title} materials` : "Course materials"}
         subtitle="This flagship course is curriculum-authored first, then supported by reusable source packs, prompt libraries, guided examples, workflow templates, and role-based case studies."
         action={
-          <a href={course ? `/admin/kingpin-courses/${course.id}` : "/admin/kingpin-courses"} className="inline-flex items-center gap-2 rounded-xl border border-[#CBD5E1] px-4 py-2 text-sm font-semibold text-[#0F172A]">
+          <a
+            href={course ? `/admin/kingpin-courses/${course.id}` : "/admin/kingpin-courses"}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#CBD5E1] px-4 py-2 text-sm font-semibold text-[#0F172A]"
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to overview
           </a>
@@ -32,10 +35,22 @@ function KingpinCourseMaterialsPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {[
-          ["Core source pack", "Tool comparison notes, workflow frameworks, responsible-use guidelines, and quality-control checklists."],
-          ["Department case bank", "Examples for education, HR, finance, operations, research, marketing, and administration."],
-          ["Role application pack", "Student, teacher, researcher, analyst, founder, manager, and marketer-specific practice cases."],
-          ["Prompt and workflow library", "Reusable prompts, exercise templates, and tool-routing logic that support consistent delivery."],
+          [
+            "Core source pack",
+            "Tool comparison notes, workflow frameworks, responsible-use guidelines, and quality-control checklists.",
+          ],
+          [
+            "Department case bank",
+            "Examples for education, HR, finance, operations, research, marketing, and administration.",
+          ],
+          [
+            "Role application pack",
+            "Student, teacher, researcher, analyst, founder, manager, and marketer-specific practice cases.",
+          ],
+          [
+            "Prompt and workflow library",
+            "Reusable prompts, exercise templates, and tool-routing logic that support consistent delivery.",
+          ],
         ].map(([title, body]) => (
           <Card key={title} className="border-[#DDE7F0] bg-white/90">
             <CardContent className="p-6">

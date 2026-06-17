@@ -25,18 +25,18 @@ export function DashboardSearch({ placeholder, onSearch, className = "" }: Dashb
 
   return (
     <div className={`relative ${className}`}>
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--gray-400)]" />
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
       <input
         type="text"
         placeholder={placeholder}
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
-        className="w-full rounded-xl border border-[var(--gray-200)] bg-[var(--gray-50)] py-2.5 pl-10 pr-10 text-sm text-[var(--gray-900)] placeholder:text-[var(--gray-400)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
+        className="w-full rounded-xl border border-border bg-page-background-alt py-2.5 pl-10 pr-10 text-sm text-heading placeholder:text-muted focus:border-academic-blue focus:outline-none focus:ring-2 focus:ring-academic-blue/20"
       />
       {query && (
         <button
           onClick={handleClear}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--gray-400)] hover:text-[var(--gray-600)]"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-body"
           aria-label="Clear search"
         >
           <X className="h-4 w-4" />

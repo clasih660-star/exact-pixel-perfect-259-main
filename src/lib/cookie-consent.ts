@@ -57,8 +57,7 @@ export function readCookieConsent(): CookieConsentRecord | null {
         preferences: Boolean(parsed.preferences.preferences),
         analytics: Boolean(parsed.preferences.analytics),
       },
-      updatedAt:
-        typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
+      updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
     };
   } catch {
     return null;

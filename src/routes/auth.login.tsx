@@ -6,6 +6,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
 import { roleDashboardPath } from "@/lib/route-guards";
+import { resolvePostAuthPath } from "@/lib/auth-redirects";
+import {
+  clearPendingVerification,
+  getAuthCallbackUrl,
+  rememberPendingVerification,
+  requiresEmailVerification,
+} from "@/lib/auth-verification";
 import type { UserRole } from "@/lib/types";
 
 const SITE_URL = "https://klassruum.com";
@@ -41,7 +48,10 @@ function LoginPage() {
   const supabaseReady = isSupabaseConfigured();
   const acceptInviteFn = useServerFn(acceptInstitutionInvite);
   const inviteToken =
-    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("invite") : null;
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("invite")
+      : null;
+  const signupHref = inviteToken ? `/auth/signup?invite=${encodeURIComponent(inviteToken)}` : "/auth/signup";
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,21 +63,26 @@ function LoginPage() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+
+      if (requiresEmailVerification(data.user)) {
+        rememberPendingVerification(data.user.email ?? email, inviteToken);
+        await supabase.auth.signOut();
+        toast.error("Please verify your email before signing in.");
+        navigate({ to: "/auth/verify-email" });
+        return;
+      }
+
       if (inviteToken) {
         const acceptedInvite = await acceptInviteFn({ data: { token: inviteToken } });
+        clearPendingVerification();
         toast.success("Institution invite accepted.");
         navigate({ to: roleDashboardPath(acceptedInvite.profile_role as UserRole) });
         return;
       }
+
+      clearPendingVerification();
       toast.success("Welcome to Klassruum");
-      // Fetch role and redirect
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-      const role = ((profile as any)?.role as UserRole) ?? null;
-      navigate({ to: roleDashboardPath(role) });
+      navigate({ to: await resolvePostAuthPath(data.user.id) });
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -83,16 +98,16 @@ function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback${inviteToken ? `?invite=${encodeURIComponent(inviteToken)}` : ""}`,
+        redirectTo: getAuthCallbackUrl(inviteToken),
       },
     });
     if (error) toast.error(error.message);
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="auth-tech-page flex min-h-screen">
       {/* Left panel — brand + image */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between overflow-hidden bg-[#1A3233] p-10 relative">
+      <div className="auth-tech-brand hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between overflow-hidden p-10 relative">
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1F7C80]/30 via-transparent to-[#5F5B46]/20" />
 
@@ -157,8 +172,8 @@ function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex flex-1 items-center justify-center bg-white px-6 py-12">
-        <div className="w-full max-w-[400px] space-y-8">
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="auth-tech-panel w-full max-w-[430px] space-y-8 p-6 sm:p-8">
           {/* Mobile logo */}
           <div className="lg:hidden">
             <Link to="/" className="flex items-center gap-2.5">
@@ -266,6 +281,15 @@ function LoginPage() {
 
           <p className="text-center text-sm text-[#A3ADAD]">
             Don't have an account?{" "}
+            <Link
+              to={signupHref}
+              className="font-semibold text-[#1F7C80] hover:text-[#1A5256]"
+            >
+              Create an account
+            </Link>
+          </p>
+          <p className="text-center text-sm text-[#A3ADAD]">
+            Running an institution?{" "}
             <Link
               to="/institutions/register"
               className="font-semibold text-[#1F7C80] hover:text-[#1A5256]"

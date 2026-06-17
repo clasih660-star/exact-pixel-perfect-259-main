@@ -33,10 +33,10 @@ export function SessionCard({
       dot: "bg-green-500",
     },
     completed: {
-      bg: "bg-[#F8FAFC]",
-      border: "border-[#E2E8F0]",
-      text: "text-[#0F172A]",
-      dot: "bg-[#64748B]",
+      bg: "bg-page-background-alt",
+      border: "border-border",
+      text: "text-heading",
+      dot: "bg-muted",
     },
     scheduled: {
       bg: "bg-amber-50",
@@ -45,10 +45,10 @@ export function SessionCard({
       dot: "bg-amber-500",
     },
     ongoing: {
-      bg: "bg-[#e8f5f5]",
-      border: "border-[#a3d9d8]",
-      text: "text-[#1A5256]",
-      dot: "bg-[#e8f5f5]0",
+      bg: "bg-soft-blue",
+      border: "border-border",
+      text: "text-navy-light",
+      dot: "bg-soft-blue",
     },
   };
 
@@ -59,7 +59,7 @@ export function SessionCard({
       to={href}
       className={`
         block overflow-hidden rounded-2xl border transition-all
-        hover:shadow-md hover:border-[#1F7C80]/30
+        hover:shadow-md hover:border-academic-blue/30
         ${config.bg} ${config.border}
       `}
     >
@@ -76,15 +76,15 @@ export function SessionCard({
         </div>
 
         {/* Title */}
-        <h3 className="mb-1 text-base font-bold text-[#0F172A]">{title}</h3>
+        <h3 className="mb-1 text-base font-bold text-heading">{title}</h3>
 
         {/* Course */}
-        {course && <p className="mb-3 text-xs text-[#64748B]">{course}</p>}
+        {course && <p className="mb-3 text-xs text-muted">{course}</p>}
 
         {/* Mode if present */}
         {mode && (
           <div className="mb-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/50 px-2.5 py-1 text-xs font-semibold text-[#0F172A]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/50 px-2.5 py-1 text-xs font-semibold text-heading">
               {mode}
             </span>
           </div>
@@ -93,14 +93,14 @@ export function SessionCard({
         {/* Metadata */}
         <div className="space-y-2">
           {time && (
-            <div className="flex items-center gap-2 text-xs text-[#64748B]">
+            <div className="flex items-center gap-2 text-xs text-muted">
               <Clock className="h-3.5 w-3.5" />
               <span>{time}</span>
-              {duration && <span className="text-[#94A3B8]">· {duration}</span>}
+              {duration && <span className="text-muted">· {duration}</span>}
             </div>
           )}
           {participantCount !== undefined && (
-            <div className="flex items-center gap-2 text-xs text-[#64748B]">
+            <div className="flex items-center gap-2 text-xs text-muted">
               <Users className="h-3.5 w-3.5" />
               <span>{participantCount} participants</span>
             </div>
