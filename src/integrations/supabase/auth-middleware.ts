@@ -13,36 +13,57 @@ function demoContext() {
   };
 }
 
+/**
+ * Sentinel thrown when Supabase IS configured but the request is not
+ * authenticated. Previously the middleware "failed open" by returning
+ * demoContext(), which silently granted anonymous users full access to every
+ * protected server function in production. We now fail closed.
+ */
+class UnauthorizedError extends Error {
+  statusCode = 401 as const;
+  constructor(message = "Unauthorized — authentication required.") {
+    super(message);
+    this.name = "UnauthorizedError";
+  }
+}
+
+/** True only when Supabase credentials are genuinely missing/demo. */
+function isDemoMode(url?: string, key?: string): boolean {
+  return (
+    !url ||
+    !key ||
+    url.includes("demo.supabase") ||
+    key.includes("demo_key")
+  );
+}
+
 export const requireSupabaseAuth = createMiddleware({ type: "function" }).server(
   async ({ next }): Promise<any> => {
     const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const SUPABASE_PUBLISHABLE_KEY =
+      process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
 
     // ── Demo mode: Supabase not configured ──────────────────────────────
-    if (
-      !SUPABASE_URL ||
-      !SUPABASE_PUBLISHABLE_KEY ||
-      SUPABASE_URL.includes("demo.supabase") ||
-      SUPABASE_PUBLISHABLE_KEY.includes("demo_key")
-    ) {
+    // Only bypass auth when credentials are genuinely absent or placeholders.
+    if (isDemoMode(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)) {
       return next({ context: demoContext() });
     }
 
+    // ── Production: Supabase IS configured — fail closed ────────────────
     const request = getRequest();
 
     if (!request?.headers) {
-      return next({ context: demoContext() });
+      throw new UnauthorizedError("Missing request context.");
     }
 
     const authHeader = request.headers.get("authorization");
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return next({ context: demoContext() });
+      throw new UnauthorizedError();
     }
 
     const token = authHeader.replace("Bearer ", "");
     if (!token) {
-      return next({ context: demoContext() });
+      throw new UnauthorizedError();
     }
 
     const supabase = createClient<Database>(SUPABASE_URL!, SUPABASE_PUBLISHABLE_KEY!, {
@@ -60,11 +81,11 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
 
     const { data, error } = await supabase.auth.getClaims(token);
     if (error || !data?.claims) {
-      return next({ context: demoContext() });
+      throw new UnauthorizedError("Invalid or expired session.");
     }
 
     if (!data.claims.sub) {
-      return next({ context: demoContext() });
+      throw new UnauthorizedError("Session missing subject claim.");
     }
 
     return next({

@@ -250,7 +250,8 @@ function SessionRow({ session }: { session: Session }) {
       <div className="flex shrink-0 items-center gap-2">
         {session.status === "live" || session.status === "upcoming" ? (
           <Link
-            to={"/classroom/session_demo_math" as any}
+            to="/teacher/sessions/$sessionId"
+            params={{ sessionId: session.id }}
             className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
           >
             <Play className="h-4 w-4" />

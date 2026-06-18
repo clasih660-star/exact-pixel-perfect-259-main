@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 import {
   getLesson,
   updateLessonDetails,
@@ -21,6 +22,7 @@ import {
 } from "@/lib/lessons.functions";
 
 export const Route = createFileRoute("/_authenticated/teacher/lessons/$lessonId/edit")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: LessonEditorPage,
 });
 
@@ -96,7 +98,7 @@ function LessonEditorPage() {
         </div>
 
         {/* Publish Actions */}
-        <PublishSection lesson={lesson} lessonId={lessonId} onPublish={() => {}} />
+        <PublishSection lesson={lesson} lessonId={lessonId} onPublish={() => { }} />
       </div>
     </InstitutionShell>
   );

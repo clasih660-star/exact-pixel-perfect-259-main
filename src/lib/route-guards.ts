@@ -11,13 +11,17 @@
  */
 import { redirect, type RouteContext } from "@tanstack/react-router";
 import type { LearnerType, RoleResolution, TeacherType, UserPersona, UserRole } from "./types";
-import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { requiresEmailVerification } from "@/lib/auth-verification";
 
 type AuthContext = {
   user?: { id: string; email?: string } | null;
   /** Role stored in route context by _authenticated/route.tsx */
   role?: UserRole | null;
+  persona?: UserPersona | null;
+  teacherType?: TeacherType | null;
+  learnerType?: LearnerType | null;
+  institutionId?: string | null;
 };
 
 type ProfileRecord = {
@@ -27,7 +31,12 @@ type ProfileRecord = {
   institution_id?: string | null;
 };
 
-function derivePersonaFromRole(profile: ProfileRecord): UserPersona {
+type MembershipRecord = {
+  institution_id?: string | null;
+  role?: "owner" | "admin" | "teacher" | "student" | null;
+};
+
+function derivePersonaFromRole(profile: ProfileRecord, membership?: MembershipRecord | null): UserPersona {
   switch (profile.role) {
     case "platform_admin":
       return "platform_admin";
@@ -41,8 +50,9 @@ function derivePersonaFromRole(profile: ProfileRecord): UserPersona {
         case "kingpin":
           return "kingpin_teacher";
         case "institution":
-        default:
           return "institution_teacher";
+        default:
+          return membership?.role === "teacher" ? "institution_teacher" : "private_teacher";
       }
     case "student":
       switch (profile.learner_type) {
@@ -51,8 +61,9 @@ function derivePersonaFromRole(profile: ProfileRecord): UserPersona {
         case "teacher_enrolled":
           return "teacher_enrolled_learner";
         case "institution":
-        default:
           return "institution_learner";
+        default:
+          return membership?.role === "student" ? "institution_learner" : "private_learner";
       }
     case "parent":
       return "parent";
@@ -61,31 +72,67 @@ function derivePersonaFromRole(profile: ProfileRecord): UserPersona {
   }
 }
 
-function toRoleResolution(profile: ProfileRecord): RoleResolution | null {
+function toRoleResolution(
+  profile: ProfileRecord,
+  membership?: MembershipRecord | null,
+): RoleResolution | null {
   if (!profile.role) return null;
+
+  const persona = derivePersonaFromRole(profile, membership);
+  const institutionId = profile.institution_id ?? membership?.institution_id ?? null;
+
   return {
     role: profile.role,
-    persona: derivePersonaFromRole(profile),
-    teacherType: profile.teacher_type ?? null,
-    learnerType: profile.learner_type ?? null,
-    institutionId: profile.institution_id ?? null,
+    persona,
+    teacherType:
+      profile.teacher_type ??
+      (profile.role === "teacher"
+        ? persona === "institution_teacher"
+          ? "institution"
+          : persona === "kingpin_teacher"
+            ? "kingpin"
+            : "private"
+        : null),
+    learnerType:
+      profile.learner_type ??
+      (profile.role === "student"
+        ? persona === "institution_learner"
+          ? "institution"
+          : persona === "teacher_enrolled_learner"
+            ? "teacher_enrolled"
+            : "private"
+        : null),
+    institutionId,
   };
+}
+
+async function getActiveInstitutionMembership(userId: string): Promise<MembershipRecord | null> {
+  try {
+    const { data } = await supabase
+      .from("institution_members")
+      .select("institution_id, role")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .limit(1);
+
+    return ((data as MembershipRecord[] | null)?.[0] ?? null) as MembershipRecord | null;
+  } catch {
+    return null;
+  }
 }
 
 /**
  * Fetch user profile with role/persona fields from Supabase.
  * Falls back to a default learner resolution in dev mode.
  */
-async function getRoleResolution(userId: string): Promise<RoleResolution | null> {
+export async function getRoleResolution(userId: string): Promise<RoleResolution | null> {
   try {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data } = await supabase
-      .from("profiles")
-      .select("role, teacher_type, learner_type, institution_id")
-      .eq("id", userId)
-      .single();
+    const [{ data: profileData }, membership] = await Promise.all([
+      supabase.from("profiles").select("role").eq("id", userId).single(),
+      getActiveInstitutionMembership(userId),
+    ]);
 
-    return toRoleResolution((data as ProfileRecord | null) ?? {});
+    return toRoleResolution((profileData as ProfileRecord | null) ?? {}, membership);
   } catch {
     if (import.meta.env.DEV) {
       return {
@@ -106,11 +153,18 @@ async function getRoleResolution(userId: string): Promise<RoleResolution | null>
  */
 async function resolveRoleResolution(
   userId: string,
-  contextRole?: UserRole | null,
+  context?: AuthContext,
 ): Promise<RoleResolution | null> {
-  if (contextRole) {
-    return toRoleResolution({ role: contextRole });
+  if (context?.role && context.persona) {
+    return {
+      role: context.role,
+      persona: context.persona,
+      teacherType: context.teacherType ?? null,
+      learnerType: context.learnerType ?? null,
+      institutionId: context.institutionId ?? null,
+    };
   }
+
   return getRoleResolution(userId);
 }
 
@@ -125,7 +179,7 @@ export async function requireAuth({ user }: AuthContext) {
     throw redirect({ to: "/auth" });
   }
 
-  if (requiresEmailVerification(user as Parameters<typeof requiresEmailVerification>[0])) {
+  if (requiresEmailVerification(user as unknown as Parameters<typeof requiresEmailVerification>[0])) {
     throw redirect({ to: "/auth/verify-email" });
   }
 }
@@ -136,18 +190,45 @@ export async function requireAuth({ user }: AuthContext) {
  *
  * In demo mode, all role checks pass (the user can explore any dashboard).
  */
-export async function requireRole({ user, role: contextRole }: AuthContext, roles: UserRole[]) {
+export async function requireRole(
+  { user, role: contextRole, persona, teacherType, learnerType, institutionId }: AuthContext,
+  roles: UserRole[],
+) {
   // In demo mode, all role checks pass
   if (!isSupabaseConfigured()) {
     return {
       role: contextRole ?? "student",
-      persona: contextRole === "teacher" ? "institution_teacher" : "institution_learner",
+      persona:
+        persona ??
+        (contextRole === "teacher"
+          ? "institution_teacher"
+          : contextRole === "platform_admin"
+            ? "platform_admin"
+            : contextRole === "institution_admin" || contextRole === "owner"
+              ? "institution_admin"
+              : contextRole === "parent"
+                ? "parent"
+                : "institution_learner"),
+      teacherType: teacherType ?? (contextRole === "teacher" ? "institution" : null),
+      learnerType: learnerType ?? (contextRole === "student" ? "institution" : null),
+      institutionId:
+        institutionId ??
+        (contextRole === "institution_admin" || contextRole === "owner" || contextRole === "teacher" || contextRole === "student"
+          ? "demo-institution"
+          : null),
     };
   }
 
   await requireAuth({ user });
 
-  const resolution = await resolveRoleResolution(user!.id, contextRole);
+  const resolution = await resolveRoleResolution(user!.id, {
+    user,
+    role: contextRole,
+    persona,
+    teacherType,
+    learnerType,
+    institutionId,
+  });
   const role = resolution?.role ?? null;
 
   if (!role || !roles.includes(role)) {
@@ -169,7 +250,13 @@ export async function requirePlatformAdmin(ctx: AuthContext) {
  * Require institution_admin role.
  */
 export async function requireInstitutionAdmin(ctx: AuthContext) {
-  return requireRole(ctx, ["institution_admin", "owner"]);
+  const resolution = await requireRole(ctx, ["institution_admin", "owner"]);
+
+  if (!resolution?.institutionId) {
+    throw redirect({ to: roleDashboardPath(resolution?.role ?? null) });
+  }
+
+  return resolution;
 }
 
 /**
@@ -204,7 +291,22 @@ export async function requireParent(ctx: AuthContext) {
  * Require institution_admin or teacher (for shared management routes).
  */
 export async function requireInstitutionStaff(ctx: AuthContext) {
-  return requireRole(ctx, ["institution_admin", "owner", "teacher"]);
+  const resolution = await requireRole(ctx, ["institution_admin", "owner", "teacher"]);
+
+  if (!resolution) return resolution;
+
+  const hasInstitutionScope =
+    (resolution.role === "institution_admin" || resolution.role === "owner")
+      ? Boolean(resolution.institutionId)
+      : resolution.role === "teacher"
+        ? resolution.persona === "institution_teacher" && Boolean(resolution.institutionId)
+        : false;
+
+  if (!hasInstitutionScope) {
+    throw redirect({ to: roleDashboardPath(resolution.role) });
+  }
+
+  return resolution;
 }
 
 /**
@@ -247,7 +349,7 @@ export async function redirectByRole({ user, role: contextRole }: AuthContext) {
     throw redirect({ to: "/auth" });
   }
 
-  const resolution = await resolveRoleResolution(user.id, contextRole);
+  const resolution = await resolveRoleResolution(user.id, { user, role: contextRole });
   const path = resolveDashboardPath(resolution);
   throw redirect({ to: path });
 }

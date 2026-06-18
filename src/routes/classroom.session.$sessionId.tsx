@@ -2,9 +2,12 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { InteractiveClassroomPage } from "@/components/classroom/InteractiveClassroomPage";
+import { LearnerLiveClassroomPage } from "@/components/classroom/LearnerLiveClassroomPage";
 import { getClassroomContext, endSession } from "@/lib/sessions.functions";
+import { leaveSession, endSession as endLiveSession } from "@/lib/live-sessions.functions";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { postChatMessage } from "@/lib/sessions.functions";
 
 export const Route = createFileRoute("/classroom/session/$sessionId")({
   component: ClassroomSessionRoute,
@@ -63,6 +66,9 @@ function ClassroomSessionRoute() {
   const router = useRouter();
   const classroomFn = useServerFn(getClassroomContext);
   const endFn = useServerFn(endSession);
+  const leaveFn = useServerFn(leaveSession);
+  const postFn = useServerFn(postChatMessage);
+  const endLiveFn = useServerFn(endLiveSession);
 
   const query = useQuery({
     queryKey: ["classroom-context", sessionId],
@@ -87,11 +93,39 @@ function ClassroomSessionRoute() {
           </p>
           <div className="flex justify-center gap-3">
             <Button asChild>
-              <Link to="/student/dashboard">Return to dashboard</Link>
+              <Link to="/student/classrooms">Return to classrooms</Link>
             </Button>
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid") {
+    return (
+      <LearnerLiveClassroomPage
+        classroomContext={query.data}
+        sessionId={sessionId}
+        onLeaveSession={async () => {
+          if (query.data.session?.status === "completed") {
+            await router.navigate({ to: "/student/classrooms" });
+            return;
+          }
+          await leaveFn({ data: { session_id: sessionId } });
+          await router.navigate({ to: "/student/classrooms" });
+        }}
+        onAskQuestion={async (message) => {
+          await postFn({
+            data: {
+              session_id: sessionId,
+              message,
+              sender: "student",
+              message_type: "question",
+            },
+          });
+          await query.refetch();
+        }}
+      />
     );
   }
 
@@ -100,7 +134,11 @@ function ClassroomSessionRoute() {
       classroomContext={query.data as any}
       sessionId={sessionId}
       onEndLesson={async () => {
-        await endFn({ data: { session_id: sessionId } });
+        if (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid") {
+          await endLiveFn({ data: { session_id: sessionId } });
+        } else {
+          await endFn({ data: { session_id: sessionId } });
+        }
         await router.navigate({ to: "/student/dashboard" });
       }}
     />

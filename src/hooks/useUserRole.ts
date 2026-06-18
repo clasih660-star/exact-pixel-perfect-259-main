@@ -4,7 +4,7 @@
  * The role is fetched once in `_authenticated/route.tsx` beforeLoad and
  * stored in the route context. All child routes can read it via this hook.
  */
-import { useRouteContext, useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import type { LearnerType, TeacherType, UserPersona, UserRole } from "@/lib/types";
 import { resolveDashboardPath, roleDashboardPath } from "@/lib/route-guards";
 
@@ -16,29 +16,35 @@ type AuthenticatedContext = {
   learnerType?: LearnerType | null;
 };
 
+function getAuthenticatedContext(router: ReturnType<typeof useRouter>): AuthenticatedContext | null {
+  const match = router.state.matches.find((entry: any) => entry.routeId === "/_authenticated");
+  return (match?.context as AuthenticatedContext | undefined) ?? null;
+}
+
 /**
  * Returns the current user's role from the authenticated route context.
  * Falls back to `"student"` in dev mode when no real role is available.
  */
 export function useUserRole(): UserRole {
-  try {
-    const { role } = useRouteContext({ from: "/_authenticated" }) as AuthenticatedContext;
-    return role ?? "student";
-  } catch {
-    // Outside authenticated layout or context not yet loaded
-    return "student";
-  }
+  const router = useRouter();
+  const context = getAuthenticatedContext(router);
+  return context?.role ?? "student";
 }
 
 /**
  * Returns the full authenticated context (user + role).
  */
 export function useAuthContext(): AuthenticatedContext {
-  try {
-    return useRouteContext({ from: "/_authenticated" }) as AuthenticatedContext;
-  } catch {
-    return { user: null, role: null, persona: null, teacherType: null, learnerType: null };
-  }
+  const router = useRouter();
+  return (
+    getAuthenticatedContext(router) ?? {
+      user: null,
+      role: null,
+      persona: null,
+      teacherType: null,
+      learnerType: null,
+    }
+  );
 }
 
 export function useUserPersona(): UserPersona {

@@ -341,8 +341,8 @@ function StudentSessions() {
                     </>
                   ) : session.status === "in-progress" ? (
                     <Link
-                      to="/classroom/$lessonId"
-                      params={{ lessonId: session.id }}
+                      to="/classroom/session/$sessionId"
+                      params={{ sessionId: session.id }}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1A5256] transition-colors shadow-sm"
                     >
                       Continue <ChevronRight className="h-4 w-4" />

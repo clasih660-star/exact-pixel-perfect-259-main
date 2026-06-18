@@ -9,115 +9,150 @@ export function Pricing() {
       name: "Explore Klassruum",
       price: "$0",
       period: "free demo",
-      description: "Experience the live AI tutor in an open digital classroom.",
-      badge: "Instant Access",
-      badgeColor: "bg-white text-slate-700 border-slate-200",
+      description: "Use a prepared classroom to see the teaching flow before setup.",
+      badge: "Start here",
       features: [
-        "Pre-loaded demo classroom",
-        "Experience the live AI tutor",
-        "Interact with whiteboard solving",
-        "Test accessibility selectors",
-        "View note & transcript creation",
+        "Pre-loaded classroom lesson",
+        "Live teaching flow with board work",
+        "Captions, transcript, and notes",
+        "Accessibility controls to inspect",
       ],
-      cta: { label: "Start Free Demo", to: "/demo/classroom" as PricingHref },
+      cta: { label: "Open demo classroom", to: "/demo/classroom" as PricingHref },
       featured: false,
     },
     {
       name: "Deploy Klassruum",
       price: "Custom",
       period: "contract terms",
-      description: "Deploy a dedicated, secure learning portal for your institution.",
+      description: "Launch a governed learning environment for your institution.",
       badge: "Institutional Plan",
-      badgeColor: "bg-[#0f172a] text-white border-[#0f172a]",
       features: [
         "Custom domain & branding",
-        "Unlimited course curriculum",
-        "All cohort student sizes",
-        "Review before release gates",
+        "Course and lesson generation",
+        "Review gates before release",
         "Admin governance dashboard",
-        "Analytics & compliance logs",
+        "Analytics and compliance logs",
         "Priority support & onboarding",
-        "Data export & APIs",
       ],
-      cta: { label: "Deploy Your Campus", to: "/institutions/register" as PricingHref },
+      cta: { label: "Plan deployment", to: "/institutions/register" as PricingHref },
       featured: true,
     },
     {
       name: "Enterprise",
       price: "Custom",
       period: "institution / year",
-      description: "For universities, training providers, and large organizations.",
+      description: "For multi-site organizations with advanced integration needs.",
       badge: "Global Scale",
-      badgeColor: "bg-white text-slate-700 border-slate-200",
       features: [
-        "Everything in Deploy",
-        "SSO & advanced security",
-        "API & custom integrations",
+        "Everything in Deploy Klassruum",
+        "SSO and advanced security",
+        "API and custom integrations",
         "Dedicated account manager",
-        "SLA & compliance guarantees",
+        "SLA and compliance support",
         "Custom data retention",
-        "Priority feature requests",
-        "White-label options",
       ],
-      cta: { label: "Contact Sales", to: "/contact" as PricingHref },
+      cta: { label: "Contact us", to: "/contact" as PricingHref },
       featured: false,
     },
   ];
 
   return (
-    <section className="py-20 lg:py-28 bg-white border-t border-slate-100" id="pricing">
+    <section className="border-t border-slate-200 bg-white py-20 lg:py-24" id="pricing">
       <div className="container-editorial">
-        {/* Header */}
-        <div className="max-w-2xl mx-auto text-center mb-16">
-          <p className="text-[11px] font-bold text-[#10233f] uppercase tracking-widest mb-3">
-            Pricing
-          </p>
-          <h2 className="text-[2.2rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold text-[#0f172a] leading-[1.12] tracking-tight font-headings">
-            Simple ways to get started
-          </h2>
-          <p className="text-[#64748b] mt-4 text-base leading-relaxed max-w-xl mx-auto font-sans">
-            Start by testing the classroom engine, then configure a custom layout for your
-            institution.
+        <div className="mx-auto mb-12 grid max-w-5xl gap-6 border-b border-slate-200 pb-8 text-left md:grid-cols-[0.75fr_1fr] md:items-end">
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#1F7C80]">
+              Pricing
+            </p>
+            <h2 className="font-headings text-[2.2rem] font-extrabold leading-[1.08] tracking-tight text-[#0f172a] sm:text-[2.75rem] md:text-[3.25rem]">
+              Simple ways to get started
+            </h2>
+          </div>
+          <p className="max-w-xl text-base leading-8 text-slate-600 md:ml-auto">
+            Start with a working classroom, then move into a deployment plan matched to your
+            materials, review process, learner access needs, and reporting requirements.
           </p>
         </div>
 
-        {/* 3-tier grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
+        <div className="mx-auto mb-5 flex max-w-5xl items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
+          <span>Choose a starting point</span>
+          <span className="hidden text-[#1F7C80] sm:inline">Institution setup available</span>
+        </div>
+
+        <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-px overflow-hidden border border-slate-200 bg-slate-200 md:grid-cols-3">
           {plans.map((plan) => (
-            <div
+            <article
               key={plan.name}
-              className={`p-8 rounded-lg flex flex-col bg-white border transition-all duration-300 ${
-                plan.featured
-                  ? "border-[#0f172a] shadow-xl shadow-slate-950/10 ring-1 ring-[#0f172a]/10 relative scale-[1.01]"
-                  : "border-slate-100 hover:-translate-y-1 hover:shadow-md hover:border-slate-200"
+              className={`flex min-h-full flex-col bg-white p-6 transition-colors md:p-7 ${
+                plan.featured ? "relative bg-[#07111f] text-white" : "hover:bg-slate-50"
               }`}
             >
-              {/* Badge */}
-              <div
-                className={`inline-flex self-start px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${plan.badgeColor} mb-6`}
-              >
-                {plan.badge}
+              <div className="mb-7 flex items-start justify-between gap-4">
+                <span
+                  className={`inline-flex border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${
+                    plan.featured
+                      ? "border-cyan-200/20 bg-cyan-200/10 text-cyan-100"
+                      : "border-slate-200 bg-slate-50 text-slate-600"
+                  }`}
+                >
+                  {plan.badge}
+                </span>
+                {plan.featured && (
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100/80">
+                    Recommended
+                  </span>
+                )}
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-heading font-sans">{plan.name}</h3>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-[#0f172a] tracking-tight font-sans">
+                <h3
+                  className={`font-sans text-xl font-extrabold ${
+                    plan.featured ? "!text-white" : "text-slate-950"
+                  }`}
+                >
+                  {plan.name}
+                </h3>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <span
+                    className={`font-sans text-4xl font-extrabold tracking-tight ${
+                      plan.featured ? "!text-white" : "text-slate-950"
+                    }`}
+                  >
                     {plan.price}
                   </span>
-                  <span className="text-sm text-slate-400 font-medium">/ {plan.period}</span>
+                  <span
+                    className={`text-sm font-medium ${
+                      plan.featured ? "text-white/55" : "text-slate-500"
+                    }`}
+                  >
+                    / {plan.period}
+                  </span>
                 </div>
-                <p className="text-sm text-slate-500 leading-relaxed mt-3 min-h-[48px]">
+                <p
+                  className={`mt-4 min-h-[72px] text-sm leading-6 ${
+                    plan.featured ? "!text-white/72" : "text-slate-600"
+                  }`}
+                >
                   {plan.description}
                 </p>
               </div>
 
-              <div className="my-6 h-px bg-slate-100" />
+              <div className={`my-7 h-px ${plan.featured ? "bg-white/12" : "bg-slate-200"}`} />
 
-              <ul className="space-y-3 flex-1">
+              <ul className="grid flex-1 gap-3">
                 {plan.features.map((inc) => (
-                  <li key={inc} className="flex items-start gap-2.5 text-sm text-slate-600">
-                    <CheckCircle2 size={15} className="text-[#10233f] shrink-0 mt-0.5" />
+                  <li
+                    key={inc}
+                    className={`flex items-start gap-2.5 text-sm leading-6 ${
+                      plan.featured ? "text-white/78" : "text-slate-700"
+                    }`}
+                  >
+                    <CheckCircle2
+                      size={15}
+                      className={`mt-0.5 shrink-0 ${
+                        plan.featured ? "text-cyan-200" : "text-[#1F7C80]"
+                      }`}
+                    />
                     <span>{inc}</span>
                   </li>
                 ))}
@@ -125,16 +160,32 @@ export function Pricing() {
 
               <Link
                 to={plan.cta.to}
-                className={`w-full justify-center mt-8 text-sm py-3 rounded-md font-bold flex items-center gap-1.5 transition-all ${
+                className={`mt-8 inline-flex min-h-11 w-full items-center justify-center gap-2 px-4 text-sm font-bold transition-colors ${
                   plan.featured
-                    ? "bg-[#07111f] text-white hover:bg-[#10233f] shadow-md shadow-slate-950/15"
-                    : "bg-slate-50 text-[#0f172a] hover:bg-slate-100 border border-slate-200"
+                    ? "bg-white !text-[#07111f] hover:bg-cyan-50"
+                    : "border border-slate-300 bg-white !text-slate-950 hover:border-slate-400 hover:bg-slate-100"
                 }`}
               >
-                {plan.cta.label} <ArrowRight size={14} />
+                <span>{plan.cta.label}</span>
+                <ArrowRight size={15} />
               </Link>
-            </div>
+            </article>
           ))}
+        </div>
+
+        <div className="mx-auto mt-6 grid max-w-5xl gap-3 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600 md:grid-cols-3">
+          <p>
+            <strong className="font-bold text-slate-950">No guesswork:</strong> demo first, deploy
+            after fit is clear.
+          </p>
+          <p>
+            <strong className="font-bold text-slate-950">No hidden classroom layer:</strong> voice,
+            board, captions, notes, and transcripts are core.
+          </p>
+          <p>
+            <strong className="font-bold text-slate-950">No one-size-fits-all rollout:</strong>{" "}
+            institutional pricing follows scope.
+          </p>
         </div>
       </div>
     </section>

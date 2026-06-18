@@ -23,6 +23,7 @@ export const Route = createFileRoute("/blog/ai-teaching-vs-content-delivery")({
   component: () => (
     <BlogLayout
       meta={{
+        slug: "ai-teaching-vs-content-delivery",
         title:
           "Why AI teaching beats content delivery: The difference between a classroom and a document",
         description:

@@ -8,8 +8,10 @@ export function isSupabaseConfigured(): boolean {
     (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) ||
     (typeof process !== "undefined" && process.env?.SUPABASE_URL);
   const key =
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
-    (typeof process !== "undefined" && process.env?.SUPABASE_PUBLISHABLE_KEY);
+    (typeof import.meta !== "undefined" &&
+      (import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env?.VITE_SUPABASE_ANON_KEY)) ||
+    (typeof process !== "undefined" &&
+      (process.env?.SUPABASE_PUBLISHABLE_KEY || process.env?.SUPABASE_ANON_KEY));
   return Boolean(url && key && !url.includes("demo.supabase") && !key.includes("demo_key"));
 }
 
@@ -18,12 +20,15 @@ function createSupabaseClient() {
   // Fall back to process.env for SSR (server-side rendering)
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const SUPABASE_PUBLISHABLE_KEY =
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     console.warn(
       "[Supabase] No credentials configured — running in demo mode. " +
-        "Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY for production.",
+        "Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY) for production.",
     );
     // Return a proxy that silently no-ops on any call, so the app never crashes
     // when Supabase is not configured. Auth calls return empty results, queries

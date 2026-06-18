@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import type { UserRole } from "@/lib/types";
-import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import type { RoleResolution, UserRole } from "@/lib/types";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { requiresEmailVerification } from "@/lib/auth-verification";
+import { getRoleResolution } from "@/lib/route-guards";
 
 /** Demo roles available without Supabase. */
 const DEMO_ROLES: UserRole[] = [
@@ -25,18 +26,45 @@ function getDemoRole(): UserRole {
   return "student";
 }
 
-/**
- * Fetch the user's role from the profiles table.
- * Returns null in dev mode (when using demo user) or on error.
- */
-async function fetchUserRole(userId: string): Promise<UserRole | null> {
-  try {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data, error } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
-    if (error) throw error;
-    return ((data as { role?: UserRole | null } | null)?.role as UserRole | null | undefined) ?? null;
-  } catch {
-    return null;
+function demoRoleResolution(role: UserRole): RoleResolution {
+  switch (role) {
+    case "platform_admin":
+      return { role, persona: "platform_admin", institutionId: null, teacherType: null, learnerType: null };
+    case "institution_admin":
+      return {
+        role,
+        persona: "institution_admin",
+        institutionId: "demo-institution",
+        teacherType: null,
+        learnerType: null,
+      };
+    case "teacher":
+      return {
+        role,
+        persona: "institution_teacher",
+        teacherType: "institution",
+        learnerType: null,
+        institutionId: "demo-institution",
+      };
+    case "parent":
+      return { role, persona: "parent", institutionId: null, teacherType: null, learnerType: null };
+    case "owner":
+      return {
+        role,
+        persona: "institution_admin",
+        institutionId: "demo-institution",
+        teacherType: null,
+        learnerType: null,
+      };
+    case "student":
+    default:
+      return {
+        role: "student",
+        persona: "institution_learner",
+        learnerType: "institution",
+        teacherType: null,
+        institutionId: "demo-institution",
+      };
   }
 }
 
@@ -49,15 +77,19 @@ export const Route = createFileRoute("/_authenticated")({
     // user is logged in with the selected demo role.
     if (!isSupabaseConfigured()) {
       const role = getDemoRole();
+      const resolution = demoRoleResolution(role);
       return {
         user: { id: "demo-user-0000", email: `demo@klassruum.com` },
-        role,
+        role: resolution.role,
+        persona: resolution.persona,
+        teacherType: resolution.teacherType ?? null,
+        learnerType: resolution.learnerType ?? null,
+        institutionId: resolution.institutionId ?? null,
       };
     }
 
     // ── Production: real Supabase auth ───────────────────────────────────
     try {
-      const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
         throw redirect({ to: "/auth" });
@@ -67,14 +99,20 @@ export const Route = createFileRoute("/_authenticated")({
         throw redirect({ to: "/auth/verify-email" });
       }
 
-      // Fetch the user's role from their profile
-      const role = await fetchUserRole(data.user.id);
+      const resolution = await getRoleResolution(data.user.id);
 
-      if (!role) {
+      if (!resolution?.role) {
         throw redirect({ to: "/auth/complete-profile" });
       }
 
-      return { user: data.user, role };
+      return {
+        user: data.user,
+        role: resolution.role,
+        persona: resolution.persona,
+        teacherType: resolution.teacherType ?? null,
+        learnerType: resolution.learnerType ?? null,
+        institutionId: resolution.institutionId ?? null,
+      };
     } catch (err) {
       // Re-throw redirects
       if (err && typeof err === "object" && "to" in err) throw err;

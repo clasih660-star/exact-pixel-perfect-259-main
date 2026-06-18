@@ -23,6 +23,7 @@ export const Route = createFileRoute("/blog/gdpr-edtech-guide")({
   component: () => (
     <BlogLayout
       meta={{
+        slug: "gdpr-edtech-guide",
         title: "GDPR compliance for EdTech: A practical guide for education institutions",
         description:
           "Everything school leaders, data protection officers, and IT administrators need to know about GDPR compliance when adopting AI-powered learning platforms.",

@@ -21,6 +21,7 @@ export const Route = createFileRoute("/blog/ai-classrooms-2026")({
   component: () => (
     <BlogLayout
       meta={{
+        slug: "ai-classrooms-2026",
         title: "How schools are using AI classrooms in 2026: Trends, results, and what's next",
         description:
           "A deep-dive into AI classroom adoption across schools, universities, training providers, and NGOs in 2026 — with real data on engagement, costs, accessibility outcomes, and what's next.",

@@ -57,6 +57,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthCompleteProfileRouteImport } from './routes/auth.complete-profile'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ApiBlogRouteImport } from './routes/api.blog'
 import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
@@ -439,6 +440,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
   getParentRoute: () => AuthRoute,
+} as any)
+const ApiBlogRoute = ApiBlogRouteImport.update({
+  id: '/api/blog',
+  path: '/api/blog',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDevRouteRoute = AuthenticatedDevRouteRouteImport.update({
   id: '/dev',
@@ -1272,6 +1278,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/api/blog': typeof ApiBlogRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1457,6 +1464,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/api/blog': typeof ApiBlogRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1644,6 +1652,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/_authenticated/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/api/blog': typeof ApiBlogRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1831,6 +1840,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/dev'
+    | '/api/blog'
     | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -2016,6 +2026,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/dev'
+    | '/api/blog'
     | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -2202,6 +2213,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/_authenticated/dev'
+    | '/api/blog'
     | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -2388,6 +2400,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   WebinarsRoute: typeof WebinarsRoute
+  ApiBlogRoute: typeof ApiBlogRoute
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   DemoAccessibilityDemoRoute: typeof DemoAccessibilityDemoRoute
@@ -2742,6 +2755,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/api/blog': {
+      id: '/api/blog'
+      path: '/api/blog'
+      fullPath: '/api/blog'
+      preLoaderRoute: typeof ApiBlogRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dev': {
       id: '/_authenticated/dev'
@@ -4555,6 +4575,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   WebinarsRoute: WebinarsRoute,
+  ApiBlogRoute: ApiBlogRoute,
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   DemoAccessibilityDemoRoute: DemoAccessibilityDemoRoute,

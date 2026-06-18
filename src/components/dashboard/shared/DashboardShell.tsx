@@ -35,6 +35,7 @@ export function DashboardShell({
   subtitle,
   children,
 }: Props) {
+  const shellRef = useRef<HTMLDivElement>(null);
   const configFromHook = useDashboardConfig();
   const shouldUseResolvedConfig =
     !configProp ||
@@ -81,8 +82,48 @@ export function DashboardShell({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isProfileDropdownOpen]);
 
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+
+    let frame = 0;
+    const setPointer = (clientX: number, clientY: number) => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rect = shell.getBoundingClientRect();
+        shell.style.setProperty("--kr-pointer-x", `${clientX - rect.left}px`);
+        shell.style.setProperty("--kr-pointer-y", `${clientY - rect.top}px`);
+      });
+    };
+
+    const handlePointerMove = (event: PointerEvent) => setPointer(event.clientX, event.clientY);
+    const handleScroll = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+      shell.style.setProperty("--kr-scroll-progress", progress.toFixed(4));
+    };
+
+    setPointer(window.innerWidth * 0.5, window.innerHeight * 0.35);
+    handleScroll();
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
   return (
-    <div className="kr-dashboard-shell relative min-h-screen overflow-hidden text-foreground">
+    <div
+      ref={shellRef}
+      className="kr-dashboard-shell relative min-h-screen overflow-hidden text-foreground"
+    >
+      <div className="kr-pointer-wash" aria-hidden="true" />
+      <div className="kr-scroll-meter" aria-hidden="true" />
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={toggleMobileMenu} />
@@ -90,7 +131,7 @@ export function DashboardShell({
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border transition-transform duration-300 lg:translate-x-0 ${
+        className={`kr-sidebar fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border transition-transform duration-300 lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -317,7 +358,9 @@ export function DashboardShell({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1600px] p-4 lg:p-8 xl:p-8">{children}</main>
+        <main className="kr-dashboard-main mx-auto w-full max-w-[1600px] p-4 lg:p-8 xl:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );

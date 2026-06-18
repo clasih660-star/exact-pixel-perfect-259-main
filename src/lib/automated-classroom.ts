@@ -655,7 +655,7 @@ export function useAutomatedClassroomEngine(
           }));
           break;
 
-        case "TICK":
+        case "TICK": {
           // Check for question checkpoints
           const currentMinute = Math.floor(action.elapsedSeconds / 60);
           const checkpoint = getCheckpointForMinute(lesson, currentMinute);
@@ -672,8 +672,9 @@ export function useAutomatedClassroomEngine(
             });
           }
           break;
+        }
 
-        case "COMPLETE_LESSON":
+        case "COMPLETE_LESSON": {
           stopTimer();
           stopSpeech();
 
@@ -709,9 +710,9 @@ export function useAutomatedClassroomEngine(
               },
             ],
           }));
-
           onComplete?.(summary);
           break;
+        }
       }
     },
     [

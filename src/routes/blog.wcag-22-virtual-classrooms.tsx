@@ -23,6 +23,7 @@ export const Route = createFileRoute("/blog/wcag-22-virtual-classrooms")({
   component: () => (
     <BlogLayout
       meta={{
+        slug: "wcag-22-virtual-classrooms",
         title: "WCAG 2.2 in virtual classrooms: What every education institution needs to know",
         description:
           "A comprehensive guide to WCAG 2.2 accessibility standards for virtual classrooms. Learn how education institutions can meet legal requirements, support students with disabilities, and build truly inclusive online learning environments.",

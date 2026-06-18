@@ -23,6 +23,7 @@ export const Route = createFileRoute("/blog/future-structured-learning")({
   component: () => (
     <BlogLayout
       meta={{
+        slug: "future-structured-learning",
         title: "The future of structured learning: How AI classrooms are reshaping education",
         description:
           "Why the next wave of EdTech isn't about more content — it's about delivering explanation, practice, and feedback at scale through structured AI classrooms.",
