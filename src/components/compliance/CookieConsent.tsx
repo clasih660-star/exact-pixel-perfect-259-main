@@ -36,7 +36,7 @@ function CookiePreferenceRow({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-[#f8fafc] p-4">
+    <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-[#f8fafc] p-3.5 sm:p-4">
       <div className="pr-2">
         <p className="text-sm font-semibold text-heading">{title}</p>
         <p className="mt-1 text-sm leading-6 text-muted">{description}</p>
@@ -210,8 +210,8 @@ export function CookieConsentManager() {
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl rounded-2xl border border-border bg-white p-0 shadow-lg">
-          <div className="border-b border-border px-6 py-5 sm:px-7">
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-white p-0 shadow-lg sm:max-h-[min(760px,calc(100dvh-3rem))]">
+          <div className="shrink-0 border-b border-border px-5 py-4 sm:px-7 sm:py-5">
             <DialogHeader className="space-y-3 text-left">
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted">
                 <ShieldCheck className="h-3.5 w-3.5" />
@@ -228,7 +228,7 @@ export function CookieConsentManager() {
             </DialogHeader>
           </div>
 
-          <div className="space-y-4 px-6 py-5 sm:px-7">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4 sm:space-y-4 sm:px-7 sm:py-5">
             <div className="rounded-xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-body">
               <div className="flex flex-wrap items-center gap-2 text-heading">
                 <Check className="h-4 w-4 text-education-green" />
@@ -262,7 +262,7 @@ export function CookieConsentManager() {
             />
           </div>
 
-          <div className="border-t border-border px-6 py-5 sm:px-7">
+          <div className="shrink-0 border-t border-border bg-white px-5 py-4 sm:px-7 sm:py-5">
             <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between sm:space-x-0">
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <Link

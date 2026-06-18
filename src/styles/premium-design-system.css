@@ -979,8 +979,7 @@ p {
 }
 
 body {
-  background:
-    linear-gradient(180deg, #f7fbff 0%, #ffffff 44%, #f8fbff 100%);
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 44%, #f8fbff 100%);
 }
 
 h1,
@@ -1173,11 +1172,28 @@ h6 {
   overflow: hidden;
 }
 
+.auth-tech-page,
+.blog-page-shell {
+  isolation: isolate;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 184, 216, 0.04) 1px, transparent 1px),
+    radial-gradient(60% 42% at 12% 0%, rgba(37, 99, 235, 0.09), transparent 62%),
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 48%, #f4f8fd 100%);
+  background-size:
+    56px 56px,
+    56px 56px,
+    auto,
+    auto;
+}
+
 .auth-tech-panel {
   border: 1px solid rgba(184, 199, 217, 0.68);
-  border-radius: 18px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--tech-shadow);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 64px rgba(7, 17, 31, 0.1);
   backdrop-filter: blur(18px) saturate(155%);
   -webkit-backdrop-filter: blur(18px) saturate(155%);
 }
@@ -1220,6 +1236,120 @@ h6 {
   border-color: rgba(16, 184, 216, 0.52);
   background: #f7fbff;
   transform: translateY(-1px);
+}
+
+.institution-register-page {
+  min-width: 320px;
+}
+
+.institution-register-rail {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 26px 70px rgba(7, 17, 31, 0.18);
+}
+
+.institution-register-rail::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(125, 211, 252, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(125, 211, 252, 0.08) 1px, transparent 1px),
+    radial-gradient(58% 44% at 12% 10%, rgba(37, 99, 235, 0.34), transparent 62%),
+    radial-gradient(52% 42% at 90% 22%, rgba(16, 184, 216, 0.22), transparent 62%);
+  background-size:
+    44px 44px,
+    44px 44px,
+    auto,
+    auto;
+  content: "";
+  pointer-events: none;
+}
+
+.institution-register-rail::after {
+  position: absolute;
+  right: -18%;
+  bottom: -10%;
+  width: min(420px, 70vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(125, 211, 252, 0.08));
+  content: "";
+  pointer-events: none;
+  transform: rotate(12deg);
+}
+
+.institution-register-form {
+  border: 1px solid rgba(184, 199, 217, 0.72);
+}
+
+.institution-register-page input,
+.institution-register-page select {
+  border-radius: 8px;
+}
+
+.institution-register-page .ir-brand-title {
+  font-size: clamp(2.25rem, 3.3vw, 2.7rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-brand-copy {
+  font-size: 1rem;
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-benefit-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-benefit-copy {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-form-title {
+  font-size: clamp(1.85rem, 2.4vw, 2.15rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-form-copy {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-section-copy,
+.institution-register-page .ir-note-copy {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.institution-register-page .ir-stat-label {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+}
+
+.institution-register-page .ir-stat-value {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  letter-spacing: 0;
 }
 
 input,

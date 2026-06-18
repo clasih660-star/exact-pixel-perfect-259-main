@@ -3,8 +3,22 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import {
+  ArrowRight,
+  BadgeCheck,
+  BookOpenCheck,
+  Building2,
+  CheckCircle2,
+  ClipboardCheck,
+  Globe2,
+  Layers3,
+  LockKeyhole,
+  MapPinned,
+  ShieldCheck,
+  Sparkles,
+  UsersRound,
+} from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { GraduationCap, PenLine, Accessibility, BarChart3, Lock, Globe } from "lucide-react";
 import { registerInstitution } from "@/lib/institutions-register.functions";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,11 +27,11 @@ const SITE_URL = "https://klassruum.com";
 export const Route = createFileRoute("/institutions/register")({
   head: () => ({
     meta: [
-      { title: "Register Your Institution — Klassruum AI Virtual Classrooms" },
+      { title: "Register Your Institution - Klassruum AI Virtual Classrooms" },
       {
         name: "description",
         content:
-          "Register your school, university, tutoring center, or training provider on Klassruum. Create AI-powered virtual classrooms with an AI teacher, interactive whiteboard, captions, notes, transcripts, accessibility modes, and learner progress tracking.",
+          "Register your school, university, tutoring center, or training provider on Klassruum. Create governed AI classrooms with accessibility, reporting, and institution control.",
       },
       {
         name: "keywords",
@@ -27,10 +41,10 @@ export const Route = createFileRoute("/institutions/register")({
       { name: "author", content: "Klassruum" },
       { name: "robots", content: "index, follow" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Register Your Institution — Klassruum" },
+      { property: "og:title", content: "Register Your Institution - Klassruum" },
       {
         property: "og:description",
-        content: "Create AI-powered virtual classrooms for your institution.",
+        content: "Create governed AI-powered classrooms for your institution.",
       },
       { property: "og:url", content: `${SITE_URL}/institutions/register` },
       { property: "og:image", content: "/images/scenes/scene-1.png" },
@@ -46,7 +60,7 @@ export const Route = createFileRoute("/institutions/register")({
           name: "Register Your Institution on Klassruum",
           url: `${SITE_URL}/institutions/register`,
           description:
-            "Register your school, university, tutoring center, or training provider on Klassruum to create AI-powered virtual classrooms.",
+            "Register your school, university, tutoring center, or training provider on Klassruum to create governed AI classrooms.",
         }),
       },
     ],
@@ -58,12 +72,12 @@ const INSTITUTION_TYPES = [
   ["school", "School"],
   ["university", "University"],
   ["college", "College"],
-  ["tuition_center", "Tuition Center"],
-  ["online_tutor", "Online Tutor"],
+  ["tuition_center", "Tuition center"],
+  ["online_tutor", "Online tutor"],
   ["ngo", "NGO"],
-  ["company_training", "Company Training"],
-  ["religious_institution", "Religious Institution"],
-  ["government_program", "Government Program"],
+  ["company_training", "Company training"],
+  ["religious_institution", "Religious institution"],
+  ["government_program", "Government program"],
   ["other", "Other"],
 ] as const;
 
@@ -78,36 +92,39 @@ const USE_CASES = [
 
 const BENEFITS = [
   {
-    icon: <GraduationCap size={20} />,
-    title: "AI teacher-led lessons",
-    body: "Virtual teacher delivers structured lessons with voice, captions, and real-time interaction.",
+    icon: <BookOpenCheck size={18} />,
+    title: "Approved materials become teachable lessons",
+    body: "Upload your curriculum and turn it into structured sessions with board work, checks, notes, and transcripts.",
   },
   {
-    icon: <PenLine size={20} />,
-    title: "Materials to lessons",
-    body: "Upload PDFs, slides, and documents — AI generates ready-to-teach structured lessons.",
+    icon: <ShieldCheck size={18} />,
+    title: "Governance starts on day one",
+    body: "Institution-owned data, role-aware access, accessibility defaults, and reporting are treated as core setup.",
   },
   {
-    icon: <Accessibility size={20} />,
-    title: "Built-in accessibility",
-    body: "Live captions, transcripts, learning modes for deaf, blind, ADHD, and more.",
-  },
-  {
-    icon: <BarChart3 size={20} />,
-    title: "Progress tracking",
-    body: "Track lessons started, questions asked, checkpoints reached, and areas needing review.",
-  },
-  {
-    icon: <Lock size={20} />,
-    title: "Data control",
-    body: "Institution-owned data with role-based access, encrypted storage, and audit logging.",
-  },
-  {
-    icon: <Globe size={20} />,
-    title: "Works everywhere",
-    body: "Browser-based, low-bandwidth friendly, runs on modest devices and patchy connections.",
+    icon: <Globe2 size={18} />,
+    title: "Works across real deployment conditions",
+    body: "Browser delivery keeps rollout practical across schools, training teams, NGOs, and distributed campuses.",
   },
 ];
+
+const PROCESS = [
+  "Create the institution workspace",
+  "Add admins, teachers, courses, and learners",
+  "Load materials and accessibility preferences",
+  "Launch reviewed AI teaching sessions",
+];
+
+const TRUST_POINTS = [
+  "GDPR-aligned workflows",
+  "WCAG-minded classroom controls",
+  "Institution reporting built in",
+];
+
+const FIELD_CLASS =
+  "h-11 w-full border border-[#cbd8e6] bg-white px-3.5 text-sm font-medium text-[#07111f] outline-none transition-colors placeholder:text-slate-400 focus:border-[#2563eb] focus:ring-4 focus:ring-[#2563eb]/10";
+
+const LABEL_CLASS = "block text-xs font-bold uppercase tracking-[0.12em] text-slate-500";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -156,268 +173,386 @@ function RegisterPage() {
   });
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left panel — brand + benefits */}
-      <div className="hidden lg:flex lg:w-[520px] xl:w-[580px] flex-col justify-between overflow-hidden bg-[#1A3233] p-10 relative">
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1F7C80]/25 via-transparent to-[#5F5B46]/15" />
-
-        {/* Dot grid texture */}
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: "radial-gradient(circle, #1F7C80 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
+    <div className="institution-register-page auth-tech-page grid min-h-screen text-[#07111f] lg:grid-cols-[minmax(420px,0.82fr)_minmax(0,1.18fr)]">
+      <aside className="auth-tech-brand institution-register-rail relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
+        <img
+          src="/images/auth-side.png"
+          alt="Students learning together with Klassruum"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
           }}
         />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(3,7,18,0.95) 0%, rgba(7,17,31,0.92) 54%, rgba(16,35,63,0.84) 100%)",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
+          style={{ background: "linear-gradient(to top, rgba(10,24,38,0.9), transparent)" }}
+        />
 
-        {/* Content */}
-        <div className="relative z-10">
-          <Link to="/" className="flex items-center gap-2.5">
-            <Logo size={36} />
-          </Link>
-        </div>
+        <Link to="/" className="relative z-10 flex items-center" aria-label="Klassruum home">
+          <Logo size={40} variant="light" />
+        </Link>
 
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold leading-tight text-white xl:text-4xl">
-            Create your institution's AI-powered classroom.
+          <span className="inline-flex items-center gap-2 border border-white/12 bg-white/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-sky-100 backdrop-blur-sm">
+            <Sparkles size={13} />
+            Institution deployment
+          </span>
+          <h1 className="ir-brand-title mt-5 max-w-md text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
+            Register the workspace that will run your AI classrooms.
           </h1>
-          <p className="mt-4 text-base leading-relaxed text-[#A3ADAD]">
-            Register your school, university, tutoring center, or training provider. Start
-            delivering structured, accessible, teacher-led lessons at scale.
+          <p className="ir-brand-copy mt-5 max-w-md text-white/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.3)]">
+            Set up an institution environment for reviewed materials, teacher-led sessions, learner
+            access, accessibility preferences, and reporting.
           </p>
 
-          {/* Benefits */}
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {BENEFITS.map((b) => (
+          <div className="mt-9 grid gap-3">
+            {BENEFITS.map((item) => (
               <div
-                key={b.title}
-                className="rounded-xl border border-white/12 bg-[rgba(15,23,42,0.56)] p-4 shadow-[0_12px_28px_rgba(2,8,23,0.18)] backdrop-blur-xl"
+                key={item.title}
+                className="border border-white/10 bg-white/[0.055] p-4 backdrop-blur-sm"
               >
-                <div className="text-2xl">{b.icon}</div>
-                <h3 className="mt-2 text-sm font-semibold text-white">{b.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-200">{b.body}</p>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center bg-sky-300 text-[#07111f]">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h2 className="ir-benefit-title text-white">{item.title}</h2>
+                    <p className="ir-benefit-copy mt-1 text-slate-200">{item.body}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom decorative element */}
         <div className="relative z-10">
-          <div className="h-1 w-16 rounded-full bg-[#1F7C80]" />
-          <p className="mt-3 text-xs text-[#A3ADAD]">
-            © {new Date().getFullYear()} Klassruum. All rights reserved.
-          </p>
-        </div>
-      </div>
-
-      {/* Right panel — form */}
-      <div className="flex flex-1 items-start justify-center bg-white px-6 py-12 overflow-y-auto">
-        <div className="w-full max-w-[560px] space-y-8">
-          {/* Mobile logo */}
-          <div className="lg:hidden">
-            <Link to="/" className="flex items-center gap-2.5">
-              <Logo size={32} />
-            </Link>
+          <div className="grid gap-px overflow-hidden border border-white/10 bg-white/10 xl:grid-cols-3">
+            {[
+              ["Setup", "30 min"],
+              ["Roles", "Admin first"],
+              ["Launch", "Guided"],
+            ].map(([label, value]) => (
+              <div key={label} className="bg-[#0b1626]/95 p-4">
+                <p className="ir-stat-label font-bold uppercase text-slate-400">{label}</p>
+                <p className="ir-stat-value mt-1 font-extrabold text-white">{value}</p>
+              </div>
+            ))}
           </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {TRUST_POINTS.map((point) => (
+              <span
+                key={point}
+                className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.055] px-3 py-1.5 text-xs font-semibold text-slate-100"
+              >
+                <CheckCircle2 size={13} className="text-sky-300" />
+                {point}
+              </span>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <main className="flex min-h-screen items-start justify-center overflow-y-auto p-5 sm:p-8 lg:p-10">
+        <section className="institution-register-form auth-tech-panel w-full max-w-[820px] p-5 sm:p-8">
+          <Link to="/" className="mb-8 flex items-center lg:hidden" aria-label="Klassruum home">
+            <Logo size={38} />
+          </Link>
 
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#1A3233]">
-              Register your institution
-            </h2>
-            <p className="mt-2 text-sm text-[#A3ADAD]">
-              Create a branded virtual classroom space for your learners.
-            </p>
-          </div>
-
-          <form
-            className="space-y-6"
-            onSubmit={(e) => {
-              e.preventDefault();
-              mut.mutate();
-            }}
-          >
-            {/* Institution section */}
-            <section className="rounded-2xl border border-[#d1eceb] bg-white p-6 shadow-sm">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-[#A3ADAD]">
-                Institution details
-              </h2>
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="iname" className="block text-sm font-medium text-[#1A3233]">
-                    Institution name *
-                  </label>
-                  <input
-                    id="iname"
-                    required
-                    maxLength={200}
-                    value={form.institution_name}
-                    onChange={(e) => setForm({ ...form, institution_name: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                    placeholder="e.g. Greenwood Academy"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-[#1A3233]">
-                    Institution type *
-                  </label>
-                  <select
-                    value={form.type}
-                    onChange={(e) => setForm({ ...form, type: e.target.value as typeof form.type })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  >
-                    {INSTITUTION_TYPES.map(([v, l]) => (
-                      <option key={v} value={v}>
-                        {l}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="ilearners" className="block text-sm font-medium text-[#1A3233]">
-                    Number of learners
-                  </label>
-                  <input
-                    id="ilearners"
-                    type="number"
-                    min={0}
-                    value={form.learner_count}
-                    onChange={(e) => setForm({ ...form, learner_count: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                    placeholder="e.g. 500"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="icountry" className="block text-sm font-medium text-[#1A3233]">
-                    Country *
-                  </label>
-                  <input
-                    id="icountry"
-                    required
-                    value={form.country}
-                    onChange={(e) => setForm({ ...form, country: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="icity" className="block text-sm font-medium text-[#1A3233]">
-                    City *
-                  </label>
-                  <input
-                    id="icity"
-                    required
-                    value={form.city}
-                    onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label className="block text-sm font-medium text-[#1A3233]">
-                    Preferred use case
-                  </label>
-                  <select
-                    value={form.preferred_use_case}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        preferred_use_case: e.target.value as typeof form.preferred_use_case,
-                      })
-                    }
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  >
-                    {USE_CASES.map(([v, l]) => (
-                      <option key={v} value={v}>
-                        {l}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className="grid gap-6 border-b border-slate-200 pb-7 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
+              <div>
+                <p className="inline-flex items-center gap-2 border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
+                  <Building2 size={13} className="text-[#2563eb]" />
+                  Workspace details
+                </p>
+                <h2 className="ir-form-title mt-4 font-headings text-[#07111f]">
+                  Tell us how your institution will use Klassruum.
+                </h2>
+                <p className="ir-form-copy mt-3 max-w-2xl text-slate-600">
+                  This creates the first admin account and gives your team a governed place to add
+                  courses, learners, teachers, materials, and classroom defaults.
+                </p>
               </div>
-            </section>
 
-            {/* Admin account section */}
-            <section className="rounded-2xl border border-[#d1eceb] bg-white p-6 shadow-sm">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-[#A3ADAD]">
-                Admin account
-              </h2>
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="aname" className="block text-sm font-medium text-[#1A3233]">
-                    Full name *
-                  </label>
-                  <input
-                    id="aname"
-                    required
-                    value={form.admin_full_name}
-                    onChange={(e) => setForm({ ...form, admin_full_name: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="aemail" className="block text-sm font-medium text-[#1A3233]">
-                    Email *
-                  </label>
-                  <input
-                    id="aemail"
-                    type="email"
-                    required
-                    value={form.admin_email}
-                    onChange={(e) => setForm({ ...form, admin_email: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="aphone" className="block text-sm font-medium text-[#1A3233]">
-                    Phone *
-                  </label>
-                  <input
-                    id="aphone"
-                    required
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                  />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label htmlFor="apass" className="block text-sm font-medium text-[#1A3233]">
-                    Password *
-                  </label>
-                  <input
-                    id="apass"
-                    type="password"
-                    required
-                    minLength={8}
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full rounded-xl border border-[#d1eceb] bg-white px-4 py-3 text-sm text-[#1A3233] outline-none transition-all focus:border-[#1F7C80] focus:ring-2 focus:ring-[#1F7C80]/10"
-                    placeholder="At least 8 characters"
-                  />
-                </div>
+              <div className="border border-slate-200 bg-[#f8fbff] p-4">
+                <p className="ir-stat-label font-bold uppercase text-slate-500">Rollout path</p>
+                <ol className="mt-3 grid gap-2">
+                  {PROCESS.map((item, index) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2 text-xs font-semibold text-slate-700"
+                    >
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center bg-[#07111f] text-[10px] font-bold text-white">
+                        {index + 1}
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ol>
               </div>
-            </section>
-
-            <div className="flex items-center justify-between">
-              <Link to="/" className="text-sm font-medium text-[#A3ADAD] hover:text-[#1A3233]">
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={mut.isPending}
-                className="rounded-xl bg-[#1F7C80] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1F7C80]/25 transition-all hover:bg-[#1A5256] hover:shadow-xl hover:shadow-[#1F7C80]/30 focus:outline-none focus:ring-2 focus:ring-[#1F7C80] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {mut.isPending ? "Creating…" : "Create institution"}
-              </button>
             </div>
-          </form>
 
-          <p className="text-center text-sm text-[#A3ADAD]">
-            Already have an account?{" "}
-            <Link to="/auth" className="font-semibold text-[#1F7C80] hover:text-[#1A5256]">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
+            <form
+              className="mt-8 grid gap-7"
+              onSubmit={(e) => {
+                e.preventDefault();
+                mut.mutate();
+              }}
+            >
+              <section className="border border-slate-200 bg-white">
+                <div className="flex items-center gap-3 border-b border-slate-200 bg-[#f8fbff] px-5 py-4">
+                  <div className="flex h-9 w-9 items-center justify-center bg-[#eaf5ff] text-[#2563eb]">
+                    <Layers3 size={17} />
+                  </div>
+                  <div>
+                    <h3 className="ir-section-title text-[#07111f]">Institution profile</h3>
+                    <p className="ir-section-copy text-slate-500">
+                      The workspace, scale, and location.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+                  <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="iname" className={LABEL_CLASS}>
+                      Institution name *
+                    </label>
+                    <input
+                      id="iname"
+                      required
+                      maxLength={200}
+                      value={form.institution_name}
+                      onChange={(e) => setForm({ ...form, institution_name: e.target.value })}
+                      className={FIELD_CLASS}
+                      placeholder="e.g. Greenwood Academy"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="itype" className={LABEL_CLASS}>
+                      Institution type *
+                    </label>
+                    <select
+                      id="itype"
+                      value={form.type}
+                      onChange={(e) =>
+                        setForm({ ...form, type: e.target.value as typeof form.type })
+                      }
+                      className={FIELD_CLASS}
+                    >
+                      {INSTITUTION_TYPES.map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="ilearners" className={LABEL_CLASS}>
+                      Number of learners
+                    </label>
+                    <input
+                      id="ilearners"
+                      type="number"
+                      min={0}
+                      value={form.learner_count}
+                      onChange={(e) => setForm({ ...form, learner_count: e.target.value })}
+                      className={FIELD_CLASS}
+                      placeholder="e.g. 500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="icountry" className={LABEL_CLASS}>
+                      Country *
+                    </label>
+                    <div className="relative">
+                      <MapPinned
+                        size={16}
+                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                      <input
+                        id="icountry"
+                        required
+                        value={form.country}
+                        onChange={(e) => setForm({ ...form, country: e.target.value })}
+                        className={`${FIELD_CLASS} pl-10`}
+                        placeholder="Country"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="icity" className={LABEL_CLASS}>
+                      City *
+                    </label>
+                    <input
+                      id="icity"
+                      required
+                      value={form.city}
+                      onChange={(e) => setForm({ ...form, city: e.target.value })}
+                      className={FIELD_CLASS}
+                      placeholder="City"
+                    />
+                  </div>
+
+                  <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="iusecase" className={LABEL_CLASS}>
+                      Preferred use case
+                    </label>
+                    <select
+                      id="iusecase"
+                      value={form.preferred_use_case}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          preferred_use_case: e.target.value as typeof form.preferred_use_case,
+                        })
+                      }
+                      className={FIELD_CLASS}
+                    >
+                      {USE_CASES.map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section className="border border-slate-200 bg-white">
+                <div className="flex items-center gap-3 border-b border-slate-200 bg-[#f8fbff] px-5 py-4">
+                  <div className="flex h-9 w-9 items-center justify-center bg-[#eaf5ff] text-[#2563eb]">
+                    <UsersRound size={17} />
+                  </div>
+                  <div>
+                    <h3 className="ir-section-title text-[#07111f]">First admin</h3>
+                    <p className="ir-section-copy text-slate-500">
+                      The person who will own setup and invite the team.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+                  <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="aname" className={LABEL_CLASS}>
+                      Full name *
+                    </label>
+                    <input
+                      id="aname"
+                      required
+                      value={form.admin_full_name}
+                      onChange={(e) => setForm({ ...form, admin_full_name: e.target.value })}
+                      className={FIELD_CLASS}
+                      placeholder="Admin name"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="aemail" className={LABEL_CLASS}>
+                      Email *
+                    </label>
+                    <input
+                      id="aemail"
+                      type="email"
+                      required
+                      value={form.admin_email}
+                      onChange={(e) => setForm({ ...form, admin_email: e.target.value })}
+                      className={FIELD_CLASS}
+                      placeholder="admin@institution.edu"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="aphone" className={LABEL_CLASS}>
+                      Phone *
+                    </label>
+                    <input
+                      id="aphone"
+                      required
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      className={FIELD_CLASS}
+                      placeholder="+1 555 0123"
+                    />
+                  </div>
+
+                  <div className="space-y-2 sm:col-span-2">
+                    <label htmlFor="apass" className={LABEL_CLASS}>
+                      Password *
+                    </label>
+                    <div className="relative">
+                      <LockKeyhole
+                        size={16}
+                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                      />
+                      <input
+                        id="apass"
+                        type="password"
+                        required
+                        minLength={8}
+                        value={form.password}
+                        onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        className={`${FIELD_CLASS} pl-10`}
+                        placeholder="At least 8 characters"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div className="grid gap-4 border border-slate-200 bg-[#f8fbff] p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div className="flex items-start gap-3 text-sm leading-6 text-slate-600">
+                  <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#2563eb]" />
+                  <p className="ir-note-copy">
+                    After registration, you can configure courses, resources, accessibility
+                    defaults, and team invitations from the institution dashboard.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link
+                    to="/"
+                    className="inline-flex h-11 items-center justify-center border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 transition-colors hover:border-slate-400 hover:text-[#07111f]"
+                  >
+                    Cancel
+                  </Link>
+                  <button
+                    type="submit"
+                    disabled={mut.isPending}
+                    className="inline-flex h-11 items-center justify-center gap-2 border border-[#07111f] bg-[#07111f] px-5 text-sm font-bold text-white shadow-[0_16px_34px_rgba(7,17,31,0.18)] transition-colors hover:bg-[#10233f] focus:outline-none focus:ring-4 focus:ring-[#2563eb]/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {mut.isPending ? "Creating..." : "Create institution"}
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+              <span className="inline-flex items-center gap-2">
+                <BadgeCheck size={15} className="text-[#2563eb]" />
+                Institution setup can be refined after account creation.
+              </span>
+              <span>
+                Already registered?{" "}
+                <Link to="/auth" className="font-bold text-[#07111f] hover:text-[#2563eb]">
+                  Sign in
+                </Link>
+              </span>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
