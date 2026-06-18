@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { generateTeacherSpeech } from "./teacher-voice-service";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { ForbiddenError } from "@/lib/security-errors";
+import { assertActorCanAccessSession } from "@/lib/server-authorization";
 
 const GenerateTeacherSpeechSchema = z.object({
   sessionId: z.string().min(1),
@@ -24,17 +27,20 @@ const GenerateTeacherSpeechSchema = z.object({
 });
 
 export const generateTeacherSpeechServer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => GenerateTeacherSpeechSchema.parse(data))
-  .handler(async ({ data }) => {
-    return generateTeacherSpeech(data, { supabase: createServerSupabase() });
+  .handler(async ({ data, context }: any) => {
+    const session = await assertActorCanAccessSession(context, data.sessionId);
+    if (session.lesson_id && session.lesson_id !== data.lessonId) {
+      throw new ForbiddenError("The requested lesson does not match the active classroom session.");
+    }
+
+    return generateTeacherSpeech(data, { supabase: createServerSupabase(context.supabase) });
   });
 
-function createServerSupabase() {
+function createServerSupabase(authenticatedSupabase?: any) {
   const url = process.env.SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    process.env.SUPABASE_PUBLISHABLE_KEY ??
-    process.env.SUPABASE_ANON_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return undefined;
 
   return createClient<Database>(url, key, {

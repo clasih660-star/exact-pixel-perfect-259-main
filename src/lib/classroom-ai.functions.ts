@@ -25,6 +25,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createResilientModelCaller } from "./ai-gateway.server";
 import type { AcademicLevel, TeacherAnswer } from "./types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertActorHasAnyRole } from "@/lib/server-authorization";
 
 const ACADEMIC_LEVELS = ["elementary", "secondary", "college", "tertiary", "adult"] as const;
 
@@ -240,8 +242,18 @@ function toResult(a: TeacherAnswer): AnswerLearnerQuestionResult {
 }
 
 export const answerLearnerQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }): Promise<AnswerLearnerQuestionResult> => {
+  .handler(async ({ data, context }: any): Promise<AnswerLearnerQuestionResult> => {
+    await assertActorHasAnyRole(context, [
+      "platform_admin",
+      "institution_admin",
+      "owner",
+      "teacher",
+      "student",
+      "parent",
+    ]);
+
     const resilientCaller = createResilientModelCaller("teacher_answer");
     if (!resilientCaller) {
       return toResult(fallbackTeacherAnswer(data.context, data.question));

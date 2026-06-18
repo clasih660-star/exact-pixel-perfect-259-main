@@ -12,6 +12,7 @@ import {
   UserCheck,
   ChartBar as BarChart3,
   Calendar,
+  CreditCard,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ const items = [
   { to: "/institution/teachers", label: "Teachers", icon: GraduationCap },
   { to: "/institution/enrollments", label: "Enrollments", icon: UserCheck },
   { to: "/institution/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/institution/billing", label: "Billing", icon: CreditCard },
   { to: "/institution/settings", label: "Settings", icon: Settings },
 ] as const;
 

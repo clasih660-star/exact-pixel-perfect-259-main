@@ -17,6 +17,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createResilientModelCaller } from "./ai-gateway.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertActorHasAnyRole } from "@/lib/server-authorization";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -238,6 +240,7 @@ const SentimentAISchema = z.object({
  * Falls back to keyword analysis when no provider is available or on error.
  */
 export const analyzeSentimentAI = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator(
     z.object({
       text: z.string().min(1).max(2000),
@@ -245,7 +248,16 @@ export const analyzeSentimentAI = createServerFn({ method: "POST" })
       context: z.string().max(500).optional(),
     }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }: any) => {
+    await assertActorHasAnyRole(context, [
+      "platform_admin",
+      "institution_admin",
+      "owner",
+      "teacher",
+      "student",
+      "parent",
+    ]);
+
     const fallback = analyzeSentimentKeywords(data.text);
 
     const caller = createResilientModelCaller("sentiment");

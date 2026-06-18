@@ -13,6 +13,8 @@ import { redirect, type RouteContext } from "@tanstack/react-router";
 import type { LearnerType, RoleResolution, TeacherType, UserPersona, UserRole } from "./types";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { requiresEmailVerification } from "@/lib/auth-verification";
+import { isDemoModeAllowed } from "@/lib/runtime-mode";
+import { SecurityConfigurationError } from "@/lib/security-errors";
 
 type AuthContext = {
   user?: { id: string; email?: string } | null;
@@ -174,7 +176,10 @@ async function resolveRoleResolution(
  */
 export async function requireAuth({ user }: AuthContext) {
   // In demo mode or when Supabase isn't configured, always pass
-  if (!isSupabaseConfigured()) return;
+  if (!isSupabaseConfigured()) {
+    if (isDemoModeAllowed()) return;
+    throw new SecurityConfigurationError("Authentication is not configured for this environment.");
+  }
   if (!user) {
     throw redirect({ to: "/auth" });
   }
@@ -196,6 +201,10 @@ export async function requireRole(
 ) {
   // In demo mode, all role checks pass
   if (!isSupabaseConfigured()) {
+    if (!isDemoModeAllowed()) {
+      throw new SecurityConfigurationError("Authorization cannot run without Supabase in production.");
+    }
+
     return {
       role: contextRole ?? "student",
       persona:
@@ -345,7 +354,10 @@ export function resolveDashboardPath(
  */
 export async function redirectByRole({ user, role: contextRole }: AuthContext) {
   if (!user) {
-    if (!isSupabaseConfigured()) return;
+    if (!isSupabaseConfigured()) {
+      if (isDemoModeAllowed()) return;
+      throw new SecurityConfigurationError("Authentication is not configured for this environment.");
+    }
     throw redirect({ to: "/auth" });
   }
 

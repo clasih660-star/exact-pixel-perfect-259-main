@@ -3,6 +3,8 @@ import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
+import { isDemoModeAllowed } from "@/lib/runtime-mode";
+import { SecurityConfigurationError, UnauthorizedError } from "@/lib/security-errors";
 
 /** Demo context returned when Supabase is not configured. */
 function demoContext() {
@@ -11,20 +13,6 @@ function demoContext() {
     userId: "demo-user-0000",
     claims: { sub: "demo-user-0000", email: "demo@klassruum.com" } as any,
   };
-}
-
-/**
- * Sentinel thrown when Supabase IS configured but the request is not
- * authenticated. Previously the middleware "failed open" by returning
- * demoContext(), which silently granted anonymous users full access to every
- * protected server function in production. We now fail closed.
- */
-class UnauthorizedError extends Error {
-  statusCode = 401 as const;
-  constructor(message = "Unauthorized — authentication required.") {
-    super(message);
-    this.name = "UnauthorizedError";
-  }
 }
 
 /** True only when Supabase credentials are genuinely missing/demo. */
@@ -46,6 +34,12 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     // ── Demo mode: Supabase not configured ──────────────────────────────
     // Only bypass auth when credentials are genuinely absent or placeholders.
     if (isDemoMode(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)) {
+      if (!isDemoModeAllowed()) {
+        throw new SecurityConfigurationError(
+          "Supabase credentials are missing in production. Protected server functions are disabled.",
+        );
+      }
+
       return next({ context: demoContext() });
     }
 

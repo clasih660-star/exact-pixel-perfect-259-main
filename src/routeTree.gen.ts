@@ -57,6 +57,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthCompleteProfileRouteImport } from './routes/auth.complete-profile'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ApiPaystackWebhookRouteImport } from './routes/api.paystack-webhook'
 import { Route as ApiBlogRouteImport } from './routes/api.blog'
 import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
@@ -440,6 +441,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
   getParentRoute: () => AuthRoute,
+} as any)
+const ApiPaystackWebhookRoute = ApiPaystackWebhookRouteImport.update({
+  id: '/api/paystack-webhook',
+  path: '/api/paystack-webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiBlogRoute = ApiBlogRouteImport.update({
   id: '/api/blog',
@@ -1279,6 +1285,7 @@ export interface FileRoutesByFullPath {
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
   '/api/blog': typeof ApiBlogRoute
+  '/api/paystack-webhook': typeof ApiPaystackWebhookRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1465,6 +1472,7 @@ export interface FileRoutesByTo {
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
   '/api/blog': typeof ApiBlogRoute
+  '/api/paystack-webhook': typeof ApiPaystackWebhookRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1653,6 +1661,7 @@ export interface FileRoutesById {
   '/webinars': typeof WebinarsRoute
   '/_authenticated/dev': typeof AuthenticatedDevRouteRouteWithChildren
   '/api/blog': typeof ApiBlogRoute
+  '/api/paystack-webhook': typeof ApiPaystackWebhookRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -1841,6 +1850,7 @@ export interface FileRouteTypes {
     | '/webinars'
     | '/dev'
     | '/api/blog'
+    | '/api/paystack-webhook'
     | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -2027,6 +2037,7 @@ export interface FileRouteTypes {
     | '/webinars'
     | '/dev'
     | '/api/blog'
+    | '/api/paystack-webhook'
     | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -2214,6 +2225,7 @@ export interface FileRouteTypes {
     | '/webinars'
     | '/_authenticated/dev'
     | '/api/blog'
+    | '/api/paystack-webhook'
     | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
@@ -2401,6 +2413,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WebinarsRoute: typeof WebinarsRoute
   ApiBlogRoute: typeof ApiBlogRoute
+  ApiPaystackWebhookRoute: typeof ApiPaystackWebhookRoute
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   DemoAccessibilityDemoRoute: typeof DemoAccessibilityDemoRoute
@@ -2755,6 +2768,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/api/paystack-webhook': {
+      id: '/api/paystack-webhook'
+      path: '/api/paystack-webhook'
+      fullPath: '/api/paystack-webhook'
+      preLoaderRoute: typeof ApiPaystackWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/blog': {
       id: '/api/blog'
@@ -4576,6 +4596,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   WebinarsRoute: WebinarsRoute,
   ApiBlogRoute: ApiBlogRoute,
+  ApiPaystackWebhookRoute: ApiPaystackWebhookRoute,
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   DemoAccessibilityDemoRoute: DemoAccessibilityDemoRoute,

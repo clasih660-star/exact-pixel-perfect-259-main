@@ -3,6 +3,8 @@ import type { RoleResolution, UserRole } from "@/lib/types";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { requiresEmailVerification } from "@/lib/auth-verification";
 import { getRoleResolution } from "@/lib/route-guards";
+import { isDemoModeAllowed } from "@/lib/runtime-mode";
+import { SecurityConfigurationError } from "@/lib/security-errors";
 
 /** Demo roles available without Supabase. */
 const DEMO_ROLES: UserRole[] = [
@@ -76,6 +78,12 @@ export const Route = createFileRoute("/_authenticated")({
     // use the demo role from localStorage. The entire app runs as if the
     // user is logged in with the selected demo role.
     if (!isSupabaseConfigured()) {
+      if (!isDemoModeAllowed()) {
+        throw new SecurityConfigurationError(
+          "Authentication is not configured for this production environment.",
+        );
+      }
+
       const role = getDemoRole();
       const resolution = demoRoleResolution(role);
       return {

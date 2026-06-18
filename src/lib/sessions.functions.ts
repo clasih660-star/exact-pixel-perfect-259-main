@@ -1,17 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertActorCanAccessLesson, assertActorCanAccessSession } from "@/lib/server-authorization";
 
 export const startSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }: any) => {
-    const { data: lesson, error: lErr } = await context.supabase
-      .from("lessons")
-      .select("id, course_id, institution_id")
-      .eq("id", data.lesson_id)
-      .single();
-    if (lErr) throw new Error(lErr.message);
+    const lesson = await assertActorCanAccessLesson(context, data.lesson_id);
 
     const { data: session, error } = await context.supabase
       .from("classroom_sessions")
@@ -64,16 +60,11 @@ export const startOrResumeClassroom = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }: any) => {
     if (data.sessionId) {
+      await assertActorCanAccessSession(context, data.sessionId);
       return { sessionId: data.sessionId, redirectUrl: `/classroom/session/${data.sessionId}` };
     }
 
-    const { data: lesson, error: lessonError } = await context.supabase
-      .from("lessons")
-      .select("id, course_id, institution_id")
-      .eq("id", data.lessonId)
-      .maybeSingle();
-
-    if (lessonError) throw new Error(lessonError.message);
+    const lesson = await assertActorCanAccessLesson(context, data.lessonId);
 
     const courseId = lesson?.course_id ?? data.courseId;
     const institutionId = lesson?.institution_id ?? null;
@@ -117,12 +108,7 @@ export const getClassroomContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { session_id: string }) => data)
   .handler(async ({ data, context }: any) => {
-    const { data: session, error } = await context.supabase
-      .from("classroom_sessions")
-      .select("*")
-      .eq("id", data.session_id)
-      .single();
-    if (error) throw new Error(error.message);
+    const session = await assertActorCanAccessSession(context, data.session_id);
 
     const [institution, course, lesson, enrollment, messages] = await Promise.all([
       context.supabase.from("institutions").select("*").eq("id", session.institution_id).single(),
@@ -166,12 +152,7 @@ export const postChatMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }: any) => {
     // Get session to derive institution_id, course_id, lesson_id
-    const { data: session, error: sErr } = await context.supabase
-      .from("classroom_sessions")
-      .select("institution_id, course_id, lesson_id")
-      .eq("id", data.session_id)
-      .single();
-    if (sErr) throw new Error(sErr.message);
+    const session = await assertActorCanAccessSession(context, data.session_id);
 
     const { error } = await context.supabase.from("chat_messages").insert({
       institution_id: session.institution_id,
@@ -204,12 +185,11 @@ export const submitQuizResult = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }: any) => {
     // Derive institution_id and course_id from the lesson
-    const { data: lesson, error: lErr } = await context.supabase
-      .from("lessons")
-      .select("institution_id, course_id")
-      .eq("id", data.lesson_id)
-      .single();
-    if (lErr) throw new Error(lErr.message);
+    if (data.session_id) {
+      await assertActorCanAccessSession(context, data.session_id);
+    }
+
+    const lesson = await assertActorCanAccessLesson(context, data.lesson_id);
 
     const { data: row, error } = await context.supabase
       .from("quiz_results")
@@ -235,11 +215,9 @@ export const endSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }: any) => {
-    const { data: session } = await context.supabase
-      .from("classroom_sessions")
-      .select("institution_id, course_id, lesson_id")
-      .eq("id", data.session_id)
-      .single();
+    const session = await assertActorCanAccessSession(context, data.session_id, {
+      requireModerator: true,
+    });
 
     const { error } = await context.supabase
       .from("classroom_sessions")
