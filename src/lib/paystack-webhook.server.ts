@@ -3,6 +3,9 @@ import {
   activateInstitutionSubscription,
   upsertPaymentTransaction,
 } from "@/lib/paystack-billing.functions";
+import type { Json } from "@/integrations/supabase/types";
+
+type JsonObject = { [key: string]: Json | undefined };
 
 function safeJsonParse<T>(value: string | null | undefined, fallback: T): T {
   if (!value) return fallback;
@@ -26,9 +29,10 @@ function normalizeCurrency(input?: string | null): string {
   return (input || "NGN").toUpperCase();
 }
 
-function toMinorUnits(amount: number | string | null | undefined): number {
+function toMinorUnits(amount: unknown): number {
   if (amount === null || amount === undefined) return 0;
   const parsed = typeof amount === "string" ? Number(amount) : amount;
+  if (typeof parsed !== "number") return 0;
   if (!Number.isFinite(parsed)) return 0;
   return Math.round(parsed);
 }
@@ -37,6 +41,16 @@ function extractPaystackEvent(body: Record<string, unknown>) {
   const event = typeof body?.event === "string" ? body.event : "";
   const data = (body?.data ?? {}) as Record<string, unknown>;
   return { event, data };
+}
+
+function readCustomerEmail(customer: unknown): string | null {
+  if (!customer || typeof customer !== "object") return null;
+  const email = (customer as { email?: unknown }).email;
+  return typeof email === "string" ? email : null;
+}
+
+function asJsonObject(value: Record<string, unknown>): JsonObject {
+  return value as JsonObject;
 }
 
 export async function processPaystackWebhookPayload(rawBody: string): Promise<{
@@ -50,8 +64,7 @@ export async function processPaystackWebhookPayload(rawBody: string): Promise<{
     return { ok: true, event, handled: false };
   }
 
-  const reference =
-    typeof data.reference === "string" ? data.reference : null;
+  const reference = typeof data.reference === "string" ? data.reference : null;
   const metadata = (data.metadata ?? {}) as Record<string, unknown>;
   const institutionId =
     typeof metadata.institution_id === "string"
@@ -77,9 +90,7 @@ export async function processPaystackWebhookPayload(rawBody: string): Promise<{
   const channel = typeof data.channel === "string" ? data.channel : null;
   const paidAt = typeof data.paid_at === "string" ? data.paid_at : null;
   const providerReference =
-    typeof data.id === "number" || typeof data.id === "string"
-      ? String(data.id)
-      : null;
+    typeof data.id === "number" || typeof data.id === "string" ? String(data.id) : null;
 
   await upsertPaymentTransaction(supabaseAdmin, {
     institutionId,
@@ -89,12 +100,9 @@ export async function processPaystackWebhookPayload(rawBody: string): Promise<{
     currency,
     providerReference,
     channel,
-    customerEmail:
-      typeof data.customer?.email === "string"
-        ? data.customer.email
-        : null,
+    customerEmail: readCustomerEmail(data.customer),
     paidAt,
-    rawResponse: data,
+    rawResponse: asJsonObject(data),
   });
 
   if (normalizedStatus === "success" && planSlug) {

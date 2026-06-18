@@ -38,7 +38,9 @@ export function assertProductionSecurityConfiguration() {
 
 export function buildContentSecurityPolicy() {
   const connectSources = new Set<string>(["'self'", "https:", "wss:"]);
-  const supabaseOrigin = toOrigin(process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? null);
+  const supabaseOrigin = toOrigin(
+    process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? null,
+  );
   const publicAppOrigin = toOrigin(
     process.env.APP_URL ?? process.env.PUBLIC_APP_URL ?? process.env.VITE_APP_URL ?? null,
   );
@@ -61,7 +63,8 @@ export function buildContentSecurityPolicy() {
     "frame-src 'none'",
     "form-action 'self'",
     "manifest-src 'self'",
-    "script-src 'self'",
+    // TanStack Start injects inline bootstrap data/scripts required for SSR hydration.
+    "script-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

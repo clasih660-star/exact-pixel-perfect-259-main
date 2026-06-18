@@ -3,9 +3,11 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireInstitutionAdminAccess } from "@/lib/institution-admin.foundation";
 import { createAuditLog } from "@/lib/institution-admin.foundation";
+import type { Json } from "@/integrations/supabase/types";
 
 const BILLING_AMOUNT_MINOR_FALLBACK = 0;
 const FALLBACK_CURRENCY = "NGN";
+type JsonObject = { [key: string]: Json | undefined };
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -15,9 +17,10 @@ function requireEnv(name: string): string {
   return value;
 }
 
-function toMinorUnits(amount: number | string | null | undefined): number {
+function toMinorUnits(amount: unknown): number {
   if (amount === null || amount === undefined) return BILLING_AMOUNT_MINOR_FALLBACK;
   const parsed = typeof amount === "string" ? Number(amount) : amount;
+  if (typeof parsed !== "number") return BILLING_AMOUNT_MINOR_FALLBACK;
   if (!Number.isFinite(parsed)) return BILLING_AMOUNT_MINOR_FALLBACK;
   return Math.round(parsed);
 }
@@ -50,7 +53,19 @@ function normalizeStatus(status: unknown): "success" | "pending" | "failed" | "a
   return "pending";
 }
 
-function normalizeSubscriptionStatus(status: unknown): "active" | "past_due" | "canceled" | "expired" {
+function readCustomerEmail(customer: unknown): string | null {
+  if (!customer || typeof customer !== "object") return null;
+  const email = (customer as { email?: unknown }).email;
+  return typeof email === "string" ? email : null;
+}
+
+function asJsonObject(value: Record<string, unknown>): JsonObject {
+  return value as JsonObject;
+}
+
+function normalizeSubscriptionStatus(
+  status: unknown,
+): "active" | "past_due" | "canceled" | "expired" {
   if (typeof status !== "string") return "active";
   const lower = status.toLowerCase();
   if (lower === "canceled" || lower === "cancelled") return "canceled";
@@ -191,7 +206,7 @@ export async function upsertPaymentTransaction(
     channel?: string | null;
     customerEmail?: string | null;
     paidAt?: string | null;
-    rawResponse?: Record<string, unknown>;
+    rawResponse?: Json;
   },
 ) {
   return supabaseAdmin
@@ -294,12 +309,16 @@ export const getBillingOverview = createServerFn({ method: "GET" })
     const [customerResult, subscriptionResult, transactionResult] = await Promise.all([
       supabaseAdmin
         .from("billing_customers")
-        .select("institution_id, plan_slug, preferred_currency, provider_customer_code, last_reference")
+        .select(
+          "institution_id, plan_slug, preferred_currency, provider_customer_code, last_reference",
+        )
         .eq("institution_id", data.institutionId)
         .maybeSingle(),
       supabaseAdmin
         .from("institution_subscriptions")
-        .select("id, institution_id, plan_id, status, billing_source, current_period_start, current_period_end, provider_reference, reference, plan:subscription_plans(slug)")
+        .select(
+          "id, institution_id, plan_id, status, billing_source, current_period_start, current_period_end, provider_reference, reference, plan:subscription_plans(slug)",
+        )
         .eq("institution_id", data.institutionId)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -330,7 +349,7 @@ export const getBillingOverview = createServerFn({ method: "GET" })
 
     const activePlanSlug =
       subscription?.status === "active" || subscription?.status === "past_due"
-        ? ((subscription.plan as Record<string, unknown> | null)?.slug as string) ?? null
+        ? (((subscription.plan as Record<string, unknown> | null)?.slug as string) ?? null)
         : null;
 
     let activePlan: PaystackPlan | null = null;
@@ -354,7 +373,8 @@ export const getBillingOverview = createServerFn({ method: "GET" })
       subscription: subscription
         ? {
             id: String(subscription.id ?? ""),
-            planSlug: ((subscription.plan as Record<string, unknown> | null)?.slug as string) ?? "starter",
+            planSlug:
+              ((subscription.plan as Record<string, unknown> | null)?.slug as string) ?? "starter",
             status: String(subscription.status ?? "trialing"),
             billingSource: String(subscription.billing_source ?? "manual"),
             currentPeriodStart: (subscription.current_period_start as string) ?? null,
@@ -381,7 +401,11 @@ export const initializePaystackCheckout = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }: any) => {
     const supabaseAdmin = await getAdminClient();
-    const membership = await requireInstitutionAdminAccess(supabaseAdmin, data.institutionId, context.userId);
+    const membership = await requireInstitutionAdminAccess(
+      supabaseAdmin,
+      data.institutionId,
+      context.userId,
+    );
 
     const institutionResult = await supabaseAdmin
       .from("institutions")
@@ -433,7 +457,10 @@ export const initializePaystackCheckout = createServerFn({ method: "POST" })
 
     const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
     const appUrl =
-      process.env.APP_URL || process.env.VITE_APP_URL || process.env.PUBLIC_APP_URL || "https://klassruum.com";
+      process.env.APP_URL ||
+      process.env.VITE_APP_URL ||
+      process.env.PUBLIC_APP_URL ||
+      "https://klassruum.com";
     const callbackUrl = `${appUrl}/institution/billing?reference=${encodeURIComponent(reference)}`;
 
     const payload = {
@@ -506,7 +533,11 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }: any) => {
     const supabaseAdmin = await getAdminClient();
-    const membership = await requireInstitutionAdminAccess(supabaseAdmin, data.institutionId, context.userId);
+    const membership = await requireInstitutionAdminAccess(
+      supabaseAdmin,
+      data.institutionId,
+      context.userId,
+    );
 
     const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
     const response = await fetch(
@@ -525,10 +556,8 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
 
     const transaction = (responseBody.data ?? {}) as Record<string, unknown>;
     const normalizedStatus = normalizeStatus(transaction.status);
-    const paidAt =
-      typeof transaction.paid_at === "string" ? transaction.paid_at : null;
-    const channel =
-      typeof transaction.channel === "string" ? transaction.channel : null;
+    const paidAt = typeof transaction.paid_at === "string" ? transaction.paid_at : null;
+    const channel = typeof transaction.channel === "string" ? transaction.channel : null;
     const amountMinor = toMinorUnits(transaction.amount);
     const currency = normalizeCurrency(transaction.currency as string);
     const providerReference =
@@ -540,7 +569,13 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
     const planSlug =
       typeof metadata.plan_slug === "string"
         ? metadata.plan_slug
-        : (await supabaseAdmin.from("billing_customers").select("plan_slug").eq("institution_id", data.institutionId).maybeSingle()).data?.plan_slug ?? "starter";
+        : ((
+            await supabaseAdmin
+              .from("billing_customers")
+              .select("plan_slug")
+              .eq("institution_id", data.institutionId)
+              .maybeSingle()
+          ).data?.plan_slug ?? "starter");
 
     await upsertPaymentTransaction(supabaseAdmin, {
       institutionId: data.institutionId,
@@ -550,12 +585,9 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
       currency,
       providerReference,
       channel,
-      customerEmail:
-        typeof transaction.customer?.email === "string"
-          ? transaction.customer.email
-          : null,
+      customerEmail: readCustomerEmail(transaction.customer),
       paidAt,
-      rawResponse: transaction,
+      rawResponse: asJsonObject(transaction),
     });
 
     let subscriptionStatus = "trialing";
@@ -605,5 +637,3 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
       subscriptionStatus,
     } satisfies PaystackVerificationResult;
   });
-
-

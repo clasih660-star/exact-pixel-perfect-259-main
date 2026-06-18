@@ -19,7 +19,7 @@ export const listAuditLogs = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(Math.min(data.limit ?? 100, 300));
     if (data.action) query = query.eq("action", data.action);
-    if (data.entity_type) query = query.eq("entity_type", data.entity_type);
+    if (data.entity_type) query = query.eq("resource_type", data.entity_type);
     const { data: logs, error } = await query;
     if (error) throw new Error(error.message);
     return { logs: logs ?? [] };
