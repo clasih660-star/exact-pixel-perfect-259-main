@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect } from "react";
 import { InteractiveClassroomPage } from "@/components/classroom/InteractiveClassroomPage";
 import { LearnerLiveClassroomPage } from "@/components/classroom/LearnerLiveClassroomPage";
+import { TeacherLiveClassroomPage } from "@/components/classroom/TeacherLiveClassroomPage";
 import { getClassroomContext, endSession } from "@/lib/sessions.functions";
 import { leaveSession, endSession as endLiveSession } from "@/lib/live-sessions.functions";
 import { Loader2 } from "lucide-react";
@@ -74,6 +76,15 @@ function ClassroomSessionRoute() {
     queryKey: ["classroom-context", sessionId],
     queryFn: () => classroomFn({ data: { session_id: sessionId } }),
   });
+  const shouldUseTeacherRoute = Boolean(query.data?.viewer?.isInstitutionStaff);
+
+  useEffect(() => {
+    if (!shouldUseTeacherRoute) return;
+    void router.navigate({
+      to: "/teacher/sessions/$sessionId",
+      params: { sessionId },
+    });
+  }, [router, sessionId, shouldUseTeacherRoute]);
 
   if (query.isLoading) {
     return <LoadingSkeleton />;
@@ -98,6 +109,39 @@ function ClassroomSessionRoute() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (shouldUseTeacherRoute) {
+    return <LoadingSkeleton />;
+  }
+
+  const isTeacherHost = Boolean(query.data.viewer?.isInstitutionStaff);
+
+  if (
+    isTeacherHost &&
+    (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid")
+  ) {
+    return (
+      <TeacherLiveClassroomPage
+        classroomContext={query.data}
+        sessionId={sessionId}
+        onEndSession={async () => {
+          await endLiveFn({ data: { session_id: sessionId } });
+          await router.navigate({ to: "/teacher/sessions" });
+        }}
+        onBroadcast={async (message) => {
+          await postFn({
+            data: {
+              session_id: sessionId,
+              message,
+              sender: "teacher",
+              message_type: "announcement",
+            },
+          });
+          await query.refetch();
+        }}
+      />
     );
   }
 

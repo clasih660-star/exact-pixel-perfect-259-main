@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/student/ai-lesson/new")({
         },
         {
           label: "Launch session",
-          to: "/classroom/session/session-demo",
+          to: "/student/classrooms",
           description: "Enter a classroom flow once the lesson starts.",
         },
         {

@@ -13,6 +13,7 @@ import {
   rememberPendingVerification,
   requiresEmailVerification,
 } from "@/lib/auth-verification";
+import { beginGoogleOAuth } from "@/lib/google-oauth.functions";
 import type { UserRole } from "@/lib/types";
 
 const SITE_URL = "https://klassruum.com";
@@ -47,6 +48,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const supabaseReady = isSupabaseConfigured();
   const acceptInviteFn = useServerFn(acceptInstitutionInvite);
+  const googleOAuthFn = useServerFn(beginGoogleOAuth);
   const inviteToken =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("invite")
@@ -95,10 +97,15 @@ function LoginPage() {
       toast.error("Supabase is not configured. Use demo mode on the main auth page.");
       return;
     }
+
+    const result = await googleOAuthFn({
+      data: { inviteToken: inviteToken ?? undefined },
+    });
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getAuthCallbackUrl(inviteToken),
+        redirectTo: result.redirectTo,
       },
     });
     if (error) toast.error(error.message);

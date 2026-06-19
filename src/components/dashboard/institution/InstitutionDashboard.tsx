@@ -172,7 +172,7 @@ function InstitutionHeader({ name }: { name: string }) {
 
 function KpiSection({ stats }: { stats: NonNullable<DashboardData["stats"]> }) {
   return (
-    <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+    <section className="kr-dashboard-kpi-grid mb-8">
       <KpiCard
         title="Total Courses"
         value={stats.courses}

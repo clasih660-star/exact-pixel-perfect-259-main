@@ -14,21 +14,23 @@ import {
   rememberPendingVerification,
   requiresEmailVerification,
 } from "@/lib/auth-verification";
+import { beginGoogleOAuth } from "@/lib/google-oauth.functions";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
 import { roleDashboardPath } from "@/lib/route-guards";
 import type { UserRole } from "@/lib/types";
 import { GraduationCap, School, Building2, Shield, Users, Play } from "lucide-react";
 
 /** Google OAuth sign-in — redirects to Google consent screen. */
-async function signInWithGoogle() {
+async function signInWithGoogle(getRedirectTo: (inviteToken?: string | null) => Promise<string>) {
   const inviteToken =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("invite")
       : null;
+  const redirectTo = await getRedirectTo(inviteToken);
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: getAuthCallbackUrl(inviteToken),
+      redirectTo,
     },
   });
   if (error) {
@@ -99,6 +101,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const supabaseReady = isSupabaseConfigured();
   const acceptInviteFn = useServerFn(acceptInstitutionInvite);
+  const googleOAuthFn = useServerFn(beginGoogleOAuth);
   const inviteToken =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("invite")
@@ -346,7 +349,14 @@ function AuthPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={signInWithGoogle}
+                  onClick={() =>
+                    signInWithGoogle(async (currentInviteToken) => {
+                      const result = await googleOAuthFn({
+                        data: { inviteToken: currentInviteToken ?? undefined },
+                      });
+                      return result.redirectTo;
+                    })
+                  }
                   className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-medium text-[#1A3233] transition-all hover:bg-[#f8fafb] hover:border-[#A3ADAD]"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

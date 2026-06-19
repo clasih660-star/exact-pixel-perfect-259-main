@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createAuditLog } from "@/lib/institution-admin.foundation";
+import {
+  createAuditLog,
+  requireInstitutionAdminAccess,
+  requireInstitutionStaffAccess,
+} from "@/lib/institution-admin.foundation";
 import {
   createInviteToken,
   getAppUrl,
@@ -25,6 +29,29 @@ const CreateInviteSchema = z.object({
 const AcceptInviteSchema = z.object({
   token: z.string().min(24).max(512),
 });
+
+const AssignTeacherCourseSchema = z.object({
+  institution_id: z.string().uuid(),
+  teacher_id: z.string().uuid(),
+  course_id: z.string().uuid(),
+  role: z.string().trim().min(1).max(80).default("teacher"),
+});
+
+const RemoveTeacherCourseSchema = z.object({
+  institution_id: z.string().uuid(),
+  teacher_id: z.string().uuid(),
+  course_id: z.string().uuid(),
+});
+
+type TeacherProfile = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  public_id: string | null;
+  teacher_number: string | null;
+  teacher_type: string | null;
+};
 
 async function requireInstitutionAdminMembership(
   supabaseAdmin: any,
@@ -62,6 +89,206 @@ export const listInstitutionInvites = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
     return { invites: invites ?? [] };
+  });
+
+export const listInstitutionTeachers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { institution_id: string }) =>
+    z.object({ institution_id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }: any) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await requireInstitutionStaffAccess(supabaseAdmin, data.institution_id, context.userId);
+
+    const [membersResult, invitesResult, coursesResult] = await Promise.all([
+      supabaseAdmin
+        .from("institution_members")
+        .select("id, user_id, role, status, created_at, updated_at")
+        .eq("institution_id", data.institution_id)
+        .eq("role", "teacher")
+        .order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("institution_invites")
+        .select("id, email, full_name, role, status, expires_at, created_at, accepted_at")
+        .eq("institution_id", data.institution_id)
+        .eq("role", "teacher")
+        .in("status", ["pending", "sent"])
+        .order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("courses")
+        .select("id, title, subject, status")
+        .eq("institution_id", data.institution_id)
+        .order("title", { ascending: true }),
+    ]);
+
+    if (membersResult.error) throw new Error(membersResult.error.message);
+    if (invitesResult.error) throw new Error(invitesResult.error.message);
+    if (coursesResult.error) throw new Error(coursesResult.error.message);
+
+    const members = membersResult.data ?? [];
+    const teacherIds = members.map((member: any) => member.user_id).filter(Boolean);
+
+    const [profilesResult, assignmentsResult] = await Promise.all([
+      teacherIds.length
+        ? supabaseAdmin
+            .from("profiles")
+            .select("id, full_name, email, avatar_url, public_id, teacher_number, teacher_type")
+            .in("id", teacherIds)
+        : Promise.resolve({ data: [], error: null }),
+      teacherIds.length
+        ? supabaseAdmin
+            .from("course_teachers")
+            .select("id, teacher_id, course_id, role, created_at")
+            .in("teacher_id", teacherIds)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+    if (profilesResult.error) throw new Error(profilesResult.error.message);
+    if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
+
+    const profilesById = new Map(
+      ((profilesResult.data ?? []) as TeacherProfile[]).map((profile) => [profile.id, profile]),
+    );
+    const coursesById = new Map((coursesResult.data ?? []).map((course: any) => [course.id, course]));
+    const assignmentsByTeacher = new Map<string, any[]>();
+    for (const assignment of assignmentsResult.data ?? []) {
+      const teacherAssignments = assignmentsByTeacher.get(assignment.teacher_id) ?? [];
+      teacherAssignments.push({
+        id: assignment.id,
+        courseId: assignment.course_id,
+        courseTitle: coursesById.get(assignment.course_id)?.title ?? "Course",
+        subject: coursesById.get(assignment.course_id)?.subject ?? null,
+        role: assignment.role,
+        assignedAt: assignment.created_at,
+      });
+      assignmentsByTeacher.set(assignment.teacher_id, teacherAssignments);
+    }
+
+    const teachers = members.map((member: any) => {
+      const profile = profilesById.get(member.user_id) ?? null;
+      return {
+        membershipId: member.id,
+        userId: member.user_id,
+        status: member.status,
+        memberRole: member.role,
+        joinedAt: member.created_at,
+        updatedAt: member.updated_at,
+        fullName: profile?.full_name ?? null,
+        email: profile?.email ?? null,
+        avatarUrl: profile?.avatar_url ?? null,
+        publicId: profile?.public_id ?? null,
+        teacherNumber: profile?.teacher_number ?? null,
+        teacherType: profile?.teacher_type ?? null,
+        assignments: assignmentsByTeacher.get(member.user_id) ?? [],
+      };
+    });
+
+    return {
+      teachers,
+      pendingInvites: invitesResult.data ?? [],
+      courses: coursesResult.data ?? [],
+      stats: {
+        activeTeachers: teachers.filter((teacher: any) => teacher.status === "active").length,
+        pendingInvites: (invitesResult.data ?? []).length,
+        assignedTeachers: teachers.filter((teacher: any) => teacher.assignments.length > 0).length,
+        courses: (coursesResult.data ?? []).length,
+      },
+    };
+  });
+
+export const assignTeacherToCourse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => AssignTeacherCourseSchema.parse(data))
+  .handler(async ({ data, context }: any) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const membership = await requireInstitutionAdminAccess(
+      supabaseAdmin,
+      data.institution_id,
+      context.userId,
+    );
+
+    const [{ data: teacherMember, error: teacherError }, { data: course, error: courseError }] =
+      await Promise.all([
+        supabaseAdmin
+          .from("institution_members")
+          .select("id, role, status")
+          .eq("institution_id", data.institution_id)
+          .eq("user_id", data.teacher_id)
+          .eq("role", "teacher")
+          .eq("status", "active")
+          .maybeSingle(),
+        supabaseAdmin
+          .from("courses")
+          .select("id, title, institution_id")
+          .eq("id", data.course_id)
+          .eq("institution_id", data.institution_id)
+          .maybeSingle(),
+      ]);
+
+    if (teacherError) throw new Error(teacherError.message);
+    if (courseError) throw new Error(courseError.message);
+    if (!teacherMember) throw new Error("Teacher is not an active member of this institution.");
+    if (!course) throw new Error("Course not found in this institution.");
+
+    const { data: assignment, error } = await supabaseAdmin
+      .from("course_teachers")
+      .upsert(
+        {
+          course_id: data.course_id,
+          teacher_id: data.teacher_id,
+          role: data.role,
+        },
+        { onConflict: "course_id,teacher_id" },
+      )
+      .select("id, course_id, teacher_id, role, created_at")
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    await createAuditLog(supabaseAdmin, {
+      institutionId: data.institution_id,
+      actorUserId: context.userId,
+      actorRole: membership.role,
+      action: "teacher.course_assigned",
+      entityType: "course_teacher",
+      entityId: assignment.id,
+      summary: `Assigned teacher to ${course.title}`,
+      details: { teacher_id: data.teacher_id, course_id: data.course_id, role: data.role },
+    });
+
+    return { ok: true, assignment };
+  });
+
+export const removeTeacherFromCourse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => RemoveTeacherCourseSchema.parse(data))
+  .handler(async ({ data, context }: any) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const membership = await requireInstitutionAdminAccess(
+      supabaseAdmin,
+      data.institution_id,
+      context.userId,
+    );
+
+    const { error } = await supabaseAdmin
+      .from("course_teachers")
+      .delete()
+      .eq("course_id", data.course_id)
+      .eq("teacher_id", data.teacher_id);
+
+    if (error) throw new Error(error.message);
+
+    await createAuditLog(supabaseAdmin, {
+      institutionId: data.institution_id,
+      actorUserId: context.userId,
+      actorRole: membership.role,
+      action: "teacher.course_unassigned",
+      entityType: "course_teacher",
+      summary: "Removed teacher from course",
+      details: { teacher_id: data.teacher_id, course_id: data.course_id },
+    });
+
+    return { ok: true };
   });
 
 export const createInstitutionInvite = createServerFn({ method: "POST" })

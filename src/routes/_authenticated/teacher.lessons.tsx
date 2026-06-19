@@ -304,7 +304,7 @@ function TeacherLessons() {
                       <Link
                         to="/classroom/$lessonId"
                         params={{ lessonId: lesson.id }}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-[#1F7C80] to-[#1A5256] px-3 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
                       >
                         <Play className="h-3.5 w-3.5" />
                         Start Class

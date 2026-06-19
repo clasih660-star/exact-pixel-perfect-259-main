@@ -57,12 +57,21 @@
   - `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (client-side Supabase)
   - Optional backward-compatible aliases: `SUPABASE_ANON_KEY`, `VITE_SUPABASE_ANON_KEY`
   - `APP_URL` (recommended for invite/auth callback links)
+  - `PAYSTACK_SECRET_KEY` and `PAYSTACK_WEBHOOK_SECRET` (monthly classroom billing)
+  - Email delivery settings or worker for `outbound_email_jobs` (teacher/student invites)
+  - Optional voice settings: `ELEVENLABS_API_KEY`, `LOCAL_TTS_SECRET`, `LOCAL_KOKORO_TTS_URL`, `LOCAL_PIPER_TTS_URL`
+- [ ] Apply Supabase migrations in production, including:
+  - `institution_invites` / `outbound_email_jobs` for teacher hiring workflows
+  - `subscription_plans`, `billing_customers`, `institution_subscriptions`, `payment_transactions` for monthly rentals
+- [ ] Configure Paystack callback/webhook URLs to point at the deployed app.
+- [ ] Run an end-to-end smoke test: register institution → pay monthly plan → invite teacher → teacher accepts → assign teacher to course → start lesson.
 
 ### Recommended
 
 - [ ] Run `npm audit fix --force` (updates vite to v8 — test thoroughly)
 - [ ] Add stricter ESLint config gradually (replace `no-explicit-any` with proper types)
 - [ ] Add integration tests for critical flows (auth, classroom, quiz)
+- [ ] Add automated tests for institution teacher invites, course assignment, Paystack verification, and lesson start/completion
 - [ ] Configure CORS, CSP headers, and rate limiting for production
 - [ ] Set up error monitoring (Sentry, LogRocket, etc.)
 - [ ] Configure CDN for static assets (`dist/client/`)

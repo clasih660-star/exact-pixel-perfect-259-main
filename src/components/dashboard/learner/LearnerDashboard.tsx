@@ -66,6 +66,14 @@ const recentSessions = [
   },
 ];
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function classroomStartHref(lessonId?: string | null, sessionId?: string | null) {
+  if (sessionId && UUID_RE.test(sessionId)) return `/classroom/session/${sessionId}`;
+  if (lessonId && UUID_RE.test(lessonId)) return `/classroom/${lessonId}`;
+  return "/student/classrooms";
+}
+
 export function LearnerDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -105,8 +113,7 @@ export function LearnerDashboard() {
           </p>
         </div>
         <Link
-          to="/classroom/$lessonId"
-          params={{ lessonId: "session_demo_math" }}
+          to={classroomStartHref("session_demo_math") as any}
           className="kr-primary-button"
         >
           <Monitor className="h-4 w-4" />
@@ -148,8 +155,7 @@ export function LearnerDashboard() {
 
         <div className="kr-hero-actions">
           <Link
-            to="/classroom/$lessonId"
-            params={{ lessonId: "session_demo_math" }}
+            to={classroomStartHref("session_demo_math") as any}
             className="kr-primary-button"
           >
             <Monitor className="h-4 w-4" />
@@ -256,8 +262,7 @@ export function LearnerDashboard() {
                 </div>
                 <span className="kr-status-pill">{c.mode}</span>
                 <Link
-                  to="/classroom/$lessonId"
-                  params={{ lessonId: "session_demo_math" }}
+                  to={classroomStartHref("session_demo_math") as any}
                   className="kr-secondary-button"
                 >
                   Enter
@@ -301,8 +306,7 @@ export function LearnerDashboard() {
 
           <div className="kr-button-row">
             <Link
-              to="/classroom/$lessonId"
-              params={{ lessonId: "session_demo_math" }}
+              to={classroomStartHref("session_demo_math") as any}
               className="kr-primary-button"
             >
               Start Plan

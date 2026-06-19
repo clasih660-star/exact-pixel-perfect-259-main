@@ -1,15 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Eye,
-  Gauge,
-  Play,
-  Users,
-  Video,
-} from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Eye, Gauge, Play, Users, Video } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
@@ -90,7 +81,7 @@ const mockCourses = [
       { label: "Lessons", value: "12/28" },
     ],
     progress: 65,
-    href: "/classroom/demo",
+    href: "/teacher/courses",
   },
   {
     title: "Science Form 3",
@@ -100,7 +91,7 @@ const mockCourses = [
       { label: "Lessons", value: "18/24" },
     ],
     progress: 42,
-    href: "/classroom/demo_chemistry",
+    href: "/teacher/courses",
   },
   {
     title: "English Form 2",
@@ -110,7 +101,7 @@ const mockCourses = [
       { label: "Lessons", value: "9/15" },
     ],
     progress: 78,
-    href: "/classroom/demo_english",
+    href: "/teacher/courses",
   },
 ];
 
@@ -120,21 +111,21 @@ const mockUpcomingSessions = [
     course: "Mathematics Form 2",
     time: "Today at 10:30 AM",
     participantCount: 32,
-    href: "/classroom/demo",
+    href: "/teacher/sessions",
   },
   {
     title: "Chemical Bonding",
     course: "Science Form 3",
     time: "Today at 2:00 PM",
     participantCount: 45,
-    href: "/classroom/demo_chemistry",
+    href: "/teacher/sessions",
   },
   {
     title: "Parts of Speech",
     course: "English Form 2",
     time: "Tomorrow at 9:00 AM",
     participantCount: 28,
-    href: "/classroom/demo_english",
+    href: "/teacher/sessions",
   },
 ];
 
@@ -143,19 +134,19 @@ const mockLessonReview = [
     title: "Quadratic Equations",
     course: "Mathematics Form 2",
     description: "Ready for teaching",
-    href: "/classroom/demo",
+    href: "/teacher/lessons",
   },
   {
     title: "Chemical Bonding",
     course: "Science Form 3",
     description: "Ready for teaching",
-    href: "/classroom/demo_chemistry",
+    href: "/teacher/lessons",
   },
   {
     title: "Parts of Speech",
     course: "English Form 2",
     description: "Ready for teaching",
-    href: "/classroom/demo_english",
+    href: "/teacher/lessons",
   },
 ];
 
@@ -297,26 +288,14 @@ export default function TeacherDashboard() {
               </div>
             </dl>
             <div className="kr-action-row">
-              <Link
-                to="/classroom/$lessonId"
-                params={{ lessonId: "demo" }}
-                className="kr-command-button kr-command-button--primary"
-              >
+              <Link to="/teacher/sessions" className="kr-command-button kr-command-button--primary">
                 <Play className="h-4 w-4" />
-                Start class
+                Open teaching sessions
               </Link>
-              <Link
-                to="/teacher/lessons/$lessonId/preview"
-                params={{ lessonId: "lesson_quadratic" }}
-                className="kr-command-button"
-              >
-                Preview
+              <Link to="/teacher/lessons" className="kr-command-button">
+                Review lessons
               </Link>
-              <Link
-                to="/teacher/courses/$courseId/students"
-                params={{ courseId: "course_math" }}
-                className="kr-command-button"
-              >
+              <Link to="/teacher/students" className="kr-command-button">
                 Students
               </Link>
             </div>

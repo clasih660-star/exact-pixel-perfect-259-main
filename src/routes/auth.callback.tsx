@@ -33,8 +33,24 @@ function AuthCallbackPage() {
 
     async function handleCallback() {
       try {
-        // Exchange the auth code for a session
-        // Supabase automatically detects the code from the URL hash/query
+        const currentUrl =
+          typeof window !== "undefined" ? new URL(window.location.href) : null;
+        const hasCode = Boolean(currentUrl?.searchParams.get("code"));
+        const hasHashTokens =
+          typeof window !== "undefined" &&
+          /access_token=|refresh_token=|error=/.test(window.location.hash);
+
+        if (hasCode) {
+          const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+          if (error) {
+            throw new Error(error.message);
+          }
+        }
+
+        if (!hasCode && !hasHashTokens) {
+          throw new Error("No authentication response was returned by Google. Please try again.");
+        }
+
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
@@ -42,7 +58,6 @@ function AuthCallbackPage() {
         }
 
         if (!data.session?.user) {
-          // No session found — the code may be invalid or expired
           throw new Error(
             "No session found. The link may have expired. Please try signing in again.",
           );

@@ -825,13 +825,14 @@
 
 .quick-action-btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--primary-foreground);
+  color: #ffffff;
   border-color: var(--primary);
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
 .quick-action-btn-primary:hover {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary-dark));
+  color: #ffffff;
   border-color: var(--primary-dark);
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
   transform: translateY(-2px);
@@ -1023,12 +1024,13 @@
 
 .question-action-btn-primary {
   background: var(--primary);
-  color: var(--primary-foreground);
+  color: #ffffff;
   border: none;
 }
 
 .question-action-btn-primary:hover {
   background: var(--primary-dark);
+  color: #ffffff;
 }
 
 .question-action-btn-secondary {
@@ -1131,7 +1133,7 @@
 
 .audio-btn-active {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--primary-foreground);
+  color: #ffffff;
   border-color: var(--primary);
 }
 
@@ -1175,7 +1177,7 @@
 
 .audio-speed-btn-active {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--primary-foreground);
+  color: #ffffff;
   box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
 

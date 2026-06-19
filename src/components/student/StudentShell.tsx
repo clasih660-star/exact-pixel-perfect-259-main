@@ -63,7 +63,7 @@ export function StudentShell({
     <AppShell>
       {/* Top Navbar is already part of AppShell via TopBar component */}
       {/* Page Header */}
-      <header className="topnav sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[var(--gray-200)] bg-white/95 px-6 backdrop-blur">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[var(--gray-200)] bg-white/95 px-6 backdrop-blur">
         <div className="min-w-0 flex-1">
           <h1 className="page-title text-xl font-bold tracking-tight text-[var(--gray-900)]">
             {title}

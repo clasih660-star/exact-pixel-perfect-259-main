@@ -2727,6 +2727,245 @@
   }
 }
 
+/* Learning mode popup quality pass — align the selector with the final classroom
+   surface language: calm ink, soft teal, glass-white cards, and clear selected
+   affordances. This layer is intentionally scoped to the settings modal. */
+.vc-settings-overlay {
+  background:
+    radial-gradient(circle at 22% 16%, rgba(191, 229, 226, 0.34), transparent 28%),
+    radial-gradient(circle at 78% 10%, rgba(216, 228, 242, 0.32), transparent 30%),
+    rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(14px) saturate(1.12);
+}
+
+.vc-settings {
+  max-width: 980px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 252, 0.96)),
+    var(--vc-surface, #ffffff);
+  box-shadow:
+    0 28px 90px rgba(15, 23, 42, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+}
+
+.vc-settings-head {
+  position: relative;
+  padding: 24px 26px 18px;
+  border-bottom: 1px solid rgba(201, 217, 226, 0.72);
+  background:
+    linear-gradient(135deg, rgba(240, 250, 248, 0.96), rgba(255, 255, 255, 0.82)),
+    linear-gradient(90deg, rgba(31, 124, 128, 0.08), transparent 58%);
+}
+
+.vc-settings-head::before {
+  content: "";
+  position: absolute;
+  left: 26px;
+  bottom: -1px;
+  width: 132px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vc-primary, #1f7c80), #9bd8d6);
+}
+
+.vc-settings-title {
+  letter-spacing: -0.035em;
+  color: var(--vc-ink, #0f172a);
+}
+
+.vc-settings-sub,
+.vc-set-hint {
+  color: var(--vc-muted, #64748b);
+  line-height: 1.55;
+}
+
+.vc-settings-close {
+  border-color: rgba(201, 217, 226, 0.86);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.vc-settings-body {
+  gap: 16px 22px;
+  padding: 18px 26px 22px;
+  background:
+    linear-gradient(rgba(29, 62, 92, 0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 62, 92, 0.024) 1px, transparent 1px),
+    #fbfdfd;
+  background-size: 38px 38px;
+}
+
+.vc-set-group {
+  border: 1px solid rgba(226, 232, 240, 0.84);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 16px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.045);
+}
+
+.vc-set-group:last-child {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.84);
+}
+
+.vc-mode-selector-group {
+  grid-column: 1 / -1;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(191, 229, 226, 0.4), transparent 24%),
+    #ffffff;
+}
+
+.vc-set-group-title {
+  color: var(--vc-ink, #0f172a);
+  letter-spacing: -0.02em;
+}
+
+.vc-seg,
+.vc-toggle {
+  border: 1px solid rgba(201, 217, 226, 0.9);
+  background: #f7fafa;
+}
+
+.vc-profile-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.vc-profile-card {
+  position: relative;
+  min-height: 116px;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid rgba(201, 217, 226, 0.95);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 252, 0.94)),
+    #ffffff;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.055);
+}
+
+.vc-profile-card:hover {
+  transform: translateY(-2px);
+  border-color: #bfe5e2;
+  background:
+    linear-gradient(180deg, #ffffff, #f2fbfa),
+    #ffffff;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+.vc-profile-card:focus-visible {
+  outline: 3px solid rgba(31, 124, 128, 0.28);
+  outline-offset: 3px;
+}
+
+.vc-profile-card.is-on {
+  border-color: rgba(31, 124, 128, 0.62);
+  background:
+    linear-gradient(135deg, rgba(232, 245, 245, 0.98), rgba(255, 255, 255, 0.96)),
+    #ffffff;
+  box-shadow:
+    0 18px 42px rgba(31, 124, 128, 0.16),
+    inset 0 0 0 1px rgba(31, 124, 128, 0.18);
+}
+
+.vc-profile-card.is-on::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: 18px 0 0 18px;
+  background: linear-gradient(180deg, var(--vc-primary, #1f7c80), #9bd8d6);
+}
+
+.vc-profile-ico {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: #eef6f5;
+  box-shadow: inset 0 0 0 1px rgba(191, 229, 226, 0.75);
+}
+
+.vc-profile-card.is-on .vc-profile-ico {
+  background: var(--vc-primary, #1f7c80);
+  box-shadow: 0 10px 22px rgba(31, 124, 128, 0.2);
+}
+
+.vc-profile-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  padding-right: 2px;
+}
+
+.vc-profile-label {
+  color: var(--vc-ink, #0f172a);
+  font-size: 0.9rem;
+  letter-spacing: -0.015em;
+}
+
+.vc-profile-desc {
+  color: var(--vc-muted, #64748b);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.38;
+}
+
+.vc-profile-status {
+  position: absolute;
+  right: 12px;
+  bottom: 11px;
+  border-radius: 999px;
+  background: var(--vc-primary, #1f7c80);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vc-settings-foot {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.vc-settings-done {
+  border-radius: 999px;
+  background: linear-gradient(135deg, #26a0a5, var(--vc-primary, #1f7c80), #123d40);
+  box-shadow: 0 16px 36px rgba(31, 124, 128, 0.22);
+}
+
+@media (max-width: 900px) {
+  .vc-profile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .vc-settings {
+    max-height: 94vh;
+    border-radius: 22px;
+  }
+
+  .vc-settings-head,
+  .vc-settings-body,
+  .vc-settings-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .vc-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── High-contrast mode (data-high-contrast on <html>) ──────────────────── */
 [data-high-contrast] .vc-root {
   background: #ffffff;
@@ -4512,5 +4751,540 @@
 
   .vc-completion-btn {
     width: 100%;
+  }
+}
+
+/* =============================================================================
+   10/10 ADAPTIVE CLASSROOM LAYER
+   Fluid across phones, tablets, foldables, laptops, ultrawide monitors, and
+   awkward short landscape ratios. This intentionally lives last so it stabilizes
+   the existing layered classroom cascade without a risky rewrite.
+   ============================================================================= */
+
+.vc-root {
+  --vc-safe-top: env(safe-area-inset-top, 0px);
+  --vc-safe-right: env(safe-area-inset-right, 0px);
+  --vc-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --vc-safe-left: env(safe-area-inset-left, 0px);
+  --vc-fluid-gap: clamp(8px, 1.2vw, 16px);
+  --vc-shell-pad-x: max(clamp(8px, 1.1vw, 14px), var(--vc-safe-left));
+  --vc-shell-pad-r: max(clamp(8px, 1.1vw, 14px), var(--vc-safe-right));
+  --vc-board-min-h: clamp(320px, 52dvh, 680px);
+  --vc-touch-target: 44px;
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  overscroll-behavior: contain;
+}
+
+@supports (height: 100dvh) {
+  .vc-root {
+    height: 100dvh;
+  }
+}
+
+.vc-root *,
+.vc-root *::before,
+.vc-root *::after {
+  min-width: 0;
+}
+
+.vc-top-bar {
+  min-height: 58px;
+  height: auto;
+  margin: max(8px, var(--vc-safe-top)) var(--vc-shell-pad-r) 0 var(--vc-shell-pad-x);
+  padding: clamp(8px, 1.1vw, 12px) clamp(10px, 1.35vw, 16px);
+  gap: clamp(8px, 1vw, 14px);
+}
+
+.vc-main {
+  gap: var(--vc-fluid-gap);
+  padding: var(--vc-fluid-gap) var(--vc-shell-pad-r) var(--vc-fluid-gap) var(--vc-shell-pad-x);
+}
+
+.vc-teacher-panel {
+  width: clamp(246px, 21vw, 306px);
+  min-width: clamp(236px, 19vw, 270px);
+  max-width: 320px;
+}
+
+.vc-whiteboard-area {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.vc-board-row {
+  gap: var(--vc-fluid-gap);
+}
+
+.vc-board-row > .vc-whiteboard {
+  min-height: var(--vc-board-min-h);
+}
+
+.vc-learning-drawer,
+.vc-notes-panel {
+  width: clamp(260px, 24vw, 340px);
+  min-width: min(260px, 100%);
+}
+
+.vc-caption-bar,
+.vc-controls {
+  margin-left: var(--vc-shell-pad-x);
+  margin-right: var(--vc-shell-pad-r);
+}
+
+.vc-controls {
+  padding-bottom: max(8px, var(--vc-safe-bottom));
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: 12px;
+}
+
+.vc-control-cluster {
+  scroll-snap-align: start;
+}
+
+.vc-ctl,
+.vc-control-btn,
+.vc-teacher-btn,
+.vc-top-pill-btn,
+.vc-board-tool-btn,
+.vc-learning-tab,
+.vc-completion-btn,
+.vc-engagement-btn {
+  min-height: var(--vc-touch-target);
+  touch-action: manipulation;
+}
+
+.vc-whiteboard-content .vc-board-line-text,
+.vc-whiteboard-content .vc-handwriting-text {
+  font-size: clamp(1.18rem, 1.05rem + 1.05vw, calc(1.85rem * var(--vc-board-zoom, 1)));
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.vc-whiteboard-content .vc-board-line-equation .vc-board-line-text,
+.vc-whiteboard-content .vc-board-line-answer .vc-board-line-text {
+  font-size: clamp(1.28rem, 1.08rem + 1.25vw, calc(2.05rem * var(--vc-board-zoom, 1)));
+}
+
+.vc-board-note-hand,
+.vc-board-note-paragraph,
+.vc-board-note-concept,
+.vc-board-note-step,
+.vc-board-note-example,
+.vc-board-note-explain,
+.vc-board-note-answer,
+.vc-board-note-warning {
+  overflow-wrap: anywhere;
+}
+
+.vc-teacher-frame-inner,
+.vc-simple-view .vc-teacher-frame-inner {
+  width: min(210px, 100%) !important;
+  height: clamp(190px, 28dvh, 258px) !important;
+}
+
+/* Large desktops and ultrawides: use space without creating unreadably long board lines. */
+@media (min-width: 1440px) {
+  .vc-root {
+    --vc-board-min-h: clamp(520px, 66dvh, 820px);
+  }
+
+  .vc-main {
+    max-width: 1840px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .vc-whiteboard-content {
+    padding-inline: clamp(28px, 3vw, 56px);
+  }
+}
+
+/* Medium laptops / tablets in landscape: tighten side panels before stacking. */
+@media (max-width: 1180px) {
+  .vc-root {
+    --vc-fluid-gap: clamp(8px, 1vw, 12px);
+  }
+
+  .vc-teacher-panel {
+    width: clamp(218px, 23vw, 260px);
+    min-width: 214px;
+  }
+
+  .vc-learning-drawer,
+  .vc-notes-panel {
+    width: clamp(240px, 26vw, 280px);
+    min-width: 232px;
+  }
+
+  .vc-top-bar-breadcrumb {
+    max-width: min(34vw, 320px);
+  }
+}
+
+/* Tablet and foldable breakpoint: single-column classroom with full-width support drawer. */
+@media (max-width: 980px) {
+  .vc-root {
+    --vc-board-min-h: clamp(360px, 58dvh, 620px);
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .vc-top-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .vc-top-bar-left,
+  .vc-top-bar-right {
+    width: auto;
+  }
+
+  .vc-top-bar-center {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .vc-top-bar-right {
+    flex-wrap: nowrap;
+  }
+
+  .vc-main {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .vc-teacher-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    display: grid;
+    grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 10px 12px;
+    padding: 0 10px 10px;
+  }
+
+  .vc-panel-header {
+    grid-column: 1 / -1;
+  }
+
+  .vc-teacher-frame,
+  .vc-teacher-identity,
+  .vc-mini-cards,
+  .vc-teacher-step-info,
+  .vc-outline,
+  .vc-quick-help {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .vc-teacher-frame {
+    grid-row: span 4;
+    padding-inline: 0 !important;
+  }
+
+  .vc-teacher-frame-inner,
+  .vc-simple-view .vc-teacher-frame-inner {
+    width: min(170px, 38vw) !important;
+    height: clamp(180px, 30dvh, 224px) !important;
+  }
+
+  .vc-mini-cards,
+  .vc-simple-view .vc-mini-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .vc-board-row {
+    flex-direction: column;
+  }
+
+  .vc-learning-drawer,
+  .vc-notes-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: clamp(240px, 42dvh, 420px);
+  }
+}
+
+/* Phone portrait: prioritize lesson content, full-width buttons, and no hidden chrome. */
+@media (max-width: 760px) {
+  .vc-root {
+    --vc-fluid-gap: 8px;
+    --vc-board-min-h: clamp(340px, 60dvh, 560px);
+  }
+
+  .vc-top-bar {
+    grid-template-columns: 1fr;
+    border-radius: 16px;
+  }
+
+  .vc-top-bar-left,
+  .vc-top-bar-center,
+  .vc-top-bar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .vc-top-bar-breadcrumb {
+    max-width: none;
+    font-size: 0.76rem;
+  }
+
+  .vc-top-pill-label,
+  .vc-course-type-chip,
+  .vc-autosave,
+  .vc-top-bar-separator:nth-of-type(2),
+  .vc-top-bar-breadcrumb span:not(.vc-top-bar-crumb-active):not(.vc-top-bar-separator) {
+    display: none;
+  }
+
+  .vc-top-pill-btn,
+  .vc-top-end-btn,
+  .vc-back-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .vc-teacher-panel {
+    grid-template-columns: minmax(112px, 136px) minmax(0, 1fr);
+    border-radius: 18px;
+  }
+
+  .vc-teacher-frame-inner,
+  .vc-simple-view .vc-teacher-frame-inner {
+    width: min(132px, 36vw) !important;
+    height: clamp(150px, 26dvh, 188px) !important;
+    border-radius: 18px !important;
+  }
+
+  .vc-teacher-name {
+    font-size: clamp(0.95rem, 3.8vw, 1.08rem);
+  }
+
+  .vc-teacher-subtitle,
+  .vc-panel-header-status,
+  .vc-mini-card,
+  .vc-teacher-step-label,
+  .vc-teacher-step-count {
+    font-size: 0.68rem;
+  }
+
+  .vc-outline,
+  .vc-quick-help {
+    grid-column: 1 / -1;
+  }
+
+  .vc-board-row > .vc-whiteboard {
+    min-height: var(--vc-board-min-h);
+  }
+
+  .vc-whiteboard,
+  .vc-board-stage {
+    border-radius: 18px;
+  }
+
+  .vc-whiteboard-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .vc-whiteboard-header-left,
+  .vc-whiteboard-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .vc-board-toolstrip {
+    display: none;
+  }
+
+  .vc-whiteboard-content {
+    padding: clamp(14px, 4vw, 22px);
+  }
+
+  .vc-caption-bar {
+    border-radius: 16px;
+  }
+
+  .vc-controls {
+    border-radius: 16px;
+    align-items: stretch;
+  }
+
+  .vc-control-cluster {
+    min-width: min(84vw, 360px);
+  }
+
+  .vc-cluster-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .vc-ctl,
+  .vc-ctl-primary,
+  .vc-ctl-end {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .vc-learning-drawer-tabs {
+    overflow-x: auto;
+    grid-template-columns: repeat(5, minmax(86px, 1fr));
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Very narrow phones / embedded webviews. */
+@media (max-width: 430px) {
+  .vc-root {
+    --vc-board-min-h: clamp(320px, 58dvh, 520px);
+  }
+
+  .vc-top-bar,
+  .vc-main,
+  .vc-controls,
+  .vc-caption-bar {
+    margin-left: max(6px, var(--vc-safe-left));
+    margin-right: max(6px, var(--vc-safe-right));
+  }
+
+  .vc-main {
+    padding-left: max(6px, var(--vc-safe-left));
+    padding-right: max(6px, var(--vc-safe-right));
+  }
+
+  .vc-teacher-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .vc-teacher-frame {
+    grid-row: auto;
+  }
+
+  .vc-teacher-frame-inner,
+  .vc-simple-view .vc-teacher-frame-inner {
+    width: min(150px, 52vw) !important;
+    height: clamp(168px, 32dvh, 204px) !important;
+  }
+
+  .vc-mini-cards,
+  .vc-simple-view .vc-mini-cards,
+  .vc-progress-grid,
+  .vc-completion-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vc-current-goal,
+  .vc-engagement,
+  .vc-learning-drawer-body {
+    padding-inline: 12px;
+  }
+}
+
+/* Short landscape phones and small tablets: compress chrome so the board stays usable. */
+@media (orientation: landscape) and (max-height: 700px) and (max-width: 1180px) {
+  .vc-root {
+    --vc-board-min-h: clamp(260px, 62dvh, 420px);
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .vc-top-bar {
+    min-height: 48px;
+    padding-block: 6px;
+  }
+
+  .vc-main {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .vc-teacher-panel {
+    display: flex;
+    width: clamp(176px, 24vw, 230px) !important;
+    min-width: clamp(168px, 22vw, 210px) !important;
+    max-width: 240px !important;
+    max-height: none;
+  }
+
+  .vc-teacher-frame-inner,
+  .vc-simple-view .vc-teacher-frame-inner {
+    width: min(140px, 72%) !important;
+    height: clamp(132px, 32dvh, 178px) !important;
+  }
+
+  .vc-teacher-identity,
+  .vc-mini-cards,
+  .vc-teacher-step-info {
+    margin-block: 4px;
+  }
+
+  .vc-outline,
+  .vc-quick-help,
+  .vc-learning-drawer,
+  .vc-notes-panel {
+    display: none;
+  }
+
+  .vc-board-row > .vc-whiteboard {
+    min-height: var(--vc-board-min-h);
+  }
+
+  .vc-controls {
+    max-height: 28dvh;
+  }
+}
+
+/* Tall/narrow ratios: prevent the classroom from feeling like a compressed desktop. */
+@media (max-aspect-ratio: 9 / 16) and (max-width: 520px) {
+  .vc-root {
+    --vc-board-min-h: clamp(380px, 62dvh, 640px);
+  }
+
+  .vc-top-bar-center {
+    flex-wrap: wrap;
+  }
+
+  .vc-caption-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Foldables / square-ish screens: keep side-by-side only when there is enough width. */
+@media (min-width: 760px) and (max-width: 1024px) and (min-aspect-ratio: 1 / 1) {
+  .vc-root {
+    --vc-board-min-h: clamp(360px, 58dvh, 600px);
+  }
+
+  .vc-main {
+    flex-direction: row;
+  }
+
+  .vc-teacher-panel {
+    display: flex;
+    width: clamp(220px, 28vw, 260px) !important;
+    min-width: 210px !important;
+  }
+
+  .vc-board-row {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-root *,
+  .vc-root *::before,
+  .vc-root *::after {
+    scroll-behavior: auto !important;
   }
 }

@@ -341,14 +341,13 @@ function StudentSessions() {
                     </>
                   ) : session.status === "in-progress" ? (
                     <Link
-                      to="/classroom/session/$sessionId"
-                      params={{ sessionId: session.id }}
+                      to="/student/classrooms"
                       className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1A5256] transition-colors shadow-sm"
                     >
                       Continue <ChevronRight className="h-4 w-4" />
                     </Link>
                   ) : (
-                    <button className="inline-flex cursor-default items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-xs font-semibold text-[#94A3B8]">
+                    <button className="inline-flex cursor-default items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-xs font-semibold text-[#475569]">
                       <Calendar className="h-3.5 w-3.5" /> Scheduled
                     </button>
                   )}

@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/student/sessions/$sessionI
         },
         {
           label: "Continue learning",
-          to: "/classroom/session/session-demo",
+          to: "/student/classrooms",
           description: "Return to a live classroom flow if needed.",
         },
       ]}

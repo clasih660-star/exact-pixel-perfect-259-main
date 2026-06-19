@@ -179,7 +179,7 @@ export function ParentDashboard() {
       />
 
       {/* KPI Cards */}
-      <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+      <section className="kr-dashboard-kpi-grid mb-8">
         <KpiCard
           title="Children"
           value={mockLearners.length.toString()}

@@ -224,11 +224,12 @@ function TeacherCourses() {
                   {/* Actions */}
                   <div className="flex shrink-0 flex-col gap-2 sm:items-end">
                     <Link
-                      to={"/classroom/session_demo_math" as any}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
+                      to="/teacher/courses/$courseId/lessons"
+                      params={{ courseId: course.id }}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
                     >
                       <Play className="h-4 w-4" />
-                      Start Class
+                      Choose Lesson
                     </Link>
                     <Link
                       to="/teacher/courses/$courseId/analytics"

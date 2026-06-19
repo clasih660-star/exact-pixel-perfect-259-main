@@ -129,7 +129,7 @@ export function PlatformAdminDashboard() {
       </section>
 
       {/* Platform KPI Cards */}
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <section className="kr-dashboard-kpi-grid mb-6">
         <KpiCard
           title="Institutions"
           value="1,247"
@@ -181,14 +181,14 @@ export function PlatformAdminDashboard() {
       {/* Dashboard Grid */}
       <section className="grid gap-6 lg:grid-cols-3">
         {/* Institution Growth Chart */}
-        <div className="dashboard-card col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
+        <div className="dashboard-card lg:col-span-2">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h2 className="text-xl font-bold text-[var(--gray-900)]">Institution Growth</h2>
               <p className="text-sm text-[var(--gray-500)]">New institutions over time</p>
             </div>
-            <div className="flex gap-2">
-              <span className="flex items-center gap-1 text-sm font-medium text-green-600">
+            <div className="flex min-w-0 gap-2">
+              <span className="flex min-w-0 items-center gap-1 text-sm font-medium leading-snug text-green-600">
                 <TrendingUp className="h-4 w-4" />
                 +18% vs last month
               </span>
@@ -229,56 +229,56 @@ export function PlatformAdminDashboard() {
           <p className="mb-4 text-sm text-[var(--gray-500)]">Platform performance metrics</p>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">API Services</p>
                   <p className="text-xs text-[var(--gray-500)]">All systems operational</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-green-600">99.9%</span>
+              <span className="shrink-0 text-xs font-medium text-green-600">99.9%</span>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Database</p>
                   <p className="text-xs text-[var(--gray-500)]">Healthy connection</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-green-600">99.8%</span>
+              <span className="shrink-0 text-xs font-medium text-green-600">99.8%</span>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
                   <Clock className="h-4 w-4 text-yellow-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Video Services</p>
                   <p className="text-xs text-[var(--gray-500)]">High load detected</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-yellow-600">98.5%</span>
+              <span className="shrink-0 text-xs font-medium text-yellow-600">98.5%</span>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Storage</p>
                   <p className="text-xs text-[var(--gray-500)]">42% capacity used</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-green-600">OK</span>
+              <span className="shrink-0 text-xs font-medium text-green-600">OK</span>
             </div>
           </div>
         </div>

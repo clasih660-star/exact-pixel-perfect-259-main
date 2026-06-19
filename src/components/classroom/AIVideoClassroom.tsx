@@ -180,15 +180,15 @@ const QUICK_ACTIONS = [
   "Continue",
 ];
 
-const LEARNING_MODES: { value: LearningMode; label: string; icon: string }[] = [
-  { value: "standard", label: "Standard", icon: "📖" },
-  { value: "deaf", label: "Deaf Mode", icon: "🤟" },
-  { value: "blind", label: "Blind Mode", icon: "🎧" },
-  { value: "adhd_focus", label: "ADHD Focus", icon: "🎯" },
-  { value: "dyslexia", label: "Dyslexia Friendly", icon: "🔤" },
-  { value: "speech_difficulty", label: "Speech Difficulty", icon: "✍️" },
-  { value: "extra_support", label: "Extra Support", icon: "💪" },
-  { value: "challenge", label: "Challenge", icon: "🏆" },
+const LEARNING_MODES: { value: LearningMode; label: string; icon: string; description: string }[] = [
+  { value: "standard", label: "Standard", icon: "📖", description: "Balanced voice, board, and captions." },
+  { value: "deaf", label: "Deaf Mode", icon: "🤟", description: "Captions stay on with text-first prompts." },
+  { value: "blind", label: "Blind Mode", icon: "🎧", description: "Voice-first teaching and audio prompts." },
+  { value: "adhd_focus", label: "ADHD Focus", icon: "🎯", description: "Cleaner lesson flow with fewer distractions." },
+  { value: "dyslexia", label: "Dyslexia Friendly", icon: "🔤", description: "Larger readable text and calmer spacing." },
+  { value: "speech_difficulty", label: "Speech Difficulty", icon: "✍️", description: "Type-first answers with larger controls." },
+  { value: "extra_support", label: "Extra Support", icon: "💪", description: "More scaffolding, hints, and slower pacing." },
+  { value: "challenge", label: "Challenge", icon: "🏆", description: "A faster path with harder checks." },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3952,7 +3952,7 @@ function ClassroomTopBar({
           </button>
         ) : null}
         <Link to="/" className="vc-top-bar-brand" title="Klassruum home">
-          <Logo size={26} variant="light" />
+          <Logo size={26} variant="dark" />
         </Link>
 
         <div className="vc-top-bar-breadcrumb">
@@ -4383,22 +4383,34 @@ function SettingsPanel({
           </section>
 
           {/* Accessibility profile */}
-          <section className="vc-set-group">
-            <h3 className="vc-set-group-title">♿ Accessibility Profile</h3>
+          <section className="vc-set-group vc-mode-selector-group">
+            <h3 className="vc-set-group-title">♿ Learning Mode</h3>
             <p className="vc-set-hint">
-              Pick the way you learn best. We'll adjust the lesson for you.
+              Pick the classroom setup that fits this lesson. We'll adjust the teacher, captions,
+              pacing, and controls right away.
             </p>
             <div className="vc-profile-grid">
-              {LEARNING_MODES.map((m) => (
-                <button
-                  key={m.value}
-                  className={`vc-profile-card ${learningMode === m.value ? "is-on" : ""}`}
-                  onClick={() => setLearningMode(m.value)}
-                >
-                  <span className="vc-profile-ico">{m.icon}</span>
-                  <span className="vc-profile-label">{m.label}</span>
-                </button>
-              ))}
+              {LEARNING_MODES.map((m) => {
+                const selected = learningMode === m.value;
+                return (
+                  <button
+                    key={m.value}
+                    type="button"
+                    aria-pressed={selected}
+                    className={`vc-profile-card ${selected ? "is-on" : ""}`}
+                    onClick={() => setLearningMode(m.value)}
+                  >
+                    <span className="vc-profile-ico" aria-hidden="true">
+                      {m.icon}
+                    </span>
+                    <span className="vc-profile-copy">
+                      <span className="vc-profile-label">{m.label}</span>
+                      <span className="vc-profile-desc">{m.description}</span>
+                    </span>
+                    {selected && <span className="vc-profile-status">Selected</span>}
+                  </button>
+                );
+              })}
             </div>
           </section>
         </div>

@@ -2,7 +2,6 @@ import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import { type ReactNode, useState, useRef, useEffect, useCallback } from "react";
 import {
   Accessibility,
-  Bell,
   ChevronRight,
   HelpCircle,
   LogOut,
@@ -19,6 +18,7 @@ import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 import { useAuthContext } from "@/hooks/useUserRole";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { isLearnerDashboardRole, isTeacherDashboardRole } from "@/lib/dashboard-config";
+import { NotificationBell } from "@/components/dashboard/shared/NotificationBell";
 
 type Props = {
   config?: import("@/lib/dashboard-config").DashboardConfig;
@@ -276,15 +276,7 @@ export function DashboardShell({
 
             <ThemeToggle />
 
-            <button
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
-              aria-label="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                3
-              </span>
-            </button>
+            <NotificationBell config={config} />
             <button
               className="hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-muted-foreground transition-all hover:bg-accent hover:text-foreground lg:flex"
               aria-label="Help"

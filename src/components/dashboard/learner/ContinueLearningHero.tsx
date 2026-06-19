@@ -84,8 +84,8 @@ export function ContinueLearningHero({
         {/* Right side: Actions */}
         <div className="flex flex-col gap-3 lg:min-w-[200px]">
           <Link
-            to="/classroom/$lessonId"
-            params={{ lessonId: sessionId }}
+            to="/classroom/session/$sessionId"
+            params={{ sessionId }}
             className="btn-primary flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-center text-sm font-semibold text-white"
           >
             <Play className="h-4 w-4" />

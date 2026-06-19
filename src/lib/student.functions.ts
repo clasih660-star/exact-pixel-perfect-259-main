@@ -63,6 +63,8 @@ export type StudentDashboardV2 = {
 export const getMyEnrolledCourses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }: any) => {
+    if (!context.supabase) return { enrollments: [] };
+
     const { data, error } = await context.supabase
       .from("course_enrollments")
       .select(
@@ -77,6 +79,30 @@ export const getMyEnrolledCourses = createServerFn({ method: "GET" })
 export const getStudentDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }: any) => {
+    if (!context.supabase) {
+      return {
+        continueLearning: {
+          courseId: "",
+          lessonId: "",
+          lessonTitle: "",
+          courseTitle: "",
+          currentStep: "hook",
+          progressPercentage: 0,
+        },
+        learningPlan: [],
+        courses: [],
+        recentSessions: [],
+        accessProfile: {
+          currentMode: "Standard",
+          captionsEnabled: true,
+          audioEnabled: true,
+          keyboardShortcutsEnabled: true,
+          focusModeEnabled: false,
+          speechRate: 1,
+        },
+      } satisfies StudentDashboardV2;
+    }
+
     // ── Parallel fetch all dashboard data from real tables ─────────────
     const [
       enrollmentsResult,
@@ -130,6 +156,9 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
     ]);
 
     const enrollments = enrollmentsResult.data ?? [];
+    const enrollmentsWithCourses = enrollments.filter((enrollment: any) =>
+      Boolean(enrollment.course),
+    );
     const progressRows = progressResult.data ?? [];
     const recentSessionsRaw = sessionsResult.data ?? [];
     const recommendations = recommendationsResult.data ?? [];
@@ -160,7 +189,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         };
 
     // ── Fetch lesson counts per course ─────────────────────────────────
-    const courseIds = enrollments.map((e: any) => e.course_id).filter(Boolean);
+    const courseIds = enrollmentsWithCourses.map((e: any) => e.course_id).filter(Boolean);
     const lessonCounts: Record<string, number> = {};
     if (courseIds.length > 0) {
       const { data: lessonsData } = await context.supabase
@@ -182,8 +211,8 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
       );
     const continueLesson = inProgressLessons[0] ?? progressRows[0] ?? null;
     const continueCourse = continueLesson
-      ? enrollments.find((e: any) => e.course_id === continueLesson.course_id)?.course
-      : (enrollments[0]?.course ?? null);
+      ? enrollmentsWithCourses.find((e: any) => e.course_id === continueLesson.course_id)?.course
+      : (enrollmentsWithCourses[0]?.course ?? null);
 
     // Fetch lesson title for continue learning
     let continueLessonTitle = "";
@@ -204,7 +233,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         .select("id")
         .eq("host_user_id", context.userId)
         .eq("course_id", continueLesson.course_id)
-        .eq("status", "active")
+        .eq("status", "live")
         .order("started_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -242,7 +271,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         : [];
 
     // ── Courses with real progress ─────────────────────────────────────
-    const courses = enrollments.map((enrollment: any) => {
+    const courses = enrollmentsWithCourses.map((enrollment: any) => {
       const course = enrollment.course;
       const progressForCourse = progressRows.filter((row: any) => row.course_id === course.id);
       const progressPercentage =
@@ -301,7 +330,7 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         lessonTitle: session.lessons?.title ?? "Untitled Lesson",
         courseTitle: session.courses?.title ?? "Untitled Course",
         status:
-          session.status === "active"
+          session.status === "live"
             ? ("live" as const)
             : session.status === "completed"
               ? ("completed" as const)

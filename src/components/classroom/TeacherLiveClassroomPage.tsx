@@ -3,6 +3,7 @@ import {
   AlertCircle,
   BadgeCheck,
   BookOpen,
+  Camera,
   Clock3,
   MessageSquare,
   Mic,
@@ -12,6 +13,7 @@ import {
   Send,
   Square,
   Users,
+  Video,
   Volume2,
   WandSparkles,
 } from "lucide-react";
@@ -26,6 +28,21 @@ type TeacherLiveClassroomPageProps = {
 };
 
 type RosterState = "ready" | "needs_help" | "hand_raised" | "quiet";
+
+type SessionParticipant = {
+  user_id?: string;
+  role?: string;
+  status?: string;
+  joined_at?: string;
+  left_at?: string | null;
+};
+
+type RosterEntry = {
+  id: string;
+  name: string;
+  state: RosterState;
+  signal: string;
+};
 
 function formatStatus(status?: string) {
   switch (status) {
@@ -53,15 +70,43 @@ function formatMode(mode?: string) {
   }
 }
 
-function buildRoster(questionCount: number): Array<{ name: string; state: RosterState; signal: string }> {
-  const base = [
-    { name: "Amina", state: "ready" as const, signal: "Following lesson" },
-    { name: "Brian", state: questionCount > 0 ? ("hand_raised" as const) : ("ready" as const), signal: questionCount > 0 ? "Asked a question" : "Ready" },
-    { name: "Chloe", state: "needs_help" as const, signal: "Needs slower pace" },
-    { name: "David", state: "quiet" as const, signal: "Listening quietly" },
-    { name: "Esther", state: "ready" as const, signal: "Captions enabled" },
-  ];
-  return base;
+function buildRoster(
+  participants: SessionParticipant[],
+  learnerQuestions: Array<{ user_id?: string; message?: string }>,
+): RosterEntry[] {
+  const activeLearners = participants.filter(
+    (participant) => participant.role === "student" && participant.status !== "left",
+  );
+
+  return activeLearners.map((participant, index) => {
+    const lastQuestion = [...learnerQuestions]
+      .reverse()
+      .find((message) => message.user_id === participant.user_id || !message.user_id);
+
+    const askedForHelp = /help|repeat|slow|again|raise|hand/i.test(lastQuestion?.message ?? "");
+    const hasQuestion = Boolean(lastQuestion);
+
+    let state: RosterState = "ready";
+    let signal = "Following lesson";
+
+    if (askedForHelp) {
+      state = "hand_raised";
+      signal = "Hand raised / needs response";
+    } else if (hasQuestion) {
+      state = "needs_help";
+      signal = "Asked a question";
+    } else if (index % 3 === 2) {
+      state = "quiet";
+      signal = "Listening quietly";
+    }
+
+    return {
+      id: participant.user_id ?? `learner-${index}`,
+      name: `Learner ${index + 1}`,
+      state,
+      signal,
+    };
+  });
 }
 
 function rosterTone(state: RosterState) {
@@ -85,16 +130,28 @@ export function TeacherLiveClassroomPage({
 }: TeacherLiveClassroomPageProps) {
   const [announcement, setAnnouncement] = useState("");
   const [sending, setSending] = useState(false);
+  const [cameraOn, setCameraOn] = useState(true);
+  const [micOn, setMicOn] = useState(true);
+  const [speakerOn, setSpeakerOn] = useState(true);
+  const [recordingLive, setRecordingLive] = useState(true);
 
   const session = classroomContext?.session ?? {};
   const lesson = classroomContext?.lesson ?? {};
   const course = classroomContext?.course ?? {};
   const institution = classroomContext?.institution ?? {};
   const messages = Array.isArray(classroomContext?.messages) ? classroomContext.messages : [];
+  const participants = Array.isArray(classroomContext?.participants)
+    ? (classroomContext.participants as SessionParticipant[])
+    : [];
   const learnerQuestions = messages.filter((m: any) => m.sender === "student");
   const teacherMessages = messages.filter((m: any) => m.sender === "teacher" || m.sender === "ai_teacher");
   const sessionStatus = formatStatus(session.status);
-  const roster = useMemo(() => buildRoster(learnerQuestions.length), [learnerQuestions.length]);
+  const roster = useMemo(
+    () => buildRoster(participants, learnerQuestions),
+    [participants, learnerQuestions],
+  );
+  const learnersInSession = roster.length;
+  const raisedHands = roster.filter((learner) => learner.state === "hand_raised").length;
 
   const quickActions = [
     "Let’s slow down and review the last idea together.",
@@ -137,12 +194,12 @@ export function TeacherLiveClassroomPage({
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
+          <div className="grid gap-3 sm:grid-cols-4 lg:min-w-[460px]">
             <div className="rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-4">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
                 <Users className="h-3.5 w-3.5" /> Learners
               </div>
-              <p className="mt-3 text-2xl font-black text-[#132033]">{roster.length}</p>
+              <p className="mt-3 text-2xl font-black text-[#132033]">{learnersInSession}</p>
             </div>
             <div className="rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-4">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
@@ -158,6 +215,12 @@ export function TeacherLiveClassroomPage({
               </div>
               <p className="mt-3 text-2xl font-black text-[#132033]">{learnerQuestions.length}</p>
             </div>
+            <div className="rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
+                <AlertCircle className="h-3.5 w-3.5" /> Hands raised
+              </div>
+              <p className="mt-3 text-2xl font-black text-[#132033]">{raisedHands}</p>
+            </div>
           </div>
         </div>
 
@@ -165,11 +228,40 @@ export function TeacherLiveClassroomPage({
           <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">
             <PlayCircle className="mr-2 h-4 w-4" /> {session.status === "live" ? "Resume live teaching" : "Open live classroom"}
           </Button>
-          <Button variant="outline" className="border-[#D7E4EC] text-[#27465F]">
-            <MonitorUp className="mr-2 h-4 w-4" /> Share board
+          <Button
+            type="button"
+            variant="outline"
+            className="border-[#D7E4EC] text-[#27465F]"
+            onClick={() => setCameraOn((value) => !value)}
+          >
+            <Camera className="mr-2 h-4 w-4" /> {cameraOn ? "Camera on" : "Camera off"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-[#D7E4EC] text-[#27465F]"
+            onClick={() => setMicOn((value) => !value)}
+          >
+            <Mic className="mr-2 h-4 w-4" /> {micOn ? "Mic live" : "Mic muted"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-[#D7E4EC] text-[#27465F]"
+            onClick={() => setSpeakerOn((value) => !value)}
+          >
+            <Volume2 className="mr-2 h-4 w-4" /> {speakerOn ? "Speaker on" : "Speaker off"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-[#D7E4EC] text-[#27465F]"
+            onClick={() => setRecordingLive((value) => !value)}
+          >
+            <Video className="mr-2 h-4 w-4" /> {recordingLive ? "Recording live" : "Start recording"}
           </Button>
           <Button variant="outline" className="border-[#D7E4EC] text-[#27465F]">
-            <Mic className="mr-2 h-4 w-4" /> Open microphone
+            <MonitorUp className="mr-2 h-4 w-4" /> Share board
           </Button>
           <Button variant="destructive" onClick={() => void onEndSession()}>
             <Square className="mr-2 h-4 w-4" /> End class
@@ -210,9 +302,24 @@ export function TeacherLiveClassroomPage({
                     </div>
                     <p className="mt-4 text-lg font-semibold">Teacher is presenting live</p>
                     <p className="mt-1 text-sm text-white/65">
-                      Video, voice, and captions stream from here for learners.
+                      Video, voice, captions, and the live lesson recording stream from here for learners in real time.
                     </p>
                   </div>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  {[
+                    { icon: <Camera className="h-4 w-4" />, label: "Camera", value: cameraOn ? "Live" : "Off" },
+                    { icon: <Mic className="h-4 w-4" />, label: "Microphone", value: micOn ? "Open" : "Muted" },
+                    { icon: <Volume2 className="h-4 w-4" />, label: "Speaker", value: speakerOn ? "On" : "Off" },
+                    { icon: <Video className="h-4 w-4" />, label: "Recording", value: recordingLive ? "Streaming and archiving" : "Not recording" },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-3 text-left">
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/60">
+                        {item.icon} {item.label}
+                      </div>
+                      <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -223,8 +330,9 @@ export function TeacherLiveClassroomPage({
                 <h3 className="mt-3 text-lg font-bold text-[#132033]">Lesson control panel</h3>
                 <ul className="mt-4 space-y-3 text-sm text-[#52687C]">
                   <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Current topic: {lesson.title ?? "Live lesson"}</li>
-                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Teacher can move between explanation, demonstration, and questions.</li>
-                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Teacher sees alerts when learners need support or raise hands.</li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Teacher reads and delivers the lesson live while guiding examples, exercises, and learner questions.</li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Teacher sees alerts when learners need support, raise hands, or ask questions in session.</li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Every live lesson recording is saved in real time, added to the course catalog, and becomes part of future learner enrollments.</li>
                 </ul>
               </div>
             </div>
@@ -245,7 +353,7 @@ export function TeacherLiveClassroomPage({
                 {[
                   "Reveal next example",
                   "Highlight key formula",
-                  "Open quick check",
+                  "Publish recording to catalog",
                 ].map((item) => (
                   <div key={item} className="rounded-2xl border border-[#E2EBF2] bg-white p-4 text-sm font-semibold text-[#27465F]">
                     {item}
@@ -292,17 +400,23 @@ export function TeacherLiveClassroomPage({
               <Users className="h-5 w-5 text-[#1F7C80]" />
             </div>
             <div className="mt-5 space-y-3">
-              {roster.map((learner) => (
-                <div key={learner.name} className="flex items-center justify-between rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-3">
-                  <div>
-                    <p className="font-semibold text-[#132033]">{learner.name}</p>
-                    <p className="text-xs text-[#61758A]">{learner.signal}</p>
+              {roster.length > 0 ? (
+                roster.map((learner) => (
+                  <div key={learner.id} className="flex items-center justify-between rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-3">
+                    <div>
+                      <p className="font-semibold text-[#132033]">{learner.name}</p>
+                      <p className="text-xs text-[#61758A]">{learner.signal}</p>
+                    </div>
+                    <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${rosterTone(learner.state)}`}>
+                      {learner.state.replace("_", " ")}
+                    </span>
                   </div>
-                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${rosterTone(learner.state)}`}>
-                    {learner.state.replace("_", " ")}
-                  </span>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-[#D9E7EE] bg-[#FBFDFC] p-5 text-sm text-[#63788D]">
+                  No learners have joined yet. When learners enter the session, the teacher will see them here.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -363,10 +477,10 @@ export function TeacherLiveClassroomPage({
             </div>
             <ul className="mt-4 space-y-3 text-sm text-[#53697D]">
               <li className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-3">
-                Captions and transcript can run live alongside the teacher.
+                Captions, transcript, and the lesson recording can run live alongside the teacher.
               </li>
               <li className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-3">
-                AI assistant can later insert confusion alerts, polls, and summary prompts.
+                After class, AI can answer future learner questions using the teacher’s voice and the saved lesson context.
               </li>
               <li className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-3">
                 Latest teacher-side message count: {teacherMessages.length}

@@ -296,8 +296,8 @@ function StudentQuizzes() {
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   {quiz.canRetake && (
                     <Link
-                      to={"/classroom/session_demo_math" as any}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] px-3 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
+                      to="/student/classrooms"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
                     >
                       <RotateCcw className="h-3.5 w-3.5" /> Retake
                     </Link>

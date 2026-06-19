@@ -21,20 +21,20 @@ export function Pricing() {
       featured: false,
     },
     {
-      name: "Deploy Klassruum",
-      price: "Custom",
-      period: "contract terms",
-      description: "Launch a governed learning environment for your institution.",
-      badge: "Institutional Plan",
+      name: "Monthly Classrooms",
+      price: "₦19,500",
+      period: "institution / month",
+      description: "Rent governed AI virtual classrooms monthly for your school, academy, or training centre.",
+      badge: "Monthly Rental",
       features: [
-        "Custom domain & branding",
-        "Course and lesson generation",
-        "Review gates before release",
-        "Admin governance dashboard",
-        "Analytics and compliance logs",
-        "Priority support & onboarding",
+        "Institution workspace and billing",
+        "Hire/invite teachers by email",
+        "Assign teachers to courses",
+        "AI classroom lessons and live sessions",
+        "Learner notes, transcripts, and progress",
+        "Monthly Paystack subscription flow",
       ],
-      cta: { label: "Plan deployment", to: "/institutions/register" as PricingHref },
+      cta: { label: "Start monthly rental", to: "/institutions/register" as PricingHref },
       featured: true,
     },
     {
@@ -69,89 +69,73 @@ export function Pricing() {
             </h2>
           </div>
           <p className="max-w-xl text-base leading-8 text-slate-600 md:ml-auto">
-            Start with a working classroom, then move into a deployment plan matched to your
-            materials, review process, learner access needs, and reporting requirements.
+            Start with a working classroom, then rent institution-ready virtual classrooms monthly
+            with teacher hiring, course assignment, billing, lessons, and reporting in one place.
           </p>
         </div>
 
         <div className="mx-auto mb-5 flex max-w-5xl items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
           <span>Choose a starting point</span>
-          <span className="hidden text-[#1F7C80] sm:inline">Institution setup available</span>
+          <span className="hidden text-[#1F7C80] sm:inline">Demo, rent monthly, or scale</span>
         </div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-px overflow-hidden border border-slate-200 bg-slate-200 md:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-4 md:grid-cols-3">
           {plans.map((plan) => (
             <article
               key={plan.name}
-              className={`flex min-h-full flex-col bg-white p-6 transition-colors md:p-7 ${
-                plan.featured ? "relative bg-[#07111f] text-white" : "hover:bg-slate-50"
+              className={`pricing-track-card flex min-h-full flex-col overflow-hidden p-6 md:p-7 ${
+                plan.featured
+                  ? "relative border-[#07111f] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.10)]"
+                  : "border-slate-200 bg-white"
               }`}
             >
+              {plan.featured && <div className="absolute inset-x-0 top-0 h-1.5 bg-[#07111f]" />}
+
               <div className="mb-7 flex items-start justify-between gap-4">
                 <span
                   className={`inline-flex border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${
                     plan.featured
-                      ? "border-cyan-200/20 bg-cyan-200/10 text-cyan-100"
-                      : "border-slate-200 bg-slate-50 text-slate-600"
+                      ? "border-[#07111f] bg-[#07111f] text-white"
+                      : "border-slate-200 bg-slate-50 text-slate-700"
                   }`}
                 >
                   {plan.badge}
                 </span>
                 {plan.featured && (
-                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-100/80">
+                  <span className="border border-[#1F7C80]/25 bg-[#E8F5F5] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#1A5256]">
                     Recommended
                   </span>
                 )}
               </div>
 
               <div>
-                <h3
-                  className={`font-sans text-xl font-extrabold ${
-                    plan.featured ? "!text-white" : "text-slate-950"
-                  }`}
-                >
+                <h3 className="font-sans text-xl font-extrabold text-slate-950">
                   {plan.name}
                 </h3>
                 <div className="mt-4 flex items-baseline gap-2">
-                  <span
-                    className={`font-sans text-4xl font-extrabold tracking-tight ${
-                      plan.featured ? "!text-white" : "text-slate-950"
-                    }`}
-                  >
+                  <span className="font-sans text-4xl font-extrabold tracking-tight text-slate-950">
                     {plan.price}
                   </span>
-                  <span
-                    className={`text-sm font-medium ${
-                      plan.featured ? "text-white/55" : "text-slate-500"
-                    }`}
-                  >
+                  <span className="text-sm font-medium text-slate-500">
                     / {plan.period}
                   </span>
                 </div>
-                <p
-                  className={`mt-4 min-h-[72px] text-sm leading-6 ${
-                    plan.featured ? "!text-white/72" : "text-slate-600"
-                  }`}
-                >
+                <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-600">
                   {plan.description}
                 </p>
               </div>
 
-              <div className={`my-7 h-px ${plan.featured ? "bg-white/12" : "bg-slate-200"}`} />
+              <div className="my-7 h-px bg-slate-200" />
 
               <ul className="grid flex-1 gap-3">
                 {plan.features.map((inc) => (
                   <li
                     key={inc}
-                    className={`flex items-start gap-2.5 text-sm leading-6 ${
-                      plan.featured ? "text-white/78" : "text-slate-700"
-                    }`}
+                    className="flex items-start gap-2.5 text-sm leading-6 text-slate-700"
                   >
                     <CheckCircle2
                       size={15}
-                      className={`mt-0.5 shrink-0 ${
-                        plan.featured ? "text-cyan-200" : "text-[#1F7C80]"
-                      }`}
+                      className={`mt-0.5 shrink-0 ${plan.featured ? "text-[#07111f]" : "text-[#1F7C80]"}`}
                     />
                     <span>{inc}</span>
                   </li>
@@ -162,7 +146,7 @@ export function Pricing() {
                 to={plan.cta.to}
                 className={`mt-8 inline-flex min-h-11 w-full items-center justify-center gap-2 px-4 text-sm font-bold transition-colors ${
                   plan.featured
-                    ? "bg-white !text-[#07111f] hover:bg-cyan-50"
+                    ? "border border-[#07111f] bg-[#07111f] !text-white hover:bg-[#10233f]"
                     : "border border-slate-300 bg-white !text-slate-950 hover:border-slate-400 hover:bg-slate-100"
                 }`}
               >
@@ -179,12 +163,12 @@ export function Pricing() {
             after fit is clear.
           </p>
           <p>
-            <strong className="font-bold text-slate-950">No hidden classroom layer:</strong> voice,
-            board, captions, notes, and transcripts are core.
+            <strong className="font-bold text-slate-950">Monthly rental:</strong> Paystack-backed
+            institution billing supports month-by-month classroom access.
           </p>
           <p>
-            <strong className="font-bold text-slate-950">No one-size-fits-all rollout:</strong>{" "}
-            institutional pricing follows scope.
+            <strong className="font-bold text-slate-950">Teacher-ready:</strong> invite teachers,
+            assign courses, and run AI, human, or hybrid classrooms.
           </p>
         </div>
       </div>

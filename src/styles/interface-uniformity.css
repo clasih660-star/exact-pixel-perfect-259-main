@@ -253,11 +253,32 @@
 
 .kr-dashboard-shell a[class*="bg-[#1F7C80]"],
 .kr-dashboard-shell a[class*="bg-[#07111f]"],
+.kr-dashboard-shell a[class*="bg-[#07111F]"],
+.kr-dashboard-shell button[class*="bg-[#1F7C80]"],
+.kr-dashboard-shell button[class*="bg-[#07111f]"],
+.kr-dashboard-shell button[class*="bg-[#07111F]"],
+.kr-dashboard-shell a[class*="from-[#1F7C80]"],
+.kr-dashboard-shell button[class*="from-[#1F7C80]"],
+.kr-dashboard-shell a[class*="from-[#07111f]"],
+.kr-dashboard-shell button[class*="from-[#07111f]"],
 .dashboard-layout a[class*="bg-[#1F7C80]"],
 .dashboard-layout a[class*="bg-[#07111f]"],
+.dashboard-layout a[class*="bg-[#07111F]"],
+.dashboard-layout button[class*="bg-[#1F7C80]"],
+.dashboard-layout button[class*="bg-[#07111f]"],
+.dashboard-layout button[class*="bg-[#07111F]"],
+.dashboard-layout a[class*="from-[#1F7C80]"],
+.dashboard-layout button[class*="from-[#1F7C80]"],
+.dashboard-layout a[class*="from-[#07111f]"],
+.dashboard-layout button[class*="from-[#07111f]"],
 .pricing-page-shell a[class*="bg-[#07111f]"],
 .pricing-page-shell a[class*="bg-[#0f172a]"] {
   color: #ffffff !important;
+}
+
+.kr-dashboard-shell :is(a, button)[class*="bg-white"][class*="text-white"],
+.dashboard-layout :is(a, button)[class*="bg-white"][class*="text-white"] {
+  color: var(--ui-ink) !important;
 }
 
 .kr-dashboard-shell a[class*="bg-[var(--primary)]"],
@@ -454,6 +475,45 @@
 .dashboard-layout .stat-card [class*="text-2xl"] {
   font-size: clamp(1.3rem, 1.7vw, 1.7rem) !important;
   line-height: 1.15 !important;
+}
+
+.kr-dashboard-shell :where(
+  .dashboard-card,
+  .kr-card,
+  .kr-kpi-card,
+  .kr-stat-card-item,
+  main article[class*="border"],
+  main section[class*="border"],
+  main a[class*="border"],
+  main div[class*="border"]
+) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.kr-dashboard-shell :where(
+  .dashboard-card,
+  .kr-card,
+  .kr-kpi-card,
+  .kr-stat-card-item,
+  main article[class*="border"],
+  main section[class*="border"],
+  main a[class*="border"],
+  main div[class*="border"]
+) :where(h1, h2, h3, h4, p, span, strong, small, dt, dd, a, button) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.kr-dashboard-shell main :where(a, button)[class*="whitespace-nowrap"] {
+  height: auto;
+  min-height: 44px;
+  text-align: center;
+  white-space: normal !important;
+}
+
+.kr-dashboard-shell main :where(.flex-1, [class*="flex-1"]) {
+  min-width: 0;
 }
 
 .kr-dashboard-shell .dashboard-card [class*="grid"],

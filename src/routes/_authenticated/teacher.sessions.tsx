@@ -252,7 +252,7 @@ function SessionRow({ session }: { session: Session }) {
           <Link
             to="/teacher/sessions/$sessionId"
             params={{ sessionId: session.id }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-[#1F7C80] to-[#1A5256] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
           >
             <Play className="h-4 w-4" />
             {session.status === "live" ? "Join" : "Start"}

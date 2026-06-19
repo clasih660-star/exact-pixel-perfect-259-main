@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { roleDashboardPath } from "@/lib/route-guards";
 import { clearPendingVerification, requiresEmailVerification } from "@/lib/auth-verification";
+import { completeAuthProfile } from "@/lib/auth-profile.functions";
 import type { UserRole } from "@/lib/types";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
@@ -43,6 +45,7 @@ const ROLE_OPTIONS: Array<{
 
 function CompleteProfilePage() {
   const navigate = useNavigate();
+  const completeProfileFn = useServerFn(completeAuthProfile);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -110,23 +113,24 @@ function CompleteProfilePage() {
       const user = sessionData.session?.user;
       if (!user) throw new Error("Session expired. Please sign in again.");
 
-      // Upsert profile with role
-      const { error: upsertError } = await supabase.from("profiles").upsert(
-        {
-          id: userId,
-          full_name: fullName.trim(),
-          email: user.email ?? null,
-          avatar_url: user.user_metadata?.avatar_url ?? null,
+      const result = await completeProfileFn({
+        data: {
+          fullName: fullName.trim(),
           role: selectedRole,
         },
-        { onConflict: "id" },
-      );
-
-      if (upsertError) throw upsertError;
+      });
 
       localStorage.setItem("klassruum_demo_role", selectedRole);
 
-      toast.success("Profile completed! Welcome to Klassruum.");
+      toast.success(
+        result.studentNumber
+          ? `Profile completed. Your student ID is ${result.studentNumber}.`
+          : result.teacherNumber
+            ? `Profile completed. Your teacher ID is ${result.teacherNumber}.`
+            : result.institutionCode
+              ? `Profile completed. Your institution ID is ${result.institutionCode}.`
+              : "Profile completed! Welcome to Klassruum.",
+      );
       navigate({ to: roleDashboardPath(selectedRole) });
     } catch (err) {
       toast.error((err as Error).message);

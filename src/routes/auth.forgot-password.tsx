@@ -1,20 +1,86 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Logo } from "@/components/brand/Logo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { getAuthCallbackUrl } from "@/lib/auth-verification";
 
 export const Route = createFileRoute("/auth/forgot-password")({
-  component: () => (
+  component: ForgotPasswordPage,
+});
+
+function ForgotPasswordPage() {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isSupabaseConfigured()) {
+      toast.error("Supabase is not configured in this environment.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: getAuthCallbackUrl(),
+      });
+
+      if (error) throw error;
+      toast.success("Password reset link sent. Check your inbox.");
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
     <div className="auth-tech-page flex min-h-screen items-center justify-center px-6 py-12">
-      <div className="auth-tech-panel w-full max-w-md space-y-6 p-8">
-        <h1 className="text-2xl font-bold text-[var(--gray-900)]">Forgot Password</h1>
-        <p className="text-sm text-[var(--gray-600)]">This page is coming soon.</p>
-        <div className="rounded-lg border border-dashed border-[var(--gray-300)] p-6 text-center">
-          <p className="text-sm text-[var(--gray-400)]">Coming soon</p>
+      <div className="auth-tech-panel w-full max-w-md space-y-8 p-8">
+        <div className="flex justify-center">
+          <Link to="/" className="flex items-center">
+            <Logo size={40} />
+          </Link>
         </div>
-        <div className="text-center text-sm text-[var(--gray-500)]">
-          <Link to="/auth" className="text-[var(--primary)] hover:underline">
-            Back to login
+
+        <div className="text-center">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#1A3233]">Reset your password</h1>
+          <p className="mt-2 text-sm text-[#64748B]">
+            Enter your account email and we’ll send you a secure reset link.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email address</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              autoFocus
+            />
+          </div>
+
+          <Button type="submit" className="w-full" size="lg" disabled={busy}>
+            {busy ? "Sending…" : "Send reset link"}
+          </Button>
+        </form>
+
+        <div className="text-center text-sm text-[#64748B]">
+          Remembered your password?{" "}
+          <Link to="/auth/login" className="font-semibold text-[#1F7C80] hover:underline">
+            Back to sign in
           </Link>
         </div>
       </div>
     </div>
-  ),
-});
+  );
+}

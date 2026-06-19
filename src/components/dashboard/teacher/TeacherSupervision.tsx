@@ -123,7 +123,7 @@ export default function TeacherSupervision() {
                 }) => (
                   <Link
                     key={s.id}
-                    to="/classroom/session/$sessionId"
+                    to="/teacher/sessions/$sessionId"
                     params={{ sessionId: s.id }}
                     className="flex items-center justify-between gap-3 rounded-xl border border-[var(--gray-200)] p-3 transition-all hover:bg-[var(--gray-50)]"
                   >
