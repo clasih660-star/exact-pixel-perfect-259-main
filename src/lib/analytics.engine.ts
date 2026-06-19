@@ -49,7 +49,7 @@ export type NotificationRule = {
 
 export const getStudentAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -76,10 +76,7 @@ export const getStudentAnalytics = createServerFn({ method: "GET" })
         .eq("student_id", userId)
         .order("created_at", { ascending: false })
         .limit(500),
-      supabase
-        .from("session_notes")
-        .select("id, source_type")
-        .eq("student_id", userId),
+      supabase.from("session_notes").select("id, source_type").eq("student_id", userId),
     ]);
 
     const sessionRows = sessions.data ?? [];
@@ -92,13 +89,21 @@ export const getStudentAnalytics = createServerFn({ method: "GET" })
     const totalSessions = sessionRows.length;
     const completedSessions = sessionRows.filter((s: any) => s.status === "completed").length;
     const totalQuizCount = quizData.length;
-    const avgQuizScore = totalQuizCount > 0
-      ? Math.round(quizData.reduce((s: number, q: any) => s + (q.percentage ?? 0), 0) / totalQuizCount)
-      : 0;
-    const totalTimeMinutes = progressData.reduce((s: number, p: any) => s + (p.time_spent_minutes ?? 0), 0);
-    const avgConfusionScore = progressData.length > 0
-      ? progressData.reduce((s: number, p: any) => s + (p.confusion_score ?? 0), 0) / progressData.length
-      : 0;
+    const avgQuizScore =
+      totalQuizCount > 0
+        ? Math.round(
+            quizData.reduce((s: number, q: any) => s + (q.percentage ?? 0), 0) / totalQuizCount,
+          )
+        : 0;
+    const totalTimeMinutes = progressData.reduce(
+      (s: number, p: any) => s + (p.time_spent_minutes ?? 0),
+      0,
+    );
+    const avgConfusionScore =
+      progressData.length > 0
+        ? progressData.reduce((s: number, p: any) => s + (p.confusion_score ?? 0), 0) /
+          progressData.length
+        : 0;
 
     // Access setting usage from events
     const accessSettingUsage: Record<string, number> = {};
@@ -137,9 +142,10 @@ export const getStudentAnalytics = createServerFn({ method: "GET" })
       const key = weekStart.toISOString().split("T")[0];
       if (!weeklyMap[key]) weeklyMap[key] = { sessions: 0, minutes: 0 };
       weeklyMap[key].sessions++;
-      const dur = s.ended_at && s.started_at
-        ? Math.round((new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 60000)
-        : 0;
+      const dur =
+        s.ended_at && s.started_at
+          ? Math.round((new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 60000)
+          : 0;
       weeklyMap[key].minutes += dur;
     });
     const weeklyProgress = Object.entries(weeklyMap)
@@ -147,11 +153,11 @@ export const getStudentAnalytics = createServerFn({ method: "GET" })
       .sort((a, b) => a.week.localeCompare(b.week));
 
     // Streak calculation
-    const sessionDates = [...new Set(
-      sessionRows
-        .map((s: any) => s.started_at?.split("T")[0])
-        .filter(Boolean),
-    )].sort().reverse();
+    const sessionDates = [
+      ...new Set<string>(sessionRows.map((s: any) => s.started_at?.split("T")[0]).filter(Boolean)),
+    ]
+      .sort()
+      .reverse() as string[];
 
     let streakDays = 0;
     let longestStreak = 0;
@@ -187,8 +193,10 @@ export const getStudentAnalytics = createServerFn({ method: "GET" })
       const recent = data.scores.slice(0, 3);
       const older = data.scores.slice(3, 6);
       const recentAvg = recent.length > 0 ? recent.reduce((a, b) => a + b, 0) / recent.length : 0;
-      const olderAvg = older.length > 0 ? older.reduce((a, b) => a + b, 0) / older.length : recentAvg;
-      const trend: "up" | "down" | "flat" = recentAvg > olderAvg + 5 ? "up" : recentAvg < olderAvg - 5 ? "down" : "flat";
+      const olderAvg =
+        older.length > 0 ? older.reduce((a, b) => a + b, 0) / older.length : recentAvg;
+      const trend: "up" | "down" | "flat" =
+        recentAvg > olderAvg + 5 ? "up" : recentAvg < olderAvg - 5 ? "down" : "flat";
       return { topic, score: Math.round(recentAvg), trend };
     });
 
@@ -260,7 +268,7 @@ const NOTIFICATION_RULES: NotificationRule[] = [
 
 export const generateNotifications = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -304,7 +312,7 @@ export const generateNotifications = createServerFn({ method: "POST" })
 
 export const getNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -340,7 +348,7 @@ export const getNotifications = createServerFn({ method: "GET" })
 export const markNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { notification_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const supabase = context.supabase;
     await supabase
       .from("notifications")

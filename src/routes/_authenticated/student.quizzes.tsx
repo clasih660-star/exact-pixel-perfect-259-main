@@ -11,6 +11,9 @@ import {
   TrendingUp,
   ChevronDown,
   ChevronUp,
+  Target,
+  Award,
+  Layers,
 } from "lucide-react";
 import { requireStudent } from "@/lib/route-guards";
 
@@ -49,10 +52,19 @@ const QUIZZES: Quiz[] = [
     timeTaken: "4 min 12 sec",
     canRetake: false,
     questions: [
-      { question: "What is the standard form of a quadratic equation?", yourAnswer: "ax² + bx + c = 0", correct: true },
+      {
+        question: "What is the standard form of a quadratic equation?",
+        yourAnswer: "ax² + bx + c = 0",
+        correct: true,
+      },
       { question: "Solve: x² - 5x + 6 = 0", yourAnswer: "x = 2 or x = 3", correct: true },
       { question: "Factor: x² + 7x + 12", yourAnswer: "(x + 4)(x + 3)", correct: true },
-      { question: "What is the discriminant formula?", yourAnswer: "b - 4ac", correct: false, correctAnswer: "b² - 4ac" },
+      {
+        question: "What is the discriminant formula?",
+        yourAnswer: "b - 4ac",
+        correct: false,
+        correctAnswer: "b² - 4ac",
+      },
       { question: "Solve: x² - 9 = 0", yourAnswer: "x = 3 or x = -3", correct: true },
     ],
   },
@@ -67,8 +79,17 @@ const QUIZZES: Quiz[] = [
     canRetake: true,
     questions: [
       { question: "Balance: H₂ + O₂ → H₂O", yourAnswer: "2H₂ + O₂ → 2H₂O", correct: true },
-      { question: "What type of reaction is combustion?", yourAnswer: "Decomposition", correct: false, correctAnswer: "Exothermic oxidation" },
-      { question: "What is a catalyst?", yourAnswer: "Speeds up a reaction without being consumed", correct: true },
+      {
+        question: "What type of reaction is combustion?",
+        yourAnswer: "Decomposition",
+        correct: false,
+        correctAnswer: "Exothermic oxidation",
+      },
+      {
+        question: "What is a catalyst?",
+        yourAnswer: "Speeds up a reaction without being consumed",
+        correct: true,
+      },
     ],
   },
   {
@@ -81,7 +102,11 @@ const QUIZZES: Quiz[] = [
     timeTaken: "3 min 55 sec",
     canRetake: false,
     questions: [
-      { question: "What does HTML stand for?", yourAnswer: "HyperText Markup Language", correct: true },
+      {
+        question: "What does HTML stand for?",
+        yourAnswer: "HyperText Markup Language",
+        correct: true,
+      },
       { question: "Which tag creates a hyperlink?", yourAnswer: "<a>", correct: true },
       { question: "Which attribute makes a form required?", yourAnswer: "required", correct: true },
     ],
@@ -97,17 +122,53 @@ const QUIZZES: Quiz[] = [
     canRetake: true,
     questions: [
       { question: "Simplify: 3x + 2x", yourAnswer: "5x", correct: true },
-      { question: "Expand: 2(x + 3)", yourAnswer: "2x + 3", correct: false, correctAnswer: "2x + 6" },
+      {
+        question: "Expand: 2(x + 3)",
+        yourAnswer: "2x + 3",
+        correct: false,
+        correctAnswer: "2x + 6",
+      },
     ],
   },
 ];
 
 function scoreGrade(score: number, total: number) {
   const pct = (score / total) * 100;
-  if (pct >= 90) return { grade: "A", color: "text-green-600", bg: "bg-green-50 border-green-200" };
-  if (pct >= 75) return { grade: "B", color: "text-[#1F7C80]", bg: "bg-[#e8f5f5] border-[#a3d9d8]" };
-  if (pct >= 60) return { grade: "C", color: "text-amber-600", bg: "bg-amber-50 border-amber-200" };
-  return { grade: "D", color: "text-red-600", bg: "bg-red-50 border-red-200" };
+  if (pct >= 90)
+    return {
+      grade: "A",
+      color: "text-green-700",
+      bg: "from-green-50 to-white",
+      border: "border-green-200",
+      barColor: "from-green-400 to-green-500",
+      glow: "rgba(22,163,74,0.15)",
+    };
+  if (pct >= 75)
+    return {
+      grade: "B",
+      color: "text-[#1F7C80]",
+      bg: "from-[#e8f5f5] to-white",
+      border: "border-[#a3d9d8]",
+      barColor: "from-[#3fa8ab] to-[#1F7C80]",
+      glow: "rgba(31,124,128,0.15)",
+    };
+  if (pct >= 60)
+    return {
+      grade: "C",
+      color: "text-amber-700",
+      bg: "from-amber-50 to-white",
+      border: "border-amber-200",
+      barColor: "from-amber-400 to-amber-500",
+      glow: "rgba(217,119,6,0.15)",
+    };
+  return {
+    grade: "D",
+    color: "text-red-700",
+    bg: "from-red-50 to-white",
+    border: "border-red-200",
+    barColor: "from-red-400 to-red-500",
+    glow: "rgba(220,38,38,0.15)",
+  };
 }
 
 function StudentQuizzes() {
@@ -121,55 +182,95 @@ function StudentQuizzes() {
 
   return (
     <StudentShell title="Quiz History">
-      {/* Stats */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[var(--primary)]">{avgScore}%</p>
-          <p className="mt-0.5 text-xs font-semibold text-[var(--gray-500)]">Average Score</p>
+      {/* Premium Stats Strip */}
+      <div className="kr-stat-strip kr-stat-strip--3 mb-6">
+        {/* Average Score */}
+        <div className="kr-stat-card-item kr-stat-card-item--brand">
+          <div className="flex items-center justify-center mb-2">
+            <Target className="h-4 w-4 text-[#1F7C80]" />
+          </div>
+          <p className="kr-stat-value text-[#1F7C80]">{avgScore}%</p>
+          <p className="kr-stat-label">Average Score</p>
         </div>
-        <div className="rounded-2xl border border-[var(--gray-200)] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-green-600">{Math.round(bestScore)}%</p>
-          <p className="mt-0.5 text-xs font-semibold text-[var(--gray-500)]">Best Score</p>
+
+        {/* Best Score */}
+        <div className="kr-stat-card-item kr-stat-card-item--success">
+          <div className="flex items-center justify-center mb-2">
+            <Award className="h-4 w-4 text-green-700" />
+          </div>
+          <p className="kr-stat-value text-green-700">{Math.round(bestScore)}%</p>
+          <p className="kr-stat-label">Best Score</p>
         </div>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center">
-          <p className="text-2xl font-extrabold text-amber-600">{canRetakeCount}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[var(--gray-500)]">Available Retakes</p>
+
+        {/* Retakes */}
+        <div
+          className={`kr-stat-card-item ${canRetakeCount > 0 ? "kr-stat-card-item--warning" : ""}`}
+        >
+          <div className="flex items-center justify-center mb-2">
+            <RotateCcw
+              className={`h-4 w-4 ${canRetakeCount > 0 ? "text-amber-600" : "text-[#94A3B8]"}`}
+            />
+          </div>
+          <p
+            className={`kr-stat-value ${canRetakeCount > 0 ? "text-amber-700" : "text-[#94A3B8]"}`}
+          >
+            {canRetakeCount}
+          </p>
+          <p className="kr-stat-label">Available Retakes</p>
         </div>
       </div>
 
-      {/* Score trend message */}
-      <div className="mb-5 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
-        <TrendingUp className="h-4 w-4 text-green-600" />
+      {/* Score trend banner */}
+      <div className="mb-5 flex items-center gap-3 rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-white px-4 py-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-green-100">
+          <TrendingUp className="h-4 w-4 text-green-600" />
+        </div>
         <p className="text-sm font-semibold text-green-700">
           Your quiz average improved by <strong>+4%</strong> this month — great consistency!
         </p>
+      </div>
+
+      {/* Section heading */}
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Layers className="h-4 w-4 text-[#64748B]" />
+          <h2 className="text-sm font-bold text-[#0F172A]">Recent Quizzes</h2>
+        </div>
+        <span className="text-xs text-[#94A3B8]">{QUIZZES.length} total</span>
       </div>
 
       {/* Quiz cards */}
       <div className="space-y-4">
         {QUIZZES.map((quiz) => {
           const pct = Math.round((quiz.score / quiz.total) * 100);
-          const { grade, color, bg } = scoreGrade(quiz.score, quiz.total);
+          const { grade, color, bg, border, barColor, glow } = scoreGrade(quiz.score, quiz.total);
           const isExpanded = expanded === quiz.id;
 
           return (
             <div
               key={quiz.id}
-              className="rounded-2xl border border-[var(--gray-200)] bg-white overflow-hidden transition-all hover:border-[var(--primary)]/30 hover:shadow-sm"
+              className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
             >
               {/* Header */}
               <div className="flex items-center gap-4 p-5">
-                {/* Grade badge */}
-                <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border ${bg}`}>
-                  <span className={`text-xl font-extrabold ${color}`}>{grade}</span>
-                  <span className={`text-[10px] font-bold ${color}`}>{pct}%</span>
+                {/* Premium grade badge */}
+                <div
+                  className={`relative flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border bg-gradient-to-br ${bg} ${border} shadow-sm overflow-hidden`}
+                  style={{ boxShadow: `0 4px 14px ${glow}` }}
+                >
+                  <span className={`text-xl font-extrabold leading-none ${color}`}>{grade}</span>
+                  <span className={`text-[10px] font-bold leading-none mt-0.5 ${color}`}>
+                    {pct}%
+                  </span>
+                  {/* subtle inner highlight */}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/60 to-transparent" />
                 </div>
 
                 {/* Main info */}
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-[var(--gray-900)]">{quiz.title}</h3>
-                  <p className="text-sm text-[var(--gray-500)]">{quiz.course}</p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-[var(--gray-400)]">
+                  <h3 className="text-base font-bold text-[#0F172A]">{quiz.title}</h3>
+                  <p className="mt-0.5 text-sm text-[#64748B]">{quiz.course}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-[#94A3B8]">
                     <span className="flex items-center gap-1">
                       <Star className="h-3 w-3 text-amber-500" />
                       {quiz.score}/{quiz.total} correct
@@ -182,10 +283,10 @@ function StudentQuizzes() {
                     </span>
                   </div>
 
-                  {/* Score bar */}
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-[var(--gray-100)]">
+                  {/* Score progress bar */}
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
                     <div
-                      className={`h-full rounded-full transition-all ${pct >= 80 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500"}`}
+                      className={`h-full rounded-full bg-gradient-to-r ${barColor} transition-all`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -195,48 +296,58 @@ function StudentQuizzes() {
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   {quiz.canRetake && (
                     <Link
-                      to="/classroom/session_demo_math"
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
+                      to="/student/classrooms"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
                     >
                       <RotateCcw className="h-3.5 w-3.5" /> Retake
                     </Link>
                   )}
                   <button
                     onClick={() => setExpanded(isExpanded ? null : quiz.id)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#1F7C80] hover:text-[#1A5256] transition-colors"
                   >
                     {isExpanded ? (
-                      <><ChevronUp className="h-3.5 w-3.5" /> Hide answers</>
+                      <>
+                        <ChevronUp className="h-3.5 w-3.5" /> Hide answers
+                      </>
                     ) : (
-                      <><ChevronDown className="h-3.5 w-3.5" /> Review answers</>
+                      <>
+                        <ChevronDown className="h-3.5 w-3.5" /> Review answers
+                      </>
                     )}
                   </button>
                 </div>
               </div>
 
-              {/* Expanded answers */}
+              {/* Expanded answer breakdown */}
               {isExpanded && (
-                <div className="border-t border-[var(--gray-100)] px-5 pb-5 pt-4">
-                  <h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-[var(--gray-500)]">Answer Breakdown</h4>
+                <div className="border-t border-[#F1F5F9] bg-[#FAFCFC] px-5 pb-5 pt-4">
+                  <h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+                    Answer Breakdown
+                  </h4>
                   <div className="space-y-2">
                     {quiz.questions.map((q, i) => (
                       <div
                         key={i}
-                        className={`flex items-start gap-3 rounded-xl p-3 ${q.correct ? "bg-green-50 border border-green-100" : "bg-red-50 border border-red-100"}`}
+                        className={`flex items-start gap-3 rounded-xl border p-3 ${
+                          q.correct ? "border-green-100 bg-green-50" : "border-red-100 bg-red-50"
+                        }`}
                       >
                         {q.correct ? (
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
                         ) : (
-                          <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                          <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-[var(--gray-900)]">{q.question}</p>
-                          <p className={`mt-0.5 text-xs ${q.correct ? "text-green-700" : "text-red-700"}`}>
+                          <p className="text-sm font-semibold text-[#0F172A]">{q.question}</p>
+                          <p
+                            className={`mt-0.5 text-xs ${q.correct ? "text-green-700" : "text-red-600"}`}
+                          >
                             Your answer: {q.yourAnswer}
                           </p>
                           {!q.correct && q.correctAnswer && (
                             <p className="mt-0.5 text-xs font-semibold text-green-700">
-                              Correct: {q.correctAnswer}
+                              ✓ Correct: {q.correctAnswer}
                             </p>
                           )}
                         </div>

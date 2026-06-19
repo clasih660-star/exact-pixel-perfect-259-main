@@ -46,7 +46,7 @@ function StudentCoursePage() {
         <p className="text-sm text-muted-foreground">No lessons published yet.</p>
       ) : (
         <div className="space-y-2">
-          {lessons.map((l) => {
+          {lessons.map((l: any) => {
             const status = l.progress?.status ?? "not_started";
             const Icon =
               status === "completed"

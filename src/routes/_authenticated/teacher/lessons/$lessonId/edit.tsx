@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
+import { requireInstitutionStaff } from "@/lib/route-guards";
 import {
   getLesson,
   updateLessonDetails,
@@ -21,6 +22,7 @@ import {
 } from "@/lib/lessons.functions";
 
 export const Route = createFileRoute("/_authenticated/teacher/lessons/$lessonId/edit")({
+  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
   component: LessonEditorPage,
 });
 
@@ -96,13 +98,21 @@ function LessonEditorPage() {
         </div>
 
         {/* Publish Actions */}
-        <PublishSection lesson={lesson} lessonId={lessonId} onPublish={() => {}} />
+        <PublishSection lesson={lesson} lessonId={lessonId} onPublish={() => { }} />
       </div>
     </InstitutionShell>
   );
 }
 
-function LessonHeader({ lesson, lessonId, onRefresh }: { lesson: any; lessonId: string; onRefresh: () => void }) {
+function LessonHeader({
+  lesson,
+  lessonId,
+  onRefresh,
+}: {
+  lesson: any;
+  lessonId: string;
+  onRefresh: () => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     title: lesson.title || "",
@@ -158,7 +168,9 @@ function LessonHeader({ lesson, lessonId, onRefresh }: { lesson: any; lessonId: 
                   <Input
                     type="number"
                     value={form.duration_minutes}
-                    onChange={(e) => setForm({ ...form, duration_minutes: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setForm({ ...form, duration_minutes: parseInt(e.target.value) })
+                    }
                     min={15}
                     max={600}
                   />
@@ -178,7 +190,9 @@ function LessonHeader({ lesson, lessonId, onRefresh }: { lesson: any; lessonId: 
                 <p className="text-sm text-muted-foreground mt-1">{lesson.objective}</p>
                 <div className="mt-2 flex items-center gap-4">
                   <Badge variant="secondary">{lesson.status}</Badge>
-                  <span className="text-sm text-muted-foreground">{lesson.duration_minutes || "?"} min</span>
+                  <span className="text-sm text-muted-foreground">
+                    {lesson.duration_minutes || "?"} min
+                  </span>
                 </div>
               </div>
             )}
@@ -275,12 +289,7 @@ function SectionAccordion({
             <p className="text-sm text-muted-foreground py-3">No teaching items in this section.</p>
           ) : (
             items.map((item: any, idx: number) => (
-              <TeachingItemEditor
-                key={item.id}
-                item={item}
-                index={idx + 1}
-                onUpdate={onUpdate}
-              />
+              <TeachingItemEditor key={item.id} item={item} index={idx + 1} onUpdate={onUpdate} />
             ))
           )}
         </CardContent>
@@ -289,7 +298,15 @@ function SectionAccordion({
   );
 }
 
-function TeachingItemEditor({ item, index, onUpdate }: { item: any; index: number; onUpdate: () => void }) {
+function TeachingItemEditor({
+  item,
+  index,
+  onUpdate,
+}: {
+  item: any;
+  index: number;
+  onUpdate: () => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({
     board_text: item.board_text || "",
@@ -443,7 +460,15 @@ function TeachingItemEditor({ item, index, onUpdate }: { item: any; index: numbe
   );
 }
 
-function PublishSection({ lesson, lessonId, onPublish }: { lesson: any; lessonId: string; onPublish: () => void }) {
+function PublishSection({
+  lesson,
+  lessonId,
+  onPublish,
+}: {
+  lesson: any;
+  lessonId: string;
+  onPublish: () => void;
+}) {
   const qc = useQueryClient();
   const fn = useServerFn(publishLesson);
   const m = useMutation({
@@ -475,9 +500,14 @@ function PublishSection({ lesson, lessonId, onPublish }: { lesson: any; lessonId
       <CardContent className="p-6">
         <h4 className="font-semibold mb-2 text-[#0F172A]">Ready to Publish?</h4>
         <p className="text-sm text-[#1A5256] mb-4">
-          Review all sections and items above. When you're satisfied, publish this lesson to make it available to students.
+          Review all sections and items above. When you're satisfied, publish this lesson to make it
+          available to students.
         </p>
-        <Button onClick={() => m.mutate()} disabled={m.isPending} className="bg-[#1F7C80] hover:bg-[#1A5256]">
+        <Button
+          onClick={() => m.mutate()}
+          disabled={m.isPending}
+          className="bg-[#1F7C80] hover:bg-[#1A5256]"
+        >
           {m.isPending ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

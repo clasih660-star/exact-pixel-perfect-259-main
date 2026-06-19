@@ -17,6 +17,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createResilientModelCaller } from "./ai-gateway.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertActorHasAnyRole } from "@/lib/server-authorization";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -54,11 +56,27 @@ const PATTERNS: {
   {
     tone: "frustrated",
     keywords: [
-      "frustrated", "annoyed", "angry", "this is stupid", "waste of time",
-      "can't do this", "impossible", "giving up", "i hate", "too hard",
-      "no point", "doesn't make sense", "makes no sense", "this is wrong",
-      "i don't get why", "this is confusing", "so confusing", "i'm stuck",
-      "what is going on", "lost", "completely lost",
+      "frustrated",
+      "annoyed",
+      "angry",
+      "this is stupid",
+      "waste of time",
+      "can't do this",
+      "impossible",
+      "giving up",
+      "i hate",
+      "too hard",
+      "no point",
+      "doesn't make sense",
+      "makes no sense",
+      "this is wrong",
+      "i don't get why",
+      "this is confusing",
+      "so confusing",
+      "i'm stuck",
+      "what is going on",
+      "lost",
+      "completely lost",
     ],
     weight: 0.8,
   },
@@ -66,10 +84,25 @@ const PATTERNS: {
   {
     tone: "confused",
     keywords: [
-      "confused", "don't understand", "dont understand", "i don't get it",
-      "i dont get it", "what", "huh", "unclear", "i'm lost", "im lost",
-      "explain", "i don't understand", "i dont understand", "not sure",
-      "??", "what does", "how come", "why is", "i don't see",
+      "confused",
+      "don't understand",
+      "dont understand",
+      "i don't get it",
+      "i dont get it",
+      "what",
+      "huh",
+      "unclear",
+      "i'm lost",
+      "im lost",
+      "explain",
+      "i don't understand",
+      "i dont understand",
+      "not sure",
+      "??",
+      "what does",
+      "how come",
+      "why is",
+      "i don't see",
     ],
     weight: 0.5,
   },
@@ -77,9 +110,17 @@ const PATTERNS: {
   {
     tone: "anxious",
     keywords: [
-      "nervous", "worried", "scared", "anxious", "what if i fail",
-      "i'm afraid", "not confident", "i feel dumb", "everyone else",
-      "behind", "falling behind",
+      "nervous",
+      "worried",
+      "scared",
+      "anxious",
+      "what if i fail",
+      "i'm afraid",
+      "not confident",
+      "i feel dumb",
+      "everyone else",
+      "behind",
+      "falling behind",
     ],
     weight: 0.6,
   },
@@ -87,9 +128,18 @@ const PATTERNS: {
   {
     tone: "engaged",
     keywords: [
-      "interesting", "got it", "cool", "i see", "makes sense now",
-      "thanks", "tell me more", "what about", "can you show",
-      "another example", "go deeper", "what if",
+      "interesting",
+      "got it",
+      "cool",
+      "i see",
+      "makes sense now",
+      "thanks",
+      "tell me more",
+      "what about",
+      "can you show",
+      "another example",
+      "go deeper",
+      "what if",
     ],
     weight: 0.4,
   },
@@ -97,9 +147,19 @@ const PATTERNS: {
   {
     tone: "positive",
     keywords: [
-      "easy", "clear", "great", "awesome", "perfect", "understood",
-      "i get it", "that helps", "now i understand", "makes sense",
-      "crystal clear", "simple", "straightforward",
+      "easy",
+      "clear",
+      "great",
+      "awesome",
+      "perfect",
+      "understood",
+      "i get it",
+      "that helps",
+      "now i understand",
+      "makes sense",
+      "crystal clear",
+      "simple",
+      "straightforward",
     ],
     weight: 0.3,
   },
@@ -180,6 +240,7 @@ const SentimentAISchema = z.object({
  * Falls back to keyword analysis when no provider is available or on error.
  */
 export const analyzeSentimentAI = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator(
     z.object({
       text: z.string().min(1).max(2000),
@@ -187,7 +248,16 @@ export const analyzeSentimentAI = createServerFn({ method: "POST" })
       context: z.string().max(500).optional(),
     }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }: any) => {
+    await assertActorHasAnyRole(context, [
+      "platform_admin",
+      "institution_admin",
+      "owner",
+      "teacher",
+      "student",
+      "parent",
+    ]);
+
     const fallback = analyzeSentimentKeywords(data.text);
 
     const caller = createResilientModelCaller("sentiment");

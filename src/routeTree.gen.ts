@@ -33,6 +33,7 @@ import { Route as SolutionsUniversitiesRouteImport } from './routes/solutions.un
 import { Route as SolutionsTutoringCentersRouteImport } from './routes/solutions.tutoring-centers'
 import { Route as SolutionsTrainingProvidersRouteImport } from './routes/solutions.training-providers'
 import { Route as SolutionsSchoolsRouteImport } from './routes/solutions.schools'
+import { Route as SolutionsOnlineAcademiesRouteImport } from './routes/solutions.online-academies'
 import { Route as SolutionsNgosRouteImport } from './routes/solutions.ngos'
 import { Route as InstitutionsRegisterRouteImport } from './routes/institutions.register'
 import { Route as DemoWhiteboardRouteImport } from './routes/demo.whiteboard'
@@ -43,6 +44,11 @@ import { Route as DemoAccessibilityDemoRouteImport } from './routes/demo.accessi
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
+import { Route as BlogWcag22VirtualClassroomsRouteImport } from './routes/blog.wcag-22-virtual-classrooms'
+import { Route as BlogGdprEdtechGuideRouteImport } from './routes/blog.gdpr-edtech-guide'
+import { Route as BlogFutureStructuredLearningRouteImport } from './routes/blog.future-structured-learning'
+import { Route as BlogAiTeachingVsContentDeliveryRouteImport } from './routes/blog.ai-teaching-vs-content-delivery'
+import { Route as BlogAiClassrooms2026RouteImport } from './routes/blog.ai-classrooms-2026'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthSelectRoleRouteImport } from './routes/auth.select-role'
@@ -50,6 +56,9 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-passw
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthCompleteProfileRouteImport } from './routes/auth.complete-profile'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ApiPaystackWebhookRouteImport } from './routes/api.paystack-webhook'
+import { Route as ApiBlogRouteImport } from './routes/api.blog'
 import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
@@ -58,6 +67,7 @@ import { Route as AuthenticatedTeacherStudentsRouteImport } from './routes/_auth
 import { Route as AuthenticatedTeacherSettingsRouteImport } from './routes/_authenticated/teacher.settings'
 import { Route as AuthenticatedTeacherSessionsRouteImport } from './routes/_authenticated/teacher.sessions'
 import { Route as AuthenticatedTeacherResourcesRouteImport } from './routes/_authenticated/teacher.resources'
+import { Route as AuthenticatedTeacherNotificationsRouteImport } from './routes/_authenticated/teacher.notifications'
 import { Route as AuthenticatedTeacherMessagesRouteImport } from './routes/_authenticated/teacher.messages'
 import { Route as AuthenticatedTeacherLessonsRouteImport } from './routes/_authenticated/teacher.lessons'
 import { Route as AuthenticatedTeacherDashboardRouteImport } from './routes/_authenticated/teacher.dashboard'
@@ -85,6 +95,7 @@ import { Route as AuthenticatedParentSettingsRouteImport } from './routes/_authe
 import { Route as AuthenticatedParentSessionsRouteImport } from './routes/_authenticated/parent.sessions'
 import { Route as AuthenticatedParentReportsRouteImport } from './routes/_authenticated/parent.reports'
 import { Route as AuthenticatedParentProgressRouteImport } from './routes/_authenticated/parent.progress'
+import { Route as AuthenticatedParentNotificationsRouteImport } from './routes/_authenticated/parent.notifications'
 import { Route as AuthenticatedParentMessagesRouteImport } from './routes/_authenticated/parent.messages'
 import { Route as AuthenticatedParentLearnersRouteImport } from './routes/_authenticated/parent.learners'
 import { Route as AuthenticatedParentDashboardRouteImport } from './routes/_authenticated/parent.dashboard'
@@ -94,6 +105,7 @@ import { Route as AuthenticatedInstitutionSettingsRouteImport } from './routes/_
 import { Route as AuthenticatedInstitutionSessionsRouteImport } from './routes/_authenticated/institution.sessions'
 import { Route as AuthenticatedInstitutionResourcesRouteImport } from './routes/_authenticated/institution.resources'
 import { Route as AuthenticatedInstitutionProgrammesRouteImport } from './routes/_authenticated/institution.programmes'
+import { Route as AuthenticatedInstitutionNotificationsRouteImport } from './routes/_authenticated/institution.notifications'
 import { Route as AuthenticatedInstitutionLessonGenerationRouteImport } from './routes/_authenticated/institution.lesson-generation'
 import { Route as AuthenticatedInstitutionEnrollmentsRouteImport } from './routes/_authenticated/institution.enrollments'
 import { Route as AuthenticatedInstitutionDashboardRouteImport } from './routes/_authenticated/institution.dashboard'
@@ -112,6 +124,7 @@ import { Route as AuthenticatedAdminRealtimeRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminProgrammesRouteImport } from './routes/_authenticated/admin.programmes'
 import { Route as AuthenticatedAdminPlatformRouteImport } from './routes/_authenticated/admin.platform'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin.notifications'
 import { Route as AuthenticatedAdminMaterialsRouteImport } from './routes/_authenticated/admin.materials'
 import { Route as AuthenticatedAdminLessonsRouteImport } from './routes/_authenticated/admin.lessons'
 import { Route as AuthenticatedAdminLessonGenerationRouteImport } from './routes/_authenticated/admin.lesson-generation'
@@ -308,6 +321,12 @@ const SolutionsSchoolsRoute = SolutionsSchoolsRouteImport.update({
   path: '/solutions/schools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolutionsOnlineAcademiesRoute =
+  SolutionsOnlineAcademiesRouteImport.update({
+    id: '/solutions/online-academies',
+    path: '/solutions/online-academies',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SolutionsNgosRoute = SolutionsNgosRouteImport.update({
   id: '/solutions/ngos',
   path: '/solutions/ngos',
@@ -359,6 +378,34 @@ const ClassroomDesignLessonIdRoute = ClassroomDesignLessonIdRouteImport.update({
   path: '/classroom-design/$lessonId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogWcag22VirtualClassroomsRoute =
+  BlogWcag22VirtualClassroomsRouteImport.update({
+    id: '/wcag-22-virtual-classrooms',
+    path: '/wcag-22-virtual-classrooms',
+    getParentRoute: () => BlogRoute,
+  } as any)
+const BlogGdprEdtechGuideRoute = BlogGdprEdtechGuideRouteImport.update({
+  id: '/gdpr-edtech-guide',
+  path: '/gdpr-edtech-guide',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogFutureStructuredLearningRoute =
+  BlogFutureStructuredLearningRouteImport.update({
+    id: '/future-structured-learning',
+    path: '/future-structured-learning',
+    getParentRoute: () => BlogRoute,
+  } as any)
+const BlogAiTeachingVsContentDeliveryRoute =
+  BlogAiTeachingVsContentDeliveryRouteImport.update({
+    id: '/ai-teaching-vs-content-delivery',
+    path: '/ai-teaching-vs-content-delivery',
+    getParentRoute: () => BlogRoute,
+  } as any)
+const BlogAiClassrooms2026Route = BlogAiClassrooms2026RouteImport.update({
+  id: '/ai-classrooms-2026',
+  path: '/ai-classrooms-2026',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
@@ -393,6 +440,21 @@ const AuthCompleteProfileRoute = AuthCompleteProfileRouteImport.update({
   id: '/complete-profile',
   path: '/complete-profile',
   getParentRoute: () => AuthRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
+const ApiPaystackWebhookRoute = ApiPaystackWebhookRouteImport.update({
+  id: '/api/paystack-webhook',
+  path: '/api/paystack-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBlogRoute = ApiBlogRouteImport.update({
+  id: '/api/blog',
+  path: '/api/blog',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDevRouteRoute = AuthenticatedDevRouteRouteImport.update({
   id: '/dev',
@@ -439,6 +501,12 @@ const AuthenticatedTeacherResourcesRoute =
   AuthenticatedTeacherResourcesRouteImport.update({
     id: '/teacher/resources',
     path: '/teacher/resources',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeacherNotificationsRoute =
+  AuthenticatedTeacherNotificationsRouteImport.update({
+    id: '/teacher/notifications',
+    path: '/teacher/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeacherMessagesRoute =
@@ -603,6 +671,12 @@ const AuthenticatedParentProgressRoute =
     path: '/parent/progress',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedParentNotificationsRoute =
+  AuthenticatedParentNotificationsRouteImport.update({
+    id: '/parent/notifications',
+    path: '/parent/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParentMessagesRoute =
   AuthenticatedParentMessagesRouteImport.update({
     id: '/parent/messages',
@@ -655,6 +729,12 @@ const AuthenticatedInstitutionProgrammesRoute =
   AuthenticatedInstitutionProgrammesRouteImport.update({
     id: '/institution/programmes',
     path: '/institution/programmes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInstitutionNotificationsRoute =
+  AuthenticatedInstitutionNotificationsRouteImport.update({
+    id: '/institution/notifications',
+    path: '/institution/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedInstitutionLessonGenerationRoute =
@@ -761,6 +841,12 @@ const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
   path: '/admin/plans',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
+    id: '/admin/notifications',
+    path: '/admin/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminMaterialsRoute =
   AuthenticatedAdminMaterialsRouteImport.update({
     id: '/admin/materials',
@@ -1211,7 +1297,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
   '/cookie-policy': typeof CookiePolicyRoute
@@ -1226,6 +1312,9 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/api/blog': typeof ApiBlogRoute
+  '/api/paystack-webhook': typeof ApiPaystackWebhookRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -1233,6 +1322,11 @@ export interface FileRoutesByFullPath {
   '/auth/select-role': typeof AuthSelectRoleRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/blog/ai-classrooms-2026': typeof BlogAiClassrooms2026Route
+  '/blog/ai-teaching-vs-content-delivery': typeof BlogAiTeachingVsContentDeliveryRoute
+  '/blog/future-structured-learning': typeof BlogFutureStructuredLearningRoute
+  '/blog/gdpr-edtech-guide': typeof BlogGdprEdtechGuideRoute
+  '/blog/wcag-22-virtual-classrooms': typeof BlogWcag22VirtualClassroomsRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -1243,6 +1337,7 @@ export interface FileRoutesByFullPath {
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/online-academies': typeof SolutionsOnlineAcademiesRoute
   '/solutions/schools': typeof SolutionsSchoolsRoute
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
@@ -1259,6 +1354,7 @@ export interface FileRoutesByFullPath {
   '/admin/lesson-generation': typeof AuthenticatedAdminLessonGenerationRouteWithChildren
   '/admin/lessons': typeof AuthenticatedAdminLessonsRoute
   '/admin/materials': typeof AuthenticatedAdminMaterialsRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/platform': typeof AuthenticatedAdminPlatformRoute
   '/admin/programmes': typeof AuthenticatedAdminProgrammesRouteWithChildren
@@ -1277,6 +1373,7 @@ export interface FileRoutesByFullPath {
   '/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
   '/institution/lesson-generation': typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  '/institution/notifications': typeof AuthenticatedInstitutionNotificationsRoute
   '/institution/programmes': typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   '/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
   '/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
@@ -1286,6 +1383,7 @@ export interface FileRoutesByFullPath {
   '/parent/dashboard': typeof AuthenticatedParentDashboardRoute
   '/parent/learners': typeof AuthenticatedParentLearnersRoute
   '/parent/messages': typeof AuthenticatedParentMessagesRoute
+  '/parent/notifications': typeof AuthenticatedParentNotificationsRoute
   '/parent/progress': typeof AuthenticatedParentProgressRoute
   '/parent/reports': typeof AuthenticatedParentReportsRoute
   '/parent/sessions': typeof AuthenticatedParentSessionsRoute
@@ -1313,6 +1411,7 @@ export interface FileRoutesByFullPath {
   '/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
   '/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
+  '/teacher/notifications': typeof AuthenticatedTeacherNotificationsRoute
   '/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
   '/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
@@ -1389,7 +1488,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
   '/cookie-policy': typeof CookiePolicyRoute
@@ -1404,6 +1503,9 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/api/blog': typeof ApiBlogRoute
+  '/api/paystack-webhook': typeof ApiPaystackWebhookRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -1411,6 +1513,11 @@ export interface FileRoutesByTo {
   '/auth/select-role': typeof AuthSelectRoleRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/blog/ai-classrooms-2026': typeof BlogAiClassrooms2026Route
+  '/blog/ai-teaching-vs-content-delivery': typeof BlogAiTeachingVsContentDeliveryRoute
+  '/blog/future-structured-learning': typeof BlogFutureStructuredLearningRoute
+  '/blog/gdpr-edtech-guide': typeof BlogGdprEdtechGuideRoute
+  '/blog/wcag-22-virtual-classrooms': typeof BlogWcag22VirtualClassroomsRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -1421,6 +1528,7 @@ export interface FileRoutesByTo {
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/online-academies': typeof SolutionsOnlineAcademiesRoute
   '/solutions/schools': typeof SolutionsSchoolsRoute
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
@@ -1437,6 +1545,7 @@ export interface FileRoutesByTo {
   '/admin/lesson-generation': typeof AuthenticatedAdminLessonGenerationRouteWithChildren
   '/admin/lessons': typeof AuthenticatedAdminLessonsRoute
   '/admin/materials': typeof AuthenticatedAdminMaterialsRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/platform': typeof AuthenticatedAdminPlatformRoute
   '/admin/programmes': typeof AuthenticatedAdminProgrammesRouteWithChildren
@@ -1455,6 +1564,7 @@ export interface FileRoutesByTo {
   '/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
   '/institution/lesson-generation': typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  '/institution/notifications': typeof AuthenticatedInstitutionNotificationsRoute
   '/institution/programmes': typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   '/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
   '/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
@@ -1464,6 +1574,7 @@ export interface FileRoutesByTo {
   '/parent/dashboard': typeof AuthenticatedParentDashboardRoute
   '/parent/learners': typeof AuthenticatedParentLearnersRoute
   '/parent/messages': typeof AuthenticatedParentMessagesRoute
+  '/parent/notifications': typeof AuthenticatedParentNotificationsRoute
   '/parent/progress': typeof AuthenticatedParentProgressRoute
   '/parent/reports': typeof AuthenticatedParentReportsRoute
   '/parent/sessions': typeof AuthenticatedParentSessionsRoute
@@ -1491,6 +1602,7 @@ export interface FileRoutesByTo {
   '/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
   '/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
+  '/teacher/notifications': typeof AuthenticatedTeacherNotificationsRoute
   '/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
   '/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
@@ -1569,7 +1681,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/classroom': typeof ClassroomRouteWithChildren
   '/contact': typeof ContactRoute
   '/cookie-policy': typeof CookiePolicyRoute
@@ -1584,6 +1696,9 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/webinars': typeof WebinarsRoute
   '/_authenticated/dev': typeof AuthenticatedDevRouteRouteWithChildren
+  '/api/blog': typeof ApiBlogRoute
+  '/api/paystack-webhook': typeof ApiPaystackWebhookRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/complete-profile': typeof AuthCompleteProfileRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -1591,6 +1706,11 @@ export interface FileRoutesById {
   '/auth/select-role': typeof AuthSelectRoleRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/blog/ai-classrooms-2026': typeof BlogAiClassrooms2026Route
+  '/blog/ai-teaching-vs-content-delivery': typeof BlogAiTeachingVsContentDeliveryRoute
+  '/blog/future-structured-learning': typeof BlogFutureStructuredLearningRoute
+  '/blog/gdpr-edtech-guide': typeof BlogGdprEdtechGuideRoute
+  '/blog/wcag-22-virtual-classrooms': typeof BlogWcag22VirtualClassroomsRoute
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
@@ -1601,6 +1721,7 @@ export interface FileRoutesById {
   '/demo/whiteboard': typeof DemoWhiteboardRoute
   '/institutions/register': typeof InstitutionsRegisterRoute
   '/solutions/ngos': typeof SolutionsNgosRoute
+  '/solutions/online-academies': typeof SolutionsOnlineAcademiesRoute
   '/solutions/schools': typeof SolutionsSchoolsRoute
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
@@ -1617,6 +1738,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/lesson-generation': typeof AuthenticatedAdminLessonGenerationRouteWithChildren
   '/_authenticated/admin/lessons': typeof AuthenticatedAdminLessonsRoute
   '/_authenticated/admin/materials': typeof AuthenticatedAdminMaterialsRoute
+  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/platform': typeof AuthenticatedAdminPlatformRoute
   '/_authenticated/admin/programmes': typeof AuthenticatedAdminProgrammesRouteWithChildren
@@ -1635,6 +1757,7 @@ export interface FileRoutesById {
   '/_authenticated/institution/dashboard': typeof AuthenticatedInstitutionDashboardRoute
   '/_authenticated/institution/enrollments': typeof AuthenticatedInstitutionEnrollmentsRoute
   '/_authenticated/institution/lesson-generation': typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  '/_authenticated/institution/notifications': typeof AuthenticatedInstitutionNotificationsRoute
   '/_authenticated/institution/programmes': typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   '/_authenticated/institution/resources': typeof AuthenticatedInstitutionResourcesRouteWithChildren
   '/_authenticated/institution/sessions': typeof AuthenticatedInstitutionSessionsRouteWithChildren
@@ -1644,6 +1767,7 @@ export interface FileRoutesById {
   '/_authenticated/parent/dashboard': typeof AuthenticatedParentDashboardRoute
   '/_authenticated/parent/learners': typeof AuthenticatedParentLearnersRoute
   '/_authenticated/parent/messages': typeof AuthenticatedParentMessagesRoute
+  '/_authenticated/parent/notifications': typeof AuthenticatedParentNotificationsRoute
   '/_authenticated/parent/progress': typeof AuthenticatedParentProgressRoute
   '/_authenticated/parent/reports': typeof AuthenticatedParentReportsRoute
   '/_authenticated/parent/sessions': typeof AuthenticatedParentSessionsRoute
@@ -1671,6 +1795,7 @@ export interface FileRoutesById {
   '/_authenticated/teacher/dashboard': typeof AuthenticatedTeacherDashboardRoute
   '/_authenticated/teacher/lessons': typeof AuthenticatedTeacherLessonsRouteWithChildren
   '/_authenticated/teacher/messages': typeof AuthenticatedTeacherMessagesRoute
+  '/_authenticated/teacher/notifications': typeof AuthenticatedTeacherNotificationsRoute
   '/_authenticated/teacher/resources': typeof AuthenticatedTeacherResourcesRoute
   '/_authenticated/teacher/sessions': typeof AuthenticatedTeacherSessionsRouteWithChildren
   '/_authenticated/teacher/settings': typeof AuthenticatedTeacherSettingsRoute
@@ -1764,6 +1889,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/dev'
+    | '/api/blog'
+    | '/api/paystack-webhook'
+    | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -1771,6 +1899,11 @@ export interface FileRouteTypes {
     | '/auth/select-role'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/blog/ai-classrooms-2026'
+    | '/blog/ai-teaching-vs-content-delivery'
+    | '/blog/future-structured-learning'
+    | '/blog/gdpr-edtech-guide'
+    | '/blog/wcag-22-virtual-classrooms'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -1781,6 +1914,7 @@ export interface FileRouteTypes {
     | '/demo/whiteboard'
     | '/institutions/register'
     | '/solutions/ngos'
+    | '/solutions/online-academies'
     | '/solutions/schools'
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
@@ -1797,6 +1931,7 @@ export interface FileRouteTypes {
     | '/admin/lesson-generation'
     | '/admin/lessons'
     | '/admin/materials'
+    | '/admin/notifications'
     | '/admin/plans'
     | '/admin/platform'
     | '/admin/programmes'
@@ -1815,6 +1950,7 @@ export interface FileRouteTypes {
     | '/institution/dashboard'
     | '/institution/enrollments'
     | '/institution/lesson-generation'
+    | '/institution/notifications'
     | '/institution/programmes'
     | '/institution/resources'
     | '/institution/sessions'
@@ -1824,6 +1960,7 @@ export interface FileRouteTypes {
     | '/parent/dashboard'
     | '/parent/learners'
     | '/parent/messages'
+    | '/parent/notifications'
     | '/parent/progress'
     | '/parent/reports'
     | '/parent/sessions'
@@ -1851,6 +1988,7 @@ export interface FileRouteTypes {
     | '/teacher/dashboard'
     | '/teacher/lessons'
     | '/teacher/messages'
+    | '/teacher/notifications'
     | '/teacher/resources'
     | '/teacher/sessions'
     | '/teacher/settings'
@@ -1942,6 +2080,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/dev'
+    | '/api/blog'
+    | '/api/paystack-webhook'
+    | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -1949,6 +2090,11 @@ export interface FileRouteTypes {
     | '/auth/select-role'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/blog/ai-classrooms-2026'
+    | '/blog/ai-teaching-vs-content-delivery'
+    | '/blog/future-structured-learning'
+    | '/blog/gdpr-edtech-guide'
+    | '/blog/wcag-22-virtual-classrooms'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -1959,6 +2105,7 @@ export interface FileRouteTypes {
     | '/demo/whiteboard'
     | '/institutions/register'
     | '/solutions/ngos'
+    | '/solutions/online-academies'
     | '/solutions/schools'
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
@@ -1975,6 +2122,7 @@ export interface FileRouteTypes {
     | '/admin/lesson-generation'
     | '/admin/lessons'
     | '/admin/materials'
+    | '/admin/notifications'
     | '/admin/plans'
     | '/admin/platform'
     | '/admin/programmes'
@@ -1993,6 +2141,7 @@ export interface FileRouteTypes {
     | '/institution/dashboard'
     | '/institution/enrollments'
     | '/institution/lesson-generation'
+    | '/institution/notifications'
     | '/institution/programmes'
     | '/institution/resources'
     | '/institution/sessions'
@@ -2002,6 +2151,7 @@ export interface FileRouteTypes {
     | '/parent/dashboard'
     | '/parent/learners'
     | '/parent/messages'
+    | '/parent/notifications'
     | '/parent/progress'
     | '/parent/reports'
     | '/parent/sessions'
@@ -2029,6 +2179,7 @@ export interface FileRouteTypes {
     | '/teacher/dashboard'
     | '/teacher/lessons'
     | '/teacher/messages'
+    | '/teacher/notifications'
     | '/teacher/resources'
     | '/teacher/sessions'
     | '/teacher/settings'
@@ -2121,6 +2272,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/webinars'
     | '/_authenticated/dev'
+    | '/api/blog'
+    | '/api/paystack-webhook'
+    | '/auth/callback'
     | '/auth/complete-profile'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -2128,6 +2282,11 @@ export interface FileRouteTypes {
     | '/auth/select-role'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/blog/ai-classrooms-2026'
+    | '/blog/ai-teaching-vs-content-delivery'
+    | '/blog/future-structured-learning'
+    | '/blog/gdpr-edtech-guide'
+    | '/blog/wcag-22-virtual-classrooms'
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
@@ -2138,6 +2297,7 @@ export interface FileRouteTypes {
     | '/demo/whiteboard'
     | '/institutions/register'
     | '/solutions/ngos'
+    | '/solutions/online-academies'
     | '/solutions/schools'
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
@@ -2154,6 +2314,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/lesson-generation'
     | '/_authenticated/admin/lessons'
     | '/_authenticated/admin/materials'
+    | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/platform'
     | '/_authenticated/admin/programmes'
@@ -2172,6 +2333,7 @@ export interface FileRouteTypes {
     | '/_authenticated/institution/dashboard'
     | '/_authenticated/institution/enrollments'
     | '/_authenticated/institution/lesson-generation'
+    | '/_authenticated/institution/notifications'
     | '/_authenticated/institution/programmes'
     | '/_authenticated/institution/resources'
     | '/_authenticated/institution/sessions'
@@ -2181,6 +2343,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parent/dashboard'
     | '/_authenticated/parent/learners'
     | '/_authenticated/parent/messages'
+    | '/_authenticated/parent/notifications'
     | '/_authenticated/parent/progress'
     | '/_authenticated/parent/reports'
     | '/_authenticated/parent/sessions'
@@ -2208,6 +2371,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teacher/dashboard'
     | '/_authenticated/teacher/lessons'
     | '/_authenticated/teacher/messages'
+    | '/_authenticated/teacher/notifications'
     | '/_authenticated/teacher/resources'
     | '/_authenticated/teacher/sessions'
     | '/_authenticated/teacher/settings'
@@ -2286,7 +2450,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccessibilityRoute: typeof AccessibilityRoute
   AuthRoute: typeof AuthRouteWithChildren
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ClassroomRoute: typeof ClassroomRouteWithChildren
   ContactRoute: typeof ContactRoute
   CookiePolicyRoute: typeof CookiePolicyRoute
@@ -2300,6 +2464,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   WebinarsRoute: typeof WebinarsRoute
+  ApiBlogRoute: typeof ApiBlogRoute
+  ApiPaystackWebhookRoute: typeof ApiPaystackWebhookRoute
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
   DemoAccessibilityDemoRoute: typeof DemoAccessibilityDemoRoute
@@ -2309,6 +2475,7 @@ export interface RootRouteChildren {
   DemoWhiteboardRoute: typeof DemoWhiteboardRoute
   InstitutionsRegisterRoute: typeof InstitutionsRegisterRoute
   SolutionsNgosRoute: typeof SolutionsNgosRoute
+  SolutionsOnlineAcademiesRoute: typeof SolutionsOnlineAcademiesRoute
   SolutionsSchoolsRoute: typeof SolutionsSchoolsRoute
   SolutionsTrainingProvidersRoute: typeof SolutionsTrainingProvidersRoute
   SolutionsTutoringCentersRoute: typeof SolutionsTutoringCentersRoute
@@ -2486,6 +2653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SolutionsSchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/solutions/online-academies': {
+      id: '/solutions/online-academies'
+      path: '/solutions/online-academies'
+      fullPath: '/solutions/online-academies'
+      preLoaderRoute: typeof SolutionsOnlineAcademiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/solutions/ngos': {
       id: '/solutions/ngos'
       path: '/solutions/ngos'
@@ -2556,6 +2730,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClassroomDesignLessonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/wcag-22-virtual-classrooms': {
+      id: '/blog/wcag-22-virtual-classrooms'
+      path: '/wcag-22-virtual-classrooms'
+      fullPath: '/blog/wcag-22-virtual-classrooms'
+      preLoaderRoute: typeof BlogWcag22VirtualClassroomsRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/gdpr-edtech-guide': {
+      id: '/blog/gdpr-edtech-guide'
+      path: '/gdpr-edtech-guide'
+      fullPath: '/blog/gdpr-edtech-guide'
+      preLoaderRoute: typeof BlogGdprEdtechGuideRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/future-structured-learning': {
+      id: '/blog/future-structured-learning'
+      path: '/future-structured-learning'
+      fullPath: '/blog/future-structured-learning'
+      preLoaderRoute: typeof BlogFutureStructuredLearningRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/ai-teaching-vs-content-delivery': {
+      id: '/blog/ai-teaching-vs-content-delivery'
+      path: '/ai-teaching-vs-content-delivery'
+      fullPath: '/blog/ai-teaching-vs-content-delivery'
+      preLoaderRoute: typeof BlogAiTeachingVsContentDeliveryRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/ai-classrooms-2026': {
+      id: '/blog/ai-classrooms-2026'
+      path: '/ai-classrooms-2026'
+      fullPath: '/blog/ai-classrooms-2026'
+      preLoaderRoute: typeof BlogAiClassrooms2026RouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/auth/verify-email': {
       id: '/auth/verify-email'
       path: '/verify-email'
@@ -2604,6 +2813,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/complete-profile'
       preLoaderRoute: typeof AuthCompleteProfileRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/api/paystack-webhook': {
+      id: '/api/paystack-webhook'
+      path: '/api/paystack-webhook'
+      fullPath: '/api/paystack-webhook'
+      preLoaderRoute: typeof ApiPaystackWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/blog': {
+      id: '/api/blog'
+      path: '/api/blog'
+      fullPath: '/api/blog'
+      preLoaderRoute: typeof ApiBlogRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dev': {
       id: '/_authenticated/dev'
@@ -2659,6 +2889,13 @@ declare module '@tanstack/react-router' {
       path: '/teacher/resources'
       fullPath: '/teacher/resources'
       preLoaderRoute: typeof AuthenticatedTeacherResourcesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teacher/notifications': {
+      id: '/_authenticated/teacher/notifications'
+      path: '/teacher/notifications'
+      fullPath: '/teacher/notifications'
+      preLoaderRoute: typeof AuthenticatedTeacherNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teacher/messages': {
@@ -2850,6 +3087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParentProgressRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/parent/notifications': {
+      id: '/_authenticated/parent/notifications'
+      path: '/parent/notifications'
+      fullPath: '/parent/notifications'
+      preLoaderRoute: typeof AuthenticatedParentNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/parent/messages': {
       id: '/_authenticated/parent/messages'
       path: '/parent/messages'
@@ -2911,6 +3155,13 @@ declare module '@tanstack/react-router' {
       path: '/institution/programmes'
       fullPath: '/institution/programmes'
       preLoaderRoute: typeof AuthenticatedInstitutionProgrammesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/institution/notifications': {
+      id: '/_authenticated/institution/notifications'
+      path: '/institution/notifications'
+      fullPath: '/institution/notifications'
+      preLoaderRoute: typeof AuthenticatedInstitutionNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/institution/lesson-generation': {
@@ -3037,6 +3288,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/plans'
       fullPath: '/admin/plans'
       preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/admin/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/materials': {
@@ -4178,6 +4436,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminLessonGenerationRoute: typeof AuthenticatedAdminLessonGenerationRouteWithChildren
   AuthenticatedAdminLessonsRoute: typeof AuthenticatedAdminLessonsRoute
   AuthenticatedAdminMaterialsRoute: typeof AuthenticatedAdminMaterialsRoute
+  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPlatformRoute: typeof AuthenticatedAdminPlatformRoute
   AuthenticatedAdminProgrammesRoute: typeof AuthenticatedAdminProgrammesRouteWithChildren
@@ -4194,6 +4453,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInstitutionDashboardRoute: typeof AuthenticatedInstitutionDashboardRoute
   AuthenticatedInstitutionEnrollmentsRoute: typeof AuthenticatedInstitutionEnrollmentsRoute
   AuthenticatedInstitutionLessonGenerationRoute: typeof AuthenticatedInstitutionLessonGenerationRouteWithChildren
+  AuthenticatedInstitutionNotificationsRoute: typeof AuthenticatedInstitutionNotificationsRoute
   AuthenticatedInstitutionProgrammesRoute: typeof AuthenticatedInstitutionProgrammesRouteWithChildren
   AuthenticatedInstitutionResourcesRoute: typeof AuthenticatedInstitutionResourcesRouteWithChildren
   AuthenticatedInstitutionSessionsRoute: typeof AuthenticatedInstitutionSessionsRouteWithChildren
@@ -4203,6 +4463,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedParentDashboardRoute: typeof AuthenticatedParentDashboardRoute
   AuthenticatedParentLearnersRoute: typeof AuthenticatedParentLearnersRoute
   AuthenticatedParentMessagesRoute: typeof AuthenticatedParentMessagesRoute
+  AuthenticatedParentNotificationsRoute: typeof AuthenticatedParentNotificationsRoute
   AuthenticatedParentProgressRoute: typeof AuthenticatedParentProgressRoute
   AuthenticatedParentReportsRoute: typeof AuthenticatedParentReportsRoute
   AuthenticatedParentSessionsRoute: typeof AuthenticatedParentSessionsRoute
@@ -4230,6 +4491,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeacherDashboardRoute: typeof AuthenticatedTeacherDashboardRoute
   AuthenticatedTeacherLessonsRoute: typeof AuthenticatedTeacherLessonsRouteWithChildren
   AuthenticatedTeacherMessagesRoute: typeof AuthenticatedTeacherMessagesRoute
+  AuthenticatedTeacherNotificationsRoute: typeof AuthenticatedTeacherNotificationsRoute
   AuthenticatedTeacherResourcesRoute: typeof AuthenticatedTeacherResourcesRoute
   AuthenticatedTeacherSessionsRoute: typeof AuthenticatedTeacherSessionsRouteWithChildren
   AuthenticatedTeacherSettingsRoute: typeof AuthenticatedTeacherSettingsRoute
@@ -4254,6 +4516,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAdminLessonGenerationRouteWithChildren,
   AuthenticatedAdminLessonsRoute: AuthenticatedAdminLessonsRoute,
   AuthenticatedAdminMaterialsRoute: AuthenticatedAdminMaterialsRoute,
+  AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPlatformRoute: AuthenticatedAdminPlatformRoute,
   AuthenticatedAdminProgrammesRoute:
@@ -4277,6 +4540,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedInstitutionEnrollmentsRoute,
   AuthenticatedInstitutionLessonGenerationRoute:
     AuthenticatedInstitutionLessonGenerationRouteWithChildren,
+  AuthenticatedInstitutionNotificationsRoute:
+    AuthenticatedInstitutionNotificationsRoute,
   AuthenticatedInstitutionProgrammesRoute:
     AuthenticatedInstitutionProgrammesRouteWithChildren,
   AuthenticatedInstitutionResourcesRoute:
@@ -4291,6 +4556,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedParentDashboardRoute: AuthenticatedParentDashboardRoute,
   AuthenticatedParentLearnersRoute: AuthenticatedParentLearnersRoute,
   AuthenticatedParentMessagesRoute: AuthenticatedParentMessagesRoute,
+  AuthenticatedParentNotificationsRoute: AuthenticatedParentNotificationsRoute,
   AuthenticatedParentProgressRoute: AuthenticatedParentProgressRoute,
   AuthenticatedParentReportsRoute: AuthenticatedParentReportsRoute,
   AuthenticatedParentSessionsRoute: AuthenticatedParentSessionsRoute,
@@ -4327,6 +4593,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeacherLessonsRoute:
     AuthenticatedTeacherLessonsRouteWithChildren,
   AuthenticatedTeacherMessagesRoute: AuthenticatedTeacherMessagesRoute,
+  AuthenticatedTeacherNotificationsRoute:
+    AuthenticatedTeacherNotificationsRoute,
   AuthenticatedTeacherResourcesRoute: AuthenticatedTeacherResourcesRoute,
   AuthenticatedTeacherSessionsRoute:
     AuthenticatedTeacherSessionsRouteWithChildren,
@@ -4340,6 +4608,7 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCompleteProfileRoute: typeof AuthCompleteProfileRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -4350,6 +4619,7 @@ interface AuthRouteChildren {
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthCompleteProfileRoute: AuthCompleteProfileRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
@@ -4360,6 +4630,24 @@ const AuthRouteChildren: AuthRouteChildren = {
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
+interface BlogRouteChildren {
+  BlogAiClassrooms2026Route: typeof BlogAiClassrooms2026Route
+  BlogAiTeachingVsContentDeliveryRoute: typeof BlogAiTeachingVsContentDeliveryRoute
+  BlogFutureStructuredLearningRoute: typeof BlogFutureStructuredLearningRoute
+  BlogGdprEdtechGuideRoute: typeof BlogGdprEdtechGuideRoute
+  BlogWcag22VirtualClassroomsRoute: typeof BlogWcag22VirtualClassroomsRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogAiClassrooms2026Route: BlogAiClassrooms2026Route,
+  BlogAiTeachingVsContentDeliveryRoute: BlogAiTeachingVsContentDeliveryRoute,
+  BlogFutureStructuredLearningRoute: BlogFutureStructuredLearningRoute,
+  BlogGdprEdtechGuideRoute: BlogGdprEdtechGuideRoute,
+  BlogWcag22VirtualClassroomsRoute: BlogWcag22VirtualClassroomsRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface ClassroomRouteChildren {
   ClassroomLessonIdRoute: typeof ClassroomLessonIdRoute
@@ -4383,7 +4671,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccessibilityRoute: AccessibilityRoute,
   AuthRoute: AuthRouteWithChildren,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   ClassroomRoute: ClassroomRouteWithChildren,
   ContactRoute: ContactRoute,
   CookiePolicyRoute: CookiePolicyRoute,
@@ -4397,6 +4685,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   WebinarsRoute: WebinarsRoute,
+  ApiBlogRoute: ApiBlogRoute,
+  ApiPaystackWebhookRoute: ApiPaystackWebhookRoute,
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
   DemoAccessibilityDemoRoute: DemoAccessibilityDemoRoute,
@@ -4406,6 +4696,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoWhiteboardRoute: DemoWhiteboardRoute,
   InstitutionsRegisterRoute: InstitutionsRegisterRoute,
   SolutionsNgosRoute: SolutionsNgosRoute,
+  SolutionsOnlineAcademiesRoute: SolutionsOnlineAcademiesRoute,
   SolutionsSchoolsRoute: SolutionsSchoolsRoute,
   SolutionsTrainingProvidersRoute: SolutionsTrainingProvidersRoute,
   SolutionsTutoringCentersRoute: SolutionsTutoringCentersRoute,

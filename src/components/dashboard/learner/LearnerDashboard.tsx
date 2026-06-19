@@ -1,6 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Activity, BookOpen, Flame, Monitor, Play, Clock, FileText, TrendingUp, Accessibility, CircleCheck as CheckCircle2 } from "lucide-react";
+import {
+  Activity,
+  BookOpen,
+  Flame,
+  Monitor,
+  Play,
+  Clock,
+  FileText,
+  TrendingUp,
+  Accessibility,
+  CircleCheck as CheckCircle2,
+} from "lucide-react";
 import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
@@ -35,10 +46,33 @@ const classrooms = [
 ];
 
 const recentSessions = [
-  { title: "Quadratic Equations", course: "Mathematics Form 2", duration: "45 min", status: "Completed" },
-  { title: "Chemical Reactions", course: "KCSE Chemistry Revision", duration: "38 min", status: "Completed" },
-  { title: "HTML Introduction", course: "Computer Studies Basics", duration: "41 min", status: "Completed" },
+  {
+    title: "Quadratic Equations",
+    course: "Mathematics Form 2",
+    duration: "45 min",
+    status: "Completed",
+  },
+  {
+    title: "Chemical Reactions",
+    course: "KCSE Chemistry Revision",
+    duration: "38 min",
+    status: "Completed",
+  },
+  {
+    title: "HTML Introduction",
+    course: "Computer Studies Basics",
+    duration: "41 min",
+    status: "Completed",
+  },
 ];
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function classroomStartHref(lessonId?: string | null, sessionId?: string | null) {
+  if (sessionId && UUID_RE.test(sessionId)) return `/classroom/session/${sessionId}`;
+  if (lessonId && UUID_RE.test(lessonId)) return `/classroom/${lessonId}`;
+  return "/student/classrooms";
+}
 
 export function LearnerDashboard() {
   const [isLoading, setIsLoading] = useState(true);
@@ -73,9 +107,15 @@ export function LearnerDashboard() {
         <div>
           <p className="kr-eyebrow">Welcome back</p>
           <h1>Continue your learning journey</h1>
-          <p>Your next classroom is ready. Pick up from your last lesson and keep your progress moving.</p>
+          <p>
+            Your next classroom is ready. Pick up from your last lesson and keep your progress
+            moving.
+          </p>
         </div>
-        <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-primary-button">
+        <Link
+          to={classroomStartHref("session_demo_math") as any}
+          className="kr-primary-button"
+        >
           <Monitor className="h-4 w-4" />
           Enter Classroom
         </Link>
@@ -114,15 +154,26 @@ export function LearnerDashboard() {
         </div>
 
         <div className="kr-hero-actions">
-          <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-primary-button">
+          <Link
+            to={classroomStartHref("session_demo_math") as any}
+            className="kr-primary-button"
+          >
             <Monitor className="h-4 w-4" />
             Enter Classroom
           </Link>
-          <Link to="/student/sessions/$sessionId/summary" params={{ sessionId: "session_demo_math" }} className="kr-secondary-button">
+          <Link
+            to="/student/sessions/$sessionId/summary"
+            params={{ sessionId: "session_demo_math" }}
+            className="kr-secondary-button"
+          >
             <FileText className="h-4 w-4" />
             Review Summary
           </Link>
-          <Link to="/student/quizzes/$quizId" params={{ quizId: "quiz_quadratic_001" }} className="kr-secondary-button">
+          <Link
+            to="/student/quizzes/$quizId"
+            params={{ quizId: "quiz_quadratic_001" }}
+            className="kr-secondary-button"
+          >
             <Clock className="h-4 w-4" />
             Take Quick Quiz
           </Link>
@@ -210,7 +261,10 @@ export function LearnerDashboard() {
                   </div>
                 </div>
                 <span className="kr-status-pill">{c.mode}</span>
-                <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-secondary-button">
+                <Link
+                  to={classroomStartHref("session_demo_math") as any}
+                  className="kr-secondary-button"
+                >
                   Enter
                 </Link>
               </article>
@@ -251,7 +305,10 @@ export function LearnerDashboard() {
           </ol>
 
           <div className="kr-button-row">
-            <Link to="/classroom/$lessonId" params={{ lessonId: "session_demo_math" }} className="kr-primary-button">
+            <Link
+              to={classroomStartHref("session_demo_math") as any}
+              className="kr-primary-button"
+            >
               Start Plan
             </Link>
             <Link to="/student/learning-plan" className="kr-secondary-button">
@@ -269,7 +326,8 @@ export function LearnerDashboard() {
             {recentSessions.map((s) => (
               <Link
                 key={s.title}
-                to="/student/sessions/$sessionId/summary" params={{ sessionId: "session_demo_math" }}
+                to="/student/sessions/$sessionId/summary"
+                params={{ sessionId: "session_demo_math" }}
                 className="kr-activity-item"
               >
                 <div>

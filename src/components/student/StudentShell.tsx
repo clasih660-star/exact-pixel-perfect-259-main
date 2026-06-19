@@ -1,7 +1,27 @@
 import { type ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Link, useRouter } from "@tanstack/react-router";
-import { Accessibility, Award, Bell, BookOpen, Calendar, Clipboard, FileText, Folder, Circle as HelpCircle, LayoutDashboard, LogOut, MessageSquare, Monitor, Notebook, Search, Settings, TrendingUp, Star, ChevronRight } from "lucide-react";
+import {
+  Accessibility,
+  Award,
+  Bell,
+  BookOpen,
+  Calendar,
+  Clipboard,
+  FileText,
+  Folder,
+  Circle as HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Monitor,
+  Notebook,
+  Search,
+  Settings,
+  TrendingUp,
+  Star,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -43,9 +63,11 @@ export function StudentShell({
     <AppShell>
       {/* Top Navbar is already part of AppShell via TopBar component */}
       {/* Page Header */}
-      <header className="topnav sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[var(--gray-200)] bg-white/95 px-6 backdrop-blur">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[var(--gray-200)] bg-white/95 px-6 backdrop-blur">
         <div className="min-w-0 flex-1">
-          <h1 className="page-title text-xl font-bold tracking-tight text-[var(--gray-900)]">{title}</h1>
+          <h1 className="page-title text-xl font-bold tracking-tight text-[var(--gray-900)]">
+            {title}
+          </h1>
         </div>
         <div className="flex items-center gap-2">{actions}</div>
       </header>

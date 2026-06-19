@@ -129,7 +129,7 @@ export function PlatformAdminDashboard() {
       </section>
 
       {/* Platform KPI Cards */}
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <section className="kr-dashboard-kpi-grid mb-6">
         <KpiCard
           title="Institutions"
           value="1,247"
@@ -181,26 +181,26 @@ export function PlatformAdminDashboard() {
       {/* Dashboard Grid */}
       <section className="grid gap-6 lg:grid-cols-3">
         {/* Institution Growth Chart */}
-        <div className="dashboard-card col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
+        <div className="dashboard-card lg:col-span-2">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h2 className="text-xl font-bold text-[var(--gray-900)]">Institution Growth</h2>
               <p className="text-sm text-[var(--gray-500)]">New institutions over time</p>
             </div>
-            <div className="flex gap-2">
-              <span className="flex items-center gap-1 text-sm font-medium text-green-600">
+            <div className="flex min-w-0 gap-2">
+              <span className="flex min-w-0 items-center gap-1 text-sm font-medium leading-snug text-green-600">
                 <TrendingUp className="h-4 w-4" />
                 +18% vs last month
               </span>
             </div>
           </div>
-          
+
           {/* Mock Chart */}
           <div className="h-64 rounded-lg bg-gradient-to-br from-[var(--gray-50)] to-white p-4">
             <div className="flex h-full items-end justify-between gap-2">
               {[45, 62, 55, 78, 82, 91, 85, 95, 88, 102, 97, 110].map((value, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="w-full rounded-t bg-[var(--primary)] opacity-80 hover:opacity-100 transition-opacity"
                   style={{ height: `${value}%` }}
                 />
@@ -229,56 +229,56 @@ export function PlatformAdminDashboard() {
           <p className="mb-4 text-sm text-[var(--gray-500)]">Platform performance metrics</p>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">API Services</p>
                   <p className="text-xs text-[var(--gray-500)]">All systems operational</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-green-600">99.9%</span>
+              <span className="shrink-0 text-xs font-medium text-green-600">99.9%</span>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Database</p>
                   <p className="text-xs text-[var(--gray-500)]">Healthy connection</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-green-600">99.8%</span>
+              <span className="shrink-0 text-xs font-medium text-green-600">99.8%</span>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
                   <Clock className="h-4 w-4 text-yellow-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Video Services</p>
                   <p className="text-xs text-[var(--gray-500)]">High load detected</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-yellow-600">98.5%</span>
+              <span className="shrink-0 text-xs font-medium text-yellow-600">98.5%</span>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--gray-100)] bg-[var(--gray-50)] p-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[var(--gray-900)]">Storage</p>
                   <p className="text-xs text-[var(--gray-500)]">42% capacity used</p>
                 </div>
               </div>
-              <span className="text-xs font-medium text-green-600">OK</span>
+              <span className="shrink-0 text-xs font-medium text-green-600">OK</span>
             </div>
           </div>
         </div>
@@ -294,7 +294,9 @@ export function PlatformAdminDashboard() {
                 <Building2 className="h-3 w-3 text-[#1F7C80]" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-[var(--gray-900)]">New institution registered</p>
+                <p className="text-sm font-medium text-[var(--gray-900)]">
+                  New institution registered
+                </p>
                 <p className="text-xs text-[var(--gray-500)]">St. Mary's High School · 2 min ago</p>
               </div>
             </div>
@@ -305,7 +307,9 @@ export function PlatformAdminDashboard() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-[var(--gray-900)]">Plan upgrade completed</p>
-                <p className="text-xs text-[var(--gray-500)]">Klassruum Demo Academy · 15 min ago</p>
+                <p className="text-xs text-[var(--gray-500)]">
+                  Klassruum Demo Academy · 15 min ago
+                </p>
               </div>
             </div>
 
@@ -315,7 +319,9 @@ export function PlatformAdminDashboard() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-[var(--gray-900)]">Bulk user import</p>
-                <p className="text-xs text-[var(--gray-500)]">1,247 students imported · 1 hour ago</p>
+                <p className="text-xs text-[var(--gray-500)]">
+                  1,247 students imported · 1 hour ago
+                </p>
               </div>
             </div>
 
@@ -325,7 +331,9 @@ export function PlatformAdminDashboard() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-[var(--gray-900)]">Payment failed</p>
-                <p className="text-xs text-[var(--gray-500)]">Nairobi International School · 3 hours ago</p>
+                <p className="text-xs text-[var(--gray-500)]">
+                  Nairobi International School · 3 hours ago
+                </p>
               </div>
             </div>
           </div>
@@ -343,7 +351,9 @@ export function PlatformAdminDashboard() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-[var(--gray-900)]">Critical: Video lagging</p>
+                  <p className="text-sm font-medium text-[var(--gray-900)]">
+                    Critical: Video lagging
+                  </p>
                   <span className="text-xs font-medium text-red-600">High</span>
                 </div>
                 <p className="text-xs text-[var(--gray-500)]">Technical Issue · 45 min ago</p>
@@ -397,7 +407,7 @@ export function PlatformAdminDashboard() {
                 <span className="text-xs text-[var(--gray-500)]">42% of 2TB</span>
               </div>
               <div className="h-2 rounded-full bg-[var(--gray-200)]">
-                <div className="h-2 rounded-full bg-[var(--primary)]" style={{ width: '42%' }} />
+                <div className="h-2 rounded-full bg-[var(--primary)]" style={{ width: "42%" }} />
               </div>
             </div>
 
@@ -407,7 +417,7 @@ export function PlatformAdminDashboard() {
                 <span className="text-xs text-[var(--gray-500)]">78% of 10TB</span>
               </div>
               <div className="h-2 rounded-full bg-[var(--gray-200)]">
-                <div className="h-2 rounded-full bg-[var(--warning)]" style={{ width: '78%' }} />
+                <div className="h-2 rounded-full bg-[var(--warning)]" style={{ width: "78%" }} />
               </div>
             </div>
 
@@ -417,7 +427,7 @@ export function PlatformAdminDashboard() {
                 <span className="text-xs text-[var(--gray-500)]">65% of limit</span>
               </div>
               <div className="h-2 rounded-full bg-[var(--gray-200)]">
-                <div className="h-2 rounded-full bg-[var(--success)]" style={{ width: '65%' }} />
+                <div className="h-2 rounded-full bg-[var(--success)]" style={{ width: "65%" }} />
               </div>
             </div>
 
@@ -427,7 +437,7 @@ export function PlatformAdminDashboard() {
                 <span className="text-xs text-[var(--gray-500)]">1,847 concurrent</span>
               </div>
               <div className="h-2 rounded-full bg-[var(--gray-200)]">
-                <div className="h-2 rounded-full bg-[var(--primary)]" style={{ width: '37%' }} />
+                <div className="h-2 rounded-full bg-[var(--primary)]" style={{ width: "37%" }} />
               </div>
             </div>
           </div>

@@ -21,8 +21,21 @@ import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type StudentLevel = "beginner" | "intermediate" | "advanced";
-export type EmotionState = "confident" | "curious" | "confused" | "frustrated" | "engaged" | "bored";
-export type TeachingStrategy = "explain" | "demonstrate" | "practice" | "quiz" | "remediate" | "accelerate" | "encourage";
+export type EmotionState =
+  | "confident"
+  | "curious"
+  | "confused"
+  | "frustrated"
+  | "engaged"
+  | "bored";
+export type TeachingStrategy =
+  | "explain"
+  | "demonstrate"
+  | "practice"
+  | "quiz"
+  | "remediate"
+  | "accelerate"
+  | "encourage";
 export type MasteryLevel = "novice" | "learning" | "practicing" | "proficient" | "mastered";
 
 export type CognitiveState = {
@@ -97,12 +110,28 @@ const CognitiveAnalysisSchema = z.object({
   preferredStyle: z.enum(["visual", "auditory", "kinesthetic", "reading"]),
   optimalPace: z.number().min(0.5).max(2),
   cognitiveLoad: z.number().min(0).max(1),
-  recommendedStrategy: z.enum(["explain", "demonstrate", "practice", "quiz", "remediate", "accelerate", "encourage"]),
+  recommendedStrategy: z.enum([
+    "explain",
+    "demonstrate",
+    "practice",
+    "quiz",
+    "remediate",
+    "accelerate",
+    "encourage",
+  ]),
   reasoning: z.string(),
 });
 
 const TeachingDecisionSchema = z.object({
-  strategy: z.enum(["explain", "demonstrate", "practice", "quiz", "remediate", "accelerate", "encourage"]),
+  strategy: z.enum([
+    "explain",
+    "demonstrate",
+    "practice",
+    "quiz",
+    "remediate",
+    "accelerate",
+    "encourage",
+  ]),
   reasoning: z.string(),
   spokenText: z.string().max(500),
   boardAction: z.enum(["append", "replace", "highlight", "clear"]).optional(),
@@ -141,7 +170,7 @@ export class AutonomousTeachingEngine {
   async analyzeStudentState(
     context: TeachingContext,
     currentCognitive: CognitiveState,
-    recentInteractions: Array<{ role: "student" | "teacher"; content: string; timestamp: Date }>
+    recentInteractions: Array<{ role: "student" | "teacher"; content: string; timestamp: Date }>,
   ): Promise<CognitiveState> {
     if (!this.model) {
       return this.fallbackCognitiveAnalysis(currentCognitive, recentInteractions);
@@ -149,7 +178,7 @@ export class AutonomousTeachingEngine {
 
     const interactionHistory = recentInteractions
       .slice(-10)
-      .map(i => `${i.role}: ${i.content}`)
+      .map((i) => `${i.role}: ${i.content}`)
       .join("\n");
 
     try {
@@ -203,7 +232,7 @@ Analyze and update this student's cognitive state.`,
   async decideNextAction(
     context: TeachingContext,
     cognitive: CognitiveState,
-    recentInteractions: Array<{ role: "student" | "teacher"; content: string; timestamp: Date }>
+    recentInteractions: Array<{ role: "student" | "teacher"; content: string; timestamp: Date }>,
   ): Promise<TeachingDecision> {
     if (!this.model) {
       return this.fallbackTeachingDecision(context, cognitive);
@@ -211,7 +240,7 @@ Analyze and update this student's cognitive state.`,
 
     const interactionHistory = recentInteractions
       .slice(-6)
-      .map(i => `${i.role}: ${i.content}`)
+      .map((i) => `${i.role}: ${i.content}`)
       .join("\n");
 
     try {
@@ -264,7 +293,8 @@ What should the AI teacher do next?`,
         spokenText: object.spokenText,
         boardUpdate: object.boardContent
           ? {
-              action: (object.boardAction as "append" | "replace" | "highlight" | "clear") || "append",
+              action:
+                (object.boardAction as "append" | "replace" | "highlight" | "clear") || "append",
               content: object.boardContent,
             }
           : undefined,
@@ -287,7 +317,7 @@ What should the AI teacher do next?`,
   async generateAlternativeExplanation(
     context: TeachingContext,
     cognitive: CognitiveState,
-    originalConcept: string
+    originalConcept: string,
   ): Promise<string> {
     if (!this.model) {
       return `Let me explain this differently. Think of it this way: ${originalConcept} means...`;
@@ -311,7 +341,7 @@ Explain it in a completely different way that might click better.`,
   async generatePracticeProblem(
     context: TeachingContext,
     cognitive: CognitiveState,
-    difficulty: "easy" | "medium" | "hard"
+    difficulty: "easy" | "medium" | "hard",
   ): Promise<{ problem: string; expectedAnswer: string; hints: string[] }> {
     if (!this.model) {
       return {
@@ -350,7 +380,7 @@ The problem should:
     problem: string,
     expectedAnswer: string,
     studentAnswer: string,
-    cognitive: CognitiveState
+    cognitive: CognitiveState,
   ): Promise<{ isCorrect: boolean; feedback: string; misconception?: string }> {
     if (!this.model) {
       const isCorrect = studentAnswer.toLowerCase().includes(expectedAnswer.toLowerCase());
@@ -400,7 +430,7 @@ Keep feedback constructive and encouraging.`,
   async generateLessonSummary(
     context: TeachingContext,
     cognitive: CognitiveState,
-    keyPoints: string[]
+    keyPoints: string[],
   ): Promise<string> {
     if (!this.model) {
       return `Today we learned about ${context.topic}. Key points: ${keyPoints.join(", ")}. ${
@@ -433,12 +463,12 @@ Write a 2-3 sentence summary suitable for the student's notes.`,
 
   private fallbackCognitiveAnalysis(
     current: CognitiveState,
-    interactions: Array<{ role: "student" | "teacher"; content: string; timestamp: Date }>
+    interactions: Array<{ role: "student" | "teacher"; content: string; timestamp: Date }>,
   ): CognitiveState {
     const recentStudent = interactions
-      .filter(i => i.role === "student")
+      .filter((i) => i.role === "student")
       .slice(-3)
-      .map(i => i.content.toLowerCase());
+      .map((i) => i.content.toLowerCase());
 
     let emotionState = current.emotionState;
     let understandingScore = current.understandingScore;
@@ -462,19 +492,23 @@ Write a 2-3 sentence summary suitable for the student's notes.`,
 
   private fallbackTeachingDecision(
     context: TeachingContext,
-    cognitive: CognitiveState
+    cognitive: CognitiveState,
   ): TeachingDecision {
     // Rule-based decision tree
     if (cognitive.emotionState === "confused" || cognitive.emotionState === "frustrated") {
       return {
         strategy: "remediate",
         reasoning: "Student appears confused or frustrated, slowing down",
-        spokenText: "Let me try explaining this in a different way. Sometimes seeing it from a new angle helps.",
+        spokenText:
+          "Let me try explaining this in a different way. Sometimes seeing it from a new angle helps.",
         waitForStudentResponse: false,
         encouragementLevel: "high",
         estimatedSeconds: 15,
         shouldEscalateToHuman: cognitive.understandingScore < 0.2,
-        escalateReason: cognitive.understandingScore < 0.2 ? "Student very confused, may need human intervention" : undefined,
+        escalateReason:
+          cognitive.understandingScore < 0.2
+            ? "Student very confused, may need human intervention"
+            : undefined,
       };
     }
 
@@ -494,6 +528,7 @@ Write a 2-3 sentence summary suitable for the student's notes.`,
       return {
         strategy: "practice",
         reasoning: "Good engagement, testing understanding",
+        spokenText: "Let's check your understanding with a quick question.",
         questionToAsk: "Let's check your understanding with a quick question.",
         waitForStudentResponse: true,
         encouragementLevel: "medium",

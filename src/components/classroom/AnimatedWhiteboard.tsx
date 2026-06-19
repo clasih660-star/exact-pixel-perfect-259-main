@@ -54,7 +54,7 @@ export function AnimatedWhiteboard({
         displayText: "",
         item,
         isComplete: false,
-      }))
+      })),
     );
   }, [items]);
 
@@ -87,8 +87,7 @@ export function AnimatedWhiteboard({
           // Auto-scroll
           setTimeout(() => {
             if (boardRef.current) {
-              const lineElements =
-                boardRef.current.querySelectorAll(".whiteboard-line");
+              const lineElements = boardRef.current.querySelectorAll(".whiteboard-line");
               const lastLine = lineElements[currentItemIndex];
               if (lastLine) {
                 lastLine.scrollIntoView({
@@ -110,7 +109,7 @@ export function AnimatedWhiteboard({
 
         // Update hand position
         const lineElement = boardRef.current?.querySelector(
-          `[data-line-id="${currentLine.id}"]`
+          `[data-line-id="${currentLine.id}"]`,
         ) as HTMLElement;
         if (lineElement && showHandCursor) {
           const rect = lineElement.getBoundingClientRect();
@@ -118,7 +117,8 @@ export function AnimatedWhiteboard({
           if (boardRect) {
             setHandPosition({
               x: rect.right + 10,
-              y: rect.top - boardRect.top + (boardRef.current ? boardRef.current.scrollTop : 0) + 20,
+              y:
+                rect.top - boardRect.top + (boardRef.current ? boardRef.current.scrollTop : 0) + 20,
             });
           }
         }
@@ -128,11 +128,18 @@ export function AnimatedWhiteboard({
     }, charDelay);
 
     return () => clearInterval(interval);
-  }, [isPlaying, animatedLines, currentItemIndex, charDelay, onItemComplete, onSequenceComplete, showHandCursor]);
+  }, [
+    isPlaying,
+    animatedLines,
+    currentItemIndex,
+    charDelay,
+    onItemComplete,
+    onSequenceComplete,
+    showHandCursor,
+  ]);
 
   const getLineClass = (item: BoardWriteItem) => {
-    const baseClass =
-      "whiteboard-line font-handwriting text-gray-900 mb-6 leading-relaxed";
+    const baseClass = "whiteboard-line font-handwriting text-gray-900 mb-6 leading-relaxed";
     const typeClasses = {
       heading: "text-3xl font-bold",
       bullet: "text-xl ml-6 relative before:content-['•'] before:absolute before:left-0",
@@ -152,9 +159,7 @@ export function AnimatedWhiteboard({
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          <span className="text-sm font-semibold text-gray-600">
-            Learning Whiteboard
-          </span>
+          <span className="text-sm font-semibold text-gray-600">Learning Whiteboard</span>
         </div>
         <div className="flex items-center gap-2">
           {isAnimating && (
@@ -187,9 +192,7 @@ export function AnimatedWhiteboard({
               className={getLineClass(line.item)}
               style={{
                 minHeight: "2rem",
-                animation: line.isComplete
-                  ? "fadeIn 0.3s ease-out"
-                  : "none",
+                animation: line.isComplete ? "fadeIn 0.3s ease-out" : "none",
               }}
             >
               {line.displayText}

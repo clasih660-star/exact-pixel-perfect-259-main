@@ -172,7 +172,7 @@ function InstitutionHeader({ name }: { name: string }) {
 
 function KpiSection({ stats }: { stats: NonNullable<DashboardData["stats"]> }) {
   return (
-    <section className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+    <section className="kr-dashboard-kpi-grid mb-8">
       <KpiCard
         title="Total Courses"
         value={stats.courses}
@@ -221,13 +221,15 @@ function KpiSection({ stats }: { stats: NonNullable<DashboardData["stats"]> }) {
 
 function MainContentGrid({ data }: { data: DashboardData }) {
   // Convert activity to ActivityFeed format
-  const activityItems = (data.activity || []).slice(0, 8).map((a: { id: string; event_type: string; actor_role: string; created_at: string }) => ({
-    id: a.id,
-    action: eventLabel(a.event_type),
-    description: `${a.actor_role.replace(/_/g, " ")}`,
-    timestamp: timeAgo(a.created_at),
-    variant: a.event_type.includes("completed") ? ("success" as const) : ("default" as const),
-  }));
+  const activityItems = (data.activity || [])
+    .slice(0, 8)
+    .map((a: { id: string; event_type: string; actor_role: string; created_at: string }) => ({
+      id: a.id,
+      action: eventLabel(a.event_type),
+      description: `${a.actor_role.replace(/_/g, " ")}`,
+      timestamp: timeAgo(a.created_at),
+      variant: a.event_type.includes("completed") ? ("success" as const) : ("default" as const),
+    }));
 
   return (
     <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -265,7 +267,9 @@ function CoursesOverviewPanel({ courses }: { courses: DashboardData["courses"] }
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-[#0F172A]">Courses Overview</h2>
-          <p className="mt-0.5 text-sm text-[#64748B]">Manage your institution's learning programs</p>
+          <p className="mt-0.5 text-sm text-[#64748B]">
+            Manage your institution's learning programs
+          </p>
         </div>
         <Link
           to="/institution/courses"
@@ -280,7 +284,7 @@ function CoursesOverviewPanel({ courses }: { courses: DashboardData["courses"] }
         </p>
       ) : (
         <div className="space-y-3">
-          {courses.map((c) => (
+          {courses.map((c: any) => (
             <article
               key={c.id}
               className="flex flex-col gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 transition-all hover:border-[#1F7C80]/30 hover:shadow-md sm:flex-row sm:items-center"
@@ -296,9 +300,7 @@ function CoursesOverviewPanel({ courses }: { courses: DashboardData["courses"] }
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <StatusBadge
-                  variant={c.status === "published" ? "success" : "warning"}
-                >
+                <StatusBadge variant={c.status === "published" ? "success" : "warning"}>
                   {c.status === "published" ? "Published" : "Draft"}
                 </StatusBadge>
                 <Link
@@ -328,7 +330,7 @@ function ActiveSessionsPanel({ sessions }: { sessions: DashboardData["activeSess
             No live sessions right now.
           </p>
         ) : (
-          sessions.map((s) => (
+          sessions.map((s: any) => (
             <Link
               key={s.id}
               to="/classroom/session/$sessionId"
@@ -363,26 +365,22 @@ function ResourceLibraryPanel({ materials }: { materials: DashboardData["recentM
             No materials uploaded yet.
           </p>
         ) : (
-          materials.slice(0, 3).map((r: { id: string; title: string; type: string; processing_status: string }) => (
-            <div
-              key={r.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-[#0F172A]">{r.title}</p>
-                <p className="text-xs text-[#64748B] capitalize">{r.type}</p>
-              </div>
-              <StatusBadge
-                variant={
-                  r.processing_status === "ready" ? "success" : "warning"
-                }
+          materials
+            .slice(0, 3)
+            .map((r: { id: string; title: string; type: string; processing_status: string }) => (
+              <div
+                key={r.id}
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3"
               >
-                {r.processing_status === "ready"
-                  ? "Ready"
-                  : r.processing_status}
-              </StatusBadge>
-            </div>
-          ))
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-[#0F172A]">{r.title}</p>
+                  <p className="text-xs text-[#64748B] capitalize">{r.type}</p>
+                </div>
+                <StatusBadge variant={r.processing_status === "ready" ? "success" : "warning"}>
+                  {r.processing_status === "ready" ? "Ready" : r.processing_status}
+                </StatusBadge>
+              </div>
+            ))
         )}
       </div>
       <div className="mt-4 flex gap-2">

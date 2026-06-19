@@ -1,6 +1,10 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import type { UserRole } from "@/lib/types";
-import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import type { RoleResolution, UserRole } from "@/lib/types";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { requiresEmailVerification } from "@/lib/auth-verification";
+import { getRoleResolution } from "@/lib/route-guards";
+import { isDemoModeAllowed } from "@/lib/runtime-mode";
+import { SecurityConfigurationError } from "@/lib/security-errors";
 
 /** Demo roles available without Supabase. */
 const DEMO_ROLES: UserRole[] = [
@@ -24,22 +28,45 @@ function getDemoRole(): UserRole {
   return "student";
 }
 
-/**
- * Fetch the user's role from the profiles table.
- * Returns null in dev mode (when using demo user) or on error.
- */
-async function fetchUserRole(userId: string): Promise<UserRole | null> {
-  try {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return ((data as any)?.role as UserRole) ?? null;
-  } catch {
-    return null;
+function demoRoleResolution(role: UserRole): RoleResolution {
+  switch (role) {
+    case "platform_admin":
+      return { role, persona: "platform_admin", institutionId: null, teacherType: null, learnerType: null };
+    case "institution_admin":
+      return {
+        role,
+        persona: "institution_admin",
+        institutionId: "demo-institution",
+        teacherType: null,
+        learnerType: null,
+      };
+    case "teacher":
+      return {
+        role,
+        persona: "institution_teacher",
+        teacherType: "institution",
+        learnerType: null,
+        institutionId: "demo-institution",
+      };
+    case "parent":
+      return { role, persona: "parent", institutionId: null, teacherType: null, learnerType: null };
+    case "owner":
+      return {
+        role,
+        persona: "institution_admin",
+        institutionId: "demo-institution",
+        teacherType: null,
+        learnerType: null,
+      };
+    case "student":
+    default:
+      return {
+        role: "student",
+        persona: "institution_learner",
+        learnerType: "institution",
+        teacherType: null,
+        institutionId: "demo-institution",
+      };
   }
 }
 
@@ -51,34 +78,49 @@ export const Route = createFileRoute("/_authenticated")({
     // use the demo role from localStorage. The entire app runs as if the
     // user is logged in with the selected demo role.
     if (!isSupabaseConfigured()) {
+      if (!isDemoModeAllowed()) {
+        throw new SecurityConfigurationError(
+          "Authentication is not configured for this production environment.",
+        );
+      }
+
       const role = getDemoRole();
+      const resolution = demoRoleResolution(role);
       return {
         user: { id: "demo-user-0000", email: `demo@klassruum.com` },
-        role,
-      };
-    }
-
-    // ── Dev mode with real Supabase: quick bypass for local dev ──────────
-    if (import.meta.env.DEV) {
-      const role = getDemoRole();
-      return {
-        user: { id: "demo-user-0000", email: "demo@klassruum.com" },
-        role,
+        role: resolution.role,
+        persona: resolution.persona,
+        teacherType: resolution.teacherType ?? null,
+        learnerType: resolution.learnerType ?? null,
+        institutionId: resolution.institutionId ?? null,
       };
     }
 
     // ── Production: real Supabase auth ───────────────────────────────────
     try {
-      const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
         throw redirect({ to: "/auth" });
       }
 
-      // Fetch the user's role from their profile
-      const role = await fetchUserRole(data.user.id);
+      if (requiresEmailVerification(data.user)) {
+        throw redirect({ to: "/auth/verify-email" });
+      }
 
-      return { user: data.user, role };
+      const resolution = await getRoleResolution(data.user.id);
+
+      if (!resolution?.role) {
+        throw redirect({ to: "/auth/complete-profile" });
+      }
+
+      return {
+        user: data.user,
+        role: resolution.role,
+        persona: resolution.persona,
+        teacherType: resolution.teacherType ?? null,
+        learnerType: resolution.learnerType ?? null,
+        institutionId: resolution.institutionId ?? null,
+      };
     } catch (err) {
       // Re-throw redirects
       if (err && typeof err === "object" && "to" in err) throw err;

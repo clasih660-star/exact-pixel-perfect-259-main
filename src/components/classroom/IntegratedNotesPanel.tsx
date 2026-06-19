@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  BookOpen,
-  Download,
-  Copy,
-  X,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-} from "lucide-react";
+import { BookOpen, Download, Copy, X, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 
 interface NotesSection {
   title: string;
@@ -40,7 +32,7 @@ export function LearnerNotesPanel({
   onDownload,
 }: LearnerNotesProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set([sections[0]?.title])
+    new Set([sections[0]?.title]),
   );
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -67,9 +59,7 @@ export function LearnerNotesPanel({
         <div className="flex items-center gap-3">
           <BookOpen className="h-5 w-5 text-[#1F7C80]" />
           <div>
-            <h3 className="font-semibold text-gray-900 text-sm">
-              {lessonTitle} Notes
-            </h3>
+            <h3 className="font-semibold text-gray-900 text-sm">{lessonTitle} Notes</h3>
             <p className="text-xs text-gray-500">Study materials</p>
           </div>
         </div>
@@ -91,17 +81,12 @@ export function LearnerNotesPanel({
 
         {/* Main Sections */}
         {sections.map((section, index) => (
-          <div
-            key={index}
-            className="border-b border-gray-100 last:border-b-0"
-          >
+          <div key={index} className="border-b border-gray-100 last:border-b-0">
             <button
               onClick={() => toggleSection(section.title)}
               className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
             >
-              <h4 className="font-semibold text-gray-900 text-sm">
-                {section.title}
-              </h4>
+              <h4 className="font-semibold text-gray-900 text-sm">{section.title}</h4>
               {expandedSections.has(section.title) ? (
                 <ChevronUp className="h-4 w-4 text-gray-400" />
               ) : (
@@ -111,9 +96,7 @@ export function LearnerNotesPanel({
 
             {expandedSections.has(section.title) && (
               <div className="px-6 pb-4 space-y-3">
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {section.content}
-                </p>
+                <p className="text-sm text-gray-600 leading-relaxed">{section.content}</p>
 
                 {section.keyPoints.length > 0 && (
                   <div>
@@ -122,10 +105,7 @@ export function LearnerNotesPanel({
                     </p>
                     <ul className="space-y-1">
                       {section.keyPoints.map((point, pIndex) => (
-                        <li
-                          key={pIndex}
-                          className="text-sm text-gray-600 flex items-start gap-2"
-                        >
+                        <li key={pIndex} className="text-sm text-gray-600 flex items-start gap-2">
                           <span className="text-[#1F7C80] mt-0.5">•</span>
                           <span>{point}</span>
                         </li>
@@ -145,9 +125,7 @@ export function LearnerNotesPanel({
               onClick={() => toggleSection("Formulas & Rules")}
               className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
             >
-              <h4 className="font-semibold text-gray-900 text-sm">
-                Formulas & Rules
-              </h4>
+              <h4 className="font-semibold text-gray-900 text-sm">Formulas & Rules</h4>
               {expandedSections.has("Formulas & Rules") ? (
                 <ChevronUp className="h-4 w-4 text-gray-400" />
               ) : (
@@ -158,10 +136,7 @@ export function LearnerNotesPanel({
             {expandedSections.has("Formulas & Rules") && (
               <div className="px-6 pb-4 space-y-3">
                 {formulasAndRules.map((item, index) => (
-                  <div
-                    key={index}
-                    className="p-3 bg-[#e8f5f5] rounded-lg border border-[#a3d9d8]"
-                  >
+                  <div key={index} className="p-3 bg-[#e8f5f5] rounded-lg border border-[#a3d9d8]">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <code className="text-xs font-mono font-semibold text-[#0F172A] flex-1">
                         {item.formula}
@@ -248,9 +223,7 @@ export function TeacherNotesPanel({
   timingNotes,
   adaptations,
 }: TeacherNotesProps) {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["Key Messages"])
-  );
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["Key Messages"]));
 
   const toggleSection = (title: string) => {
     const newSet = new Set(expandedSections);
@@ -266,9 +239,7 @@ export function TeacherNotesPanel({
     <div className="h-full flex flex-col bg-white rounded-lg border border-amber-200 shadow-sm">
       {/* Header */}
       <div className="px-6 py-4 border-b border-amber-100 bg-amber-50/30">
-        <h3 className="font-semibold text-gray-900 text-sm">
-          Teacher Guide: {lessonTitle}
-        </h3>
+        <h3 className="font-semibold text-gray-900 text-sm">Teacher Guide: {lessonTitle}</h3>
         <p className="text-xs text-gray-500 mt-1">For your reference</p>
       </div>
 
@@ -294,9 +265,7 @@ export function TeacherNotesPanel({
             <div className="px-6 pb-3 space-y-2">
               {keyMessages.map((msg, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <span className="text-[#1F7C80] font-bold text-xs mt-0.5">
-                    ★
-                  </span>
+                  <span className="text-[#1F7C80] font-bold text-xs mt-0.5">★</span>
                   <p className="text-xs text-gray-700">{msg}</p>
                 </div>
               ))}
@@ -324,9 +293,7 @@ export function TeacherNotesPanel({
             <div className="px-6 pb-3 space-y-2">
               {commonStudentConfusions.map((confusion, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <span className="text-amber-600 font-bold text-xs mt-0.5">
-                    ⚠
-                  </span>
+                  <span className="text-amber-600 font-bold text-xs mt-0.5">⚠</span>
                   <p className="text-xs text-gray-700">{confusion}</p>
                 </div>
               ))}
@@ -352,9 +319,7 @@ export function TeacherNotesPanel({
 
           {expandedSections.has("Timing Notes") && (
             <div className="px-6 pb-3">
-              <p className="text-xs text-gray-700 leading-relaxed">
-                {timingNotes}
-              </p>
+              <p className="text-xs text-gray-700 leading-relaxed">{timingNotes}</p>
             </div>
           )}
         </div>
@@ -379,20 +344,12 @@ export function TeacherNotesPanel({
             {expandedSections.has("Adaptations") && (
               <div className="px-6 pb-3 space-y-3">
                 <div>
-                  <p className="text-xs font-semibold text-green-700 mb-1">
-                    For Slow Learners:
-                  </p>
-                  <p className="text-xs text-gray-700">
-                    {adaptations.forSlowLearners}
-                  </p>
+                  <p className="text-xs font-semibold text-green-700 mb-1">For Slow Learners:</p>
+                  <p className="text-xs text-gray-700">{adaptations.forSlowLearners}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-purple-700 mb-1">
-                    For Fast Learners:
-                  </p>
-                  <p className="text-xs text-gray-700">
-                    {adaptations.forFastLearners}
-                  </p>
+                  <p className="text-xs font-semibold text-purple-700 mb-1">For Fast Learners:</p>
+                  <p className="text-xs text-gray-700">{adaptations.forFastLearners}</p>
                 </div>
               </div>
             )}

@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { 
-  Plus, 
-  Upload, 
-  UserPlus, 
-  GraduationCap, 
+import {
+  Plus,
+  Upload,
+  UserPlus,
+  GraduationCap,
   Play,
   Building2,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 
 interface InstitutionOverviewHeaderProps {
@@ -42,11 +42,11 @@ export function InstitutionOverviewHeader({
                 Institution dashboard
               </span>
             </div>
-            
+
             <h1 className="text-2xl font-bold text-[var(--gray-900)] lg:text-3xl">
               {institutionName}
             </h1>
-            
+
             <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
               <span className="flex items-center gap-1 text-[var(--gray-600)]">
                 <Building2 className="h-4 w-4" />

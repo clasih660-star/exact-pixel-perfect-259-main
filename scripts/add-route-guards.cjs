@@ -22,9 +22,9 @@ const ROLE_MAP = {
 
 // Skip files that already have role guards or are special files
 const SKIP_PATTERNS = [
-  "route.tsx",       // The parent layout route
-  "dev/",            // Dev-only routes
-  "teacher/",        // Sub-directory (not prefix-based)
+  "route.tsx", // The parent layout route
+  "dev/", // Dev-only routes
+  "teacher/", // Sub-directory (not prefix-based)
 ];
 
 /** Files that need special guards (institution + teacher) */
@@ -103,7 +103,7 @@ function addGuardToFile(filePath) {
     // Pattern: createFileRoute(...)({ ... })
     modified = modified.replace(
       /createFileRoute\([^)]+\)\(\{/,
-      `createFileRoute(/* @__PURE__ */ (void 0))({\n  beforeLoad: (ctx) => ${guardConfig.guard}(ctx.context),`
+      `createFileRoute(/* @__PURE__ */ (void 0))({\n  beforeLoad: (ctx) => ${guardConfig.guard}(ctx.context),`,
     );
 
     // That regex won't work well. Let's use a simpler approach:
@@ -132,7 +132,11 @@ function addGuardToFile(filePath) {
       if (braceLine < lines.length) {
         // Insert beforeLoad after the opening brace
         const indent = "  ";
-        lines.splice(braceLine + 1, 0, `${indent}beforeLoad: (ctx) => ${guardConfig.guard}(ctx.context),`);
+        lines.splice(
+          braceLine + 1,
+          0,
+          `${indent}beforeLoad: (ctx) => ${guardConfig.guard}(ctx.context),`,
+        );
         modified = lines.join("\n");
       }
     }
@@ -143,14 +147,14 @@ function addGuardToFile(filePath) {
 }
 
 // Process all files
-const files = fs.readdirSync(ROUTES_DIR).filter(f => f.endsWith(".tsx"));
+const files = fs.readdirSync(ROUTES_DIR).filter((f) => f.endsWith(".tsx"));
 
 let updated = 0;
 let skipped = 0;
 
 for (const file of files) {
   // Skip directories and special files
-  if (SKIP_PATTERNS.some(p => file === p || file.startsWith(p))) {
+  if (SKIP_PATTERNS.some((p) => file === p || file.startsWith(p))) {
     skipped++;
     continue;
   }

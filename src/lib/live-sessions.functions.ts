@@ -8,6 +8,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  assertActorCanAccessInstitution,
+  assertActorCanAccessLesson,
+  assertActorCanAccessSession,
+} from "@/lib/server-authorization";
 
 /** Start (or resume) an AI-teacher session for the current learner on a lesson. */
 export const startLearnerSession = createServerFn({ method: "POST" })
@@ -21,12 +26,7 @@ export const startLearnerSession = createServerFn({ method: "POST" })
       return { sessionId: `demo-session-${Date.now()}` };
     }
 
-    const { data: lesson, error: lErr } = await supabase
-      .from("lessons")
-      .select("id, course_id, institution_id")
-      .eq("id", data.lesson_id)
-      .single();
-    if (lErr || !lesson) throw new Error(lErr?.message ?? "Lesson not found");
+    const lesson = await assertActorCanAccessLesson(context, data.lesson_id);
 
     const { data: existing } = await supabase
       .from("classroom_sessions")
@@ -58,18 +58,16 @@ export const startLearnerSession = createServerFn({ method: "POST" })
     }
 
     const db = supabase as any;
-    await db
-      .from("session_participants")
-      .upsert(
-        {
-          session_id: sessionId,
-          user_id: userId,
-          role: "student",
-          status: "joined",
-          joined_at: new Date().toISOString(),
-        },
-        { onConflict: "session_id,user_id" },
-      );
+    await db.from("session_participants").upsert(
+      {
+        session_id: sessionId,
+        user_id: userId,
+        role: "student",
+        status: "joined",
+        joined_at: new Date().toISOString(),
+      },
+      { onConflict: "session_id,user_id" },
+    );
 
     return { sessionId };
   });
@@ -101,12 +99,10 @@ export const createTeacherSession = createServerFn({ method: "POST" })
       };
     }
 
-    const { data: lesson, error: lErr } = await supabase
-      .from("lessons")
-      .select("id, course_id, institution_id")
-      .eq("id", data.lesson_id)
-      .single();
-    if (lErr || !lesson) throw new Error(lErr?.message ?? "Lesson not found");
+    const lesson = await assertActorCanAccessLesson(context, data.lesson_id, {
+      requireStaff: true,
+      allowEnrolledStudent: false,
+    });
 
     const { data: row, error } = await supabase
       .from("classroom_sessions")
@@ -135,6 +131,8 @@ export const endSession = createServerFn({ method: "POST" })
 
     if (!supabase) return { ok: true };
 
+    await assertActorCanAccessSession(context, data.session_id, { requireModerator: true });
+
     const nowIso = new Date().toISOString();
     const { error } = await supabase
       .from("classroom_sessions")
@@ -159,6 +157,7 @@ export const leaveSession = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }: any) => {
     if (!context.supabase) return { ok: true };
+    await assertActorCanAccessSession(context, data.session_id);
     const db = context.supabase as any;
     await db
       .from("session_participants")
@@ -179,9 +178,13 @@ export const listActiveSessions = createServerFn({ method: "GET" })
       return { sessions: [] };
     }
 
+    await assertActorCanAccessInstitution(context, data.institution_id, { requireStaff: true });
+
     const { data: sessions, error } = await supabase
       .from("classroom_sessions")
-      .select("id, course_id, lesson_id, mode, status, started_at, host_user_id, lessons(title), courses(title)")
+      .select(
+        "id, course_id, lesson_id, mode, status, started_at, host_user_id, lessons(title), courses(title)",
+      )
       .eq("institution_id", data.institution_id)
       .eq("status", "live")
       .order("started_at", { ascending: false });

@@ -25,6 +25,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createResilientModelCaller } from "./ai-gateway.server";
 import type { AcademicLevel, TeacherAnswer } from "./types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertActorHasAnyRole } from "@/lib/server-authorization";
 
 const ACADEMIC_LEVELS = ["elementary", "secondary", "college", "tertiary", "adult"] as const;
 
@@ -46,17 +48,21 @@ const ContextSchema = z.object({
   /** A prior clarifying question the teacher asked, if this is a follow-up turn. */
   priorClarification: z.string().optional(),
   /** Real-time sentiment analysis of the learner's input. */
-  learnerSentiment: z.object({
-    tone: z.string(),
-    frustrationScore: z.number().min(0).max(1),
-  }).optional(),
+  learnerSentiment: z
+    .object({
+      tone: z.string(),
+      frustrationScore: z.number().min(0).max(1),
+    })
+    .optional(),
   /** Cross-lesson learner profile for personalization. */
-  learnerProfile: z.object({
-    weakTopics: z.array(z.string()),
-    strongTopics: z.array(z.string()),
-    preferredStyle: z.string(),
-    lastEmotion: z.string(),
-  }).optional(),
+  learnerProfile: z
+    .object({
+      weakTopics: z.array(z.string()),
+      strongTopics: z.array(z.string()),
+      preferredStyle: z.string(),
+      lastEmotion: z.string(),
+    })
+    .optional(),
 });
 
 const InputSchema = z.object({
@@ -71,7 +77,10 @@ const TeacherAnswerSchema = z.object({
   clarificationOptions: z.array(z.string()).max(4).optional(),
   answer: z.string().optional(),
   shouldShowOnBoard: z.boolean(),
-  boardItems: z.array(z.object({ type: z.string(), text: z.string() })).max(6).optional(),
+  boardItems: z
+    .array(z.object({ type: z.string(), text: z.string() }))
+    .max(6)
+    .optional(),
   saveToNotes: z.boolean(),
   suggestedFollowUp: z.string(),
 });
@@ -94,7 +103,11 @@ function clampWords(text: string): string {
   const words = text.trim().split(/\s+/).filter(Boolean);
   if (words.length <= MAX_WORDS) return text.trim();
   const truncated = words.slice(0, MAX_WORDS).join(" ");
-  const lastStop = Math.max(truncated.lastIndexOf("."), truncated.lastIndexOf("!"), truncated.lastIndexOf("?"));
+  const lastStop = Math.max(
+    truncated.lastIndexOf("."),
+    truncated.lastIndexOf("!"),
+    truncated.lastIndexOf("?"),
+  );
   return lastStop > truncated.length * 0.6 ? truncated.slice(0, lastStop + 1) : truncated + "…";
 }
 
@@ -157,9 +170,20 @@ function looksUnclear(question: string): boolean {
   const q = question.trim().toLowerCase();
   if (wordCount(q) <= 3) return true;
   const vague = [
-    "i don't get it", "i dont get it", "why this", "what", "huh", "this?",
-    "i'm lost", "im lost", "explain", "i don't understand", "i dont understand",
-    "confused", "?", "this one",
+    "i don't get it",
+    "i dont get it",
+    "why this",
+    "what",
+    "huh",
+    "this?",
+    "i'm lost",
+    "im lost",
+    "explain",
+    "i don't understand",
+    "i dont understand",
+    "confused",
+    "?",
+    "this one",
   ];
   return vague.some((v) => q === v || q === v + "?" || (q.length <= 14 && q.includes(v)));
 }
@@ -174,7 +198,12 @@ function fallbackTeacherAnswer(
     return {
       clarity: "unclear",
       clarificationQuestion: `I want to answer clearly. Which part of ${section} do you mean?`,
-      clarificationOptions: ["Finding the numbers", "Writing the brackets", "Getting the final values", "Type my question"],
+      clarificationOptions: [
+        "Finding the numbers",
+        "Writing the brackets",
+        "Getting the final values",
+        "Type my question",
+      ],
       shouldShowOnBoard: false,
       saveToNotes: false,
       suggestedFollowUp: "Pick the part that's confusing and I'll explain just that.",
@@ -182,7 +211,9 @@ function fallbackTeacherAnswer(
     };
   }
 
-  const board = ctx.currentBoardItem ? `Looking at the board where we have "${ctx.currentBoardItem}", ` : "";
+  const board = ctx.currentBoardItem
+    ? `Looking at the board where we have "${ctx.currentBoardItem}", `
+    : "";
   const explain = ctx.teacherExplanation
     ? ctx.teacherExplanation
     : `let's connect your question back to what we are doing in "${ctx.lessonTitle}".`;
@@ -205,13 +236,24 @@ function fallbackTeacherAnswer(
 
 /** Normalise a structured TeacherAnswer into the back-compat result shape. */
 function toResult(a: TeacherAnswer): AnswerLearnerQuestionResult {
-  const flat = a.clarity === "clear" ? (a.answer ?? "") : (a.clarificationQuestion ?? a.answer ?? "");
+  const flat =
+    a.clarity === "clear" ? (a.answer ?? "") : (a.clarificationQuestion ?? a.answer ?? "");
   return { ...a, answer: flat, wordCount: wordCount(flat) };
 }
 
 export const answerLearnerQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }): Promise<AnswerLearnerQuestionResult> => {
+  .handler(async ({ data, context }: any): Promise<AnswerLearnerQuestionResult> => {
+    await assertActorHasAnyRole(context, [
+      "platform_admin",
+      "institution_admin",
+      "owner",
+      "teacher",
+      "student",
+      "parent",
+    ]);
+
     const resilientCaller = createResilientModelCaller("teacher_answer");
     if (!resilientCaller) {
       return toResult(fallbackTeacherAnswer(data.context, data.question));

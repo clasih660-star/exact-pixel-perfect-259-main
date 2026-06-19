@@ -16,7 +16,7 @@ function slugify(s: string) {
 export const listCourses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { institution_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: rows, error } = await context.supabase
       .from("courses")
       .select("*")
@@ -29,7 +29,7 @@ export const listCourses = createServerFn({ method: "GET" })
 export const getCourse = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { course_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: course, error } = await context.supabase
       .from("courses")
       .select("*")
@@ -66,7 +66,7 @@ const CreateSchema = z.object({
 export const createCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => CreateSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const baseSlug = slugify(data.title);
     let slug = baseSlug;
     for (let i = 1; i < 20; i++) {
@@ -107,7 +107,7 @@ export const updateCourseStatus = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("courses")
       .update({ status: data.status })

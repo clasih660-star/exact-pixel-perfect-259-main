@@ -38,8 +38,15 @@ const NOTES: Note[] = [
       "Set each bracket to zero to find the solutions.",
     ],
     calculations: [
-      { expr: "2 × 3 = 6", explain: "Confirms the multiplication condition — 2 and 3 multiply to the constant term 6." },
-      { expr: "2 + 3 = 5", explain: "Confirms the addition condition — the same numbers add to the middle coefficient 5." },
+      {
+        expr: "2 × 3 = 6",
+        explain: "Confirms the multiplication condition — 2 and 3 multiply to the constant term 6.",
+      },
+      {
+        expr: "2 + 3 = 5",
+        explain:
+          "Confirms the addition condition — the same numbers add to the middle coefficient 5.",
+      },
     ],
     commonMistake: "Do not choose 1 and 6. They multiply to 6, but add to 7, not 5.",
   },
@@ -56,9 +63,14 @@ const NOTES: Note[] = [
       "Only change coefficients, never subscripts.",
     ],
     calculations: [
-      { expr: "2H₂ + O₂ → 2H₂O", explain: "Two hydrogen molecules react with one oxygen molecule to form two water molecules." },
+      {
+        expr: "2H₂ + O₂ → 2H₂O",
+        explain:
+          "Two hydrogen molecules react with one oxygen molecule to form two water molecules.",
+      },
     ],
-    commonMistake: "Changing a subscript changes the substance itself — adjust coefficients instead.",
+    commonMistake:
+      "Changing a subscript changes the substance itself — adjust coefficients instead.",
   },
 ];
 
@@ -66,7 +78,9 @@ function StudentNotes() {
   const [activeId, setActiveId] = useState(NOTES[0].id);
   const [query, setQuery] = useState("");
   const filtered = NOTES.filter(
-    (n) => n.title.toLowerCase().includes(query.toLowerCase()) || n.course.toLowerCase().includes(query.toLowerCase()),
+    (n) =>
+      n.title.toLowerCase().includes(query.toLowerCase()) ||
+      n.course.toLowerCase().includes(query.toLowerCase()),
   );
   const active = NOTES.find((n) => n.id === activeId) ?? NOTES[0];
 
@@ -129,17 +143,28 @@ function StudentNotes() {
         <div className="kr-pcard p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--primary)]">{active.course} · {active.lesson}</p>
-              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">{active.title}</h2>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--primary)]">
+                {active.course} · {active.lesson}
+              </p>
+              <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--gray-900)]">
+                {active.title}
+              </h2>
             </div>
-            <button onClick={download} className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]">
+            <button
+              onClick={download}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-2 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]"
+            >
               <Download className="h-3.5 w-3.5" /> Download
             </button>
           </div>
 
           <section className="mt-6">
-            <h4 className="flex items-center gap-2 text-sm font-bold text-[var(--gray-900)]"><BookOpen className="h-4 w-4 text-[var(--primary)]" /> Objective</h4>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--gray-600)]">{active.objective}</p>
+            <h4 className="flex items-center gap-2 text-sm font-bold text-[var(--gray-900)]">
+              <BookOpen className="h-4 w-4 text-[var(--primary)]" /> Objective
+            </h4>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--gray-600)]">
+              {active.objective}
+            </p>
           </section>
 
           <section className="mt-6">
@@ -155,7 +180,9 @@ function StudentNotes() {
           </section>
 
           <section className="mt-6">
-            <h4 className="flex items-center gap-2 text-sm font-bold text-[var(--gray-900)]"><Calculator className="h-4 w-4 text-[var(--primary)]" /> Calculations explained</h4>
+            <h4 className="flex items-center gap-2 text-sm font-bold text-[var(--gray-900)]">
+              <Calculator className="h-4 w-4 text-[var(--primary)]" /> Calculations explained
+            </h4>
             <div className="mt-2 space-y-3">
               {active.calculations.map((c, i) => (
                 <div key={i} className="rounded-xl bg-[var(--gray-50)] p-4">
@@ -168,13 +195,18 @@ function StudentNotes() {
 
           {active.commonMistake && (
             <section className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
-              <h4 className="flex items-center gap-2 text-sm font-bold text-amber-700"><AlertTriangle className="h-4 w-4" /> Common mistake</h4>
+              <h4 className="flex items-center gap-2 text-sm font-bold text-amber-700">
+                <AlertTriangle className="h-4 w-4" /> Common mistake
+              </h4>
               <p className="mt-1.5 text-sm text-amber-800">{active.commonMistake}</p>
             </section>
           )}
 
           <div className="mt-6 border-t border-[var(--gray-100)] pt-4">
-            <Link to="/demo/ai-video" className="kr-btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white">
+            <Link
+              to="/demo/ai-video"
+              className="kr-btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white"
+            >
               Replay this lesson
             </Link>
           </div>

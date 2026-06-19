@@ -8,11 +8,7 @@ interface ExitTicketPromptProps {
   isLoading?: boolean;
 }
 
-export function ExitTicketPrompt({
-  ticket,
-  onSubmit,
-  isLoading = false,
-}: ExitTicketPromptProps) {
+export function ExitTicketPrompt({ ticket, onSubmit, isLoading = false }: ExitTicketPromptProps) {
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -31,9 +27,7 @@ export function ExitTicketPrompt({
           <h3 className="text-xl font-bold text-gray-900">Exit Ticket</h3>
         </div>
 
-        <p className="text-sm text-gray-700 mb-6 leading-relaxed">
-          {ticket.question}
-        </p>
+        <p className="text-sm text-gray-700 mb-6 leading-relaxed">{ticket.question}</p>
 
         <textarea
           value={answer}
@@ -54,9 +48,7 @@ export function ExitTicketPrompt({
 
         {submitted && (
           <div className="mt-3 p-3 bg-[#e8f5f5] border border-[#a3d9d8] rounded-lg">
-            <p className="text-xs text-[#1A5256]">
-              ✓ Answer submitted. Thank you!
-            </p>
+            <p className="text-xs text-[#1A5256]">✓ Answer submitted. Thank you!</p>
           </div>
         )}
       </div>
@@ -120,9 +112,7 @@ export function HomeworkPanel({
           {problems.map((problem, index) => (
             <div
               key={problem.id}
-              className={`p-3 rounded-lg border ${
-                difficultyColor[problem.difficulty]
-              }`}
+              className={`p-3 rounded-lg border ${difficultyColor[problem.difficulty]}`}
             >
               <p className="text-sm font-medium mb-1">
                 Problem {index + 1} ({problem.difficulty})
@@ -133,9 +123,7 @@ export function HomeworkPanel({
 
           {reviewMaterial && (
             <div className="p-3 bg-[#e8f5f5] border border-[#a3d9d8] rounded-lg">
-              <p className="text-xs font-semibold text-[#0F172A] mb-1">
-                📖 Review Material
-              </p>
+              <p className="text-xs font-semibold text-[#0F172A] mb-1">📖 Review Material</p>
               <p className="text-xs text-[#1A5256]">{reviewMaterial}</p>
             </div>
           )}
@@ -194,7 +182,7 @@ export function LessonCompletionSummary({
   onRetakeLesson,
 }: LessonCompletionSummaryProps) {
   const overallScore = Math.round(
-    (practiceScore + (exitTicketScore || 0)) / (exitTicketScore ? 2 : 1)
+    (practiceScore + (exitTicketScore || 0)) / (exitTicketScore ? 2 : 1),
   );
 
   return (
@@ -203,9 +191,7 @@ export function LessonCompletionSummary({
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
           <CheckCircle2 className="h-12 w-12 text-green-500" />
-          <h1 className="text-4xl font-bold text-gray-900">
-            Lesson Complete!
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900">Lesson Complete!</h1>
         </div>
         <p className="text-lg text-gray-600">
           {lessonTitle} · {courseTitle}
@@ -215,9 +201,7 @@ export function LessonCompletionSummary({
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[#e8f5f5] border border-[#a3d9d8] rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold text-[#0F172A]">
-            {timeSpentMinutes} min
-          </p>
+          <p className="text-2xl font-bold text-[#0F172A]">{timeSpentMinutes} min</p>
           <p className="text-xs text-[#1A5256] mt-1">Time Spent</p>
         </div>
 
@@ -235,18 +219,14 @@ export function LessonCompletionSummary({
         >
           <p
             className={`text-2xl font-bold ${
-              midLessonQuestionCorrect
-                ? "text-green-900"
-                : "text-yellow-900"
+              midLessonQuestionCorrect ? "text-green-900" : "text-yellow-900"
             }`}
           >
             {midLessonQuestionCorrect ? "✓" : "◐"}
           </p>
           <p
             className={`text-xs mt-1 ${
-              midLessonQuestionCorrect
-                ? "text-green-700"
-                : "text-yellow-700"
+              midLessonQuestionCorrect ? "text-green-700" : "text-yellow-700"
             }`}
           >
             Mid Lesson Q
@@ -266,36 +246,22 @@ export function LessonCompletionSummary({
         <div className="space-y-3">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-gray-700">
-                Guided Practice
-              </span>
-              <span className="text-sm font-semibold text-gray-900">
-                {practiceScore}%
-              </span>
+              <span className="text-sm font-medium text-gray-700">Guided Practice</span>
+              <span className="text-sm font-semibold text-gray-900">{practiceScore}%</span>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#e8f5f5]0"
-                style={{ width: `${practiceScore}%` }}
-              />
+              <div className="h-full bg-[#e8f5f5]0" style={{ width: `${practiceScore}%` }} />
             </div>
           </div>
 
           {exitTicketScore !== undefined && (
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">
-                  Exit Ticket
-                </span>
-                <span className="text-sm font-semibold text-gray-900">
-                  {exitTicketScore}%
-                </span>
+                <span className="text-sm font-medium text-gray-700">Exit Ticket</span>
+                <span className="text-sm font-semibold text-gray-900">{exitTicketScore}%</span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500"
-                  style={{ width: `${exitTicketScore}%` }}
-                />
+                <div className="h-full bg-green-500" style={{ width: `${exitTicketScore}%` }} />
               </div>
             </div>
           )}
@@ -308,9 +274,7 @@ export function LessonCompletionSummary({
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-semibold text-amber-900 mb-2">
-                Topics to Review
-              </h4>
+              <h4 className="font-semibold text-amber-900 mb-2">Topics to Review</h4>
               <ul className="space-y-1">
                 {weakTopics.map((topic, index) => (
                   <li key={index} className="text-sm text-amber-800">
@@ -329,9 +293,7 @@ export function LessonCompletionSummary({
       {/* Recommendation */}
       {recommendedNext && (
         <div className="bg-[#e8f5f5] border border-[#a3d9d8] rounded-lg p-6">
-          <p className="text-sm font-semibold text-[#0F172A] mb-2">
-            🎯 Recommended Next Step
-          </p>
+          <p className="text-sm font-semibold text-[#0F172A] mb-2">🎯 Recommended Next Step</p>
           <p className="text-sm text-[#1A5256] mb-1">{recommendedNext.title}</p>
           <p className="text-xs text-[#1A5256]">{recommendedNext.reason}</p>
         </div>

@@ -22,7 +22,7 @@ export const Route = createFileRoute("/classroom/preview/$lessonId")({
         },
         {
           label: "Start live session",
-          to: "/classroom/session/session-demo",
+          to: "/teacher/lessons",
           description: "Move from preview into the classroom.",
         },
       ]}

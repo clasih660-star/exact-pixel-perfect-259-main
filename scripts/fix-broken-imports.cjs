@@ -14,7 +14,7 @@ const path = require("path");
 const ROUTES_DIR = path.resolve(__dirname, "../src/routes/_authenticated");
 const GUARD_IMPORT_RE = /^\s*import \{ (require\w+) \} from "@\/lib\/route-guards";$/;
 
-const files = fs.readdirSync(ROUTES_DIR).filter(f => f.endsWith(".tsx"));
+const files = fs.readdirSync(ROUTES_DIR).filter((f) => f.endsWith(".tsx"));
 let fixed = 0;
 
 for (const file of files) {
@@ -23,7 +23,7 @@ for (const file of files) {
   const lines = content.split("\n");
 
   // Find the guard import line
-  const guardLineIndex = lines.findIndex(line => GUARD_IMPORT_RE.test(line));
+  const guardLineIndex = lines.findIndex((line) => GUARD_IMPORT_RE.test(line));
   if (guardLineIndex < 0) continue;
 
   // Check if it's inside a multi-line import block.

@@ -20,6 +20,7 @@
 **File**: `src/routes/classroom.$lessonId.tsx` or `src/components/classroom/VideoClassroomPage.tsx`
 
 **Steps:**
+
 - [ ] Import AnimatedWhiteboard component
 - [ ] Import BoardWriteItem type from types.ts
 - [ ] Pass board items from current lesson step
@@ -30,6 +31,7 @@
 - [ ] Verify smooth transitions between steps
 
 **Code Pattern:**
+
 ```typescript
 import { AnimatedWhiteboard } from '@/components/classroom/AnimatedWhiteboard'
 import { sampleQuadraticsLesson } from '@/lib/sample-lesson'
@@ -50,6 +52,7 @@ const currentStep = lesson.steps[currentStepIndex]
 **File**: `src/components/classroom/VideoClassroomPage.tsx`
 
 **Steps:**
+
 - [ ] Import QuestionSystem component
 - [ ] Get user's accessibility mode from userSettings or profile
 - [ ] Trigger questions at checkpoint times
@@ -62,6 +65,7 @@ const currentStep = lesson.steps[currentStepIndex]
 - [ ] Verify large buttons in ADHD mode
 
 **Code Pattern:**
+
 ```typescript
 import { QuestionSystem } from '@/components/classroom/QuestionSystem'
 
@@ -91,6 +95,7 @@ useEffect(() => {
 **File**: `src/components/classroom/VideoClassroomPage.tsx`
 
 **Steps:**
+
 - [ ] Import LearnerNotesPanel and TeacherNotesPanel
 - [ ] Display in sidebar or toggle panel
 - [ ] For Students: Show LearnerNotesPanel with current step notes
@@ -101,6 +106,7 @@ useEffect(() => {
 - [ ] Verify responsive on mobile
 
 **Code Pattern:**
+
 ```typescript
 import { LearnerNotesPanel, TeacherNotesPanel } from '@/components/classroom/IntegratedNotesPanel'
 
@@ -131,6 +137,7 @@ import { LearnerNotesPanel, TeacherNotesPanel } from '@/components/classroom/Int
 **File**: `src/routes/classroom.$lessonId.tsx` or completion route
 
 **Steps:**
+
 - [ ] After final step, show ExitTicketPrompt
 - [ ] Collect exit ticket answer
 - [ ] Score the exit ticket (backend)
@@ -142,11 +149,12 @@ import { LearnerNotesPanel, TeacherNotesPanel } from '@/components/classroom/Int
 - [ ] Persist completion record to backend
 
 **Code Pattern:**
+
 ```typescript
-import { 
-  ExitTicketPrompt, 
-  HomeworkPanel, 
-  LessonCompletionSummary 
+import {
+  ExitTicketPrompt,
+  HomeworkPanel,
+  LessonCompletionSummary
 } from '@/components/classroom/LessonCompletionFlow'
 
 // After last step
@@ -174,6 +182,7 @@ import {
 **File**: `src/components/classroom/VideoClassroomPage.tsx`
 
 **Steps:**
+
 - [ ] Detect when 50% of lesson time is reached
 - [ ] Show RequiredLessonQuestion (mandatory, cannot skip)
 - [ ] Provide hints if answer is incorrect
@@ -185,6 +194,7 @@ import {
 - [ ] Test answer variations
 
 **Code Pattern:**
+
 ```typescript
 const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.5
 
@@ -212,6 +222,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 **File**: `src/lib/classroom-events.ts` (new)
 
 **Steps:**
+
 - [ ] Define event types for all lesson actions
 - [ ] Create function to log events to backend
 - [ ] Track: step started, step completed, question asked, answer submitted
@@ -221,6 +232,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] Test event logging
 
 **Events to Track:**
+
 - `session_started`
 - `board_item_written`
 - `teacher_read_board_item`
@@ -241,6 +253,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 **File**: `src/lib/lessons.functions.ts` (enhance)
 
 **Steps:**
+
 - [ ] Create database table for lessons (if not exists)
 - [ ] Create table for lesson progress tracking
 - [ ] Create table for student answers
@@ -256,6 +269,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 ### Task 8: Testing Checklist ⏳
 
 **Component Testing:**
+
 - [ ] AnimatedWhiteboard animates correctly
 - [ ] Animation speed changes work
 - [ ] Replay functionality works
@@ -271,6 +285,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] Homework panel displays correctly
 
 **Integration Testing:**
+
 - [ ] Full lesson flow works end-to-end
 - [ ] Questions trigger at correct times
 - [ ] Progress updates as lesson advances
@@ -282,6 +297,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] User can return to dashboard
 
 **Accessibility Testing:**
+
 - [ ] Screen reader announces all content
 - [ ] Keyboard-only navigation works
 - [ ] Color contrast meets WCAG AA
@@ -289,6 +305,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] All modes are accessible
 
 **Performance Testing:**
+
 - [ ] Animation is smooth (60fps)
 - [ ] No lag when typing
 - [ ] Page loads in < 2 seconds
@@ -299,6 +316,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 ### Task 9: Create More Sample Lessons ⏳
 
 **For Testing Different Subjects:**
+
 - [ ] Create math lesson (algebra)
 - [ ] Create science lesson (chemistry)
 - [ ] Create language lesson (grammar)
@@ -310,6 +328,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 ### Task 10: Documentation Updates ⏳
 
 **Update Files:**
+
 - [ ] Add component examples to README
 - [ ] Update API documentation
 - [ ] Add troubleshooting guide
@@ -322,6 +341,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 ## Verification Before Phase 6
 
 ### Code Quality Checks ✅
+
 - [ ] No TypeScript errors
 - [ ] No console warnings (dev mode)
 - [ ] No console errors (dev mode)
@@ -330,6 +350,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] Consistent code style
 
 ### Functional Checks ✅
+
 - [ ] All components render without errors
 - [ ] All interactions work as designed
 - [ ] All calculations are accurate
@@ -337,6 +358,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] All accessibility modes work
 
 ### Documentation Checks ✅
+
 - [ ] All components documented
 - [ ] All types documented
 - [ ] Integration guide is clear
@@ -344,6 +366,7 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 - [ ] Troubleshooting included
 
 ### Performance Checks ✅
+
 - [ ] Animations smooth (60fps)
 - [ ] No memory leaks
 - [ ] Responsive time < 100ms
@@ -354,19 +377,23 @@ const isTimeFor50Percent = (timeElapsed / lesson.estimatedDurationMinutes) >= 0.
 ## Files to Update
 
 ### Core Classroom
+
 - `src/components/classroom/VideoClassroomPage.tsx` - Add all integrations
 - `src/routes/classroom.$lessonId.tsx` - Route handler
 
 ### Backend/Functions
+
 - `src/lib/lessons.functions.ts` - Lesson CRUD
 - `src/lib/sessions.functions.ts` - Session tracking
 - New: `src/lib/classroom-events.ts` - Event logging
 
 ### Types
+
 - `src/lib/types.ts` - Add LessonProgress, SessionEvent
 - Already exists: `src/lib/lesson-types.ts`
 
 ### Supabase
+
 - Create migration: `lessons` table
 - Create migration: `lesson_progress` table
 - Create migration: `lesson_answers` table
@@ -415,6 +442,7 @@ Phase 5 will be COMPLETE when:
 ## Helpful Resources
 
 **Within This Project:**
+
 - `IMPLEMENTATION_COMPLETE.md` - Full status
 - `INTEGRATION_GUIDE.md` - Code examples
 - `src/lib/sample-lesson.ts` - Reference implementation
@@ -422,6 +450,7 @@ Phase 5 will be COMPLETE when:
 - `PHASE4_COMPLETE.md` - What was built
 
 **External Resources:**
+
 - Tailwind CSS docs for styling
 - shadcn/ui component docs
 - TypeScript handbook
@@ -451,23 +480,22 @@ Phase 5 will be COMPLETE when:
 
 ## Timeline Estimate
 
-| Task | Estimated Time | Status |
-|------|-----------------|--------|
-| Task 1 (Whiteboard) | 1 hour | ⏳ |
-| Task 2 (Questions) | 1.5 hours | ⏳ |
-| Task 3 (Notes) | 45 min | ⏳ |
-| Task 4 (Completion) | 1.5 hours | ⏳ |
-| Task 5 (Mid-question) | 45 min | ⏳ |
-| Task 6 (Events) | 2 hours | ⏳ |
-| Task 7 (Backend) | 2 hours | ⏳ |
-| Task 8 (Testing) | 3 hours | ⏳ |
-| Task 9 (Samples) | 1 hour | ⏳ |
-| Task 10 (Docs) | 1 hour | ⏳ |
-| **TOTAL** | **~15 hours** | ⏳ |
+| Task                  | Estimated Time | Status |
+| --------------------- | -------------- | ------ |
+| Task 1 (Whiteboard)   | 1 hour         | ⏳     |
+| Task 2 (Questions)    | 1.5 hours      | ⏳     |
+| Task 3 (Notes)        | 45 min         | ⏳     |
+| Task 4 (Completion)   | 1.5 hours      | ⏳     |
+| Task 5 (Mid-question) | 45 min         | ⏳     |
+| Task 6 (Events)       | 2 hours        | ⏳     |
+| Task 7 (Backend)      | 2 hours        | ⏳     |
+| Task 8 (Testing)      | 3 hours        | ⏳     |
+| Task 9 (Samples)      | 1 hour         | ⏳     |
+| Task 10 (Docs)        | 1 hour         | ⏳     |
+| **TOTAL**             | **~15 hours**  | ⏳     |
 
 ---
 
 **Ready to start? Begin with Task 1: Integrating AnimatedWhiteboard** 🚀
 
 Good luck! You've got solid foundation code to build on. All components are type-safe, accessible, and production-ready.
-

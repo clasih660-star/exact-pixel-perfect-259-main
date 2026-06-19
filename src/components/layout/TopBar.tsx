@@ -1,6 +1,12 @@
+import { Link } from "@tanstack/react-router";
 import { Search, Bell, Settings, User, ChevronDown } from "lucide-react";
+import { notificationCenterHref } from "@/components/dashboard/shared/NotificationBell";
+import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 
 export function TopBar() {
+  const config = useDashboardConfig();
+  const notificationsHref = notificationCenterHref(config);
+
   return (
     <div className="topnav">
       <div className="search-box">
@@ -9,14 +15,14 @@ export function TopBar() {
       </div>
 
       <div className="topnav-actions">
-        <button className="icon-btn" aria-label="Notifications">
+        <Link to={notificationsHref as any} className="icon-btn" aria-label="Notifications">
           <Bell size={20} />
           <span className="notif-dot" />
-        </button>
+        </Link>
 
-        <button className="icon-btn" aria-label="Settings">
+        <Link to={config.settingsHref as any} className="icon-btn" aria-label="Settings">
           <Settings size={20} />
-        </button>
+        </Link>
 
         <button className="icon-btn" aria-label="Profile">
           <User size={20} />

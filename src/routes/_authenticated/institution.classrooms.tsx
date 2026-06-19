@@ -58,7 +58,7 @@ function ClassroomsPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {q.data!.classrooms.map((c) => (
+          {q.data!.classrooms.map((c: any) => (
             <Card key={c.id}>
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">

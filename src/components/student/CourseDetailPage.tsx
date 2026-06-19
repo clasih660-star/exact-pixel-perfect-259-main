@@ -27,11 +27,7 @@ interface Lesson {
   order: number;
 }
 
-export function CourseDetailPage({
-  courseId,
-}: {
-  courseId: string;
-}) {
+export function CourseDetailPage({ courseId }: { courseId: string }) {
   const router = useRouter();
   const [isEnrolled, setIsEnrolled] = useState(true);
 
@@ -93,9 +89,7 @@ export function CourseDetailPage({
     ],
   };
 
-  const completedCount = courseData.lessons.filter(
-    (l) => l.status === "completed"
-  ).length;
+  const completedCount = courseData.lessons.filter((l) => l.status === "completed").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -126,9 +120,7 @@ export function CourseDetailPage({
       <div className="bg-gradient-to-br from-purple-500 to-[#e8f5f5]0 text-white">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <h1 className="text-4xl font-bold mb-4">{courseData.title}</h1>
-          <p className="text-lg text-purple-100 max-w-2xl mb-6">
-            {courseData.description}
-          </p>
+          <p className="text-lg text-purple-100 max-w-2xl mb-6">{courseData.description}</p>
 
           <div className="flex flex-wrap items-center gap-6 mb-6">
             <div className="flex items-center gap-2">
@@ -140,9 +132,7 @@ export function CourseDetailPage({
             </div>
             <div className="flex items-center gap-2">
               <Clock size={18} />
-              <span className="font-medium">
-                {courseData.totalDuration} hours
-              </span>
+              <span className="font-medium">{courseData.totalDuration} hours</span>
             </div>
             <div className="flex items-center gap-2">
               <Users size={18} />
@@ -152,16 +142,13 @@ export function CourseDetailPage({
 
           {isEnrolled ? (
             <div className="flex items-center gap-3">
-              <Link to={`/classroom/${courseData.lessons[0].id}`}>
+              <Link to={`/classroom/${courseData.lessons[0].id}` as any}>
                 <Button className="bg-white text-purple-600 hover:bg-gray-100 font-medium">
                   <Play size={16} />
                   Continue Learning
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-              >
+              <Button variant="outline" className="border-white text-white hover:bg-white/10">
                 View Certificate
               </Button>
             </div>
@@ -181,28 +168,18 @@ export function CourseDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Lessons */}
           <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Course Lessons
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Lessons</h2>
 
             {isEnrolled && (
               <Card className="mb-6 border-[#a3d9d8] bg-[#e8f5f5]">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-medium text-gray-900">
-                      Your Progress
-                    </span>
-                    <span className="text-sm font-bold text-[#1F7C80]">
-                      {courseData.progress}%
-                    </span>
+                    <span className="font-medium text-gray-900">Your Progress</span>
+                    <span className="text-sm font-bold text-[#1F7C80]">{courseData.progress}%</span>
                   </div>
-                  <Progress
-                    value={courseData.progress}
-                    className="bg-[#d1eceb] h-2"
-                  />
+                  <Progress value={courseData.progress} className="bg-[#d1eceb] h-2" />
                   <p className="text-xs text-gray-600 mt-3">
-                    {completedCount} of {courseData.lessons.length} lessons
-                    completed
+                    {completedCount} of {courseData.lessons.length} lessons completed
                   </p>
                 </CardContent>
               </Card>
@@ -210,21 +187,15 @@ export function CourseDetailPage({
 
             <div className="space-y-3">
               {courseData.lessons.map((lesson, index) => (
-                <Card
-                  key={lesson.id}
-                  className="hover:shadow-md transition-shadow overflow-hidden"
-                >
-                  <Link to={`/classroom/${lesson.id}`}>
+                <Card key={lesson.id} className="hover:shadow-md transition-shadow overflow-hidden">
+                  <Link to={`/classroom/${lesson.id}` as any}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
                         {/* Status Icon */}
                         <div className="flex-shrink-0 mt-1">
                           {lesson.status === "completed" ? (
                             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                              <CheckCircle2
-                                size={20}
-                                className="text-green-600"
-                              />
+                              <CheckCircle2 size={20} className="text-green-600" />
                             </div>
                           ) : lesson.status === "in_progress" ? (
                             <div className="w-10 h-10 rounded-full bg-[#d1eceb] flex items-center justify-center">
@@ -242,9 +213,7 @@ export function CourseDetailPage({
                           <h3 className="font-semibold text-gray-900">
                             Lesson {index + 1}: {lesson.title}
                           </h3>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {lesson.description}
-                          </p>
+                          <p className="text-sm text-gray-600 mt-1">{lesson.description}</p>
                           <div className="flex items-center gap-4 mt-2">
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                               <Clock size={12} />
@@ -263,10 +232,7 @@ export function CourseDetailPage({
                           </div>
                         </div>
 
-                        <ChevronRight
-                          className="text-gray-300 flex-shrink-0 mt-1"
-                          size={20}
-                        />
+                        <ChevronRight className="text-gray-300 flex-shrink-0 mt-1" size={20} />
                       </div>
                     </CardContent>
                   </Link>
@@ -279,33 +245,23 @@ export function CourseDetailPage({
           <div className="lg:col-span-1">
             <Card className="sticky top-24">
               <CardContent className="pt-6">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  Course Info
-                </h3>
+                <h3 className="font-semibold text-gray-900 mb-4">Course Info</h3>
                 <div className="space-y-4 text-sm">
                   <div>
                     <span className="text-gray-600">Subject</span>
-                    <p className="font-medium text-gray-900">
-                      {courseData.subject}
-                    </p>
+                    <p className="font-medium text-gray-900">{courseData.subject}</p>
                   </div>
                   <div>
                     <span className="text-gray-600">Level</span>
-                    <p className="font-medium text-gray-900">
-                      {courseData.level}
-                    </p>
+                    <p className="font-medium text-gray-900">{courseData.level}</p>
                   </div>
                   <div>
                     <span className="text-gray-600">Total Duration</span>
-                    <p className="font-medium text-gray-900">
-                      {courseData.totalDuration} hours
-                    </p>
+                    <p className="font-medium text-gray-900">{courseData.totalDuration} hours</p>
                   </div>
                   <div>
                     <span className="text-gray-600">Instructor</span>
-                    <p className="font-medium text-gray-900">
-                      {courseData.instructor}
-                    </p>
+                    <p className="font-medium text-gray-900">{courseData.instructor}</p>
                   </div>
                   <div className="pt-4 border-t border-gray-200">
                     <Button className="w-full bg-[#1F7C80] hover:bg-[#1A5256]">

@@ -10,7 +10,8 @@ export const Route = createFileRoute("/_authenticated/student/classrooms")({
       { title: "My Classrooms — Klassruum" },
       {
         name: "description",
-        content: "Resume active classrooms, review progress, and enter the right lesson faster from one organized learner hub.",
+        content:
+          "Resume active classrooms, review progress, and enter the right lesson faster from one organized learner hub.",
       },
     ],
   }),

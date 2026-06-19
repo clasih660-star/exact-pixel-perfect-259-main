@@ -23,9 +23,7 @@ export function getTeacherVoiceProvider(provider: LocalVoiceProvider): TeacherVo
     case "kokoro":
     case "piper": {
       const baseUrl =
-        provider === "kokoro"
-          ? process.env.LOCAL_KOKORO_TTS_URL
-          : process.env.LOCAL_PIPER_TTS_URL;
+        provider === "kokoro" ? process.env.LOCAL_KOKORO_TTS_URL : process.env.LOCAL_PIPER_TTS_URL;
 
       if (!baseUrl) {
         throw new Error(`Missing local TTS URL for provider: ${provider}`);

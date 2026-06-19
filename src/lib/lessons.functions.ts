@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const listLessons = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { course_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: rows, error } = await context.supabase
       .from("lessons")
       .select("*")
@@ -18,7 +18,7 @@ export const listLessons = createServerFn({ method: "GET" })
 export const getLesson = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { lesson_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: lesson, error } = await context.supabase
       .from("lessons")
       .select("*, courses(id, title, institution_id, status)")
@@ -40,7 +40,7 @@ const CreateSchema = z.object({
 export const createLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => CreateSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { data: course, error: cErr } = await context.supabase
       .from("courses")
       .select("institution_id")
@@ -83,7 +83,7 @@ export const updateLessonStatus = createServerFn({ method: "POST" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("lessons")
       .update({ status: data.status })
@@ -103,7 +103,7 @@ const UpdateDetailsSchema = z.object({
 export const updateLessonDetails = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => UpdateDetailsSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("lessons")
       .update({
@@ -128,7 +128,7 @@ const UpdateSectionSchema = z.object({
 export const updateLessonSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => UpdateSectionSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("lesson_sections")
       .update({
@@ -156,7 +156,7 @@ const UpdateTeachingItemSchema = z.object({
 export const updateTeachingItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => UpdateTeachingItemSchema.parse(data))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("teaching_items")
       .update({
@@ -177,11 +177,8 @@ export const updateTeachingItem = createServerFn({ method: "POST" })
 export const deleteTeachingItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { item_id: string }) => z.object({ item_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("teaching_items")
-      .delete()
-      .eq("id", data.item_id);
+  .handler(async ({ data, context }: any) => {
+    const { error } = await context.supabase.from("teaching_items").delete().eq("id", data.item_id);
 
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -189,8 +186,10 @@ export const deleteTeachingItem = createServerFn({ method: "POST" })
 
 export const publishLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { lesson_id: string }) => z.object({ lesson_id: z.string().uuid() }).parse(data))
-  .handler(async ({ data, context }) => {
+  .validator((data: { lesson_id: string }) =>
+    z.object({ lesson_id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }: any) => {
     const { error } = await context.supabase
       .from("lessons")
       .update({ status: "published" })

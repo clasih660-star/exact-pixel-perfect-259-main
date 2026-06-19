@@ -80,10 +80,7 @@ export type TeachingEngine = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useTeachingEngine(): TeachingEngine {
-  const [teachingState, dispatch] = useReducer(
-    teachingReducer,
-    initialTeachingState,
-  );
+  const [teachingState, dispatch] = useReducer(teachingReducer, initialTeachingState);
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speechRateRef = useRef(1);
 

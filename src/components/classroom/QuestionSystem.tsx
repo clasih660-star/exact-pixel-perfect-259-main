@@ -56,7 +56,7 @@ export function QuestionSystem({
       undefined,
       () => {
         stopVoiceCapture();
-      }
+      },
     );
 
     recognizerRef.current = recognizer;
@@ -151,11 +151,7 @@ export function QuestionSystem({
                 }`}
                 title="Voice input"
               >
-                {isListening ? (
-                  <Mic className="h-5 w-5" />
-                ) : (
-                  <MicOff className="h-5 w-5" />
-                )}
+                {isListening ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
               </button>
               <button
                 onClick={() => handleAnswer(inputValue || transcript)}
@@ -170,10 +166,7 @@ export function QuestionSystem({
               >
                 Skip
               </button>
-              <button
-                onClick={handleClose}
-                className="p-2 text-gray-400 hover:text-gray-600"
-              >
+              <button onClick={handleClose} className="p-2 text-gray-400 hover:text-gray-600">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -190,10 +183,7 @@ export function QuestionSystem({
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-900">Any question?</h3>
-            <button
-              onClick={onClose}
-              className="p-1 text-gray-400 hover:text-gray-600"
-            >
+            <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -250,13 +240,9 @@ export function QuestionSystem({
             }`}
           >
             <p className="text-sm font-medium text-gray-700">
-              {isListening
-                ? "Microphone active. Speak now..."
-                : "Ready to listen"}
+              {isListening ? "Microphone active. Speak now..." : "Ready to listen"}
             </p>
-            {transcript && (
-              <p className="text-sm text-gray-600 mt-2">You said: {transcript}</p>
-            )}
+            {transcript && <p className="text-sm text-gray-600 mt-2">You said: {transcript}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-2">

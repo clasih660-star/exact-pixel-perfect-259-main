@@ -15,6 +15,8 @@ import {
   FileText,
   Filter,
   ChevronRight,
+  Captions,
+  HelpCircle,
 } from "lucide-react";
 import { requireInstitutionStaff } from "@/lib/route-guards";
 
@@ -49,7 +51,8 @@ const LESSONS: Lesson[] = [
     duration: "30 min",
     steps: 8,
     lastUpdated: "Jun 9, 2026",
-    description: "Solve quadratic equations by factoring, completing the square, and using the formula.",
+    description:
+      "Solve quadratic equations by factoring, completing the square, and using the formula.",
     quizReady: true,
     captionsReady: true,
   },
@@ -120,7 +123,10 @@ const LESSONS: Lesson[] = [
   },
 ];
 
-const STATUS_CONFIG: Record<LessonStatus, { label: string; variant: "success" | "warning" | "info" | "neutral"; icon: typeof CheckCircle2 }> = {
+const STATUS_CONFIG: Record<
+  LessonStatus,
+  { label: string; variant: "success" | "warning" | "info" | "neutral"; icon: typeof CheckCircle2 }
+> = {
   ready: { label: "Ready", variant: "success", icon: CheckCircle2 },
   review: { label: "Review Needed", variant: "warning", icon: AlertTriangle },
   draft: { label: "Draft", variant: "neutral", icon: FileText },
@@ -162,7 +168,7 @@ function TeacherLessons() {
         subtitle="Review AI-generated lessons, approve them for classroom delivery, and manage your content queue."
       />
 
-      {/* Search + Filter Bar */}
+      {/* Search + Filter Bar — wraps cleanly on mobile */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
@@ -173,45 +179,61 @@ function TeacherLessons() {
             className="w-full rounded-xl border border-[#E2E8F0] bg-white py-2.5 pl-10 pr-4 text-sm focus:border-[#1F7C80] focus:outline-none focus:ring-2 focus:ring-[#1F7C80]/20"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-[#64748B]" />
+        {/* Filter pills — wrap on narrow widths */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Filter className="h-4 w-4 shrink-0 text-[#64748B]" />
           {(["all", "ready", "review", "draft"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-all ${
                 filter === f
-                  ? "bg-[#1F7C80] text-white"
-                  : "bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#1F7C80]/40"
+                  ? "bg-[#1F7C80] text-white shadow-sm"
+                  : "bg-white border border-[#E2E8F0] text-[#64748B] hover:border-[#1F7C80]/40 hover:text-[#1F7C80]"
               }`}
             >
-              {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f as keyof typeof counts]})
+              {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)} (
+              {counts[f as keyof typeof counts]})
             </button>
           ))}
         </div>
       </div>
 
-      {/* Stats Banner */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#22C55E]">{counts.ready}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Ready to Teach</p>
+      {/* Stats Banner — responsive 2-up on mobile, 3-up on desktop */}
+      <div className="kr-stat-strip kr-stat-strip--3 mb-6">
+        <div className="kr-stat-card-item kr-stat-card-item--success">
+          <div className="flex items-center justify-center mb-2">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          </div>
+          <p className="kr-stat-value text-green-700">{counts.ready}</p>
+          <p className="kr-stat-label">Ready to Teach</p>
         </div>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center">
-          <p className="text-2xl font-extrabold text-amber-600">{counts.review}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Need Review</p>
+        <div className="kr-stat-card-item kr-stat-card-item--warning">
+          <div className="flex items-center justify-center mb-2">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+          </div>
+          <p className="kr-stat-value text-amber-700">{counts.review}</p>
+          <p className="kr-stat-label">Need Review</p>
         </div>
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-center">
-          <p className="text-2xl font-extrabold text-[#94A3B8]">{counts.draft}</p>
-          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">In Draft</p>
+        <div className="kr-stat-card-item">
+          <div className="flex items-center justify-center mb-2">
+            <FileText className="h-4 w-4 text-[#94A3B8]" />
+          </div>
+          <p className="kr-stat-value text-[#94A3B8]">{counts.draft}</p>
+          <p className="kr-stat-label">In Draft</p>
         </div>
       </div>
 
       {/* Lesson Cards */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#E2E8F0] p-12 text-center">
-          <FileText className="mx-auto h-10 w-10 text-[#CBD5E1]" />
-          <p className="mt-3 font-semibold text-[#64748B]">No lessons match your search</p>
+        <div className="rounded-2xl border border-dashed border-[#E2E8F0] bg-white">
+          <div className="kr-empty-state">
+            <div className="kr-empty-state-icon">
+              <FileText className="h-6 w-6 text-[#1F7C80]" />
+            </div>
+            <h3>No lessons found</h3>
+            <p>{query ? `No lessons match "${query}".` : "No lessons in this category yet."}</p>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -223,49 +245,57 @@ function TeacherLessons() {
                 key={lesson.id}
                 className="rounded-2xl border border-[#E2E8F0] bg-white p-5 transition-all hover:border-[#1F7C80]/30 hover:shadow-md"
               >
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                  {/* Subject icon */}
                   <div
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradClass} text-sm font-bold text-white`}
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradClass} text-sm font-bold text-white shadow-sm`}
                   >
                     {lesson.subject.slice(0, 2)}
                   </div>
 
-                  {/* Main */}
+                  {/* Main info */}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-base font-bold text-[#0F172A]">{lesson.title}</h3>
                       <StatusBadge variant={sc.variant}>{sc.label}</StatusBadge>
                     </div>
-                    <p className="mt-0.5 text-sm text-[#64748B]">
-                      {lesson.course}
-                    </p>
+                    <p className="mt-0.5 text-sm text-[#64748B]">{lesson.course}</p>
                     <p className="mt-1 text-xs text-[#94A3B8] line-clamp-1">{lesson.description}</p>
 
-                    {/* Meta row */}
-                    <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-[#64748B]">
+                    {/* Meta row — wraps on mobile */}
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[#64748B]">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" /> {lesson.duration}
                       </span>
                       <span className="flex items-center gap-1">
                         <BookOpen className="h-3.5 w-3.5" /> {lesson.steps} steps
                       </span>
-                      <span>Updated {lesson.lastUpdated}</span>
-                      <span className={`font-semibold ${lesson.captionsReady ? "text-green-600" : "text-amber-500"}`}>
-                        {lesson.captionsReady ? "✓ Captions" : "⚠ Captions missing"}
+                      <span className="text-[#94A3B8]">Updated {lesson.lastUpdated}</span>
+
+                      {/* Captions indicator */}
+                      <span
+                        className={`flex items-center gap-1 font-semibold ${lesson.captionsReady ? "text-green-600" : "text-amber-500"}`}
+                      >
+                        <Captions className="h-3.5 w-3.5" />
+                        {lesson.captionsReady ? "Captions" : "Captions missing"}
                       </span>
-                      <span className={`font-semibold ${lesson.quizReady ? "text-green-600" : "text-amber-500"}`}>
-                        {lesson.quizReady ? "✓ Quiz" : "⚠ Quiz missing"}
+
+                      {/* Quiz indicator */}
+                      <span
+                        className={`flex items-center gap-1 font-semibold ${lesson.quizReady ? "text-green-600" : "text-amber-500"}`}
+                      >
+                        <HelpCircle className="h-3.5 w-3.5" />
+                        {lesson.quizReady ? "Quiz ready" : "Quiz missing"}
                       </span>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex shrink-0 items-center gap-2">
+                  {/* Actions — stack on mobile, row on desktop */}
+                  <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:shrink-0">
                     <Link
                       to="/classroom/preview/$lessonId"
                       params={{ lessonId: lesson.id }}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#64748B] hover:bg-[#F8FAFC]"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 py-2 text-xs font-semibold text-[#64748B] hover:bg-[#F8FAFC] hover:border-[#1F7C80]/30 transition-all"
                     >
                       <Eye className="h-3.5 w-3.5" />
                       Preview
@@ -274,13 +304,13 @@ function TeacherLessons() {
                       <Link
                         to="/classroom/$lessonId"
                         params={{ lessonId: lesson.id }}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1A5256]"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
                       >
                         <Play className="h-3.5 w-3.5" />
                         Start Class
                       </Link>
                     )}
-                    <ChevronRight className="h-4 w-4 text-[#CBD5E1]" />
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[#CBD5E1]" />
                   </div>
                 </div>
               </article>

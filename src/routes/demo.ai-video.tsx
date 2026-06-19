@@ -5,13 +5,19 @@
  * Access at: http://localhost:8081/demo/ai-video
  */
 
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AIVideoClassroom } from "@/components/classroom/AIVideoClassroom";
 
-export const Route = createFileRoute('/demo/ai-video')({
+export const Route = createFileRoute("/demo/ai-video")({
   component: AIVideoDemoPage,
-})
+});
 
 function AIVideoDemoPage() {
-  return <AIVideoClassroom autoPlay />;
+  const navigate = useNavigate();
+  return (
+    <AIVideoClassroom
+      autoPlay
+      onExit={() => navigate({ to: "/demo/classroom" })}
+    />
+  );
 }

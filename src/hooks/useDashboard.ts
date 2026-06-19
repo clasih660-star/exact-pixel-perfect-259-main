@@ -1,13 +1,13 @@
 /**
  * useDashboard.ts
  *
- * Hook that fetches real dashboard data from the backend,
- * falling back to demo data when no real data exists.
+ * Hook that fetches real dashboard data from the backend.
+ * Returns empty data when no real data exists — the DashboardPage
+ * handles empty states with onboarding UI instead of demo data.
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { getStudentDashboard } from "@/lib/classroom.engine";
-import { DEMO_DASHBOARD_DATA } from "@/lib/demo-data";
 
 export type DashboardStats = {
   activeCourses: number;
@@ -95,25 +95,48 @@ export function useDashboard(): UseDashboardResult {
     try {
       const result = await getStudentDashboard();
 
-      // Check if we got meaningful real data
-      const hasCourses = (result.courses?.length ?? 0) > 0;
-      const hasSessions = (result.recentSessions?.length ?? 0) > 0;
-      const hasProgress = result.continueLearning !== null;
-      const hasStats = result.stats.activeCourses > 0 || result.stats.completedLessons > 0;
+      // Map the engine result to our DashboardData shape
+      const hasData =
+        (result.courses?.length ?? 0) > 0 ||
+        (result.recentSessions?.length ?? 0) > 0 ||
+        result.continueLearning !== null ||
+        result.stats.activeCourses > 0;
 
-      if (hasCourses || hasSessions || hasProgress || hasStats) {
-        setData(result as DashboardData);
-        setIsUsingDemoData(false);
-      } else {
-        // Fall back to demo data
-        setData(transformDemoData());
-        setIsUsingDemoData(true);
-      }
+      setData({
+        continueLearning: result.continueLearning ?? null,
+        stats: result.stats,
+        courses: result.courses ?? [],
+        recentSessions: result.recentSessions ?? [],
+        accessProfile: result.accessProfile,
+        recommendations: result.recommendations ?? [],
+      });
+      setIsUsingDemoData(!hasData);
     } catch (err: any) {
-      console.warn("Dashboard data fetch failed, using demo data:", err.message);
-      setData(transformDemoData());
-      setIsUsingDemoData(true);
+      console.error("Dashboard data fetch failed:", err.message);
       setError(err.message);
+      // Set empty data on error — DashboardPage shows error UI
+      setData({
+        continueLearning: null,
+        stats: {
+          activeCourses: 0,
+          completedLessons: 0,
+          totalTimeMinutes: 0,
+          avgQuizScore: 0,
+          recentSessionsCount: 0,
+        },
+        courses: [],
+        recentSessions: [],
+        accessProfile: {
+          captionsEnabled: true,
+          audioEnabled: true,
+          keyboardShortcutsEnabled: true,
+          focusModeEnabled: false,
+          speechRate: 1,
+          currentMode: "Standard",
+        },
+        recommendations: [],
+      });
+      setIsUsingDemoData(false);
     } finally {
       setIsLoading(false);
     }
@@ -124,62 +147,4 @@ export function useDashboard(): UseDashboardResult {
   }, [refresh]);
 
   return { data, isLoading, error, refresh, isUsingDemoData };
-}
-
-/** Transform demo data to match the production dashboard schema */
-function transformDemoData(): DashboardData {
-  const demo = DEMO_DASHBOARD_DATA;
-  return {
-    continueLearning: null,
-    stats: {
-      activeCourses: demo.stats.classrooms,
-      completedLessons: demo.stats.completedLessons,
-      totalTimeMinutes: parseStudyTime(demo.stats.studyTime),
-      avgQuizScore: demo.stats.quizAverage,
-      recentSessionsCount: demo.recentSessions.length,
-    },
-    courses: (demo.courses as any[]).map((c: any) => ({
-      id: c.id,
-      title: c.title,
-      subject: c.subject,
-      level: c.level,
-      institutionName: c.institution ?? c.institutionId ?? "",
-      progressPercentage: c.progress ?? c.progressPercentage ?? 0,
-      description: c.description,
-      coverImageUrl: c.thumbnail ?? c.coverImageUrl,
-    })),
-    recentSessions: demo.recentSessions.map((s) => ({
-      id: s.id,
-      lessonTitle: s.title,
-      courseTitle: s.courseTitle,
-      status: s.status,
-      startedAt: s.timestamp ?? null,
-      endedAt: null,
-      durationMinutes: parseDuration(s.duration),
-    })),
-    accessProfile: {
-      captionsEnabled: true,
-      audioEnabled: true,
-      keyboardShortcutsEnabled: true,
-      focusModeEnabled: false,
-      speechRate: 1,
-      currentMode: "Standard",
-    },
-    recommendations: [],
-  };
-}
-
-function parseStudyTime(timeStr: string): number {
-  if (!timeStr) return 0;
-  const match = timeStr.match(/(\d+)h?\s*(\d+)?m?/);
-  if (!match) return 0;
-  const hours = parseInt(match[1] ?? "0", 10);
-  const mins = parseInt(match[2] ?? "0", 10);
-  return hours * 60 + mins;
-}
-
-function parseDuration(durStr: string): number {
-  if (!durStr) return 0;
-  const match = durStr.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : 0;
 }

@@ -55,18 +55,45 @@ function pickVoiceByGender(gender: "female" | "male"): SpeechSynthesisVoice | un
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return undefined;
 
-  const femaleHints = ["female", "woman", "samantha", "victoria", "zira", "susan", "karen", "moira", "tessa", "fiona", "serena", "aria", "jenny"];
-  const maleHints = ["male", "man", "david", "daniel", "alex", "fred", "george", "mark", "guy", "rishi", "thomas", "oliver"];
+  const femaleHints = [
+    "female",
+    "woman",
+    "samantha",
+    "victoria",
+    "zira",
+    "susan",
+    "karen",
+    "moira",
+    "tessa",
+    "fiona",
+    "serena",
+    "aria",
+    "jenny",
+  ];
+  const maleHints = [
+    "male",
+    "man",
+    "david",
+    "daniel",
+    "alex",
+    "fred",
+    "george",
+    "mark",
+    "guy",
+    "rishi",
+    "thomas",
+    "oliver",
+  ];
   const hints = gender === "female" ? femaleHints : maleHints;
   const opposite = gender === "female" ? maleHints : femaleHints;
 
-  const enVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("en"));
+  const enVoices = voices.filter((v: any) => v.lang?.toLowerCase().startsWith("en"));
   const pool = enVoices.length ? enVoices : voices;
 
   // Prefer an explicit gender-name match, then avoid the opposite gender.
   return (
-    pool.find((v) => hints.some((h) => v.name.toLowerCase().includes(h))) ??
-    pool.find((v) => !opposite.some((h) => v.name.toLowerCase().includes(h))) ??
+    pool.find((v: any) => hints.some((h: any) => v.name.toLowerCase().includes(h))) ??
+    pool.find((v: any) => !opposite.some((h: any) => v.name.toLowerCase().includes(h))) ??
     pool[0]
   );
 }
@@ -221,7 +248,7 @@ export function getEnglishVoices(): SpeechSynthesisVoice[] {
   return getAvailableVoices().filter((voice) => voice.lang.startsWith("en"));
 }
 
-export function createRecognizer(): SpeechRecognition | null {
+export function createRecognizer(): any {
   if (typeof window === "undefined") return null;
   const SpeechRecognition =
     (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
@@ -233,7 +260,7 @@ export function startListening(
   onResult: (transcript: string, isFinal: boolean) => void,
   onError?: (error: string) => void,
   onEnd?: () => void,
-): SpeechRecognition | null {
+): any {
   const recognizer = createRecognizer();
   if (!recognizer) {
     onError?.("Voice input isn't supported in this browser.");
@@ -244,14 +271,14 @@ export function startListening(
   recognizer.interimResults = true;
   recognizer.lang = "en-US";
 
-  recognizer.onresult = (event) => {
+  recognizer.onresult = (event: any) => {
     const results = event.results;
     const transcript = results[results.length - 1][0].transcript;
     const isFinal = results[results.length - 1].isFinal;
     onResult(transcript, isFinal);
   };
 
-  recognizer.onerror = (event) => {
+  recognizer.onerror = (event: any) => {
     onError?.(event.error);
   };
 
@@ -269,7 +296,7 @@ export function startListening(
   return recognizer;
 }
 
-export function stopListening(recognizer: SpeechRecognition | null): void {
+export function stopListening(recognizer: any): void {
   if (recognizer) {
     try {
       recognizer.stop();

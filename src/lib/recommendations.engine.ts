@@ -29,7 +29,13 @@ type RecommendationInput = {
 };
 
 export type GeneratedRecommendation = {
-  type: "next_lesson" | "review_topic" | "quiz_retry" | "accessibility_tip" | "focus_mode" | "study_plan";
+  type:
+    | "next_lesson"
+    | "review_topic"
+    | "quiz_retry"
+    | "accessibility_tip"
+    | "focus_mode"
+    | "study_plan";
   title: string;
   description: string;
   reason: string;
@@ -58,7 +64,8 @@ export function generateRecommendations(input: RecommendationInput): GeneratedRe
 
   // Rule 2: Low quiz scores → quiz retry
   if (input.recentQuizScores.length > 0) {
-    const avgScore = input.recentQuizScores.reduce((a, b) => a + b, 0) / input.recentQuizScores.length;
+    const avgScore =
+      input.recentQuizScores.reduce((a, b) => a + b, 0) / input.recentQuizScores.length;
     if (avgScore < 60) {
       recs.push({
         type: "quiz_retry",
@@ -100,7 +107,8 @@ export function generateRecommendations(input: RecommendationInput): GeneratedRe
     recs.push({
       type: "focus_mode",
       title: "Try Focus Mode",
-      description: "You've been studying for a while. Focus Mode can help reduce distractions and improve concentration.",
+      description:
+        "You've been studying for a while. Focus Mode can help reduce distractions and improve concentration.",
       reason: "beginner_long_session",
       targetUrl: null,
       priority: 60,
@@ -136,7 +144,8 @@ export function generateRecommendations(input: RecommendationInput): GeneratedRe
     recs.push({
       type: "accessibility_tip",
       title: "Customize your learning experience",
-      description: "You can adjust speech rate, captions, and explanation style to match your learning preferences.",
+      description:
+        "You can adjust speech rate, captions, and explanation style to match your learning preferences.",
       reason: "new_student_tip",
       targetUrl: "/student/access",
       priority: 40,
@@ -226,7 +235,7 @@ export function generateSessionSummary(params: {
 
 export const generateAndStoreRecommendations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     const supabase = context.supabase;
     const userId = context.userId;
 
@@ -234,7 +243,9 @@ export const generateAndStoreRecommendations = createServerFn({ method: "POST" }
     const [progressRows, quizResults, sessions] = await Promise.all([
       supabase
         .from("lesson_progress")
-        .select("confusion_score, current_step, time_spent_minutes, student_level, progress_percentage")
+        .select(
+          "confusion_score, current_step, time_spent_minutes, student_level, progress_percentage",
+        )
         .eq("student_id", userId)
         .order("updated_at", { ascending: false })
         .limit(10),
@@ -256,9 +267,9 @@ export const generateAndStoreRecommendations = createServerFn({ method: "POST" }
     const weekSessions = sessions.data ?? [];
 
     // Extract weak topics from quiz feedback
-    const weakTopics: string[] = [...new Set(
-      quizzes.flatMap((q: any) => q.feedback_json?.weakTopics ?? []),
-    )] as string[];
+    const weakTopics: string[] = [
+      ...new Set(quizzes.flatMap((q: any) => q.feedback_json?.weakTopics ?? [])),
+    ] as string[];
 
     // Build input
     const latestProgress = progresses[0] as any;
@@ -268,7 +279,10 @@ export const generateAndStoreRecommendations = createServerFn({ method: "POST" }
       totalSteps: 8,
       recentQuizScores: quizzes.map((q: any) => q.percentage ?? 0),
       weakTopics,
-      timeSpentMinutes: progresses.reduce((s: number, p: any) => s + (p.time_spent_minutes ?? 0), 0),
+      timeSpentMinutes: progresses.reduce(
+        (s: number, p: any) => s + (p.time_spent_minutes ?? 0),
+        0,
+      ),
       sessionsThisWeek: weekSessions.length,
       currentStep: latestProgress?.current_step ?? "hook",
       studentLevel: latestProgress?.student_level ?? "intermediate",

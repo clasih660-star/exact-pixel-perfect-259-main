@@ -8,6 +8,8 @@ import {
   type TeacherResponse,
 } from "./teacher-types";
 import { getLesson } from "./lessons";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertActorHasAnyRole } from "@/lib/server-authorization";
 
 const TeacherSchema = z.object({
   speak: z
@@ -97,8 +99,18 @@ You MUST return valid JSON matching the schema. `;
 }
 
 export const teacherTurn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }): Promise<TeacherResponse> => {
+  .handler(async ({ data, context }: any): Promise<TeacherResponse> => {
+    await assertActorHasAnyRole(context, [
+      "platform_admin",
+      "institution_admin",
+      "owner",
+      "teacher",
+      "student",
+      "parent",
+    ]);
+
     const lesson = getLesson(data.lessonId);
     if (!lesson) throw new Error("Lesson not found");
 
@@ -108,11 +120,15 @@ export const teacherTurn = createServerFn({ method: "POST" })
         // Dev fallback: return a simple teacher response so the UI remains interactive
         return {
           speak: `Hi — I'm Mr. Klass. We don't have an AI key configured, so this is a local demo. Let's begin.`,
-          board: { title: lesson.title, lines: ["Demo mode: no AI key configured."], highlight: null },
+          board: {
+            title: lesson.title,
+            lines: ["Demo mode: no AI key configured."],
+            highlight: undefined,
+          },
           nextStep: "example",
           confusionDelta: 0,
-          evaluation: null,
-          quiz: null,
+          evaluation: undefined,
+          quiz: undefined,
           done: false,
         } as TeacherResponse;
       }
@@ -121,7 +137,9 @@ export const teacherTurn = createServerFn({ method: "POST" })
 
     const transcript = data.history
       .slice(-12)
-      .map((t) => `${t.role === "teacher" ? "Teacher" : "Student"}: ${t.text}`)
+      .map((t: { role: "teacher" | "student"; text: string }) =>
+        `${t.role === "teacher" ? "Teacher" : "Student"}: ${t.text}`,
+      )
       .join("\n");
 
     try {

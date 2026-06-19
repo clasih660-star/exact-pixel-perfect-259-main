@@ -4,10 +4,7 @@ import type {
   GenerateTeacherSpeechResult,
   LocalVoiceProvider,
 } from "./types";
-import {
-  DEFAULT_LOCAL_VOICE_PROVIDER,
-  LOCAL_VOICE_FALLBACK_ORDER,
-} from "./types";
+import { DEFAULT_LOCAL_VOICE_PROVIDER, LOCAL_VOICE_FALLBACK_ORDER } from "./types";
 import { KLASSRUUM_LOCAL_TEACHERS } from "./builtin-teachers";
 import { prepareTeacherSpeech } from "./prepare-teacher-speech";
 import { speechTypeSettings } from "./speech-settings";
@@ -117,7 +114,8 @@ export async function generateTeacherSpeech(
         spokenText,
         durationMs: result.durationMs,
         fromCache: false,
-        shouldUseBrowserSpeech: result.shouldUseBrowserSpeech ?? (providerName === "browser" || !result.audioUrl),
+        shouldUseBrowserSpeech:
+          result.shouldUseBrowserSpeech ?? (providerName === "browser" || !result.audioUrl),
       };
     } catch (error) {
       if (providerName === "browser") {
@@ -168,7 +166,11 @@ function providerIsConfigured(provider: LocalVoiceProvider): boolean {
   }
 }
 
-function browserFallback(captionText: string, spokenText: string, _localVoiceId: string): GenerateTeacherSpeechResult {
+function browserFallback(
+  captionText: string,
+  spokenText: string,
+  _localVoiceId: string,
+): GenerateTeacherSpeechResult {
   return {
     provider: "browser",
     captionText,
@@ -200,7 +202,10 @@ function estimateDurationMs(text: string, speed: number) {
   return Math.round((words / wordsPerMinute) * 60_000);
 }
 
-async function getTeacherProfile(teacherProfileId: string, supabase?: VoiceSupabaseClient): Promise<DbTeacher> {
+async function getTeacherProfile(
+  teacherProfileId: string,
+  supabase?: VoiceSupabaseClient,
+): Promise<DbTeacher> {
   if (supabase && isUuid(teacherProfileId)) {
     try {
       const { data, error } = await supabase
@@ -214,16 +219,23 @@ async function getTeacherProfile(teacherProfileId: string, supabase?: VoiceSupab
     }
   }
 
-  const builtin = KLASSRUUM_LOCAL_TEACHERS.find((teacher) => teacher.id === teacherProfileId) ?? KLASSRUUM_LOCAL_TEACHERS[0];
+  const builtin =
+    KLASSRUUM_LOCAL_TEACHERS.find((teacher) => teacher.id === teacherProfileId) ??
+    KLASSRUUM_LOCAL_TEACHERS[0];
   return { id: builtin.id, subject_specialty: builtin.subjectSpecialty };
 }
 
-async function getTeacherVoiceProfile(voiceProfileId: string, supabase?: VoiceSupabaseClient): Promise<DbVoice> {
+async function getTeacherVoiceProfile(
+  voiceProfileId: string,
+  supabase?: VoiceSupabaseClient,
+): Promise<DbVoice> {
   if (supabase && isUuid(voiceProfileId)) {
     try {
       const { data, error } = await supabase
         .from("teacher_voice_profiles")
-        .select("id, teacher_profile_id, provider, local_voice_id, default_speed, pause_between_sentences_ms")
+        .select(
+          "id, teacher_profile_id, provider, local_voice_id, default_speed, pause_between_sentences_ms",
+        )
         .eq("id", voiceProfileId)
         .single();
       if (!error && data) return data;
@@ -233,8 +245,9 @@ async function getTeacherVoiceProfile(voiceProfileId: string, supabase?: VoiceSu
   }
 
   const builtin =
-    KLASSRUUM_LOCAL_TEACHERS.find((teacher) => `${teacher.id}_voice` === voiceProfileId || teacher.id === voiceProfileId) ??
-    KLASSRUUM_LOCAL_TEACHERS[0];
+    KLASSRUUM_LOCAL_TEACHERS.find(
+      (teacher) => `${teacher.id}_voice` === voiceProfileId || teacher.id === voiceProfileId,
+    ) ?? KLASSRUUM_LOCAL_TEACHERS[0];
   return {
     id: `${builtin.id}_voice`,
     teacher_profile_id: builtin.id,
@@ -245,7 +258,10 @@ async function getTeacherVoiceProfile(voiceProfileId: string, supabase?: VoiceSu
   };
 }
 
-async function findSpeechAssetByHash(textHash: string, supabase?: VoiceSupabaseClient): Promise<SpeechAsset | null> {
+async function findSpeechAssetByHash(
+  textHash: string,
+  supabase?: VoiceSupabaseClient,
+): Promise<SpeechAsset | null> {
   if (!supabase) return null;
   try {
     const { data, error } = await supabase
@@ -260,7 +276,10 @@ async function findSpeechAssetByHash(textHash: string, supabase?: VoiceSupabaseC
   }
 }
 
-async function saveTeacherSpeechAsset(payload: Record<string, unknown>, supabase?: VoiceSupabaseClient): Promise<void> {
+async function saveTeacherSpeechAsset(
+  payload: Record<string, unknown>,
+  supabase?: VoiceSupabaseClient,
+): Promise<void> {
   if (!supabase) return;
   try {
     await supabase.from("teacher_speech_assets").insert(payload);

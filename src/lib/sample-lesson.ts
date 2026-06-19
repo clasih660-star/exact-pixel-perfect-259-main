@@ -45,10 +45,8 @@ export const sampleQuadraticsLesson: Lesson = {
   prerequisiteCheck: {
     id: "prereq_1",
     question: "Do you remember how to multiply two brackets, like (x + 2)(x + 3)?",
-    guidance:
-      "If not, we'll review this quickly before we begin the main lesson.",
-    reviewMaterial:
-      "Multiplying two brackets: (x + a)(x + b) = x² + (a+b)x + ab",
+    guidance: "If not, we'll review this quickly before we begin the main lesson.",
+    reviewMaterial: "Multiplying two brackets: (x + a)(x + b) = x² + (a+b)x + ab",
   },
 
   steps: [
@@ -132,8 +130,7 @@ export const sampleQuadraticsLesson: Lesson = {
           "The board defines a quadratic equation in the form ax² + bx + c = 0, where a is not zero. It explains each coefficient.",
         screenReaderText:
           "A quadratic equation is of the form ax squared plus bx plus c equals zero, where a is not equal to zero.",
-        simplifiedExplanation:
-          "A quadratic equation has x squared as the highest power of x.",
+        simplifiedExplanation: "A quadratic equation has x squared as the highest power of x.",
       },
     },
 
@@ -155,8 +152,7 @@ export const sampleQuadraticsLesson: Lesson = {
           type: "bullet",
           text: "Look for two numbers that multiply to c.",
           readExactly: true,
-          explanation:
-            "These two numbers will be the key to factoring the expression.",
+          explanation: "These two numbers will be the key to factoring the expression.",
           accessibleDescription: "Find two numbers that multiply to c",
         },
         {
@@ -172,8 +168,7 @@ export const sampleQuadraticsLesson: Lesson = {
           type: "bullet",
           text: "Then write: (x + m)(x + n) where m and n are those numbers.",
           readExactly: true,
-          explanation:
-            "This is the factored form of the quadratic expression.",
+          explanation: "This is the factored form of the quadratic expression.",
           accessibleDescription: "Write the factors as x plus m times x plus n",
         },
         {
@@ -205,9 +200,7 @@ export const sampleQuadraticsLesson: Lesson = {
           "Not verifying by expanding the factors",
           "Using the wrong sign in the factors",
         ],
-        formulasOrRules: [
-          "For x² + bx + c = (x + m)(x + n): m × n = c and m + n = b",
-        ],
+        formulasOrRules: ["For x² + bx + c = (x + m)(x + n): m × n = c and m + n = b"],
       },
       accessibility: {
         boardDescription:
@@ -245,8 +238,7 @@ export const sampleQuadraticsLesson: Lesson = {
           type: "bullet",
           text: "Either x + m = 0 or x + n = 0",
           readExactly: true,
-          explanation:
-            "The only way a product can be zero is if one factor is zero.",
+          explanation: "The only way a product can be zero is if one factor is zero.",
           accessibleDescription: "Either x plus m equals zero or x plus n equals zero",
         },
         {
@@ -276,9 +268,7 @@ export const sampleQuadraticsLesson: Lesson = {
           "Solve each equation: x = -m or x = -n",
           "These are the two solutions to the original quadratic",
         ],
-        examples: [
-          "If (x + 2)(x + 3) = 0, then x + 2 = 0 or x + 3 = 0, so x = -2 or x = -3",
-        ],
+        examples: ["If (x + 2)(x + 3) = 0, then x + 2 = 0 or x + 3 = 0, so x = -2 or x = -3"],
         commonMistakes: [
           "Forgetting that it is OR not AND",
           "Not solving each equation separately",
@@ -345,8 +335,7 @@ export const sampleQuadraticsLesson: Lesson = {
           type: "bullet",
           text: "Step 3: Apply the zero product rule.",
           readExactly: true,
-          explanation:
-            "Set each factor equal to zero and solve for x.",
+          explanation: "Set each factor equal to zero and solve for x.",
           accessibleDescription: "Apply the zero product rule",
         },
         {
@@ -472,21 +461,16 @@ export const sampleQuadraticsLesson: Lesson = {
       ],
       commonMistakes: [
         {
-          mistake:
-            "Using numbers that multiply to c but do not add to b",
-          correction:
-            "Check both conditions: the numbers must multiply to c AND add to b",
+          mistake: "Using numbers that multiply to c but do not add to b",
+          correction: "Check both conditions: the numbers must multiply to c AND add to b",
         },
         {
-          mistake:
-            "Forgetting to check the solutions in the original equation",
-          correction:
-            "Always substitute both solutions back into the original equation to verify",
+          mistake: "Forgetting to check the solutions in the original equation",
+          correction: "Always substitute both solutions back into the original equation to verify",
         },
         {
           mistake: "Losing track of negative signs",
-          correction:
-            "Be careful with signs: if (x + 2) = 0, then x = -2 (not x = 2)",
+          correction: "Be careful with signs: if (x + 2) = 0, then x = -2 (not x = 2)",
         },
       ],
     },
@@ -526,10 +510,8 @@ export const sampleQuadraticsLesson: Lesson = {
     {
       id: "qc2",
       triggerMinute: 10,
-      promptText:
-        "Can you explain what the zero product rule means in your own words?",
-      promptAudio:
-        "Can you explain what the zero product rule means in your own words?",
+      promptText: "Can you explain what the zero product rule means in your own words?",
+      promptAudio: "Can you explain what the zero product rule means in your own words?",
       required: false,
       inputModes: ["text", "voice"],
     },
@@ -547,14 +529,8 @@ export const sampleQuadraticsLesson: Lesson = {
     id: "mlq1",
     triggerPercentage: 50,
     questionText: "For the expression x² + 7x + 12, which two numbers multiply to 12 and add to 7?",
-    correctAnswers: [
-      "3 and 4",
-      "4 and 3",
-      "three and four",
-      "four and three",
-    ],
-    feedbackCorrect:
-      "Correct! 3 × 4 = 12 and 3 + 4 = 7. So the factors are (x + 3)(x + 4).",
+    correctAnswers: ["3 and 4", "4 and 3", "three and four", "four and three"],
+    feedbackCorrect: "Correct! 3 × 4 = 12 and 3 + 4 = 7. So the factors are (x + 3)(x + 4).",
     feedbackIncorrect:
       "Let me help. We need two numbers that multiply to 12 and add to 7. Let us think through the factor pairs of 12: 1 and 12, 2 and 6, 3 and 4. Which pair adds to 7?",
     hints: [
@@ -620,8 +596,7 @@ export const sampleQuadraticsLesson: Lesson = {
       },
       {
         id: "hw_5",
-        problem:
-          "Solve x² + 15x + 50 = 0. Explain why 5 and 10 are the correct factors.",
+        problem: "Solve x² + 15x + 50 = 0. Explain why 5 and 10 are the correct factors.",
         difficulty: "hard",
       },
     ],

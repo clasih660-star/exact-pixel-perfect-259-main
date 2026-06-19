@@ -54,6 +54,7 @@ const userMode: LearningMode = 'standard' // or 'deaf', 'blind', 'speech_difficu
 ```
 
 ### Mode-Specific Behaviors
+
 - **standard**: Bottom bar with text + voice input
 - **deaf**: Modal popup (audio disabled)
 - **blind**: Auto-listening mode (audio ON)
@@ -114,10 +115,10 @@ import { LearnerNotesPanel, TeacherNotesPanel } from '@/components/classroom/Int
 ## Using Lesson Completion Flow
 
 ```typescript
-import { 
-  ExitTicketPrompt, 
-  HomeworkPanel, 
-  LessonCompletionSummary 
+import {
+  ExitTicketPrompt,
+  HomeworkPanel,
+  LessonCompletionSummary
 } from '@/components/classroom/LessonCompletionFlow'
 
 // 1. Show Exit Ticket
@@ -160,11 +161,11 @@ import {
 ## Loading a Lesson
 
 ```typescript
-import { sampleQuadraticsLesson } from '@/lib/sample-lesson'
-import type { Lesson, LessonProgress } from '@/lib/lesson-types'
+import { sampleQuadraticsLesson } from "@/lib/sample-lesson";
+import type { Lesson, LessonProgress } from "@/lib/lesson-types";
 
 // Initialize lesson
-const lesson: Lesson = sampleQuadraticsLesson
+const lesson: Lesson = sampleQuadraticsLesson;
 
 // Track progress
 const progress: LessonProgress = {
@@ -174,13 +175,13 @@ const progress: LessonProgress = {
   midLessonQuestionAnswered: false,
   practiceAnswers: [],
   exitTicketAnswered: false,
-  misconceptionsDetected: []
-}
+  misconceptionsDetected: [],
+};
 
 // Move through lesson
 function nextStep() {
-  progress.currentStepIndex++
-  progress.completedSteps.push(lesson.steps[progress.currentStepIndex - 1].id)
+  progress.currentStepIndex++;
+  progress.completedSteps.push(lesson.steps[progress.currentStepIndex - 1].id);
 }
 
 // On question checkpoint
@@ -191,11 +192,11 @@ if (lesson.questionCheckpoints[checkpointIndex].triggerMinute <= timeElapsed) {
 // Mid-lesson required question
 if (timeElapsed >= lesson.estimatedDurationMinutes / 2) {
   // Show required question
-  progress.midLessonQuestionAnswered = true
+  progress.midLessonQuestionAnswered = true;
 }
 
 // End of lesson
-progress.exitTicketAnswered = true
+progress.exitTicketAnswered = true;
 // Show LessonCompletionSummary
 ```
 
@@ -300,37 +301,37 @@ export function ClassroomPage({ lessonId }: { lessonId: string }) {
 
 ```typescript
 // Import these from @/lib/types
-type LearningMode = 
-  | 'standard'
-  | 'deaf'
-  | 'blind'
-  | 'speech_difficulty'
-  | 'adhd_focus'
-  | 'motor_support'
+type LearningMode =
+  | "standard"
+  | "deaf"
+  | "blind"
+  | "speech_difficulty"
+  | "adhd_focus"
+  | "motor_support";
 
 interface BoardWriteItem {
-  id: string
-  type: 'heading' | 'bullet' | 'equation' | 'calculation' | 'question' | 'answer'
-  text: string
-  readExactly?: boolean
-  explanation?: string
-  accessibleDescription: string
-  writingSpeed?: 'slow' | 'normal' | 'fast'
+  id: string;
+  type: "heading" | "bullet" | "equation" | "calculation" | "question" | "answer";
+  text: string;
+  readExactly?: boolean;
+  explanation?: string;
+  accessibleDescription: string;
+  writingSpeed?: "slow" | "normal" | "fast";
 }
 
 // Import these from @/lib/lesson-types
 interface Lesson {
-  id: string
-  institutionId: string
-  courseId: string
-  title: string
-  estimatedDurationMinutes: number // min 25
-  objective: LessonObjective
-  steps: LessonStep[]
-  questionCheckpoints: QuestionCheckpoint[]
-  requiredMidLessonQuestion: RequiredLessonQuestion
-  exitTicket: ExitTicket
-  homework: Homework
+  id: string;
+  institutionId: string;
+  courseId: string;
+  title: string;
+  estimatedDurationMinutes: number; // min 25
+  objective: LessonObjective;
+  steps: LessonStep[];
+  questionCheckpoints: QuestionCheckpoint[];
+  requiredMidLessonQuestion: RequiredLessonQuestion;
+  exitTicket: ExitTicket;
+  homework: Homework;
   // ... more properties
 }
 ```
@@ -339,17 +340,28 @@ interface Lesson {
 
 ```css
 /* Dashboard */
-.kr-dashboard-shell { }
-.kr-sidebar { }
-.kr-sidebar-nav { }
-.kr-kpi-card { }
-.kr-status-badge { }
-.kr-primary-button { }
-.kr-secondary-button { }
-.kr-continue-hero { }
-.kr-card { }
-.kr-card-title { }
-.kr-card-description { }
+.kr-dashboard-shell {
+}
+.kr-sidebar {
+}
+.kr-sidebar-nav {
+}
+.kr-kpi-card {
+}
+.kr-status-badge {
+}
+.kr-primary-button {
+}
+.kr-secondary-button {
+}
+.kr-continue-hero {
+}
+.kr-card {
+}
+.kr-card-title {
+}
+.kr-card-description {
+}
 ```
 
 ## Important Notes

@@ -137,13 +137,18 @@ export function LessonGenerationModal({
                 />
                 <span className="text-lg font-semibold w-12">{settings.lessonCount}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Generate between 1 and 20 lessons</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Generate between 1 and 20 lessons
+              </p>
             </div>
 
             {/* Teaching Level */}
             <div>
               <Label htmlFor="level">Teaching Level</Label>
-              <Select value={settings.level} onValueChange={(val) => setSettings({ ...settings, level: val })}>
+              <Select
+                value={settings.level}
+                onValueChange={(val) => setSettings({ ...settings, level: val })}
+              >
                 <SelectTrigger id="level">
                   <SelectValue />
                 </SelectTrigger>
@@ -171,7 +176,9 @@ export function LessonGenerationModal({
                 />
                 <span className="text-sm font-semibold w-12">{settings.durationMin} min</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Lessons will target this duration</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Lessons will target this duration
+              </p>
             </div>
 
             {/* Timeline (Optional) */}
@@ -185,10 +192,15 @@ export function LessonGenerationModal({
                 placeholder="Number of weeks"
                 value={settings.timelineWeeks || ""}
                 onChange={(e) =>
-                  setSettings({ ...settings, timelineWeeks: e.target.value ? parseInt(e.target.value) : undefined })
+                  setSettings({
+                    ...settings,
+                    timelineWeeks: e.target.value ? parseInt(e.target.value) : undefined,
+                  })
                 }
               />
-              <p className="text-xs text-muted-foreground mt-1">For context: how many weeks is the course?</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                For context: how many weeks is the course?
+              </p>
             </div>
 
             {/* Checkboxes */}
@@ -221,7 +233,9 @@ export function LessonGenerationModal({
                 <Checkbox
                   id="images"
                   checked={settings.includeImages}
-                  onCheckedChange={(checked) => setSettings({ ...settings, includeImages: checked === true })}
+                  onCheckedChange={(checked) =>
+                    setSettings({ ...settings, includeImages: checked === true })
+                  }
                 />
                 <Label htmlFor="images" className="font-normal cursor-pointer">
                   Include Images from Materials
@@ -245,8 +259,8 @@ export function LessonGenerationModal({
             <Loader2 className="h-12 w-12 animate-spin mx-auto text-[#1F7C80]" />
             <h3 className="font-semibold">Generating Lessons...</h3>
             <p className="text-sm text-muted-foreground">
-              This may take a minute. We're creating {settings.lessonCount} complete lessons with sections, teaching
-              items, and explanations.
+              This may take a minute. We're creating {settings.lessonCount} complete lessons with
+              sections, teaching items, and explanations.
             </p>
           </div>
         )}
@@ -298,7 +312,9 @@ export function LessonGenerationModal({
                           {lesson.sections} sections, {lesson.items} teaching items
                         </p>
                       </div>
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Draft</span>
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        Draft
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -316,17 +332,10 @@ export function LessonGenerationModal({
             </div>
 
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={handleClose}
-              >
+              <Button variant="outline" onClick={handleClose}>
                 Close
               </Button>
-              <Button
-                onClick={handleClose}
-              >
-                Done
-              </Button>
+              <Button onClick={handleClose}>Done</Button>
             </DialogFooter>
           </div>
         )}

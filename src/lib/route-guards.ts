@@ -1,4 +1,3 @@
-
 /**
  * Route Guards for Klassruum
  *
@@ -11,45 +10,164 @@
  * In demo mode (Supabase not configured), all guards pass silently.
  */
 import { redirect, type RouteContext } from "@tanstack/react-router";
-import type { UserRole } from "./types";
-import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import type { LearnerType, RoleResolution, TeacherType, UserPersona, UserRole } from "./types";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { requiresEmailVerification } from "@/lib/auth-verification";
+import { isDemoModeAllowed } from "@/lib/runtime-mode";
+import { SecurityConfigurationError } from "@/lib/security-errors";
 
 type AuthContext = {
   user?: { id: string; email?: string } | null;
   /** Role stored in route context by _authenticated/route.tsx */
   role?: UserRole | null;
+  persona?: UserPersona | null;
+  teacherType?: TeacherType | null;
+  learnerType?: LearnerType | null;
+  institutionId?: string | null;
 };
 
-/**
- * Fetch user profile with role from Supabase.
- * Falls back to null in dev mode.
- */
-async function getUserRole(userId: string): Promise<UserRole | null> {
+type ProfileRecord = {
+  role?: UserRole | null;
+  teacher_type?: TeacherType | null;
+  learner_type?: LearnerType | null;
+  institution_id?: string | null;
+};
+
+type MembershipRecord = {
+  institution_id?: string | null;
+  role?: "owner" | "admin" | "teacher" | "student" | null;
+};
+
+function derivePersonaFromRole(profile: ProfileRecord, membership?: MembershipRecord | null): UserPersona {
+  switch (profile.role) {
+    case "platform_admin":
+      return "platform_admin";
+    case "institution_admin":
+    case "owner":
+      return "institution_admin";
+    case "teacher":
+      switch (profile.teacher_type) {
+        case "private":
+          return "private_teacher";
+        case "kingpin":
+          return "kingpin_teacher";
+        case "institution":
+          return "institution_teacher";
+        default:
+          return membership?.role === "teacher" ? "institution_teacher" : "private_teacher";
+      }
+    case "student":
+      switch (profile.learner_type) {
+        case "private":
+          return "private_learner";
+        case "teacher_enrolled":
+          return "teacher_enrolled_learner";
+        case "institution":
+          return "institution_learner";
+        default:
+          return membership?.role === "student" ? "institution_learner" : "private_learner";
+      }
+    case "parent":
+      return "parent";
+    default:
+      return "institution_learner";
+  }
+}
+
+function toRoleResolution(
+  profile: ProfileRecord,
+  membership?: MembershipRecord | null,
+): RoleResolution | null {
+  if (!profile.role) return null;
+
+  const persona = derivePersonaFromRole(profile, membership);
+  const institutionId = profile.institution_id ?? membership?.institution_id ?? null;
+
+  return {
+    role: profile.role,
+    persona,
+    teacherType:
+      profile.teacher_type ??
+      (profile.role === "teacher"
+        ? persona === "institution_teacher"
+          ? "institution"
+          : persona === "kingpin_teacher"
+            ? "kingpin"
+            : "private"
+        : null),
+    learnerType:
+      profile.learner_type ??
+      (profile.role === "student"
+        ? persona === "institution_learner"
+          ? "institution"
+          : persona === "teacher_enrolled_learner"
+            ? "teacher_enrolled"
+            : "private"
+        : null),
+    institutionId,
+  };
+}
+
+async function getActiveInstitutionMembership(userId: string): Promise<MembershipRecord | null> {
   try {
-    const { supabase } = await import("@/integrations/supabase/client");
     const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return ((data as any)?.role as UserRole) ?? null;
+      .from("institution_members")
+      .select("institution_id, role")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .limit(1);
+
+    return ((data as MembershipRecord[] | null)?.[0] ?? null) as MembershipRecord | null;
   } catch {
-    if (import.meta.env.DEV) return "student";
     return null;
   }
 }
 
 /**
- * Get the user's role, preferring the value already in route context
+ * Fetch user profile with role/persona fields from Supabase.
+ * Falls back to a default learner resolution in dev mode.
+ */
+export async function getRoleResolution(userId: string): Promise<RoleResolution | null> {
+  try {
+    const [{ data: profileData }, membership] = await Promise.all([
+      supabase.from("profiles").select("role").eq("id", userId).single(),
+      getActiveInstitutionMembership(userId),
+    ]);
+
+    return toRoleResolution((profileData as ProfileRecord | null) ?? {}, membership);
+  } catch {
+    if (import.meta.env.DEV) {
+      return {
+        role: "student",
+        persona: "institution_learner",
+        learnerType: "institution",
+        teacherType: null,
+        institutionId: null,
+      };
+    }
+    return null;
+  }
+}
+
+/**
+ * Get the user's role resolution, preferring the value already in route context
  * but falling back to a DB lookup when needed.
  */
-async function resolveRole(
+async function resolveRoleResolution(
   userId: string,
-  contextRole?: UserRole | null
-): Promise<UserRole | null> {
-  if (contextRole) return contextRole;
-  return getUserRole(userId);
+  context?: AuthContext,
+): Promise<RoleResolution | null> {
+  if (context?.role && context.persona) {
+    return {
+      role: context.role,
+      persona: context.persona,
+      teacherType: context.teacherType ?? null,
+      learnerType: context.learnerType ?? null,
+      institutionId: context.institutionId ?? null,
+    };
+  }
+
+  return getRoleResolution(userId);
 }
 
 /**
@@ -58,9 +176,16 @@ async function resolveRole(
  */
 export async function requireAuth({ user }: AuthContext) {
   // In demo mode or when Supabase isn't configured, always pass
-  if (!isSupabaseConfigured() || import.meta.env.DEV) return;
+  if (!isSupabaseConfigured()) {
+    if (isDemoModeAllowed()) return;
+    throw new SecurityConfigurationError("Authentication is not configured for this environment.");
+  }
   if (!user) {
     throw redirect({ to: "/auth" });
+  }
+
+  if (requiresEmailVerification(user as unknown as Parameters<typeof requiresEmailVerification>[0])) {
+    throw redirect({ to: "/auth/verify-email" });
   }
 }
 
@@ -71,24 +196,56 @@ export async function requireAuth({ user }: AuthContext) {
  * In demo mode, all role checks pass (the user can explore any dashboard).
  */
 export async function requireRole(
-  { user, role: contextRole }: AuthContext,
-  roles: UserRole[]
+  { user, role: contextRole, persona, teacherType, learnerType, institutionId }: AuthContext,
+  roles: UserRole[],
 ) {
   // In demo mode, all role checks pass
-  if (!isSupabaseConfigured() || import.meta.env.DEV) {
-    return { role: contextRole ?? "student" };
+  if (!isSupabaseConfigured()) {
+    if (!isDemoModeAllowed()) {
+      throw new SecurityConfigurationError("Authorization cannot run without Supabase in production.");
+    }
+
+    return {
+      role: contextRole ?? "student",
+      persona:
+        persona ??
+        (contextRole === "teacher"
+          ? "institution_teacher"
+          : contextRole === "platform_admin"
+            ? "platform_admin"
+            : contextRole === "institution_admin" || contextRole === "owner"
+              ? "institution_admin"
+              : contextRole === "parent"
+                ? "parent"
+                : "institution_learner"),
+      teacherType: teacherType ?? (contextRole === "teacher" ? "institution" : null),
+      learnerType: learnerType ?? (contextRole === "student" ? "institution" : null),
+      institutionId:
+        institutionId ??
+        (contextRole === "institution_admin" || contextRole === "owner" || contextRole === "teacher" || contextRole === "student"
+          ? "demo-institution"
+          : null),
+    };
   }
 
   await requireAuth({ user });
 
-  const role = await resolveRole(user!.id, contextRole);
+  const resolution = await resolveRoleResolution(user!.id, {
+    user,
+    role: contextRole,
+    persona,
+    teacherType,
+    learnerType,
+    institutionId,
+  });
+  const role = resolution?.role ?? null;
 
   if (!role || !roles.includes(role)) {
     const dashboardPath = roleDashboardPath(role);
     throw redirect({ to: dashboardPath });
   }
 
-  return { role };
+  return resolution;
 }
 
 /**
@@ -102,7 +259,13 @@ export async function requirePlatformAdmin(ctx: AuthContext) {
  * Require institution_admin role.
  */
 export async function requireInstitutionAdmin(ctx: AuthContext) {
-  return requireRole(ctx, ["institution_admin", "owner"]);
+  const resolution = await requireRole(ctx, ["institution_admin", "owner"]);
+
+  if (!resolution?.institutionId) {
+    throw redirect({ to: roleDashboardPath(resolution?.role ?? null) });
+  }
+
+  return resolution;
 }
 
 /**
@@ -137,7 +300,22 @@ export async function requireParent(ctx: AuthContext) {
  * Require institution_admin or teacher (for shared management routes).
  */
 export async function requireInstitutionStaff(ctx: AuthContext) {
-  return requireRole(ctx, ["institution_admin", "owner", "teacher"]);
+  const resolution = await requireRole(ctx, ["institution_admin", "owner", "teacher"]);
+
+  if (!resolution) return resolution;
+
+  const hasInstitutionScope =
+    (resolution.role === "institution_admin" || resolution.role === "owner")
+      ? Boolean(resolution.institutionId)
+      : resolution.role === "teacher"
+        ? resolution.persona === "institution_teacher" && Boolean(resolution.institutionId)
+        : false;
+
+  if (!hasInstitutionScope) {
+    throw redirect({ to: roleDashboardPath(resolution.role) });
+  }
+
+  return resolution;
 }
 
 /**
@@ -145,7 +323,13 @@ export async function requireInstitutionStaff(ctx: AuthContext) {
  * Used for post-login redirect.
  */
 export function roleDashboardPath(role?: UserRole | null): string {
-  switch (role) {
+  return role ? resolveDashboardPath({ role }) : "/student/dashboard";
+}
+
+export function resolveDashboardPath(
+  resolution?: { role?: UserRole | null; persona?: UserPersona | null } | null,
+): string {
+  switch (resolution?.role) {
     case "platform_admin":
       return "/admin/dashboard";
     case "institution_admin":
@@ -168,15 +352,16 @@ export function roleDashboardPath(role?: UserRole | null): string {
  *
  * Accepts an optional `contextRole` to avoid a redundant DB call.
  */
-export async function redirectByRole(
-  { user, role: contextRole }: AuthContext
-) {
+export async function redirectByRole({ user, role: contextRole }: AuthContext) {
   if (!user) {
-    if (!isSupabaseConfigured() || import.meta.env.DEV) return;
+    if (!isSupabaseConfigured()) {
+      if (isDemoModeAllowed()) return;
+      throw new SecurityConfigurationError("Authentication is not configured for this environment.");
+    }
     throw redirect({ to: "/auth" });
   }
 
-  const role = await resolveRole(user.id, contextRole);
-  const path = roleDashboardPath(role);
+  const resolution = await resolveRoleResolution(user.id, { user, role: contextRole });
+  const path = resolveDashboardPath(resolution);
   throw redirect({ to: path });
 }

@@ -1,9 +1,16 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const authPages = ['signup','forgot-password','reset-password','verify-email','complete-profile','select-role'];
+const authPages = [
+  "signup",
+  "forgot-password",
+  "reset-password",
+  "verify-email",
+  "complete-profile",
+  "select-role",
+];
 for (const p of authPages) {
-  const title = p.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const title = p.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const content = `import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/auth/${p}")({
@@ -23,14 +30,14 @@ export const Route = createFileRoute("/auth/${p}")({
   ),
 });
 `;
-  const filePath = path.join(__dirname, '..', 'src', 'routes', `auth.${p}.tsx`);
+  const filePath = path.join(__dirname, "..", "src", "routes", `auth.${p}.tsx`);
   fs.writeFileSync(filePath, content);
-  console.log('Created:', `auth.${p}.tsx`);
+  console.log("Created:", `auth.${p}.tsx`);
 }
 
 const demoPages = [
-  { name: 'whiteboard', title: 'Whiteboard Demo', path: '/demo/whiteboard' },
-  { name: 'accessibility-demo', title: 'Accessibility Demo', path: '/demo/accessibility-demo' },
+  { name: "whiteboard", title: "Whiteboard Demo", path: "/demo/whiteboard" },
+  { name: "accessibility-demo", title: "Accessibility Demo", path: "/demo/accessibility-demo" },
 ];
 for (const d of demoPages) {
   const content = `import { createFileRoute, Link } from "@tanstack/react-router";
@@ -53,9 +60,9 @@ export const Route = createFileRoute("${d.path}")({
   ),
 });
 `;
-  const filePath = path.join(__dirname, '..', 'src', 'routes', `demo.${d.name}.tsx`);
+  const filePath = path.join(__dirname, "..", "src", "routes", `demo.${d.name}.tsx`);
   fs.writeFileSync(filePath, content);
-  console.log('Created:', `demo.${d.name}.tsx`);
+  console.log("Created:", `demo.${d.name}.tsx`);
 }
 
-console.log('Done!');
+console.log("Done!");

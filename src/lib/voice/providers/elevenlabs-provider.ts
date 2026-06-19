@@ -44,21 +44,18 @@ export class ElevenLabsTeacherVoiceProvider implements TeacherVoiceProvider {
     /* When using SSML, the top-level speed parameter is ignored in favour
        of the <prosody rate="..."> tag embedded in the text, so only send
        speed when we aren't using SSML. SSML is always used. */
-    const response = await fetch(
-      `${ELEVENLABS_API_BASE}/text-to-speech/${elevenLabsVoiceId}`,
-      {
-        method: "POST",
-        headers: {
-          "xi-api-key": this.apiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: ssmlText,
-          model_id: this.modelId,
-          voice_settings,
-        }),
+    const response = await fetch(`${ELEVENLABS_API_BASE}/text-to-speech/${elevenLabsVoiceId}`, {
+      method: "POST",
+      headers: {
+        "xi-api-key": this.apiKey,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        text: ssmlText,
+        model_id: this.modelId,
+        voice_settings,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -94,7 +91,11 @@ export class ElevenLabsTeacherVoiceProvider implements TeacherVoiceProvider {
     input: LocalSynthesizeInput,
   ): Promise<string | null> {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ??
+      process.env.SUPABASE_SERVICE_KEY ??
+      process.env.SUPABASE_PUBLISHABLE_KEY ??
+      process.env.SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) return null;
 
@@ -134,9 +135,7 @@ export class ElevenLabsTeacherVoiceProvider implements TeacherVoiceProvider {
         return null;
       }
 
-      const { data: urlData } = supabase.storage
-        .from("teacher-audio")
-        .getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage.from("teacher-audio").getPublicUrl(filePath);
 
       return urlData?.publicUrl ?? null;
     } catch {
@@ -164,7 +163,7 @@ function wrapInSsml(text: string, speed: number): string {
   /* Add short pauses after sentence endings for natural rhythm.
      Replace double-newlines (inserted by addTeacherRhythm) with
      <break> tags, then add a light break after every sentence. */
-  let ssml = text
+  const ssml = text
     .replace(/\n\n+/g, '<break time="400ms"/> ')
     .replace(/\.(?!<)/g, '.<break time="300ms"/>')
     .replace(/\?(?!<)/g, '?<break time="350ms"/>')
@@ -184,16 +183,18 @@ async function quickHash(text: string): Promise<string> {
   const data = encoder.encode(text);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+  return hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 16);
 }
 
-function isBucketMissing(error: { message?: string; statusCode?: number; status?: string } | Error | null): boolean {
+function isBucketMissing(
+  error: { message?: string; statusCode?: number; status?: string } | Error | null,
+): boolean {
   const msg = error?.message ?? "";
-  const status = (error as { statusCode?: number; status?: string })?.statusCode ?? (error as { status?: string })?.status;
-  return (
-    msg.includes("bucket") ||
-    msg.includes("Bucket") ||
-    status === 404 ||
-    status === "404"
-  );
+  const status =
+    (error as { statusCode?: number; status?: string })?.statusCode ??
+    (error as { status?: string })?.status;
+  return msg.includes("bucket") || msg.includes("Bucket") || status === 404 || status === "404";
 }

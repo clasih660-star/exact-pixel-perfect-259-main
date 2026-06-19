@@ -56,7 +56,7 @@ function CoursesPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {courses.data!.courses.map((c) => (
+          {courses.data!.courses.map((c: any) => (
             <Link key={c.id} to="/institution/courses/$courseId" params={{ courseId: c.id }}>
               <Card className="transition hover:border-primary/40">
                 <CardContent className="space-y-3 p-5">

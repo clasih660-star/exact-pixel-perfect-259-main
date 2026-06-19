@@ -72,9 +72,7 @@ export function SessionSummaryPage({
 
   const data = summary || defaultSummary;
   const quizScore = Math.round((data.correctAnswers / data.totalQuestions) * 100);
-  const completionPercentage = Math.round(
-    (data.completedSteps / data.totalSteps) * 100
-  );
+  const completionPercentage = Math.round((data.completedSteps / data.totalSteps) * 100);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -82,7 +80,7 @@ export function SessionSummaryPage({
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
-            to={`/classroom/session/${sessionId}`}
+            to={`/classroom/session/${sessionId}` as any}
             className="flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium"
           >
             <ArrowLeft size={18} />
@@ -108,9 +106,7 @@ export function SessionSummaryPage({
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Great work! You completed {lessonTitle}
           </h1>
-          <p className="text-lg text-gray-600">
-            Here's a summary of what you learned today
-          </p>
+          <p className="text-lg text-gray-600">Here's a summary of what you learned today</p>
         </div>
 
         {/* Key Stats Grid */}
@@ -118,9 +114,7 @@ export function SessionSummaryPage({
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#1F7C80] mb-2">
-                  {quizScore}%
-                </div>
+                <div className="text-3xl font-bold text-[#1F7C80] mb-2">{quizScore}%</div>
                 <div className="text-sm text-gray-600">Quiz Score</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {data.correctAnswers}/{data.totalQuestions} correct
@@ -146,9 +140,7 @@ export function SessionSummaryPage({
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600 mb-2">
-                  {data.duration}m
-                </div>
+                <div className="text-3xl font-bold text-orange-600 mb-2">{data.duration}m</div>
                 <div className="text-sm text-gray-600">Time Spent</div>
                 <div className="text-xs text-gray-500 mt-1">
                   {Math.round(data.duration / (data.totalSteps || 1))}m per step
@@ -164,9 +156,7 @@ export function SessionSummaryPage({
                   {Math.round((1 - data.confusionScore) * 100)}%
                 </div>
                 <div className="text-sm text-gray-600">Confidence</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Low confusion score
-                </div>
+                <div className="text-xs text-gray-500 mt-1">Low confusion score</div>
               </div>
             </CardContent>
           </Card>
@@ -178,9 +168,7 @@ export function SessionSummaryPage({
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 mb-4">
                 <Lightbulb className="text-yellow-500" size={20} />
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Key Takeaways
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900">Key Takeaways</h2>
               </div>
               <div className="space-y-3">
                 {data.keyTakeaways.map((takeaway, i) => (
@@ -198,9 +186,7 @@ export function SessionSummaryPage({
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="text-[#1F7C80]" size={20} />
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Insights
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-900">Insights</h2>
               </div>
               <div className="space-y-2">
                 {data.performanceInsights.slice(0, 3).map((insight, i) => (
@@ -217,9 +203,7 @@ export function SessionSummaryPage({
         <Card className="mt-6">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Lesson Board
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-900">Lesson Board</h2>
               <button
                 onClick={() => setShowDetails(!showDetails)}
                 className="text-[#1F7C80] hover:text-[#1A5256] text-sm font-medium flex items-center gap-1"
@@ -234,9 +218,7 @@ export function SessionSummaryPage({
                   key={i}
                   className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
                 >
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    {snapshot.title}
-                  </h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">{snapshot.title}</h3>
                   <p className="text-sm text-gray-600">{snapshot.description}</p>
                 </div>
               ))}
@@ -251,14 +233,10 @@ export function SessionSummaryPage({
               <div className="flex items-start gap-3">
                 <Target className="text-[#1F7C80] flex-shrink-0" size={24} />
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    Recommended Next Lesson
-                  </h3>
-                  <p className="text-sm text-gray-700 mb-4">
-                    {data.nextLessonRecommendation}
-                  </p>
+                  <h3 className="font-semibold text-gray-900 mb-2">Recommended Next Lesson</h3>
+                  <p className="text-sm text-gray-700 mb-4">{data.nextLessonRecommendation}</p>
                   <Link
-                    to={`/classroom/${lessonId}`}
+                    to={`/classroom/${lessonId}` as any}
                     className="inline-flex items-center gap-2 text-[#1F7C80] hover:text-[#1A5256] font-medium text-sm"
                   >
                     Start Lesson
@@ -274,9 +252,7 @@ export function SessionSummaryPage({
               <div className="flex items-start gap-3">
                 <MessageSquare className="text-gray-600 flex-shrink-0" size={24} />
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    Keep Learning
-                  </h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">Keep Learning</h3>
                   <p className="text-sm text-gray-700 mb-4">
                     Review your notes or try another lesson from this course
                   </p>
@@ -296,9 +272,7 @@ export function SessionSummaryPage({
         {/* Action Buttons */}
         <div className="flex items-center justify-center gap-4 mt-8 pb-8">
           <Link to="/student/dashboard">
-            <Button variant="outline">
-              Back to Dashboard
-            </Button>
+            <Button variant="outline">Back to Dashboard</Button>
           </Link>
           <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">
             <RotateCcw size={16} />

@@ -12,6 +12,7 @@ import {
   Calendar,
   BarChart2,
   Eye,
+  Zap,
 } from "lucide-react";
 import { requireInstitutionStaff } from "@/lib/route-guards";
 
@@ -111,7 +112,14 @@ const SESSIONS: Session[] = [
   },
 ];
 
-const STATUS_CONFIG: Record<SessionStatus, { label: string; variant: "success" | "warning" | "info" | "neutral" | "error"; dotColor: string }> = {
+const STATUS_CONFIG: Record<
+  SessionStatus,
+  {
+    label: string;
+    variant: "success" | "warning" | "info" | "neutral" | "error";
+    dotColor: string;
+  }
+> = {
   live: { label: "Live Now", variant: "info", dotColor: "#1F7C80" },
   upcoming: { label: "Upcoming", variant: "neutral", dotColor: "#94A3B8" },
   completed: { label: "Completed", variant: "success", dotColor: "#22C55E" },
@@ -133,17 +141,25 @@ function TeacherSessions() {
         subtitle="Monitor live sessions, prepare upcoming classes, and review completed lesson data."
       />
 
-      {/* Live Now banner */}
+      {/* Live Now banner — teal brand color (not blue) */}
       {liveSessions.length > 0 && (
-        <div className="mb-6 rounded-2xl border-2 border-[#1F7C80] bg-gradient-to-r from-[#EFF6FF] to-white p-5">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="mb-6 overflow-hidden rounded-2xl border-2 border-[#1F7C80] bg-gradient-to-r from-[#e8f5f5] to-white p-5 relative">
+          {/* Subtle top teal glow */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#1F7C80]/5 to-transparent" />
+          <div className="relative flex items-center gap-3 mb-4">
             <span className="relative flex h-3 w-3">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1F7C80] opacity-75" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-[#1F7C80]" />
             </span>
-            <h2 className="text-base font-bold text-[#0F172A]">Live Right Now</h2>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-[#1F7C80]" />
+              <h2 className="text-base font-bold text-[#0F172A]">Live Right Now</h2>
+            </div>
+            <span className="ml-auto rounded-full bg-[#1F7C80]/10 px-2.5 py-1 text-xs font-bold text-[#1F7C80]">
+              {liveSessions.length} session{liveSessions.length > 1 ? "s" : ""}
+            </span>
           </div>
-          <div className="space-y-3">
+          <div className="relative space-y-3">
             {liveSessions.map((s) => (
               <SessionRow key={s.id} session={s} />
             ))}
@@ -158,7 +174,9 @@ function TeacherSessions() {
             <Calendar className="h-5 w-5 text-[#1F7C80]" />
             <h2 className="text-lg font-bold text-[#0F172A]">Upcoming Sessions</h2>
           </div>
-          <span className="text-sm text-[#64748B]">{upcomingSessions.length} scheduled</span>
+          <span className="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs font-semibold text-[#64748B]">
+            {upcomingSessions.length} scheduled
+          </span>
         </div>
         <div className="space-y-3">
           {upcomingSessions.map((s) => (
@@ -174,7 +192,9 @@ function TeacherSessions() {
             <CheckCircle2 className="h-5 w-5 text-green-500" />
             <h2 className="text-lg font-bold text-[#0F172A]">Completed Sessions</h2>
           </div>
-          <span className="text-sm text-[#64748B]">{completedSessions.length} sessions</span>
+          <span className="rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs font-semibold text-[#64748B]">
+            {completedSessions.length} sessions
+          </span>
         </div>
         <div className="space-y-3">
           {completedSessions.map((s) => (
@@ -189,9 +209,9 @@ function TeacherSessions() {
 function SessionRow({ session }: { session: Session }) {
   const sc = STATUS_CONFIG[session.status];
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4 transition-all hover:border-[#1F7C80]/30 hover:shadow-sm sm:flex-row sm:items-center">
-      {/* Video icon */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EFF6FF]">
+    <div className="flex flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-4 transition-all hover:border-[#1F7C80]/30 hover:shadow-sm sm:flex-row sm:items-center">
+      {/* Video icon with brand-consistent background */}
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8f5f5] to-[#d1eceb]">
         <Video className="h-5 w-5 text-[#1F7C80]" />
       </div>
 
@@ -200,9 +220,12 @@ function SessionRow({ session }: { session: Session }) {
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-base font-bold text-[#0F172A]">{session.title}</h3>
           <StatusBadge variant={sc.variant}>{sc.label}</StatusBadge>
+          <span className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-xs font-semibold text-[#64748B]">
+            {session.mode}
+          </span>
         </div>
-        <p className="text-sm text-[#64748B]">{session.course}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[#94A3B8]">
+        <p className="mt-0.5 text-sm text-[#64748B]">{session.course}</p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-[#94A3B8]">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" /> {session.date} · {session.time}
           </span>
@@ -213,9 +236,7 @@ function SessionRow({ session }: { session: Session }) {
             <Users className="h-3 w-3" /> {session.students} students
           </span>
           {session.avgScore !== undefined && (
-            <span className="font-semibold text-green-600">
-              Avg score: {session.avgScore}%
-            </span>
+            <span className="font-semibold text-green-600">Avg score: {session.avgScore}%</span>
           )}
           {session.completionRate !== undefined && (
             <span className="font-semibold text-[#1F7C80]">
@@ -225,12 +246,13 @@ function SessionRow({ session }: { session: Session }) {
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Actions — consistent sizing across states */}
       <div className="flex shrink-0 items-center gap-2">
         {session.status === "live" || session.status === "upcoming" ? (
           <Link
-            to="/classroom/session_demo_math"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1A5256]"
+            to="/teacher/sessions/$sessionId"
+            params={{ sessionId: session.id }}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
           >
             <Play className="h-4 w-4" />
             {session.status === "live" ? "Join" : "Start"}
@@ -239,14 +261,14 @@ function SessionRow({ session }: { session: Session }) {
           <>
             <Link
               to="/teacher/analytics"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC]"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] hover:border-[#1F7C80]/30 transition-all"
             >
               <BarChart2 className="h-4 w-4" />
               Results
             </Link>
             <Link
               to="/demo/ai-video"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC]"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] px-3 py-2 text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] hover:border-[#1F7C80]/30 transition-all"
             >
               <Eye className="h-4 w-4" />
               Replay

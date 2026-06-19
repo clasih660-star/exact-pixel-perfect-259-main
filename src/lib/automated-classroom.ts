@@ -93,20 +93,22 @@ export type ClassroomAction =
 
 // Calculate when question checkpoints should trigger
 function getCheckpointForMinute(lesson: Lesson, minute: number): QuestionCheckpoint | null {
-  return lesson.questionCheckpoints.find(cp => cp.triggerMinute === minute) || null;
+  return lesson.questionCheckpoints.find((cp) => cp.triggerMinute === minute) || null;
 }
 
 // Check if a required question should trigger
 function shouldTriggerRequiredQuestion(lesson: Lesson, stepIndex: number): boolean {
   const percent = (stepIndex / lesson.steps.length) * 100;
-  return percent >= lesson.requiredMidLessonQuestion.triggerPercentage &&
-         percent < lesson.requiredMidLessonQuestion.triggerPercentage + 15;
+  return (
+    percent >= lesson.requiredMidLessonQuestion.triggerPercentage &&
+    percent < lesson.requiredMidLessonQuestion.triggerPercentage + 15
+  );
 }
 
 // Main classroom engine hook
 export function useAutomatedClassroomEngine(
   lesson: Lesson,
-  onComplete?: (summary: LessonCompletionSummary) => void
+  onComplete?: (summary: LessonCompletionSummary) => void,
 ) {
   const [state, setState] = useState<AutomatedClassroomState>({
     mode: "intro",
@@ -140,7 +142,7 @@ export function useAutomatedClassroomEngine(
     if (timerRef.current) clearInterval(timerRef.current);
 
     timerRef.current = window.setInterval(() => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         elapsedSeconds: prev.elapsedSeconds + 1,
       }));
@@ -155,27 +157,30 @@ export function useAutomatedClassroomEngine(
   }, []);
 
   // Speak text and move to next on completion
-  const speakAndContinue = useCallback((text: string, onComplete?: () => void) => {
-    stopSpeech();
+  const speakAndContinue = useCallback(
+    (text: string, onComplete?: () => void) => {
+      stopSpeech();
 
-    setState(prev => ({
-      ...prev,
-      isTeacherSpeaking: true,
-      currentSpeech: text,
-    }));
-
-    speechEndCallbackRef.current = () => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        isTeacherSpeaking: false,
+        isTeacherSpeaking: true,
+        currentSpeech: text,
       }));
-      onComplete?.();
-    };
 
-    speak(text, () => {
-      speechEndCallbackRef.current?.();
-    }, state.settings.speechRate);
-  }, [state.settings.speechRate]);
+      speechEndCallbackRef.current = () => {
+        setState((prev) => ({
+          ...prev,
+          isTeacherSpeaking: false,
+        }));
+        onComplete?.();
+      };
+
+      speak(text, () => {
+        speechEndCallbackRef.current?.();
+      });
+    },
+    [state.settings.speechRate],
+  );
 
   // Move to next board item
   const nextBoardItem = useCallback(() => {
@@ -193,15 +198,18 @@ export function useAutomatedClassroomEngine(
     const item = step.boardItems[nextIndex];
     const newVisible = [...state.visibleBoardItems, item];
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       boardItemIndex: nextIndex,
       visibleBoardItems: newVisible,
-      events: [...prev.events, {
-        type: "board_item_written",
-        itemId: item.id,
-        timestamp: new Date().toISOString()
-      }],
+      events: [
+        ...prev.events,
+        {
+          type: "board_item_written",
+          itemId: item.id,
+          timestamp: new Date().toISOString(),
+        },
+      ],
     }));
 
     // Speak the item text exactly if required
@@ -227,7 +235,15 @@ export function useAutomatedClassroomEngine(
     } else if (state.settings.autoPlay && !state.questionState) {
       setTimeout(() => nextBoardItem(), item.pauseAfter || 500);
     }
-  }, [state.stepIndex, state.boardItemIndex, state.visibleBoardItems, state.settings.autoPlay, state.questionState, lesson, speakAndContinue]);
+  }, [
+    state.stepIndex,
+    state.boardItemIndex,
+    state.visibleBoardItems,
+    state.settings.autoPlay,
+    state.questionState,
+    lesson,
+    speakAndContinue,
+  ]);
 
   // Move to next step
   const nextStep = useCallback(() => {
@@ -245,7 +261,7 @@ export function useAutomatedClassroomEngine(
             promptText: lesson.exitTicket.questionText,
             correctAnswer: lesson.exitTicket.correctAnswer,
             acceptableAnswers: lesson.exitTicket.acceptableAnswers,
-          }
+          },
         });
         return;
       }
@@ -256,17 +272,20 @@ export function useAutomatedClassroomEngine(
 
     const step = lesson.steps[nextIndex];
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       stepIndex: nextIndex,
       boardItemIndex: -1,
       visibleBoardItems: [],
       mode: "teaching",
-      events: [...prev.events, {
-        type: "step_started",
-        stepId: step.id,
-        timestamp: new Date().toISOString()
-      } as ClassroomEvent],
+      events: [
+        ...prev.events,
+        {
+          type: "step_started",
+          stepId: step.id,
+          timestamp: new Date().toISOString(),
+        } as ClassroomEvent,
+      ],
     }));
 
     // Check for required question
@@ -282,7 +301,7 @@ export function useAutomatedClassroomEngine(
             correctAnswer: lesson.requiredMidLessonQuestion.correctAnswer,
             acceptableAnswers: lesson.requiredMidLessonQuestion.acceptableAnswers,
             hint: lesson.requiredMidLessonQuestion.hint,
-          }
+          },
         });
       }, 1000);
       return;
@@ -303,355 +322,411 @@ export function useAutomatedClassroomEngine(
   }, [state.stepIndex, lesson, state.settings.autoPlay, speakAndContinue]);
 
   // Process answer submission
-  const processAnswer = useCallback((answer: string) => {
-    if (!state.questionState) return;
+  const processAnswer = useCallback(
+    (answer: string) => {
+      if (!state.questionState) return;
 
-    const normalizedAnswer = answer.toLowerCase().trim();
-    const acceptable = state.questionState.acceptableAnswers ||
-      [state.questionState.correctAnswer || ""];
+      const normalizedAnswer = answer.toLowerCase().trim();
+      const acceptable = state.questionState.acceptableAnswers || [
+        state.questionState.correctAnswer || "",
+      ];
 
-    const isCorrect = acceptable.some(a =>
-      a.toLowerCase().trim() === normalizedAnswer
-    );
+      const isCorrect = acceptable.some((a) => a.toLowerCase().trim() === normalizedAnswer);
 
-    if (state.questionState.type === "required") {
-      const feedback = isCorrect
-        ? lesson.requiredMidLessonQuestion.feedbackCorrect
-        : lesson.requiredMidLessonQuestion.feedbackIncorrect;
+      if (state.questionState.type === "required") {
+        const feedback = isCorrect
+          ? lesson.requiredMidLessonQuestion.feedbackCorrect
+          : lesson.requiredMidLessonQuestion.feedbackIncorrect;
 
-      speakAndContinue(feedback, () => {
-        if (!isCorrect) {
-          // Show correction on board
-          setState(prev => ({
-            ...prev,
-            visibleBoardItems: lesson.requiredMidLessonQuestion.boardCorrection,
-            questionState: null,
-            isMicActive: false,
-            events: [...prev.events, {
-              type: "required_question_answered",
-              questionId: lesson.requiredMidLessonQuestion.id,
-              correct: false,
-              timestamp: new Date().toISOString()
-            }],
-          }));
-        } else {
-          setState(prev => ({
-            ...prev,
-            questionState: null,
-            isMicActive: false,
-            events: [...prev.events, {
-              type: "required_question_answered",
-              questionId: lesson.requiredMidLessonQuestion.id,
-              correct: true,
-              timestamp: new Date().toISOString()
-            }],
-          }));
-        }
-
-        // Continue lesson
-        if (state.settings.autoPlay) {
-          setTimeout(() => nextBoardItem(), 1000);
-        }
-      });
-    } else if (state.questionState.type === "checkpoint") {
-      // Just note the answer and continue
-      setState(prev => ({
-        ...prev,
-        questionState: null,
-        isMicActive: false,
-        events: [...prev.events, {
-          type: "checkpoint_resolved",
-          timestamp: new Date().toISOString()
-        }],
-      }));
-
-      if (state.settings.autoPlay) {
-        setTimeout(() => nextBoardItem(), 500);
-      }
-    } else if (state.questionState.type === "exit") {
-      speakAndContinue(
-        isCorrect ? lesson.exitTicket!.feedback : lesson.exitTicket!.feedback,
-        () => {
-          setState(prev => ({
-            ...prev,
-            questionState: null,
-            isMicActive: false,
-            events: [...prev.events, {
-              type: "exit_ticket_submitted",
-              correct: isCorrect,
-              timestamp: new Date().toISOString()
-            }],
-          }));
-          dispatch({ type: "COMPLETE_LESSON" });
-        }
-      );
-    } else if (state.questionState.type === "practice") {
-      setState(prev => ({
-        ...prev,
-        practiceResult: isCorrect ? "correct" : "incorrect",
-        isMicActive: false,
-        events: [...prev.events, {
-          type: "practice_answer_submitted",
-          practiceId: state.questionState.practiceId || "",
-          correct: isCorrect,
-          timestamp: new Date().toISOString()
-        }],
-      }));
-
-      if (isCorrect) {
-        speakAndContinue("Correct! Well done.", () => {
-          setState(prev => ({ ...prev, questionState: null, currentPractice: null }));
-          if (state.settings.autoPlay) {
-            setTimeout(() => nextStep(), 500);
-          }
-        });
-      } else {
-        const feedback = state.currentPractice?.hintOnIncorrect || "Let me show you the solution.";
         speakAndContinue(feedback, () => {
-          // Show solution on board
-          if (state.currentPractice) {
-            setState(prev => ({
+          if (!isCorrect) {
+            // Show correction on board
+            setState((prev) => ({
               ...prev,
-              visibleBoardItems: state.currentPractice!.boardSolution,
+              visibleBoardItems: lesson.requiredMidLessonQuestion.boardCorrection,
               questionState: null,
+              isMicActive: false,
+              events: [
+                ...prev.events,
+                {
+                  type: "required_question_answered",
+                  questionId: lesson.requiredMidLessonQuestion.id,
+                  correct: false,
+                  timestamp: new Date().toISOString(),
+                },
+              ],
+            }));
+          } else {
+            setState((prev) => ({
+              ...prev,
+              questionState: null,
+              isMicActive: false,
+              events: [
+                ...prev.events,
+                {
+                  type: "required_question_answered",
+                  questionId: lesson.requiredMidLessonQuestion.id,
+                  correct: true,
+                  timestamp: new Date().toISOString(),
+                },
+              ],
             }));
           }
-        });
-      }
-    }
-  }, [state.questionState, state.currentPractice, state.settings.autoPlay, lesson, speakAndContinue, nextBoardItem, nextStep]);
 
-  // Dispatch action
-  const dispatch = useCallback((action: ClassroomAction) => {
-    switch (action.type) {
-      case "START_LESSON":
-        startTimer();
-        setState(prev => ({
-          ...prev,
-          mode: "teaching",
-          events: [{ type: "session_started", timestamp: new Date().toISOString() }],
-        }));
-
-        // Welcome message
-        speakAndContinue(
-          `Welcome to today's lesson. Our goal is: ${lesson.objective}. Let's begin.`,
-          () => {
-            if (state.settings.autoPlay) {
-              setTimeout(() => nextBoardItem(), 1000);
-            }
+          // Continue lesson
+          if (state.settings.autoPlay) {
+            setTimeout(() => nextBoardItem(), 1000);
           }
-        );
-        break;
-
-      case "PAUSE":
-        stopTimer();
-        stopSpeech();
-        setState(prev => ({ ...prev, settings: { ...prev.settings, autoPlay: false } }));
-        break;
-
-      case "RESUME":
-        startTimer();
-        setState(prev => ({ ...prev, settings: { ...prev.settings, autoPlay: true } }));
-        nextBoardItem();
-        break;
-
-      case "NEXT_BOARD_ITEM":
-        nextBoardItem();
-        break;
-
-      case "NEXT_STEP":
-        nextStep();
-        break;
-
-      case "TEACHER_FINISHED_SPEAKING":
-        setState(prev => ({ ...prev, isTeacherSpeaking: false }));
-        break;
-
-      case "TRIGGER_QUESTION":
-        stopSpeech();
-        setState(prev => ({
-          ...prev,
-          mode: "question",
-          questionState: action.question,
-          // Activate mic automatically for voice response
-          isMicActive: true,
-          isListeningForAnswer: true,
-          events: [...prev.events, {
-            type: "question_triggered",
-            questionType: action.question.type,
-            timestamp: new Date().toISOString()
-          } as ClassroomEvent],
-        }));
-
-        speakAndContinue(action.question.promptText, () => {
-          // Mic is now active, listening for response
         });
-        break;
-
-      case "SUBMIT_ANSWER":
-        processAnswer(action.answer);
-        break;
-
-      case "SKIP_QUESTION":
-        if (state.questionState?.isRequired) {
-          // Can't skip required questions
-          speakAndContinue("Please answer this question before we continue.");
-          return;
-        }
-        setState(prev => ({
+      } else if (state.questionState.type === "checkpoint") {
+        // Just note the answer and continue
+        setState((prev) => ({
           ...prev,
           questionState: null,
           isMicActive: false,
-          isListeningForAnswer: false,
+          events: [
+            ...prev.events,
+            {
+              type: "checkpoint_resolved",
+              timestamp: new Date().toISOString(),
+            },
+          ],
         }));
+
         if (state.settings.autoPlay) {
-          nextBoardItem();
+          setTimeout(() => nextBoardItem(), 500);
         }
-        break;
-
-      case "REPEAT_STEP":
-        setState(prev => ({
-          ...prev,
-          boardItemIndex: -1,
-          visibleBoardItems: [],
-          events: [...prev.events, {
-            type: "lesson_replayed",
-            fromStep: prev.stepIndex,
-            timestamp: new Date().toISOString()
-          }],
-        }));
-        speakAndContinue("Let me repeat this step.", () => {
-          if (state.settings.autoPlay) {
-            nextBoardItem();
-          }
-        });
-        break;
-
-      case "ASK_QUESTION":
-        setState(prev => ({
-          ...prev,
-          events: [...prev.events, {
-            type: "learner_asked_question",
-            question: action.question,
-            timestamp: new Date().toISOString()
-          }],
-        }));
-        // Generate AI response for the question
-        speakAndContinue(`That's a great question. ${action.question}. Let me explain.`, () => {
-          if (state.settings.autoPlay) {
-            // Continue after answering
-          }
-        });
-        break;
-
-      case "START_PRACTICE":
-        setState(prev => ({
-          ...prev,
-          mode: "practice",
-          currentPractice: action.practice,
-          events: [...prev.events, {
-            type: action.practice.type === "guided"
-              ? "guided_practice_started"
-              : "independent_practice_started",
-            practiceId: action.practice.id,
-            timestamp: new Date().toISOString()
-          } as ClassroomEvent],
-        }));
-
+      } else if (state.questionState.type === "exit") {
         speakAndContinue(
-          action.practice.type === "guided"
-            ? `Let's practice together. ${action.practice.problemText}`
-            : `Now it's your turn. ${action.practice.problemText}`,
+          isCorrect ? lesson.exitTicket!.feedback : lesson.exitTicket!.feedback,
           () => {
-            // Activate mic for answer
-            setState(prev => ({
+            setState((prev) => ({
               ...prev,
-              questionState: {
-                type: "practice",
-                isWaitingForAnswer: true,
-                isRequired: true,
-                promptText: action.practice.problemText,
-                correctAnswer: action.practice.expectedAnswer,
-                acceptableAnswers: action.practice.acceptableAnswers,
-                practiceId: action.practice.id,
-              },
-              isMicActive: true,
-              isListeningForAnswer: true,
+              questionState: null,
+              isMicActive: false,
+              events: [
+                ...prev.events,
+                {
+                  type: "exit_ticket_submitted",
+                  correct: isCorrect,
+                  timestamp: new Date().toISOString(),
+                },
+              ],
             }));
-          }
+            dispatch({ type: "COMPLETE_LESSON" });
+          },
         );
-        break;
-
-      case "SET_SPEECH_RATE":
-        setState(prev => ({
+      } else if (state.questionState.type === "practice") {
+        setState((prev) => ({
           ...prev,
-          settings: { ...prev.settings, speechRate: action.rate },
+          practiceResult: isCorrect ? "correct" : "incorrect",
+          isMicActive: false,
+          events: [
+            ...prev.events,
+            {
+              type: "practice_answer_submitted",
+              practiceId: state.questionState?.practiceId || "",
+              correct: isCorrect,
+              timestamp: new Date().toISOString(),
+            },
+          ],
         }));
-        break;
 
-      case "TOGGLE_AUTO_PLAY":
-        setState(prev => ({
-          ...prev,
-          settings: { ...prev.settings, autoPlay: !prev.settings.autoPlay },
-        }));
-        break;
-
-      case "TICK":
-        // Check for question checkpoints
-        const currentMinute = Math.floor(action.elapsedSeconds / 60);
-        const checkpoint = getCheckpointForMinute(lesson, currentMinute);
-
-        if (checkpoint && !state.questionState && state.mode === "teaching") {
-          dispatch({
-            type: "TRIGGER_QUESTION",
-            question: {
-              type: "checkpoint",
-              isWaitingForAnswer: true,
-              isRequired: checkpoint.required,
-              promptText: checkpoint.promptText,
+        if (isCorrect) {
+          speakAndContinue("Correct! Well done.", () => {
+            setState((prev) => ({ ...prev, questionState: null, currentPractice: null }));
+            if (state.settings.autoPlay) {
+              setTimeout(() => nextStep(), 500);
+            }
+          });
+        } else {
+          const feedback =
+            state.currentPractice?.hintOnIncorrect || "Let me show you the solution.";
+          speakAndContinue(feedback, () => {
+            // Show solution on board
+            if (state.currentPractice) {
+              setState((prev) => ({
+                ...prev,
+                visibleBoardItems: state.currentPractice!.boardSolution,
+                questionState: null,
+              }));
             }
           });
         }
-        break;
+      }
+    },
+    [
+      state.questionState,
+      state.currentPractice,
+      state.settings.autoPlay,
+      lesson,
+      speakAndContinue,
+      nextBoardItem,
+      nextStep,
+    ],
+  );
 
-      case "COMPLETE_LESSON":
-        stopTimer();
-        stopSpeech();
+  // Dispatch action
+  const dispatch = useCallback(
+    (action: ClassroomAction) => {
+      switch (action.type) {
+        case "START_LESSON":
+          startTimer();
+          setState((prev) => ({
+            ...prev,
+            mode: "teaching",
+            events: [{ type: "session_started", timestamp: new Date().toISOString() }],
+          }));
 
-        const summary: LessonCompletionSummary = {
-          sessionId: crypto.randomUUID(),
-          lessonId: lesson.id,
-          timeSpentMinutes: Math.ceil(state.elapsedSeconds / 60),
-          completedAt: new Date().toISOString(),
-          middleQuestionAnswered: true,
-          middleQuestionCorrect: true,
-          guidedPracticeCompleted: true,
-          guidedPracticeCorrect: true,
-          independentPracticeCompleted: true,
-          independentPracticeCorrect: true,
-          exitTicketAnswered: !!lesson.exitTicket,
-          exitTicketCorrect: true,
-          questionsAskedCount: 0,
-          weakAreas: [],
-          recommendedNext: lesson.homework || [],
-          notesSaved: false,
-          transcriptGenerated: true,
-        };
+          // Welcome message
+          speakAndContinue(
+            `Welcome to today's lesson. Our goal is: ${lesson.objective}. Let's begin.`,
+            () => {
+              if (state.settings.autoPlay) {
+                setTimeout(() => nextBoardItem(), 1000);
+              }
+            },
+          );
+          break;
 
-        setState(prev => ({
-          ...prev,
-          mode: "complete",
-          events: [...prev.events, {
-            type: "lesson_completed",
-            summary,
-            timestamp: new Date().toISOString()
-          }],
-        }));
+        case "PAUSE":
+          stopTimer();
+          stopSpeech();
+          setState((prev) => ({ ...prev, settings: { ...prev.settings, autoPlay: false } }));
+          break;
 
-        onComplete?.(summary);
-        break;
-    }
-  }, [state, lesson, startTimer, stopTimer, nextBoardItem, nextStep, speakAndContinue, processAnswer, onComplete]);
+        case "RESUME":
+          startTimer();
+          setState((prev) => ({ ...prev, settings: { ...prev.settings, autoPlay: true } }));
+          nextBoardItem();
+          break;
+
+        case "NEXT_BOARD_ITEM":
+          nextBoardItem();
+          break;
+
+        case "NEXT_STEP":
+          nextStep();
+          break;
+
+        case "TEACHER_FINISHED_SPEAKING":
+          setState((prev) => ({ ...prev, isTeacherSpeaking: false }));
+          break;
+
+        case "TRIGGER_QUESTION":
+          stopSpeech();
+          setState((prev) => ({
+            ...prev,
+            mode: "question",
+            questionState: action.question,
+            // Activate mic automatically for voice response
+            isMicActive: true,
+            isListeningForAnswer: true,
+            events: [
+              ...prev.events,
+              {
+                type: "question_triggered",
+                questionType: action.question.type,
+                timestamp: new Date().toISOString(),
+              } as ClassroomEvent,
+            ],
+          }));
+
+          speakAndContinue(action.question.promptText, () => {
+            // Mic is now active, listening for response
+          });
+          break;
+
+        case "SUBMIT_ANSWER":
+          processAnswer(action.answer);
+          break;
+
+        case "SKIP_QUESTION":
+          if (state.questionState?.isRequired) {
+            // Can't skip required questions
+            speakAndContinue("Please answer this question before we continue.");
+            return;
+          }
+          setState((prev) => ({
+            ...prev,
+            questionState: null,
+            isMicActive: false,
+            isListeningForAnswer: false,
+          }));
+          if (state.settings.autoPlay) {
+            nextBoardItem();
+          }
+          break;
+
+        case "REPEAT_STEP":
+          setState((prev) => ({
+            ...prev,
+            boardItemIndex: -1,
+            visibleBoardItems: [],
+            events: [
+              ...prev.events,
+              {
+                type: "lesson_replayed",
+                fromStep: prev.stepIndex,
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          }));
+          speakAndContinue("Let me repeat this step.", () => {
+            if (state.settings.autoPlay) {
+              nextBoardItem();
+            }
+          });
+          break;
+
+        case "ASK_QUESTION":
+          setState((prev) => ({
+            ...prev,
+            events: [
+              ...prev.events,
+              {
+                type: "learner_asked_question",
+                question: action.question,
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          }));
+          // Generate AI response for the question
+          speakAndContinue(`That's a great question. ${action.question}. Let me explain.`, () => {
+            if (state.settings.autoPlay) {
+              // Continue after answering
+            }
+          });
+          break;
+
+        case "START_PRACTICE":
+          setState((prev) => ({
+            ...prev,
+            mode: "practice",
+            currentPractice: action.practice,
+            events: [
+              ...prev.events,
+              {
+                type:
+                  action.practice.type === "guided"
+                    ? "guided_practice_started"
+                    : "independent_practice_started",
+                practiceId: action.practice.id,
+                timestamp: new Date().toISOString(),
+              } as ClassroomEvent,
+            ],
+          }));
+
+          speakAndContinue(
+            action.practice.type === "guided"
+              ? `Let's practice together. ${action.practice.problemText}`
+              : `Now it's your turn. ${action.practice.problemText}`,
+            () => {
+              // Activate mic for answer
+              setState((prev) => ({
+                ...prev,
+                questionState: {
+                  type: "practice",
+                  isWaitingForAnswer: true,
+                  isRequired: true,
+                  promptText: action.practice.problemText,
+                  correctAnswer: action.practice.expectedAnswer,
+                  acceptableAnswers: action.practice.acceptableAnswers,
+                  practiceId: action.practice.id,
+                },
+                isMicActive: true,
+                isListeningForAnswer: true,
+              }));
+            },
+          );
+          break;
+
+        case "SET_SPEECH_RATE":
+          setState((prev) => ({
+            ...prev,
+            settings: { ...prev.settings, speechRate: action.rate },
+          }));
+          break;
+
+        case "TOGGLE_AUTO_PLAY":
+          setState((prev) => ({
+            ...prev,
+            settings: { ...prev.settings, autoPlay: !prev.settings.autoPlay },
+          }));
+          break;
+
+        case "TICK": {
+          // Check for question checkpoints
+          const currentMinute = Math.floor(action.elapsedSeconds / 60);
+          const checkpoint = getCheckpointForMinute(lesson, currentMinute);
+
+          if (checkpoint && !state.questionState && state.mode === "teaching") {
+            dispatch({
+              type: "TRIGGER_QUESTION",
+              question: {
+                type: "checkpoint",
+                isWaitingForAnswer: true,
+                isRequired: checkpoint.required,
+                promptText: checkpoint.promptText,
+              },
+            });
+          }
+          break;
+        }
+
+        case "COMPLETE_LESSON": {
+          stopTimer();
+          stopSpeech();
+
+          const summary: LessonCompletionSummary = {
+            sessionId: crypto.randomUUID(),
+            lessonId: lesson.id,
+            timeSpentMinutes: Math.ceil(state.elapsedSeconds / 60),
+            completedAt: new Date().toISOString(),
+            middleQuestionAnswered: true,
+            middleQuestionCorrect: true,
+            guidedPracticeCompleted: true,
+            guidedPracticeCorrect: true,
+            independentPracticeCompleted: true,
+            independentPracticeCorrect: true,
+            exitTicketAnswered: !!lesson.exitTicket,
+            exitTicketCorrect: true,
+            questionsAskedCount: 0,
+            weakAreas: [],
+            recommendedNext: lesson.homework || [],
+            notesSaved: false,
+            transcriptGenerated: true,
+          };
+
+          setState((prev) => ({
+            ...prev,
+            mode: "complete",
+            events: [
+              ...prev.events,
+              {
+                type: "lesson_completed",
+                summary,
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          }));
+          onComplete?.(summary);
+          break;
+        }
+      }
+    },
+    [
+      state,
+      lesson,
+      startTimer,
+      stopTimer,
+      nextBoardItem,
+      nextStep,
+      speakAndContinue,
+      processAnswer,
+      onComplete,
+    ],
+  );
 
   // Handle tick for checkpoints
   useEffect(() => {

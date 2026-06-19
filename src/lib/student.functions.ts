@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { DEMO_DASHBOARD_DATA } from "@/lib/demo-data";
 
 export type LearningPlanItem = {
   id: string;
@@ -63,7 +62,9 @@ export type StudentDashboardV2 = {
 
 export const getMyEnrolledCourses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
+    if (!context.supabase) return { enrollments: [] };
+
     const { data, error } = await context.supabase
       .from("course_enrollments")
       .select(
@@ -77,12 +78,44 @@ export const getMyEnrolledCourses = createServerFn({ method: "GET" })
 
 export const getStudentDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const [enrollmentsResult, progressResult] = await Promise.all([
+  .handler(async ({ context }: any) => {
+    if (!context.supabase) {
+      return {
+        continueLearning: {
+          courseId: "",
+          lessonId: "",
+          lessonTitle: "",
+          courseTitle: "",
+          currentStep: "hook",
+          progressPercentage: 0,
+        },
+        learningPlan: [],
+        courses: [],
+        recentSessions: [],
+        accessProfile: {
+          currentMode: "Standard",
+          captionsEnabled: true,
+          audioEnabled: true,
+          keyboardShortcutsEnabled: true,
+          focusModeEnabled: false,
+          speechRate: 1,
+        },
+      } satisfies StudentDashboardV2;
+    }
+
+    // ── Parallel fetch all dashboard data from real tables ─────────────
+    const [
+      enrollmentsResult,
+      progressResult,
+      sessionsResult,
+      profileResult,
+      recommendationsResult,
+      quizResultsResult,
+    ] = await Promise.all([
       context.supabase
         .from("course_enrollments")
         .select(
-          "id, course_id, status, course:courses(id, title, subject, level, institution_id, institutions(name, brand_color, logo_url))",
+          "id, course_id, status, enrolled_at, course:courses(id, title, subject, level, institution_id, description, status, cover_image_url, institutions(name, brand_color, logo_url))",
         )
         .eq("student_id", context.userId)
         .eq("status", "active"),
@@ -92,19 +125,14 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
           "lesson_id, course_id, status, progress_percentage, current_step, time_spent_minutes, updated_at",
         )
         .eq("student_id", context.userId),
-    ]);
-
-    const enrollments = enrollmentsResult.data ?? [];
-    const progressRows = progressResult.data ?? [];
-    const [membershipResult, profileResult] = await Promise.all([
       context.supabase
-        .from("institution_members")
-        .select("institution_id")
-        .eq("user_id", context.userId)
-        .eq("status", "active")
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle(),
+        .from("classroom_sessions")
+        .select(
+          "id, course_id, lesson_id, status, started_at, ended_at, lessons(id, title), courses(title)",
+        )
+        .eq("host_user_id", context.userId)
+        .order("started_at", { ascending: false })
+        .limit(10),
       context.supabase
         .from("learner_access_profiles")
         .select("*")
@@ -112,15 +140,39 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
         .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      context.supabase
+        .from("recommendations")
+        .select("id, title, description, recommendation_type, target_url, priority")
+        .eq("student_id", context.userId)
+        .eq("is_read", false)
+        .order("priority", { ascending: false })
+        .limit(5),
+      context.supabase
+        .from("quiz_results")
+        .select("id, lesson_id, percentage, completed_at")
+        .eq("student_id", context.userId)
+        .order("completed_at", { ascending: false })
+        .limit(10),
     ]);
-    const firstCourse = enrollments[0]?.course;
+
+    const enrollments = enrollmentsResult.data ?? [];
+    const enrollmentsWithCourses = enrollments.filter((enrollment: any) =>
+      Boolean(enrollment.course),
+    );
+    const progressRows = progressResult.data ?? [];
+    const recentSessionsRaw = sessionsResult.data ?? [];
+    const recommendations = recommendationsResult.data ?? [];
+    const quizResults = quizResultsResult.data ?? [];
+
+    // ── Access profile ─────────────────────────────────────────────────
     const accessProfile = profileResult.data
       ? {
-          currentMode: profileResult.data.explanation_style === "detailed"
-            ? "Detailed"
-            : profileResult.data.explanation_style === "simple"
-              ? "Simple"
-              : "Standard",
+          currentMode:
+            profileResult.data.explanation_style === "detailed"
+              ? "Detailed"
+              : profileResult.data.explanation_style === "simple"
+                ? "Simple"
+                : "Standard",
           captionsEnabled: profileResult.data.captions_enabled,
           audioEnabled: profileResult.data.audio_enabled,
           keyboardShortcutsEnabled: profileResult.data.keyboard_shortcuts_enabled,
@@ -135,94 +187,183 @@ export const getStudentDashboard = createServerFn({ method: "GET" })
           focusModeEnabled: false,
           speechRate: 1,
         };
-    const continueLearning = {
-      courseId: firstCourse?.id ?? DEMO_DASHBOARD_DATA.courses[0].id,
-      lessonId: progressRows[0]?.lesson_id ?? "lesson-quadratic",
-      sessionId: "session-demo",
-      lessonTitle: "Introduction to Quadratic Equations",
-      courseTitle: firstCourse?.title ?? DEMO_DASHBOARD_DATA.courses[0].title,
-      currentStep: "Worked Example",
-      progressPercentage: 42,
-    };
+
+    // ── Fetch lesson counts per course ─────────────────────────────────
+    const courseIds = enrollmentsWithCourses.map((e: any) => e.course_id).filter(Boolean);
+    const lessonCounts: Record<string, number> = {};
+    if (courseIds.length > 0) {
+      const { data: lessonsData } = await context.supabase
+        .from("lessons")
+        .select("course_id")
+        .in("course_id", courseIds);
+      if (lessonsData) {
+        for (const row of lessonsData) {
+          lessonCounts[row.course_id] = (lessonCounts[row.course_id] ?? 0) + 1;
+        }
+      }
+    }
+
+    // ── Continue learning: most recent in-progress lesson ──────────────
+    const inProgressLessons = progressRows
+      .filter((p: any) => p.status === "in_progress")
+      .sort(
+        (a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+      );
+    const continueLesson = inProgressLessons[0] ?? progressRows[0] ?? null;
+    const continueCourse = continueLesson
+      ? enrollmentsWithCourses.find((e: any) => e.course_id === continueLesson.course_id)?.course
+      : (enrollmentsWithCourses[0]?.course ?? null);
+
+    // Fetch lesson title for continue learning
+    let continueLessonTitle = "";
+    if (continueLesson?.lesson_id) {
+      const { data: lessonData } = await context.supabase
+        .from("lessons")
+        .select("title")
+        .eq("id", continueLesson.lesson_id)
+        .maybeSingle();
+      continueLessonTitle = lessonData?.title ?? "";
+    }
+
+    // Fetch active session for continue learning
+    let continueSessionId: string | undefined;
+    if (continueLesson?.course_id) {
+      const { data: activeSession } = await context.supabase
+        .from("classroom_sessions")
+        .select("id")
+        .eq("host_user_id", context.userId)
+        .eq("course_id", continueLesson.course_id)
+        .eq("status", "live")
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      continueSessionId = activeSession?.id ?? undefined;
+    }
+
+    const continueLearning = continueLesson
+      ? {
+          courseId: continueLesson.course_id,
+          lessonId: continueLesson.lesson_id,
+          sessionId: continueSessionId,
+          lessonTitle: continueLessonTitle,
+          courseTitle: continueCourse?.title ?? "",
+          currentStep: continueLesson.current_step ?? "hook",
+          progressPercentage: continueLesson.progress_percentage ?? 0,
+        }
+      : {
+          courseId: continueCourse?.id ?? "",
+          lessonId: "",
+          lessonTitle: "",
+          courseTitle: continueCourse?.title ?? "",
+          currentStep: "hook",
+          progressPercentage: 0,
+        };
+
+    // ── Learning plan from recommendations ─────────────────────────────
+    const learningPlan: LearningPlanItem[] =
+      recommendations.length > 0
+        ? recommendations.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            description: r.description ?? undefined,
+            status: "next" as const,
+          }))
+        : [];
+
+    // ── Courses with real progress ─────────────────────────────────────
+    const courses = enrollmentsWithCourses.map((enrollment: any) => {
+      const course = enrollment.course;
+      const progressForCourse = progressRows.filter((row: any) => row.course_id === course.id);
+      const progressPercentage =
+        progressForCourse.length > 0
+          ? Math.round(
+              progressForCourse.reduce(
+                (sum: number, row: any) => sum + (row.progress_percentage ?? 0),
+                0,
+              ) / progressForCourse.length,
+            )
+          : 0;
+      const completedCount = progressForCourse.filter(
+        (row: any) => row.status === "completed",
+      ).length;
+      const totalLessons = lessonCounts[course.id] ?? Math.max(progressForCourse.length, 1);
+      const latestProgress = progressForCourse.sort(
+        (a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+      )[0];
+
+      // Calculate last activity relative time
+      const lastUpdated = latestProgress?.updated_at
+        ? getRelativeTime(new Date(latestProgress.updated_at))
+        : "No activity yet";
+
+      return {
+        id: course.id,
+        institutionId: course.institution_id ?? "",
+        institutionName: course.institutions?.name ?? "",
+        title: course.title,
+        subject: course.subject ?? "General",
+        level: course.level ?? "Beginner",
+        progressPercentage,
+        completedLessons: completedCount,
+        totalLessons,
+        currentLessonTitle: continueLessonTitle,
+        currentStep: latestProgress?.current_step ?? "hook",
+        teacherMode: "AI Teacher",
+        accessibilityStatus: accessProfile.captionsEnabled ? "Captions On" : "Standard",
+        lastActivity: lastUpdated,
+        nextRecommendedAction: progressPercentage > 0 ? "Continue lesson" : "Start course",
+        estimatedTimeLeft: `${Math.max(1, totalLessons - completedCount) * 15} min`,
+        lessonId: latestProgress?.lesson_id ?? "",
+        sessionId: continueSessionId,
+      };
+    });
+
+    // ── Recent sessions from real data ─────────────────────────────────
+    const recentSessions = recentSessionsRaw.map((session: any) => {
+      const endedAt = session.ended_at ? new Date(session.ended_at) : null;
+      const startedAt = session.started_at ? new Date(session.started_at) : null;
+      const durationMinutes =
+        endedAt && startedAt ? Math.round((endedAt.getTime() - startedAt.getTime()) / 60000) : null;
+
+      return {
+        id: session.id,
+        lessonTitle: session.lessons?.title ?? "Untitled Lesson",
+        courseTitle: session.courses?.title ?? "Untitled Course",
+        status:
+          session.status === "live"
+            ? ("live" as const)
+            : session.status === "completed"
+              ? ("completed" as const)
+              : ("scheduled" as const),
+        durationMinutes,
+        startedAt: session.started_at ?? undefined,
+      };
+    });
 
     return {
       continueLearning,
-      learningPlan: [
-        {
-          id: "plan-1",
-          title: "Continue Quadratic Equations",
-          status: "next" as const,
-          description: "Pick up at the worked example step.",
-        },
-        {
-          id: "plan-2",
-          title: "Complete 4-question quiz",
-          status: "todo" as const,
-          description: "Check understanding before the next lesson.",
-        },
-        {
-          id: "plan-3",
-          title: "Review one weak topic: Factoring",
-          status: "optional" as const,
-          description: "A short review to strengthen recall.",
-        },
-      ],
-      courses: (enrollments.length > 0
-        ? enrollments
-        : DEMO_DASHBOARD_DATA.courses.map((course) => ({ id: course.id, course }))
-      ).map((enrollment: any, index: number) => {
-        const course = enrollment.course ?? enrollment;
-        const progressForCourse = progressRows.filter((row: any) => row.course_id === course.id);
-        const progressPercentage =
-          progressForCourse.length > 0
-            ? Math.round(
-                progressForCourse.reduce(
-                  (sum: number, row: any) => sum + (row.progress_percentage ?? 0),
-                  0,
-                ) / progressForCourse.length,
-              )
-            : (DEMO_DASHBOARD_DATA.courses[index]?.progressPercentage ?? 42);
-        return {
-          id: course.id,
-          institutionId: course.institution_id ?? course.institutionId ?? "inst-1",
-          institutionName: course.institutions?.name ?? "Klassruum Demo Academy",
-          title: course.title,
-          subject: course.subject ?? "General",
-          level: course.level ?? "Intermediate",
-          progressPercentage,
-          completedLessons:
-            progressForCourse.filter((row: any) => row.status === "completed").length ||
-            DEMO_DASHBOARD_DATA.courses[index]?.completedLessons ||
-            0,
-          totalLessons:
-            DEMO_DASHBOARD_DATA.courses[index]?.totalLessons ??
-            Math.max(progressForCourse.length + 3, 6),
-          currentLessonTitle: continueLearning.lessonTitle,
-          currentStep: continueLearning.currentStep,
-          teacherMode: "AI Teacher",
-          accessibilityStatus: "Captions On",
-          lastActivity: "2 hours ago",
-          nextRecommendedAction: "Enter classroom",
-          estimatedTimeLeft: "18 min",
-          lessonId: continueLearning.lessonId,
-          sessionId: continueLearning.sessionId,
-        };
-      }),
-      recentSessions: DEMO_DASHBOARD_DATA.recentSessions.map((session, index) => ({
-        id: session.id,
-        lessonTitle: session.title,
-        courseTitle: session.courseTitle,
-        status: session.status === "completed" ? "completed" : "live",
-        durationMinutes: Number.parseInt(session.duration, 10) || 0,
-        startedAt: session.timestamp,
-        summaryId: `summary-${index + 1}`,
-        quizId: `quiz-${index + 1}`,
-      })),
+      learningPlan,
+      courses,
+      recentSessions,
       accessProfile,
     } satisfies StudentDashboardV2;
   });
 
-export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
+/** Returns a human-readable relative time string. */
+function getRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHrs = Math.floor(diffMin / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+}
+
+export const updateLearnerAccessProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) =>
     z
@@ -236,7 +377,7 @@ export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
       })
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const [membershipResult, existingProfileResult] = await Promise.all([
       context.supabase
         .from("institution_members")
@@ -256,8 +397,7 @@ export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
     ]);
 
     const institutionId =
-      membershipResult.data?.institution_id ??
-      existingProfileResult.data?.institution_id;
+      membershipResult.data?.institution_id ?? existingProfileResult.data?.institution_id;
     if (!institutionId) {
       throw new Error("No active institution found for access profile update");
     }
@@ -283,15 +423,13 @@ export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
           voice_input_enabled: existing?.voice_input_enabled ?? true,
           speech_rate: data.speechRate ?? existing?.speech_rate ?? 1,
           font_scale: existing?.font_scale ?? 1,
-          lesson_pace:
-            existing?.lesson_pace ??
-            (data.focusModeEnabled ? "slow" : "normal"),
+          lesson_pace: existing?.lesson_pace ?? (data.focusModeEnabled ? "slow" : "normal"),
           explanation_style:
             data.currentMode?.toLowerCase() === "simple"
               ? "simple"
               : data.currentMode?.toLowerCase() === "detailed"
                 ? "detailed"
-                : existing?.explanation_style ?? "standard",
+                : (existing?.explanation_style ?? "standard"),
         },
         { onConflict: "user_id,institution_id" },
       )
@@ -305,7 +443,7 @@ export const updateLearnerAccessProfile = createServerFn({ method: "PATCH" })
 export const getCourseForStudent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { course_id: string }) => data)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const [course, lessons, progress] = await Promise.all([
       context.supabase
         .from("courses")
@@ -325,10 +463,13 @@ export const getCourseForStudent = createServerFn({ method: "GET" })
         .eq("student_id", context.userId),
     ]);
     if (course.error) throw new Error(course.error.message);
-    const progressMap = Object.fromEntries((progress.data ?? []).map((p) => [p.lesson_id, p]));
+    const progressMap = Object.fromEntries((progress.data ?? []).map((p: any) => [p.lesson_id, p]));
     return {
       course: course.data,
-      lessons: (lessons.data ?? []).map((l) => ({ ...l, progress: progressMap[l.id] ?? null })),
+      lessons: (lessons.data ?? []).map((l: any) => ({
+        ...l,
+        progress: progressMap[l.id] ?? null,
+      })),
     };
   });
 
@@ -351,7 +492,7 @@ export const updateLessonProgress = createServerFn({ method: "POST" })
       .passthrough()
       .parse(data),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }: any) => {
     const { lesson_id, course_id, institution_id, session_id, ...updates } = data;
     // Use upsert: insert if not exists, update if it does
     const { data: existing } = await context.supabase
@@ -389,7 +530,7 @@ export const updateLessonProgress = createServerFn({ method: "POST" })
 
 export const getMyProgress = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }: any) => {
     // Get all enrollments
     const { data: enrollments, error: eErr } = await context.supabase
       .from("course_enrollments")

@@ -58,10 +58,7 @@ export type AITeacherState =
 
 export type ConnectionStatus = "idle" | "connecting" | "connected" | "error";
 
-export type AvatarVideoMode =
-  | "animated_placeholder"
-  | "pregenerated_clip"
-  | "realtime_stream";
+export type AvatarVideoMode = "animated_placeholder" | "pregenerated_clip" | "realtime_stream";
 
 export type LearningModeDisplay =
   | "standard"
@@ -213,13 +210,7 @@ const STATE_CONFIG: Record<AITeacherState, StateConfig> = {
 // SpeakingRing — Animated glow ring around avatar
 // ─────────────────────────────────────────────────────────────────────────────
 
-function SpeakingRing({
-  isSpeaking,
-  color,
-}: {
-  isSpeaking: boolean;
-  color: string;
-}) {
+function SpeakingRing({ isSpeaking, color }: { isSpeaking: boolean; color: string }) {
   return (
     <div
       className={`ai-video-speaking-ring ${isSpeaking ? "ai-video-speaking-ring-active" : ""}`}
@@ -238,9 +229,7 @@ function SpeakingRing({
 function AudioWaveform({ isSpeaking }: { isSpeaking: boolean }) {
   const barCount = 24;
   return (
-    <div
-      className={`ai-video-waveform ${isSpeaking ? "ai-video-waveform-active" : ""}`}
-    >
+    <div className={`ai-video-waveform ${isSpeaking ? "ai-video-waveform-active" : ""}`}>
       {Array.from({ length: barCount }).map((_, i) => (
         <span
           key={i}
@@ -265,15 +254,9 @@ function TeacherStateBadge({ state }: { state: AITeacherState }) {
   const isSpinning = state === "preparing" || state === "thinking";
 
   return (
-    <div
-      className={`ai-video-state-badge ${config.bgColor} ${config.borderColor}`}
-    >
-      <Icon
-        className={`h-3 w-3 ${config.color} ${isSpinning ? "ai-video-spin" : ""}`}
-      />
-      <span className={`ai-video-state-label ${config.color}`}>
-        {config.label}
-      </span>
+    <div className={`ai-video-state-badge ${config.bgColor} ${config.borderColor}`}>
+      <Icon className={`h-3 w-3 ${config.color} ${isSpinning ? "ai-video-spin" : ""}`} />
+      <span className={`ai-video-state-label ${config.color}`}>{config.label}</span>
     </div>
   );
 }
@@ -282,15 +265,8 @@ function TeacherStateBadge({ state }: { state: AITeacherState }) {
 // ConnectionStatus — Connection indicator
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ConnectionStatusIndicator({
-  status,
-}: {
-  status: ConnectionStatus;
-}) {
-  const config: Record<
-    ConnectionStatus,
-    { icon: LucideIcon; label: string; color: string }
-  > = {
+function ConnectionStatusIndicator({ status }: { status: ConnectionStatus }) {
+  const config: Record<ConnectionStatus, { icon: LucideIcon; label: string; color: string }> = {
     idle: { icon: WifiOff, label: "Offline", color: "text-gray-400" },
     connecting: {
       icon: Loader2,
@@ -315,13 +291,7 @@ function ConnectionStatusIndicator({
 // CaptionBar — Live spoken text overlay
 // ─────────────────────────────────────────────────────────────────────────────
 
-function CaptionBar({
-  text,
-  enabled,
-}: {
-  text: string;
-  enabled: boolean;
-}) {
+function CaptionBar({ text, enabled }: { text: string; enabled: boolean }) {
   if (!enabled || !text) return null;
 
   return (
@@ -344,8 +314,7 @@ function AITeacherAvatar({
   teacherState: AITeacherState;
   ringColor: string;
 }) {
-  const isActive =
-    teacherState !== "idle" && teacherState !== "paused";
+  const isActive = teacherState !== "idle" && teacherState !== "paused";
 
   return (
     <div className="ai-video-avatar-container">
@@ -392,12 +361,7 @@ function AITeacherAvatar({
       </div>
 
       {/* Glow effect when active */}
-      {isActive && (
-        <div
-          className="ai-video-avatar-glow"
-          style={{ background: ringColor }}
-        />
-      )}
+      {isActive && <div className="ai-video-avatar-glow" style={{ background: ringColor }} />}
     </div>
   );
 }
@@ -484,8 +448,7 @@ export function AITeacherVideoPanel({
   const stateConfig = STATE_CONFIG[teacherState];
 
   // Accessibility: deaf mode forces captions on
-  const effectiveCaptionsEnabled =
-    captionsEnabled || learningMode === "deaf";
+  const effectiveCaptionsEnabled = captionsEnabled || learningMode === "deaf";
 
   // ADHD focus: minimal UI
   const isFocusMode = learningMode === "adhd_focus";
@@ -507,12 +470,7 @@ export function AITeacherVideoPanel({
           <ConnectionStatusIndicator status={connectionStatus} />
         </div>
         <div className="ai-video-clip-container">
-          <video
-            src={videoUrl}
-            className="ai-video-clip-player"
-            autoPlay
-            playsInline
-          />
+          <video src={videoUrl} className="ai-video-clip-player" autoPlay playsInline />
           <CaptionBar text={captionText} enabled={effectiveCaptionsEnabled} />
         </div>
         <div className="ai-video-panel-footer">
@@ -524,9 +482,7 @@ export function AITeacherVideoPanel({
 
   // ── Level 1: Animated Avatar (default) ─────────────────────────────────
   return (
-    <aside
-      className={`ai-video-panel ${isFocusMode ? "ai-video-panel-focus" : ""}`}
-    >
+    <aside className={`ai-video-panel ${isFocusMode ? "ai-video-panel-focus" : ""}`}>
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="ai-video-panel-header">
         <div className="ai-video-panel-identity">
@@ -635,8 +591,7 @@ export function AITeacherVideoPanel({
           <span>
             {learningMode === "deaf" && "Deaf Mode Active"}
             {learningMode === "blind" && "Blind Mode Active"}
-            {learningMode === "speech_difficulty" &&
-              "Speech Support Active"}
+            {learningMode === "speech_difficulty" && "Speech Support Active"}
           </span>
         </div>
       )}

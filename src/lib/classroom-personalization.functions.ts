@@ -177,9 +177,8 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
     else if (data.score >= 80) emotion = "confident";
 
     // Derive cognitive load from confusion and practice performance
-    const practiceRate = data.practice_attempts > 0
-      ? data.practice_correct / data.practice_attempts
-      : 0.5;
+    const practiceRate =
+      data.practice_attempts > 0 ? data.practice_correct / data.practice_attempts : 0.5;
     const cognitiveLoad = Math.min(1, confusion * 0.6 + (1 - practiceRate) * 0.4);
 
     // Upsert cognitive profile
@@ -224,9 +223,7 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
         .eq("id", existing.id);
     } else {
       // Insert new profile
-      await supabase
-        .from("student_cognitive_profiles")
-        .insert(profileData);
+      await supabase.from("student_cognitive_profiles").insert(profileData);
     }
 
     // Update topic mastery for the lesson
@@ -240,7 +237,9 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
       if (lessonRow?.title) {
         const { data: existingMastery } = await supabase
           .from("topic_mastery")
-          .select("id, times_presented, times_practiced, times_correct, times_incorrect, mastery_score")
+          .select(
+            "id, times_presented, times_practiced, times_correct, times_incorrect, mastery_score",
+          )
           .eq("student_id", userId)
           .eq("topic_name", lessonRow.title)
           .maybeSingle();
@@ -251,10 +250,17 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
             .update({
               times_practiced: (existingMastery.times_practiced ?? 0) + data.practice_attempts,
               times_correct: (existingMastery.times_correct ?? 0) + data.practice_correct,
-              times_incorrect: (existingMastery.times_incorrect ?? 0) + Math.max(0, data.practice_attempts - data.practice_correct),
-              mastery_score: data.practice_attempts > 0
-                ? Math.min(1, (data.practice_correct / data.practice_attempts) * 0.5 + Number(existingMastery.mastery_score ?? 0) * 0.5)
-                : Number(existingMastery.mastery_score ?? 0),
+              times_incorrect:
+                (existingMastery.times_incorrect ?? 0) +
+                Math.max(0, data.practice_attempts - data.practice_correct),
+              mastery_score:
+                data.practice_attempts > 0
+                  ? Math.min(
+                      1,
+                      (data.practice_correct / data.practice_attempts) * 0.5 +
+                        Number(existingMastery.mastery_score ?? 0) * 0.5,
+                    )
+                  : Number(existingMastery.mastery_score ?? 0),
               last_presented_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             })
@@ -269,9 +275,8 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
             times_practiced: data.practice_attempts,
             times_correct: data.practice_correct,
             times_incorrect: Math.max(0, data.practice_attempts - data.practice_correct),
-            mastery_score: data.practice_attempts > 0
-              ? data.practice_correct / data.practice_attempts
-              : 0.5,
+            mastery_score:
+              data.practice_attempts > 0 ? data.practice_correct / data.practice_attempts : 0.5,
             last_presented_at: new Date().toISOString(),
           });
         }

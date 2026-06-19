@@ -102,7 +102,7 @@ export function InlineEngagementArea({
       {prompt.body && <p className="vc-engagement-body">{prompt.body}</p>}
       {prompt.bodyList && prompt.bodyList.length > 0 && (
         <ul className="vc-engagement-list">
-          {prompt.bodyList.map((p, i) => (
+          {prompt.bodyList.map((p: string, i: number) => (
             <li key={i}>{p}</li>
           ))}
         </ul>
@@ -111,15 +111,21 @@ export function InlineEngagementArea({
       {prompt.feedback && (
         <p className={`vc-engagement-feedback vc-engagement-feedback-${prompt.feedback.tone}`}>
           <span aria-hidden>
-            {prompt.feedback.tone === "correct" ? "✓ " : prompt.feedback.tone === "incorrect" ? "✗ " : "• "}
+            {prompt.feedback.tone === "correct"
+              ? "✓ "
+              : prompt.feedback.tone === "incorrect"
+                ? "✗ "
+                : "• "}
           </span>
           {prompt.feedback.text}
         </p>
       )}
 
       {prompt.actions.length > 0 && (
-        <div className={`vc-engagement-actions ${bigButtons ? "vc-engagement-actions-stacked" : ""}`}>
-          {prompt.actions.map((a) => (
+        <div
+          className={`vc-engagement-actions ${bigButtons ? "vc-engagement-actions-stacked" : ""}`}
+        >
+          {prompt.actions.map((a: { id: string; label: string; primary?: boolean }) => (
             <button
               key={a.id}
               type="button"
@@ -147,7 +153,11 @@ export function InlineEngagementArea({
             onChange={(e) => setReply(e.target.value)}
             aria-label="Type your reply to the teacher"
           />
-          <button type="submit" className="vc-engagement-btn vc-engagement-btn-primary" disabled={!reply.trim()}>
+          <button
+            type="submit"
+            className="vc-engagement-btn vc-engagement-btn-primary"
+            disabled={!reply.trim()}
+          >
             Send
           </button>
         </form>

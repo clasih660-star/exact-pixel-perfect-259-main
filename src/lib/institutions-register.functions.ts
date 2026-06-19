@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { createAuditLog } from "@/lib/institution-admin.foundation";
+import { queueEmailJob } from "@/lib/onboarding.foundation";
 
 const RegisterSchema = z.object({
   institution_name: z.string().trim().min(1).max(200),
@@ -92,6 +94,8 @@ export const registerInstitution = createServerFn({ method: "POST" })
         learner_count: data.learner_count ?? null,
         preferred_use_case: data.preferred_use_case ?? null,
         status: "active",
+        onboarding_status: "owner_created",
+        onboarding_started_at: new Date().toISOString(),
         created_by: userId,
       })
       .select("id, slug")
@@ -105,7 +109,60 @@ export const registerInstitution = createServerFn({ method: "POST" })
     const { error: memErr } = await supabaseAdmin
       .from("institution_members")
       .insert({ institution_id: inst.id, user_id: userId, role: "owner", status: "active" });
-    if (memErr) throw new Error(memErr.message);
+    if (memErr) {
+      await supabaseAdmin.from("institutions").delete().eq("id", inst.id);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      throw new Error(memErr.message);
+    }
+
+    // 5. Ensure the profile has the correct global role for dashboard redirects.
+    const { error: profileErr } = await supabaseAdmin.from("profiles").upsert(
+      {
+        id: userId,
+        full_name: data.admin_full_name,
+        email: data.admin_email,
+        phone: data.phone,
+        role: "owner",
+      },
+      { onConflict: "id" },
+    );
+    if (profileErr) {
+      throw new Error(profileErr.message);
+    }
+
+    // 6. Queue a welcome/onboarding email job. Delivery is handled later by the worker/processor layer.
+    await queueEmailJob(supabaseAdmin, {
+      institutionId: inst.id,
+      relatedUserId: userId,
+      kind: "institution_owner_welcome",
+      templateKey: "institution_owner_welcome",
+      toEmail: data.admin_email,
+      toName: data.admin_full_name,
+      subject: `Welcome to Klassruum, ${data.admin_full_name}`,
+      idempotencyKey: `institution:${inst.id}:owner_welcome:${userId}`,
+      payload: {
+        institution_id: inst.id,
+        institution_slug: inst.slug,
+        institution_name: data.institution_name,
+        owner_name: data.admin_full_name,
+        next_steps: [
+          "Review your institution profile",
+          "Invite teachers and learners",
+          "Create your first programme and course",
+        ],
+      },
+    });
+
+    await createAuditLog(supabaseAdmin, {
+      institutionId: inst.id,
+      actorUserId: userId,
+      actorRole: "owner",
+      action: "institution.registered",
+      entityType: "institution",
+      entityId: inst.id,
+      summary: `Registered institution ${data.institution_name}`,
+      details: { slug: inst.slug, type: data.type },
+    });
 
     return { ok: true, institution_id: inst.id, slug: inst.slug };
   });

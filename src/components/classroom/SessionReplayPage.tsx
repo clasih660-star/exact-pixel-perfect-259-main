@@ -85,7 +85,7 @@ export function SessionReplayPage({
       <header className="bg-black/50 border-b border-slate-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
-            to={`/classroom/session/${sessionId}`}
+            to={`/classroom/session/${sessionId}` as any}
             className="flex items-center gap-2 text-[#3fa8ab] hover:text-[#a3d9d8] font-medium"
           >
             <ArrowLeft size={18} />
@@ -191,9 +191,7 @@ export function SessionReplayPage({
           <div className="lg:col-span-2">
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="pt-6">
-                <h2 className="text-lg font-semibold text-white mb-4">
-                  Lesson Timeline
-                </h2>
+                <h2 className="text-lg font-semibold text-white mb-4">Lesson Timeline</h2>
                 <div className="space-y-2">
                   {data.events.map((event, i) => (
                     <button
@@ -209,9 +207,7 @@ export function SessionReplayPage({
                         <div className="text-sm font-medium text-white capitalize">
                           {event.type.replace("_", " ")}
                         </div>
-                        <div className="text-xs text-slate-400">
-                          {event.description}
-                        </div>
+                        <div className="text-xs text-slate-400">{event.description}</div>
                       </div>
                     </button>
                   ))}
@@ -224,35 +220,27 @@ export function SessionReplayPage({
           <div className="space-y-4">
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="pt-6">
-                <h3 className="font-semibold text-white mb-4">
-                  Session Details
-                </h3>
+                <h3 className="font-semibold text-white mb-4">Session Details</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Calendar size={16} className="text-slate-400" />
                     <div>
                       <div className="text-xs text-slate-400">Date</div>
-                      <div className="text-sm text-white">
-                        {data.recordedAt}
-                      </div>
+                      <div className="text-sm text-white">{data.recordedAt}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock size={16} className="text-slate-400" />
                     <div>
                       <div className="text-xs text-slate-400">Duration</div>
-                      <div className="text-sm text-white">
-                        {minutes} minutes
-                      </div>
+                      <div className="text-sm text-white">{minutes} minutes</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <User size={16} className="text-slate-400" />
                     <div>
                       <div className="text-xs text-slate-400">Teacher</div>
-                      <div className="text-sm text-white">
-                        {data.teacherName}
-                      </div>
+                      <div className="text-sm text-white">{data.teacherName}</div>
                     </div>
                   </div>
                 </div>
@@ -293,9 +281,7 @@ export function SessionReplayPage({
                   <ChevronDown size={20} />
                 </button>
               </div>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                {data.transcript}
-              </p>
+              <p className="text-sm text-slate-300 leading-relaxed">{data.transcript}</p>
             </CardContent>
           </Card>
         )}

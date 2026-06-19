@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect } from "react";
 import { InteractiveClassroomPage } from "@/components/classroom/InteractiveClassroomPage";
+import { LearnerLiveClassroomPage } from "@/components/classroom/LearnerLiveClassroomPage";
+import { TeacherLiveClassroomPage } from "@/components/classroom/TeacherLiveClassroomPage";
 import { getClassroomContext, endSession } from "@/lib/sessions.functions";
+import { leaveSession, endSession as endLiveSession } from "@/lib/live-sessions.functions";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { postChatMessage } from "@/lib/sessions.functions";
 
 export const Route = createFileRoute("/classroom/session/$sessionId")({
   component: ClassroomSessionRoute,
@@ -36,19 +41,19 @@ function LoadingSkeleton() {
           <div className="mb-6 h-6 w-64 animate-pulse rounded bg-[var(--gray-200)]" />
           <div className="mb-6 h-20 w-full animate-pulse rounded-lg bg-[var(--gray-200)]" />
           <div className="space-y-4">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4].map((i: any) => (
               <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-[var(--gray-200)]" />
             ))}
           </div>
         </main>
         <aside className="w-[25%] min-w-[240px] border-l border-[var(--gray-200)] bg-white p-4">
           <div className="mb-4 flex gap-2">
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1, 2, 3, 4, 5].map((i: any) => (
               <div key={i} className="h-8 flex-1 animate-pulse rounded bg-[var(--gray-200)]" />
             ))}
           </div>
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map((i: any) => (
               <div key={i} className="h-16 w-full animate-pulse rounded-lg bg-[var(--gray-200)]" />
             ))}
           </div>
@@ -63,11 +68,23 @@ function ClassroomSessionRoute() {
   const router = useRouter();
   const classroomFn = useServerFn(getClassroomContext);
   const endFn = useServerFn(endSession);
+  const leaveFn = useServerFn(leaveSession);
+  const postFn = useServerFn(postChatMessage);
+  const endLiveFn = useServerFn(endLiveSession);
 
   const query = useQuery({
     queryKey: ["classroom-context", sessionId],
     queryFn: () => classroomFn({ data: { session_id: sessionId } }),
   });
+  const shouldUseTeacherRoute = Boolean(query.data?.viewer?.isInstitutionStaff);
+
+  useEffect(() => {
+    if (!shouldUseTeacherRoute) return;
+    void router.navigate({
+      to: "/teacher/sessions/$sessionId",
+      params: { sessionId },
+    });
+  }, [router, sessionId, shouldUseTeacherRoute]);
 
   if (query.isLoading) {
     return <LoadingSkeleton />;
@@ -82,11 +99,12 @@ function ClassroomSessionRoute() {
           </div>
           <h2 className="mb-2 text-xl font-bold text-[var(--gray-900)]">Session not available</h2>
           <p className="mb-6 text-sm leading-relaxed text-[var(--gray-500)]">
-            This classroom session could not be found or may have ended. Return to your dashboard to continue learning.
+            This classroom session could not be found or may have ended. Return to your dashboard to
+            continue learning.
           </p>
           <div className="flex justify-center gap-3">
             <Button asChild>
-              <Link to="/student/dashboard">Return to dashboard</Link>
+              <Link to="/student/classrooms">Return to classrooms</Link>
             </Button>
           </div>
         </div>
@@ -94,12 +112,77 @@ function ClassroomSessionRoute() {
     );
   }
 
+  if (shouldUseTeacherRoute) {
+    return <LoadingSkeleton />;
+  }
+
+  const isTeacherHost = Boolean(query.data.viewer?.isInstitutionStaff);
+
+  if (
+    isTeacherHost &&
+    (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid")
+  ) {
+    return (
+      <TeacherLiveClassroomPage
+        classroomContext={query.data}
+        sessionId={sessionId}
+        onEndSession={async () => {
+          await endLiveFn({ data: { session_id: sessionId } });
+          await router.navigate({ to: "/teacher/sessions" });
+        }}
+        onBroadcast={async (message) => {
+          await postFn({
+            data: {
+              session_id: sessionId,
+              message,
+              sender: "teacher",
+              message_type: "announcement",
+            },
+          });
+          await query.refetch();
+        }}
+      />
+    );
+  }
+
+  if (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid") {
+    return (
+      <LearnerLiveClassroomPage
+        classroomContext={query.data}
+        sessionId={sessionId}
+        onLeaveSession={async () => {
+          if (query.data.session?.status === "completed") {
+            await router.navigate({ to: "/student/classrooms" });
+            return;
+          }
+          await leaveFn({ data: { session_id: sessionId } });
+          await router.navigate({ to: "/student/classrooms" });
+        }}
+        onAskQuestion={async (message) => {
+          await postFn({
+            data: {
+              session_id: sessionId,
+              message,
+              sender: "student",
+              message_type: "question",
+            },
+          });
+          await query.refetch();
+        }}
+      />
+    );
+  }
+
   return (
     <InteractiveClassroomPage
-      classroomContext={query.data}
+      classroomContext={query.data as any}
       sessionId={sessionId}
       onEndLesson={async () => {
-        await endFn({ data: { session_id: sessionId } });
+        if (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid") {
+          await endLiveFn({ data: { session_id: sessionId } });
+        } else {
+          await endFn({ data: { session_id: sessionId } });
+        }
         await router.navigate({ to: "/student/dashboard" });
       }}
     />

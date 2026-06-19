@@ -1,44 +1,51 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ArrowRight, Sparkles, Building2, ChevronDown } from "lucide-react";
 import { Footer } from "@/components/landing/Footer";
 import { Logo } from "@/components/brand/Logo";
 import { CTAButton } from "@/components/landing/primitives";
+import { createSeoHead, faqSchema, webPageSchema } from "@/lib/seo";
+import { useState } from "react";
 
-const SITE_URL = "https://klassruum.com";
+const DESCRIPTION =
+  "Simple, transparent Klassruum pricing for AI virtual classrooms. Start with a free demo and scale to institution plans.";
+
+const PRICING_FAQ = [
+  {
+    question: "Is there a free plan?",
+    answer:
+      "Yes. The Starter plan lets you explore the full demo classroom with no account required. It includes an AI teacher-led lesson, captions, transcripts, and accessibility modes.",
+  },
+  {
+    question: "How are institutional plans priced?",
+    answer:
+      "School and Enterprise plans are priced per institution per year, based on implementation needs, usage, support level, and governance requirements.",
+  },
+  {
+    question: "Are there per-learner charges?",
+    answer:
+      "Klassruum is designed for institutional scale. Plans can include unlimited teachers and learners.",
+  },
+  {
+    question: "Do you offer discounts for NGOs?",
+    answer:
+      "Yes. We offer mission-aligned pricing for non-profit organizations. Contact us to discuss your deployment context.",
+  },
+  {
+    question: "Can I try before I commit?",
+    answer:
+      "Absolutely. The demo classroom is always free. For institutional plans, contact us for a guided walkthrough.",
+  },
+];
 
 export const Route = createFileRoute("/pricing")({
-  head: () => ({
-    meta: [
-      { title: "Pricing — Klassruum AI Virtual Classrooms" },
-      {
-        name: "description",
-        content:
-          "Simple, transparent pricing for Klassruum. Start with a free demo classroom. Institutional plans scale with your needs — no hidden fees, no per-learner charges.",
-      },
-      { name: "keywords", content: "Klassruum pricing, AI classroom pricing, virtual classroom cost, school AI platform pricing" },
-      { name: "author", content: "Klassruum" },
-      { name: "robots", content: "index, follow" },
-      { property: "og:type", content: "website" },
-      { property: "og:title", content: "Pricing — Klassruum AI Virtual Classrooms" },
-      { property: "og:description", content: "Start free, scale with your institution. No hidden fees." },
-      { property: "og:url", content: `${SITE_URL}/pricing` },
-      { property: "og:image", content: "/images/scenes/scene-1.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/pricing` }],
-    script: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: "Klassruum Pricing",
-          url: `${SITE_URL}/pricing`,
-          description: "Simple, transparent pricing for Klassruum AI virtual classrooms.",
-        }),
-      },
-    ],
-  }),
+  head: () =>
+    createSeoHead({
+      title: "Pricing — AI Virtual Classroom Plans | Klassruum",
+      description: DESCRIPTION,
+      path: "/pricing",
+      keywords: "Klassruum pricing, AI classroom pricing, virtual classroom platform cost",
+      jsonLd: [webPageSchema("Klassruum Pricing", "/pricing", DESCRIPTION), faqSchema(PRICING_FAQ)],
+    }),
   component: PricingPage,
 });
 
@@ -46,9 +53,15 @@ const PLANS = [
   {
     name: "Starter",
     price: "Free",
-    period: "to try",
-    description: "Explore the demo classroom and see how Klassruum works — no setup required.",
-    features: ["Full demo classroom", "AI teacher-led lesson", "Captions & transcript", "Accessibility modes", "No account required"],
+    period: "to explore",
+    description: "Explore the full demo classroom with no setup required.",
+    features: [
+      "Full demo classroom",
+      "AI teacher-led lesson",
+      "Captions & transcript",
+      "Accessibility modes",
+      "No account required",
+    ],
     cta: { label: "Try Demo Classroom", to: "/demo/classroom" },
     highlighted: false,
   },
@@ -56,7 +69,7 @@ const PLANS = [
     name: "School",
     price: "Custom",
     period: "per institution / year",
-    description: "For primary and secondary schools ready to deploy AI classrooms across classes.",
+    description: "For schools ready to deploy AI classrooms across classes and cohorts.",
     features: [
       "Unlimited teachers & learners",
       "Course & lesson management",
@@ -74,7 +87,7 @@ const PLANS = [
     name: "Enterprise",
     price: "Custom",
     period: "per institution / year",
-    description: "For universities, training providers, and large organizations with custom needs.",
+    description: "For universities, training providers, and large organizations.",
     features: [
       "Everything in School",
       "Custom branding",
@@ -91,75 +104,123 @@ const PLANS = [
 ];
 
 function PricingPage() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-white/90 backdrop-blur">
+    <div className="pricing-page-shell min-h-screen bg-white text-heading">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 sm:px-8">
-          <Link to="/" className="flex items-center gap-2">
-            <Logo size={32} />
+          <Link to="/" className="flex items-center">
+            <Logo size={30} />
           </Link>
-          <nav className="flex items-center gap-6 text-sm font-medium text-[#475569]">
-            <Link to="/features" className="hidden hover:text-[#1A5256] sm:inline">Features</Link>
-            <Link to="/demo/classroom" className="hidden hover:text-[#1A5256] sm:inline">Demo</Link>
-            <Link to="/auth" className="rounded-lg bg-[#1F7C80] px-4 py-2 font-semibold text-white transition-colors hover:bg-[#1A5256]">
-              Get started
+          <nav className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="hidden rounded-md px-4 py-2 text-sm font-medium text-body transition-all hover:text-heading sm:inline-flex"
+            >
+              Home
+            </Link>
+            <Link
+              to="/demo/classroom"
+              className="hidden rounded-md px-4 py-2 text-sm font-medium text-body transition-all hover:text-heading sm:inline-flex"
+            >
+              Demo
+            </Link>
+            <Link
+              to="/auth"
+              className="rounded-md px-4 py-2 text-sm font-medium text-body transition-all hover:text-heading"
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/institutions/register"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#07111f] bg-[#07111f] px-5 py-2 text-sm font-bold !text-white shadow-sm transition-all hover:bg-[#10233f]"
+            >
+              Get started <ArrowRight className="h-4 w-4" />
             </Link>
           </nav>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="border-b border-[#E2E8F0] bg-gradient-to-b from-[#F8FAFC] to-white">
-        <div className="mx-auto max-w-[1200px] px-5 py-16 text-center sm:px-8 sm:py-20">
-          <span className="inline-flex items-center rounded-full bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#1A5256]">
-            Pricing
-          </span>
-          <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">
+      <section className="border-b border-border bg-page-background-alt pb-24 pt-24">
+        <div className="relative mx-auto max-w-[1200px] px-5 sm:px-8 text-center">
+          <div className="inline-flex items-center gap-2 rounded-md border border-border bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-muted">
+            <Sparkles className="h-3.5 w-3.5" /> Pricing Plans
+          </div>
+          <h1 className="mx-auto mt-6 max-w-4xl text-3xl font-extrabold tracking-tight text-heading sm:text-4xl lg:text-[2.75rem]">
             Simple, transparent pricing
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-[#475569]">
-            Start with a free demo. Institutional plans scale with your needs — no hidden fees, no per-learner charges.
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-body">
+            Start with a free demo. Institutional plans scale with your needs — no hidden fees, no
+            per-learner charges.
           </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            {["No credit card to try", "GDPR-compliant", "WCAG accessibility built-in"].map((s) => (
+              <span
+                key={s}
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-white px-3.5 py-1.5 text-sm font-medium text-body"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-education-green" />
+                {s}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Plans */}
-      <section className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+      <section className="mx-auto max-w-[1200px] px-5 py-20 sm:px-8">
+        <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-3">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={
-                "flex flex-col rounded-[20px] border p-6 shadow-[0_8px_24px_rgba(15,23,42,0.06)] " +
-                (plan.highlighted
-                  ? "border-[#1F7C80] bg-white ring-2 ring-[#1F7C80]/10"
-                  : "border-[#E2E8F0] bg-white")
-              }
+              className={`relative flex flex-col rounded-lg border p-8 transition-all duration-300 ${
+                plan.highlighted
+                  ? "border-[#0f172a] bg-white shadow-xl shadow-slate-950/10 ring-1 ring-[#0f172a]/10 scale-[1.01]"
+                  : "border-slate-100 bg-white hover:-translate-y-1 hover:shadow-md hover:border-slate-200"
+              }`}
             >
-              {plan.highlighted && (
-                <span className="mb-3 inline-flex w-fit rounded-[999px] bg-[#EFF6FF] px-3 py-1 text-xs font-semibold text-[#1A5256]">
-                  Most popular
-                </span>
+              {plan.highlighted ? (
+                <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-md bg-[#0f172a] px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                  <Sparkles className="h-3 w-3" /> Most popular
+                </div>
+              ) : (
+                <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-md border border-slate-100 bg-slate-50 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  {plan.name === "Enterprise" ? <Building2 className="h-3 w-3" /> : null}
+                  {plan.name}
+                </div>
               )}
-              <h2 className="text-[18px] font-bold text-[#0F172A]">{plan.name}</h2>
+
+              <h2 className="text-xl font-bold text-heading">{plan.name}</h2>
+
               <div className="mt-3 flex items-baseline gap-1.5">
-                <span className="text-[36px] font-bold tracking-tight text-[#0F172A]">{plan.price}</span>
-                <span className="text-sm text-[#64748B]">{plan.period}</span>
+                <span className="text-4xl font-extrabold tracking-tight text-heading">
+                  {plan.price}
+                </span>
+                <span className="text-sm font-semibold text-slate-400">/ {plan.period}</span>
               </div>
-              <p className="mt-3 text-sm leading-relaxed text-[#475569]">{plan.description}</p>
-              <ul className="mt-5 flex-1 space-y-2.5">
+
+              <p className="mt-3 text-sm leading-relaxed text-slate-500">{plan.description}</p>
+
+              <div className="my-6 h-px bg-slate-100" />
+
+              <ul className="flex-1 space-y-3">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#0F172A]">
-                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#16A34A]" aria-hidden />
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-slate-600">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#10233f]" aria-hidden />
                     <span>{f}</span>
                   </li>
                 ))}
               </ul>
+
               <CTAButton
                 to={plan.cta.to}
                 variant={plan.highlighted ? "primary" : "secondary"}
                 size="lg"
-                className="mt-6 w-full"
+                className="mt-8 w-full justify-center"
+                showArrow
               >
                 {plan.cta.label}
               </CTAButton>
@@ -167,21 +228,85 @@ function PricingPage() {
           ))}
         </div>
 
-        {/* FAQ */}
-        <div className="mt-20 max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0F172A]">Pricing questions</h2>
-          <div className="mt-8 space-y-6">
+        {/* What's included */}
+        <div className="mt-24">
+          <h2 className="text-center text-[28px] font-extrabold tracking-tight text-heading sm:text-[34px]">
+            What institutional pricing includes
+          </h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
             {[
-              { q: "Is there a free plan?", a: "Yes. The Starter plan lets you explore the full demo classroom with no account required. It includes an AI teacher-led lesson, captions, transcripts, and accessibility modes." },
-              { q: "How are institutional plans priced?", a: "School and Enterprise plans are priced per institution per year, based on your needs. There are no per-learner charges — unlimited teachers and learners are included." },
-              { q: "Can I try before I commit?", a: "Absolutely. The demo classroom is always free. For institutional plans, contact us for a guided walkthrough and pilot programme." },
-              { q: "Do you offer discounts for NGOs?", a: "Yes. We offer mission-aligned pricing for non-profit organizations and humanitarian programmes. Contact us to discuss your needs." },
-            ].map((item) => (
-              <div key={item.q}>
-                <h3 className="text-[16px] font-semibold text-[#0F172A]">{item.q}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">{item.a}</p>
+              [
+                "Implementation",
+                "Onboarding, institution configuration, programme/course setup guidance, accessibility defaults, and rollout planning.",
+              ],
+              [
+                "Learning infrastructure",
+                "Role dashboards, AI teacher-led sessions, lesson generation, materials management, notes, transcripts, and progress evidence.",
+              ],
+              [
+                "Governance",
+                "Role-based access, audit-aware workflows, support, data-control planning, usage visibility, and optional enterprise integrations.",
+              ],
+            ].map(([title, body]) => (
+              <div
+                key={title}
+                className="rounded-lg border border-border bg-white p-6 transition-all hover:shadow-md"
+              >
+                <h3 className="font-extrabold text-heading">{title}</h3>
+                <p className="mt-2 text-sm leading-7 text-body">{body}</p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="mx-auto mt-24 max-w-3xl">
+          <h2 className="text-center text-[28px] font-extrabold tracking-tight text-heading sm:text-[34px]">
+            Pricing questions
+          </h2>
+          <div className="mt-8 space-y-3">
+            {PRICING_FAQ.map((item, i) => (
+              <div
+                key={item.question}
+                className="overflow-hidden rounded-lg border border-border bg-white transition-all"
+              >
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
+                >
+                  <span className="text-[15px] font-bold text-heading">{item.question}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-muted transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {openFaq === i && (
+                  <div className="border-t border-border px-6 py-4">
+                    <p className="text-sm leading-relaxed text-body">{item.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Final CTA */}
+        <div className="mt-24 overflow-hidden rounded-lg border border-border bg-page-background-alt p-10 text-center">
+          <h2 className="text-[28px] font-extrabold tracking-tight text-heading sm:text-[36px]">
+            Ready to bring AI classrooms to your institution?
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base text-body">
+            Try the free demo first — no account needed. Then talk to us about a school or
+            enterprise plan.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <CTAButton to="/demo/classroom" size="lg" showArrow>
+              Try Demo Classroom
+            </CTAButton>
+            <CTAButton to="/institutions/register" variant="secondary" size="lg">
+              Register Institution
+            </CTAButton>
           </div>
         </div>
       </section>

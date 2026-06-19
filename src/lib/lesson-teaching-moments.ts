@@ -107,14 +107,11 @@ export const CONFIDENCE_OPTIONS: ConfidenceOption[] = [
 // ── Required middle question (~50% checkpoint) ───────────────────────────────
 
 export const MIDDLE_QUESTION = {
-  question:
-    "Quick check before we continue: which two numbers multiply to 6 and add to 5?",
+  question: "Quick check before we continue: which two numbers multiply to 6 and add to 5?",
   options: ["1 and 6", "2 and 3", "3 and 3", "2 and 4"],
   correct: "2 and 3",
-  feedbackCorrect:
-    "Correct! 2 × 3 = 6 and 2 + 3 = 5. Those are exactly the numbers we need.",
-  feedbackIncorrect:
-    "Let's check it together: 2 × 3 = 6 and 2 + 3 = 5, so the answer is 2 and 3.",
+  feedbackCorrect: "Correct! 2 × 3 = 6 and 2 + 3 = 5. Those are exactly the numbers we need.",
+  feedbackIncorrect: "Let's check it together: 2 × 3 = 6 and 2 + 3 = 5, so the answer is 2 and 3.",
   /** Misconception watch: a plausible-but-wrong choice and the gentle correction. */
   misconception: {
     answer: "1 and 6",

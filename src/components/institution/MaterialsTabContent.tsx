@@ -26,7 +26,7 @@ export function MaterialsTabContent({
   });
 
   const materials = data?.materials ?? [];
-  const readyCount = materials.filter((m) => m.processing_status === "ready").length;
+  const readyCount = materials.filter((m: any) => m.processing_status === "ready").length;
 
   const handleDelete = async (materialId: string, title: string) => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
@@ -96,12 +96,17 @@ export function MaterialsTabContent({
       {materials.length === 0 ? (
         <div className="text-center py-12 border border-dashed rounded-lg">
           <p className="text-muted-foreground">No materials uploaded yet</p>
-          <p className="text-sm text-muted-foreground mt-1">Upload course materials to generate lessons</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Upload course materials to generate lessons
+          </p>
         </div>
       ) : (
         <div className="space-y-2 border rounded-lg divide-y">
-          {materials.map((material) => (
-            <div key={material.id} className="p-4 flex items-start justify-between hover:bg-muted/30 transition">
+          {materials.map((material: any) => (
+            <div
+              key={material.id}
+              className="p-4 flex items-start justify-between hover:bg-muted/30 transition"
+            >
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-3">
                   <div className="flex-1">

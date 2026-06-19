@@ -97,7 +97,8 @@ function SessionReplayPage() {
             <div>
               <h1 className="page-title">Session Replay</h1>
               <p className="page-subtitle">
-                {replay.eventCount} events · {replay.messageCount} messages · {replay.boardSnapshotCount} board snapshots
+                {replay.eventCount} events · {replay.messageCount} messages ·{" "}
+                {replay.boardSnapshotCount} board snapshots
               </p>
             </div>
           </div>
@@ -183,9 +184,13 @@ function TimelineItemDisplay({ item }: { item: any }) {
         <div className="flex items-center gap-2">
           <MessageSquare size={16} className={isTeacher ? "text-[#1F7C80]" : "text-green-600"} />
           <span className="font-medium">{isTeacher ? "AI Teacher" : "Student"}</span>
-          <span className="text-sm text-gray-400">{new Date(item.timestamp).toLocaleTimeString()}</span>
+          <span className="text-sm text-gray-400">
+            {new Date(item.timestamp).toLocaleTimeString()}
+          </span>
         </div>
-        <div className={`p-4 rounded-lg ${isTeacher ? "bg-[#e8f5f5] border-l-4 border-[#3fa8ab]" : "bg-green-50 border-l-4 border-green-400"}`}>
+        <div
+          className={`p-4 rounded-lg ${isTeacher ? "bg-[#e8f5f5] border-l-4 border-[#3fa8ab]" : "bg-green-50 border-l-4 border-green-400"}`}
+        >
           <p>{item.message}</p>
         </div>
       </div>
@@ -198,7 +203,9 @@ function TimelineItemDisplay({ item }: { item: any }) {
         <div className="flex items-center gap-2">
           <BookOpen size={16} className="text-purple-600" />
           <span className="font-medium">Board: {item.title}</span>
-          <span className="text-sm text-gray-400">{new Date(item.timestamp).toLocaleTimeString()}</span>
+          <span className="text-sm text-gray-400">
+            {new Date(item.timestamp).toLocaleTimeString()}
+          </span>
         </div>
         <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm">
           {item.lines?.map((line: string, i: number) => (
@@ -215,7 +222,9 @@ function TimelineItemDisplay({ item }: { item: any }) {
       <div className="flex items-center gap-2">
         <EventIcon eventType={item.eventType} />
         <span className="font-medium capitalize">{item.eventType.replace(/_/g, " ")}</span>
-        <span className="text-sm text-gray-400">{new Date(item.timestamp).toLocaleTimeString()}</span>
+        <span className="text-sm text-gray-400">
+          {new Date(item.timestamp).toLocaleTimeString()}
+        </span>
       </div>
       {item.payload && Object.keys(item.payload).length > 0 && (
         <div className="bg-gray-50 p-3 rounded text-sm">
@@ -232,7 +241,10 @@ function TimelineItemLabel({ item }: { item: any }) {
     return (
       <div className="flex items-center gap-2">
         <MessageSquare size={12} className={isTeacher ? "text-[#1F7C80]" : "text-green-500"} />
-        <span className="text-sm truncate">{isTeacher ? "Teacher: " : "You: "}{item.message.slice(0, 50)}</span>
+        <span className="text-sm truncate">
+          {isTeacher ? "Teacher: " : "You: "}
+          {item.message.slice(0, 50)}
+        </span>
       </div>
     );
   }

@@ -6,7 +6,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getSessionSummary, getSessionReplay, listRecommendations } from "@/lib/classroom.engine";
-import type { SessionSummaryResponse, SessionReplayResponse, ReplayTimelineItem } from "@/lib/classroom.payloads";
+import type {
+  SessionSummaryResponse,
+  SessionReplayResponse,
+  ReplayTimelineItem,
+} from "@/lib/classroom.payloads";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Session Summary Hook

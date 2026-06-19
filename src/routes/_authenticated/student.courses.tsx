@@ -24,7 +24,7 @@ function StudentCourses() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {enrollments.map(
-            (e) =>
+            (e: any) =>
               e.course && (
                 <Link key={e.id} to="/student/courses/$courseId" params={{ courseId: e.course.id }}>
                   <Card>

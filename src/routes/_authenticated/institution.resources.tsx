@@ -67,7 +67,7 @@ function ResourcesPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {q.data!.resources.map((r) => {
+          {q.data!.resources.map((r: any) => {
             const Icon = ICONS[r.type] ?? FileText;
             return (
               <Card key={r.id}>
@@ -93,7 +93,7 @@ function ResourcesPage() {
                   )}
                   {Array.isArray(r.tags) && r.tags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1">
-                      {(r.tags as string[]).map((t) => (
+                      {(r.tags as string[]).map((t: any) => (
                         <Badge key={t} variant="outline" className="text-xs">
                           {t}
                         </Badge>

@@ -8,7 +8,7 @@ interface CourseCardProps {
 
 export function CourseCard({ course }: CourseCardProps) {
   return (
-    <Link to={`/classroom/${course.id}`} className="block">
+    <Link to={`/classroom/${course.id}` as any} className="block">
       <div className="classroom-item card">
         <div
           className="class-icon"
