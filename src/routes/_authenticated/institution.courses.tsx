@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
 import { CreateCourseDialog } from "@/components/institution/CreateCourseDialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,7 +31,19 @@ function CoursesPage() {
   return (
     <InstitutionShell
       title="Courses"
-      actions={institutionId ? <CreateCourseDialog institutionId={institutionId} /> : null}
+      actions={
+        institutionId ? (
+          <div className="flex flex-wrap gap-2">
+            <Link to="/institution/courses/new">
+              <button className="inline-flex items-center gap-2 rounded-md bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1A5256]">
+                <Plus className="h-4 w-4" />
+                New course page
+              </button>
+            </Link>
+            <CreateCourseDialog institutionId={institutionId} />
+          </div>
+        ) : null
+      }
     >
       {!institutionId ? (
         <p className="text-muted-foreground">

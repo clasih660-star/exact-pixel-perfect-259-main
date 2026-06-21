@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, BookOpen, Layers, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, Layers, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { PageHeader } from "@/components/dashboard/shared/PageHeader";
@@ -47,6 +47,30 @@ function KingpinCourseDetailPage() {
             <Badge variant="outline">{course.pricingLabel}</Badge>
             <Badge variant="outline">{course.toolUniverse.length} tools</Badge>
             <Badge variant="outline">{course.modules.length} modules</Badge>
+          </div>
+
+          <div className="mb-6 flex flex-wrap gap-2">
+            <a
+              href={`/admin/kingpin-courses/${course.id}/lessons`}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1A5256]"
+            >
+              <BookOpen className="h-4 w-4" />
+              Manage lessons
+            </a>
+            <a
+              href={`/admin/kingpin-courses/${course.id}/materials`}
+              className="inline-flex items-center gap-2 rounded-xl border border-[#CBD5E1] px-4 py-2 text-sm font-semibold text-[#0F172A] transition hover:border-[#1F7C80]/40 hover:bg-[#F8FAFC]"
+            >
+              <FileText className="h-4 w-4" />
+              Materials
+            </a>
+            <a
+              href={`/admin/kingpin-courses/${course.id}/generate-lessons`}
+              className="inline-flex items-center gap-2 rounded-xl border border-[#CBD5E1] px-4 py-2 text-sm font-semibold text-[#0F172A] transition hover:border-[#1F7C80]/40 hover:bg-[#F8FAFC]"
+            >
+              <Sparkles className="h-4 w-4" />
+              Generate lessons
+            </a>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">

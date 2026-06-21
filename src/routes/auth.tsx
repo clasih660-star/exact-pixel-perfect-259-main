@@ -17,6 +17,8 @@ import {
 import { beginGoogleOAuth } from "@/lib/google-oauth.functions";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
 import { roleDashboardPath } from "@/lib/route-guards";
+import { setDemoSessionRole } from "@/lib/demo-mode";
+import { isDemoModeAllowed } from "@/lib/runtime-mode";
 import type { UserRole } from "@/lib/types";
 import { GraduationCap, School, Building2, Shield, Users, Play } from "lucide-react";
 
@@ -55,42 +57,42 @@ const DEMO_ROLES: Array<{
   icon: typeof GraduationCap;
   color: string;
 }> = [
-    {
-      role: "student",
-      label: "Student",
-      description: "Enter classrooms, take lessons, track progress",
-      icon: GraduationCap,
-      color: "bg-[#10233f]",
-    },
-    {
-      role: "teacher",
-      label: "Teacher",
-      description: "Manage courses, create lessons, monitor students",
-      icon: School,
-      color: "bg-[#10233f]",
-    },
-    {
-      role: "institution_admin",
-      label: "Institution Admin",
-      description: "Manage programmes, teachers, students, billing",
-      icon: Building2,
-      color: "bg-[#7C3AED]",
-    },
-    {
-      role: "platform_admin",
-      label: "Platform Admin",
-      description: "Full platform control, institutions, AI settings",
-      icon: Shield,
-      color: "bg-[#DC2626]",
-    },
-    {
-      role: "parent",
-      label: "Parent",
-      description: "Monitor learner progress, sessions, reports",
-      icon: Users,
-      color: "bg-[#F59E0B]",
-    },
-  ];
+  {
+    role: "student",
+    label: "Student",
+    description: "Enter classrooms, take lessons, track progress",
+    icon: GraduationCap,
+    color: "bg-[#10233f]",
+  },
+  {
+    role: "teacher",
+    label: "Teacher",
+    description: "Manage courses, create lessons, monitor students",
+    icon: School,
+    color: "bg-[#10233f]",
+  },
+  {
+    role: "institution_admin",
+    label: "Institution Admin",
+    description: "Manage programmes, teachers, students, billing",
+    icon: Building2,
+    color: "bg-[#7C3AED]",
+  },
+  {
+    role: "platform_admin",
+    label: "Platform Admin",
+    description: "Full platform control, institutions, AI settings",
+    icon: Shield,
+    color: "bg-[#DC2626]",
+  },
+  {
+    role: "parent",
+    label: "Parent",
+    description: "Monitor learner progress, sessions, reports",
+    icon: Users,
+    color: "bg-[#F59E0B]",
+  },
+];
 
 function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -100,6 +102,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const supabaseReady = isSupabaseConfigured();
+  const demoModeAllowed = isDemoModeAllowed();
   const acceptInviteFn = useServerFn(acceptInstitutionInvite);
   const googleOAuthFn = useServerFn(beginGoogleOAuth);
   const inviteToken =
@@ -169,7 +172,13 @@ function AuthPage() {
 
   /** Enter demo mode with the selected role. */
   const enterDemo = (role: UserRole) => {
-    localStorage.setItem("klassruum_demo_role", role);
+    if (!demoModeAllowed) {
+      toast.error("Demo mode is not available in production.");
+      return;
+    }
+
+    setDemoSessionRole(role);
+    toast.success(`Opening ${role.replace("_", " ")} demo.`);
     navigate({ to: roleDashboardPath(role) });
   };
 
@@ -238,7 +247,7 @@ function AuthPage() {
           </Link>
 
           {/* ── Demo mode banner ──────────────────────────────────────── */}
-          {!supabaseReady && (
+          {!supabaseReady && demoModeAllowed && (
             <div className="mb-6 rounded-xl border border-border bg-soft-blue p-4">
               <p className="text-sm font-semibold text-heading">Demo Mode</p>
               <p className="mt-1 text-xs text-[#475569]">
@@ -258,32 +267,34 @@ function AuthPage() {
           </p>
 
           {/* ── Demo role picker ──────────────────────────────────────── */}
-          <div className="mt-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">
-              {supabaseReady ? "Quick demo" : "Choose your role"}
-            </p>
-            <div className="grid grid-cols-1 gap-2">
-              {DEMO_ROLES.map(({ role, label, description, icon: Icon, color }) => (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => enterDemo(role)}
-                  className="auth-role-button group flex items-center gap-3 p-3 text-left transition-all"
-                >
-                  <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color} text-white`}
+          {demoModeAllowed && (
+            <div className="mt-6">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">
+                {supabaseReady ? "Quick demo" : "Choose your role"}
+              </p>
+              <div className="grid grid-cols-1 gap-2">
+                {DEMO_ROLES.map(({ role, label, description, icon: Icon, color }) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => enterDemo(role)}
+                    className="auth-role-button group flex items-center gap-3 p-3 text-left transition-all"
                   >
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-heading">{label}</p>
-                    <p className="truncate text-xs text-muted">{description}</p>
-                  </div>
-                  <Play className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-heading" />
-                </button>
-              ))}
+                    <div
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color} text-white`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-heading">{label}</p>
+                      <p className="truncate text-xs text-muted">{description}</p>
+                    </div>
+                    <Play className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-heading" />
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* ── Divider ───────────────────────────────────────────────── */}
           {supabaseReady && (

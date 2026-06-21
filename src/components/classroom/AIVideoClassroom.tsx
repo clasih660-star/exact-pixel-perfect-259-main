@@ -171,6 +171,21 @@ const SPEED_MAP: Record<string, number> = {
   fast: 15,
 };
 
+const PROCEDURAL_PHASE_PAUSE_MS = 900;
+const PROCEDURAL_START_PAUSE_MS = 1200;
+
+function estimateProceduralSpeechMs(text: string, rate = 0.92) {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const sentencePauses = (text.match(/[.!?:;]\s/g) ?? []).length * 650;
+  const wordsPerMinute = 135 * Math.max(0.5, Math.min(1.2, rate));
+  const estimatedSpeech = (words / wordsPerMinute) * 60_000;
+
+  return Math.min(
+    120_000,
+    Math.max(6_000, Math.round(estimatedSpeech * 1.85 + sentencePauses + 2_500)),
+  );
+}
+
 const QUICK_ACTIONS = [
   "I don't understand",
   "Repeat",
@@ -180,16 +195,57 @@ const QUICK_ACTIONS = [
   "Continue",
 ];
 
-const LEARNING_MODES: { value: LearningMode; label: string; icon: string; description: string }[] = [
-  { value: "standard", label: "Standard", icon: "📖", description: "Balanced voice, board, and captions." },
-  { value: "deaf", label: "Deaf Mode", icon: "🤟", description: "Captions stay on with text-first prompts." },
-  { value: "blind", label: "Blind Mode", icon: "🎧", description: "Voice-first teaching and audio prompts." },
-  { value: "adhd_focus", label: "ADHD Focus", icon: "🎯", description: "Cleaner lesson flow with fewer distractions." },
-  { value: "dyslexia", label: "Dyslexia Friendly", icon: "🔤", description: "Larger readable text and calmer spacing." },
-  { value: "speech_difficulty", label: "Speech Difficulty", icon: "✍️", description: "Type-first answers with larger controls." },
-  { value: "extra_support", label: "Extra Support", icon: "💪", description: "More scaffolding, hints, and slower pacing." },
-  { value: "challenge", label: "Challenge", icon: "🏆", description: "A faster path with harder checks." },
-];
+const LEARNING_MODES: { value: LearningMode; label: string; icon: string; description: string }[] =
+  [
+    {
+      value: "standard",
+      label: "Standard",
+      icon: "📖",
+      description: "Balanced voice, board, and captions.",
+    },
+    {
+      value: "deaf",
+      label: "Deaf Mode",
+      icon: "🤟",
+      description: "Captions stay on with text-first prompts.",
+    },
+    {
+      value: "blind",
+      label: "Blind Mode",
+      icon: "🎧",
+      description: "Voice-first teaching and audio prompts.",
+    },
+    {
+      value: "adhd_focus",
+      label: "ADHD Focus",
+      icon: "🎯",
+      description: "Cleaner lesson flow with fewer distractions.",
+    },
+    {
+      value: "dyslexia",
+      label: "Dyslexia Friendly",
+      icon: "🔤",
+      description: "Larger readable text and calmer spacing.",
+    },
+    {
+      value: "speech_difficulty",
+      label: "Speech Difficulty",
+      icon: "✍️",
+      description: "Type-first answers with larger controls.",
+    },
+    {
+      value: "extra_support",
+      label: "Extra Support",
+      icon: "💪",
+      description: "More scaffolding, hints, and slower pacing.",
+    },
+    {
+      value: "challenge",
+      label: "Challenge",
+      icon: "🏆",
+      description: "A faster path with harder checks.",
+    },
+  ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Component
@@ -758,6 +814,35 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     ],
   );
 
+  const createProceduralSpeechEnd = useCallback(
+    (text: string, onComplete: () => void, pauseMs = PROCEDURAL_PHASE_PAUSE_MS) => {
+      let completed = false;
+      const fallbackTimer = setTimeout(finish, estimateProceduralSpeechMs(text, teacherVoiceSpeed));
+      phaseTimerRef.current = fallbackTimer;
+
+      function finish() {
+        if (completed) return;
+        completed = true;
+
+        if (phaseTimerRef.current === fallbackTimer) {
+          clearTimeout(fallbackTimer);
+          phaseTimerRef.current = null;
+        }
+
+        if (pauseMs <= 0) {
+          onComplete();
+          return;
+        }
+
+        const pauseTimer = setTimeout(onComplete, pauseMs);
+        phaseTimerRef.current = pauseTimer;
+      }
+
+      return finish;
+    },
+    [teacherVoiceSpeed],
+  );
+
   /** Write text letter by letter onto the board. `idx` is threaded through the
    *  whole teaching chain so flow control never reads stale `currentIndex`. */
   const writeOnBoard = useCallback(
@@ -820,22 +905,17 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       addTranscript("teacher", item.exactSpokenText, item.id);
       writeSpeechOnBoard(item.id, item.exactSpokenText, "read", seq);
 
-      // Wait for speech to finish, then advance. Use a fallback timer in case
-      // onEnd never fires (e.g. audio API glitch) so the lesson never stalls.
-      let advanced = false;
-      const advanceOnce = () => {
-        if (advanced) return;
-        advanced = true;
+      // Wait for narration to finish before moving on. The fallback is only a
+      // stall guard; it is deliberately slower than the expected speech length.
+      const advanceAfterReading = createProceduralSpeechEnd(item.exactSpokenText, () => {
         if (seq === sequenceRef.current) {
           explainStepRef.current(item, seq, idx);
         }
-      };
-      const fallbackMs = Math.max(item.exactSpokenText.length * 65, 3000);
-      phaseTimerRef.current = setTimeout(advanceOnce, fallbackMs);
+      });
 
-      speakTeacher(item.exactSpokenText, "board_reading", item.id, advanceOnce);
+      speakTeacher(item.exactSpokenText, "board_reading", item.id, advanceAfterReading);
     },
-    [addTranscript, speakTeacher, writeSpeechOnBoard],
+    [addTranscript, createProceduralSpeechEnd, speakTeacher, writeSpeechOnBoard],
   );
 
   /** Teacher gives deeper narrative explanation */
@@ -852,24 +932,18 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       addTranscript("teacher", item.teacherExplanation, item.id);
       writeSpeechOnBoard(item.id, item.teacherExplanation, "explain", seq);
 
-      // Wait for speech to finish, then advance (with fallback timer).
-      let advanced = false;
-      const advanceOnce = () => {
-        if (advanced) return;
-        advanced = true;
+      const advanceAfterExplanation = createProceduralSpeechEnd(item.teacherExplanation, () => {
         if (seq !== sequenceRef.current) return;
         if (item.commonMistake) {
           showWarningRef.current(item, seq, idx);
         } else {
           advanceRef.current(seq, idx);
         }
-      };
-      const fallbackMs = Math.max(item.teacherExplanation.length * 55, 4000);
-      phaseTimerRef.current = setTimeout(advanceOnce, fallbackMs);
+      });
 
-      speakTeacher(item.teacherExplanation, "explanation", item.id, advanceOnce);
+      speakTeacher(item.teacherExplanation, "explanation", item.id, advanceAfterExplanation);
     },
-    [addTranscript, speakTeacher, writeSpeechOnBoard],
+    [addTranscript, createProceduralSpeechEnd, speakTeacher, writeSpeechOnBoard],
   );
 
   /** Show common mistake warning */
@@ -880,14 +954,18 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setPhase("warning");
       setTeacherState("warning");
       setShowWarning(true);
-      setCaptionText(`⚠️ ${item.commonMistake}`);
+      const warningText = `Watch out: ${item.commonMistake}`;
+      setCaptionText(warningText);
       setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", `Warning: ${item.commonMistake}`, item.id);
-      writeSpeechOnBoard(item.id, `Watch out: ${item.commonMistake}`, "warning", seq);
+      writeSpeechOnBoard(item.id, warningText, "warning", seq);
 
-      phaseTimerRef.current = setTimeout(() => advanceRef.current(seq, idx), 4000);
+      const advanceAfterWarning = createProceduralSpeechEnd(warningText, () => {
+        if (seq === sequenceRef.current) advanceRef.current(seq, idx);
+      });
+      speakTeacher(warningText, "clarification", item.id, advanceAfterWarning);
     },
-    [addTranscript, writeSpeechOnBoard],
+    [addTranscript, createProceduralSpeechEnd, speakTeacher, writeSpeechOnBoard],
   );
 
   /** Start practice session — in auto-mode, practice is shown as caption and auto-continues */
@@ -903,9 +981,12 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setPracticeFeedback(null);
 
       const problem = practiceProblems[0];
+      let practicePrompt =
+        mode === "guided" ? "Let's try one together!" : "Your turn to try alone!";
       if (problem) {
         const caption =
           mode === "guided" ? `Practice: ${problem.question}` : `Your turn: ${problem.question}`;
+        practicePrompt = caption;
         setCaptionText(caption);
         setCaptionSpeaker(TEACHER_NAME);
         addTranscript(
@@ -924,8 +1005,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setHintLevel(0);
 
       // Auto-mode: show practice as caption, then auto-continue to reflection/exit
-      const autoAdvanceDelay = mode === "guided" ? 10000 : 8000;
-      phaseTimerRef.current = setTimeout(() => {
+      const completeAutoPractice = () => {
         if (seq !== sequenceRef.current) return;
         // Record as attempted
         setResults((prev) => ({
@@ -950,9 +1030,22 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           addTranscript("system", "Lesson completed");
           logEvent("Lesson completed (auto)");
         }
-      }, autoAdvanceDelay);
+      };
+      const continueAfterPracticePrompt = createProceduralSpeechEnd(
+        practicePrompt,
+        completeAutoPractice,
+        mode === "guided" ? 2500 : 2000,
+      );
+      speakTeacher(practicePrompt, "question", undefined, continueAfterPracticePrompt);
     },
-    [addTranscript, practiceProblems, clearTimers, logEvent],
+    [
+      addTranscript,
+      practiceProblems,
+      clearTimers,
+      logEvent,
+      createProceduralSpeechEnd,
+      speakTeacher,
+    ],
   );
 
   /**
@@ -976,18 +1069,24 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           ? `${recap.title}. ${recap.points.join(". ")}.`
           : "Let's quickly recap what we just covered.";
         setCaptionText(spoken);
-        if (learningMode !== "deaf") speak(spoken, undefined, undefined, TEACHER_VOICE);
+        setCaptionSpeaker(TEACHER_NAME);
         logEvent(`Section recap shown: ${recapKey}`);
-        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 5000);
+        const continueAfterRecap = createProceduralSpeechEnd(spoken, () => {
+          if (sequenceRef.current === seqAtOpen) resumeAfterInterjectionRef.current();
+        });
+        speakTeacher(spoken, "summary", undefined, continueAfterRecap);
       } else if (kind === "thinking_pause") {
         // Auto-mode: caption only, no popup
         const text =
           THINKING_PAUSES[nextIdx] ?? "Take a moment to think about what we've seen so far.";
         setTeacherState("thinking");
         setCaptionText(text);
-        if (learningMode !== "deaf") speak(text, undefined, undefined, TEACHER_VOICE);
+        setCaptionSpeaker(TEACHER_NAME);
         logEvent("Thinking pause");
-        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 4000);
+        const continueAfterPause = createProceduralSpeechEnd(text, () => {
+          if (sequenceRef.current === seqAtOpen) resumeAfterInterjectionRef.current();
+        });
+        speakTeacher(text, "encouragement", undefined, continueAfterPause);
       } else if (kind === "middle_question") {
         if (!MIDDLE_QUESTION) {
           resumeAfterInterjectionRef.current();
@@ -996,23 +1095,26 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         // Auto-mode: show question as caption, auto-continue after brief pause
         setTeacherState("asking_question");
         setCaptionText(MIDDLE_QUESTION.question);
-        if (learningMode !== "deaf")
-          speak(MIDDLE_QUESTION.question, undefined, undefined, TEACHER_VOICE);
+        setCaptionSpeaker(TEACHER_NAME);
         logEvent("Required middle question asked (auto-continued)");
-        phaseTimerRef.current = setTimeout(() => {
+        const continueAfterQuestion = createProceduralSpeechEnd(MIDDLE_QUESTION.question, () => {
           if (sequenceRef.current === seqAtOpen) resumeAfterInterjectionRef.current();
-        }, 8000);
+        });
+        speakTeacher(MIDDLE_QUESTION.question, "question", undefined, continueAfterQuestion);
       } else if (kind === "confidence") {
         // Auto-mode: confidence check as caption only
         setTeacherState("asking_question");
         const c = "How confident are you with this so far? Let's keep going.";
         setCaptionText(c);
-        if (learningMode !== "deaf") speak(c, undefined, undefined, TEACHER_VOICE);
+        setCaptionSpeaker(TEACHER_NAME);
         logEvent("Confidence check (auto-continued)");
-        phaseTimerRef.current = setTimeout(() => resumeAfterInterjectionRef.current(), 4000);
+        const continueAfterConfidence = createProceduralSpeechEnd(c, () => {
+          if (sequenceRef.current === seqAtOpen) resumeAfterInterjectionRef.current();
+        });
+        speakTeacher(c, "question", undefined, continueAfterConfidence);
       }
     },
-    [clearTimers, learningMode, logEvent],
+    [clearTimers, createProceduralSpeechEnd, logEvent, speakTeacher],
   );
 
   /** Close any open interjection and resume teaching from the pending point. */
@@ -1110,7 +1212,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         const spoken = deriveAdaptiveIntervention(confusion, currentSection, sequence[idx]);
         if (spoken) {
           setCaptionText(spoken);
-          speakTeacher(spoken, "clarification");
+          setCaptionSpeaker(TEACHER_NAME);
           logEvent(
             `Adaptive interjection (confusion: ${confusion.confusionScore.toFixed(2)}, type: ${confusion.interventionType})`,
           );
@@ -1128,10 +1230,11 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             },
           }).catch(() => {});
         }
-        phaseTimerRef.current = setTimeout(
-          () => resumeAfterInterjectionRef.current(),
-          Math.min((spoken?.length ?? 0) * 45, 6000),
-        );
+        const continueAfterClarification = createProceduralSpeechEnd(spoken ?? "", () => {
+          if (sequenceRef.current === seq) resumeAfterInterjectionRef.current();
+        });
+        if (spoken) speakTeacher(spoken, "clarification", undefined, continueAfterClarification);
+        else continueAfterClarification();
         return;
       }
 
@@ -1158,15 +1261,14 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         setCaptionText(aside.text);
         setCaptionSpeaker(TEACHER_NAME);
         addTranscript("teacher", aside.text);
-        speakTeacher(aside.text, aside.speechType);
         logEvent(`Teacher aside (${aside.type}): ${aside.text.slice(0, 50)}`);
-        phaseTimerRef.current = setTimeout(
-          () => {
+        const continueAfterAside = createProceduralSpeechEnd(aside.text, () => {
+          if (sequenceRef.current === seq) {
             setTeacherAside(null);
             resumeAfterInterjectionRef.current();
-          },
-          Math.min(aside.text.length * 50, 4000),
-        );
+          }
+        });
+        speakTeacher(aside.text, aside.speechType, undefined, continueAfterAside);
         return;
       }
 
@@ -1177,7 +1279,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         }
       }, pause);
     },
-    [writeOnBoard, openInterjection, startPractice],
+    [writeOnBoard, openInterjection, startPractice, createProceduralSpeechEnd, speakTeacher],
   );
 
   // Keep the function refs fresh so the timer-driven chain always calls the
@@ -1204,23 +1306,27 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       setCaptionText(intro);
       setCaptionSpeaker(TEACHER_NAME);
       addTranscript("teacher", intro);
-      if (learningMode !== "deaf") speak(intro, undefined, undefined, TEACHER_VOICE);
       logEvent("Prerequisite reminder (auto)");
-      phaseTimerRef.current = setTimeout(() => {
-        if (seq === sequenceRef.current) writeOnBoard(sequence[0], seq, 0);
-      }, 6000);
+      const continueAfterIntro = createProceduralSpeechEnd(
+        intro,
+        () => {
+          if (seq === sequenceRef.current) writeOnBoard(sequence[0], seq, 0);
+        },
+        PROCEDURAL_START_PAUSE_MS,
+      );
+      speakTeacher(intro, "welcome", undefined, continueAfterIntro);
     } else {
       // No prerequisite review for this lesson → start writing right away.
       writeOnBoard(sequence[0], seq, 0);
     }
   }, [
     addTranscript,
-    learningMode,
     logEvent,
     writeOnBoard,
+    createProceduralSpeechEnd,
+    speakTeacher,
     lesson.prerequisiteReview,
     sequence,
-    TEACHER_VOICE,
   ]);
 
   /** Thinking pause buttons (Continue / Read again / I need help). */
@@ -1287,17 +1393,17 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       }));
       addTranscript("student", answer);
       addTranscript("teacher", text);
-      {
-        const activeBoardItemId =
-          writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
-        if (activeBoardItemId)
-          writeSpeechOnBoard(activeBoardItemId, text, "answer", sequenceRef.current);
-      }
+      const activeBoardItemId =
+        writtenLines[writtenLines.length - 1]?.id ?? sequence[currentIndex]?.id;
+      if (activeBoardItemId)
+        writeSpeechOnBoard(activeBoardItemId, text, "answer", sequenceRef.current);
       setMiddleFeedback({ correct, text });
-      if (learningMode !== "deaf") speak(text, undefined, undefined, TEACHER_VOICE);
       logEvent(`Middle question: ${answer} (${correct ? "correct" : "incorrect"})`);
 
-      phaseTimerRef.current = setTimeout(() => resumeAfterInterjection(), 3500);
+      const continueAfterFeedback = createProceduralSpeechEnd(text, () => {
+        resumeAfterInterjection();
+      });
+      speakTeacher(text, "answer", activeBoardItemId, continueAfterFeedback);
     },
     [
       addTranscript,
@@ -1305,10 +1411,10 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       writtenLines,
       sequence,
       currentIndex,
-      learningMode,
       logEvent,
       resumeAfterInterjection,
-      TEACHER_VOICE,
+      createProceduralSpeechEnd,
+      speakTeacher,
     ],
   );
 
@@ -1400,8 +1506,6 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     addTranscript("system", "Lesson started");
     addTranscript("teacher", LESSON_OPENING_NARRATIVE);
 
-    speakTeacher(LESSON_OPENING_NARRATIVE, "welcome");
-
     ++sequenceRef.current;
     startTimeRef.current = Date.now();
     firedInterjectionsRef.current = new Set();
@@ -1425,8 +1529,22 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     recordEvent("session_started", { lessonTitle: LESSON_TITLE, learningMode });
 
     // Auto-start teaching (no blocking popup — accessible for blind learners)
-    phaseTimerRef.current = setTimeout(() => beginTeaching(), 4000);
-  }, [addTranscript, speakTeacher, logEvent, beginTeaching, recordEvent, LESSON_TITLE]);
+    const continueAfterOpening = createProceduralSpeechEnd(
+      LESSON_OPENING_NARRATIVE,
+      () => beginTeaching(),
+      PROCEDURAL_START_PAUSE_MS,
+    );
+    speakTeacher(LESSON_OPENING_NARRATIVE, "welcome", undefined, continueAfterOpening);
+  }, [
+    addTranscript,
+    speakTeacher,
+    logEvent,
+    beginTeaching,
+    recordEvent,
+    LESSON_TITLE,
+    LESSON_OPENING_NARRATIVE,
+    createProceduralSpeechEnd,
+  ]);
 
   const handlePause = useCallback(() => {
     if (isPaused) {
@@ -1833,20 +1951,24 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
               "answer",
               sequenceRef.current,
             );
-          speakTeacher(res.clarificationQuestion, "clarification", activeBoardItemId);
           logEvent("Teacher asked for clarification");
           setClarify({
             question: res.clarificationQuestion,
             original: effectiveQuestion,
             options: res.clarificationOptions ?? [],
           });
-          // Re-open the question box so the learner can pick/answer the clarification.
-          phaseTimerRef.current = setTimeout(
+          const listenAfterClarification = createProceduralSpeechEnd(
+            res.clarificationQuestion,
             () => {
               setTeacherState("listening");
               setQuestionOpen(true);
             },
-            Math.min(res.clarificationQuestion.length * 45, 4000),
+          );
+          speakTeacher(
+            res.clarificationQuestion,
+            "clarification",
+            activeBoardItemId,
+            listenAfterClarification,
           );
           return;
         }
@@ -1860,11 +1982,12 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         if (activeBoardItemId)
           writeSpeechOnBoard(activeBoardItemId, answer, "answer", sequenceRef.current);
         if (res.saveToNotes) logEvent("Answer saved to notes");
-        speakTeacher(answer, "answer", activeBoardItemId);
         // Offer a natural next step, exactly like a tutor checking in.
         setFollowUp(res.suggestedFollowUp || "Does that help, or should I show an example?");
-        const dwell = Math.min(Math.max(answer.length * 38, 3000), 9000);
-        phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), dwell);
+        const settleAfterAnswer = createProceduralSpeechEnd(answer, () =>
+          setTeacherState("speaking"),
+        );
+        speakTeacher(answer, "answer", activeBoardItemId, settleAfterAnswer);
       } catch {
         const fallback =
           "That's a great question. Let's connect it back to what we're doing in this step — look carefully at what's currently on the board, and check each part against the idea we just covered. If it still feels unclear, raise your hand and we'll work through another example together.";
@@ -1873,8 +1996,10 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
         addTranscript("teacher", fallback);
         if (activeBoardItemId)
           writeSpeechOnBoard(activeBoardItemId, fallback, "answer", sequenceRef.current);
-        speakTeacher(fallback, "answer", activeBoardItemId);
-        phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), 3000);
+        const settleAfterFallback = createProceduralSpeechEnd(fallback, () =>
+          setTeacherState("speaking"),
+        );
+        speakTeacher(fallback, "answer", activeBoardItemId, settleAfterFallback);
       }
     };
     void ask();
@@ -1893,6 +2018,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     currentExplanation,
     learningMode,
     recordEvent,
+    createProceduralSpeechEnd,
   ]);
 
   const handleQuickAction = useCallback(
@@ -1991,12 +2117,13 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
             addTranscript("teacher", answer);
             if (activeBoardItemId)
               writeSpeechOnBoard(activeBoardItemId, answer, "answer", sequenceRef.current);
-            speakTeacher(answer, "answer", activeBoardItemId);
             setFollowUp(
               res.suggestedFollowUp || "Does that help, or should I show another example?",
             );
-            const dwell = Math.min(Math.max(answer.length * 38, 3000), 9000);
-            phaseTimerRef.current = setTimeout(() => setTeacherState("speaking"), dwell);
+            const settleAfterAnswer = createProceduralSpeechEnd(answer, () =>
+              setTeacherState("speaking"),
+            );
+            speakTeacher(answer, "answer", activeBoardItemId, settleAfterAnswer);
           } catch {
             // If the AI is unavailable, simply re-teach the current step.
             handleReplayStep();
@@ -2010,6 +2137,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       handleReplayStep,
       writeSpeechOnBoard,
       speakTeacher,
+      createProceduralSpeechEnd,
       writtenLines,
       sequence,
       currentIndex,
@@ -2045,7 +2173,9 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       misconceptionsDetected: prev.misconceptionsDetected + (isMisconception ? 1 : 0),
     }));
 
+    let teacherFeedback = "";
     if (isCorrect) {
+      teacherFeedback = "Correct! Well done!";
       setPracticeFeedback("correct");
       setPracticeFeedbackText("Correct! Well done! 🎉");
       setConsecutiveCorrect((c) => c + 1);
@@ -2066,6 +2196,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       });
       // Misconception watch: targeted correction when the answer is a known trap
       const feedback = isMisconception ? problem.misconception.note : `Not quite. ${problem.hint}`;
+      teacherFeedback = feedback;
       setPracticeFeedback("incorrect");
       setPracticeFeedbackText(feedback);
       addTranscript("student", practiceAnswer);
@@ -2079,7 +2210,7 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       );
     }
 
-    setTimeout(() => {
+    const continueAfterPracticeFeedback = createProceduralSpeechEnd(teacherFeedback, () => {
       if (practiceIndex < practiceProblems.length - 1) {
         setPracticeIndex((i) => i + 1);
         setPracticeAnswer("");
@@ -2098,9 +2229,12 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
           setPhase("exit_ticket");
           setTeacherState("asking_question");
           setCaptionText("Final check before we finish!");
+          setCaptionSpeaker(TEACHER_NAME);
+          speakTeacher("Final check before we finish!", "question");
         }, 1000);
       }
-    }, 2500);
+    });
+    speakTeacher(teacherFeedback, "answer", activeBoardItemId, continueAfterPracticeFeedback);
   }, [
     practiceAnswer,
     practiceIndex,
@@ -2112,6 +2246,8 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     writeSpeechOnBoard,
     startPractice,
     logEvent,
+    createProceduralSpeechEnd,
+    speakTeacher,
   ]);
 
   // ── Exit ticket handler ───────────────────────────────
@@ -2138,15 +2274,27 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
       if (activeBoardItemId)
         writeSpeechOnBoard(activeBoardItemId, feedback, "answer", sequenceRef.current);
 
-      // After the exit ticket, ask for a reflection before completing
-      setTimeout(() => {
+      const continueAfterExitFeedback = createProceduralSpeechEnd(feedback, () => {
         setExitTicketOpen(false);
         setReflectionOpen(true);
         setTeacherState("asking_question");
         setCaptionText(EXIT_REFLECTION.question);
-      }, 3000);
+        setCaptionSpeaker(TEACHER_NAME);
+        addTranscript("teacher", EXIT_REFLECTION.question);
+        speakTeacher(EXIT_REFLECTION.question, "question");
+      });
+      speakTeacher(feedback, "answer", activeBoardItemId, continueAfterExitFeedback);
     },
-    [addTranscript, writeSpeechOnBoard, writtenLines, sequence, currentIndex, logEvent],
+    [
+      addTranscript,
+      writeSpeechOnBoard,
+      writtenLines,
+      sequence,
+      currentIndex,
+      logEvent,
+      createProceduralSpeechEnd,
+      speakTeacher,
+    ],
   );
 
   /** Exit reflection answered → record weak area, then end the lesson. */
@@ -2174,22 +2322,24 @@ export function AIVideoClassroom({ autoPlay = false, content, sessionId, onExit 
     setCaptionSpeaker(TEACHER_NAME);
     addTranscript("system", "Lesson resumed from previous session");
 
-    if (learningMode !== "deaf") {
-      speak("Welcome back! Let's continue our lesson.", undefined, undefined, TEACHER_VOICE);
-    }
-
     const seq = ++sequenceRef.current;
     setCurrentIndex(0);
     setWrittenLines([]);
     setBoardSpeech({});
     setCurrentWritingText("");
 
-    phaseTimerRef.current = setTimeout(() => {
-      if (seq === sequenceRef.current) {
-        writeOnBoard(sequence[0], seq, 0);
-      }
-    }, 3000);
-  }, [addTranscript, learningMode, writeOnBoard]);
+    const resumeText = "Welcome back! Let's continue our lesson.";
+    const continueAfterResume = createProceduralSpeechEnd(
+      resumeText,
+      () => {
+        if (seq === sequenceRef.current) {
+          writeOnBoard(sequence[0], seq, 0);
+        }
+      },
+      PROCEDURAL_START_PAUSE_MS,
+    );
+    speakTeacher(resumeText, "welcome", undefined, continueAfterResume);
+  }, [addTranscript, createProceduralSpeechEnd, speakTeacher, writeOnBoard, sequence]);
 
   const handleStartFresh = useCallback(() => {
     try {
