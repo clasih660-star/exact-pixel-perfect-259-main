@@ -51,19 +51,30 @@
 - [x] `npm run build` succeeds
 - [x] `npx tsc --noEmit` reports 0 errors
 - [x] Dev server starts on `localhost:8080`
+- [x] `npm run verify:deploy` succeeds (current output: warnings only, no blocking errors)
 - [ ] Set environment variables in production:
   - `OPENAI_API_KEY` or `DEEPSEEK_API_KEY` (for AI teacher)
+  - Optional legacy AI fallback: `LOVABLE_API_KEY`
   - `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`
+  - Optional backward-compatible service alias used by some storage helpers: `SUPABASE_SERVICE_KEY`
   - `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (client-side Supabase)
   - Optional backward-compatible aliases: `SUPABASE_ANON_KEY`, `VITE_SUPABASE_ANON_KEY`
-  - `APP_URL` (recommended for invite/auth callback links)
+  - `APP_URL` (recommended canonical origin for invite/auth/billing callback links)
+  - Optional URL aliases referenced by some helpers: `PUBLIC_APP_URL`, `VITE_APP_URL`
   - `PAYSTACK_SECRET_KEY` and `PAYSTACK_WEBHOOK_SECRET` (monthly classroom billing)
-  - Email delivery settings or worker for `outbound_email_jobs` (teacher/student invites)
-  - Optional voice settings: `ELEVENLABS_API_KEY`, `LOCAL_TTS_SECRET`, `LOCAL_KOKORO_TTS_URL`, `LOCAL_PIPER_TTS_URL`
+  - Email delivery function settings for institution invites / notifications:
+    - `SUPABASE_EMAIL_FUNCTION_URL`
+    - `SUPABASE_EMAIL_FUNCTION_BEARER` (if the function is protected)
+    - `EMAIL_PROVIDER`
+    - `RESEND_API_KEY` or `EMAIL_PROVIDER_API_KEY`
+  - Optional voice settings: `ELEVENLABS_API_KEY`, `ELEVENLABS_MODEL_ID`, `LOCAL_TTS_SECRET`, `LOCAL_KOKORO_TTS_URL`, `LOCAL_PIPER_TTS_URL`
+  - `NODE_ENV=production` in the server runtime
 - [ ] Apply Supabase migrations in production, including:
   - `institution_invites` / `outbound_email_jobs` for teacher hiring workflows
   - `subscription_plans`, `billing_customers`, `institution_subscriptions`, `payment_transactions` for monthly rentals
+- [ ] Seed at least one active row in `subscription_plans` so the billing UI and checkout flow can initialize successfully.
 - [ ] Configure Paystack callback/webhook URLs to point at the deployed app.
+- [ ] Deploy/configure the email delivery function used by `src/lib/email-service.server.ts` and verify that `outbound_email_jobs` are actually processed.
 - [ ] Run an end-to-end smoke test: register institution → pay monthly plan → invite teacher → teacher accepts → assign teacher to course → start lesson.
 
 ### Recommended
@@ -72,10 +83,11 @@
 - [ ] Add stricter ESLint config gradually (replace `no-explicit-any` with proper types)
 - [ ] Add integration tests for critical flows (auth, classroom, quiz)
 - [ ] Add automated tests for institution teacher invites, course assignment, Paystack verification, and lesson start/completion
+- [ ] Reduce React hook / refresh lint warnings (currently 61 warnings in `npm run lint`; non-blocking, but worth cleaning before launch hardening).
 - [ ] Configure CORS, CSP headers, and rate limiting for production
 - [ ] Set up error monitoring (Sentry, LogRocket, etc.)
 - [ ] Configure CDN for static assets (`dist/client/`)
-- [ ] Set `NODE_ENV=production` for server runtime
+- [ ] Reduce the oversized bundle/chunk warnings (current large outputs include `assets/index-*.js` and SSR router chunks above 2 MB).
 
 ---
 
@@ -109,3 +121,9 @@ node dist/server/server.js
 3. **`SpeechRecognition` API types**: The `speech.ts` module uses browser Speech Recognition API which isn't in the default TS lib. Consider adding `@types/dom-speech-recognition` or a `.d.ts` declaration file.
 
 4. **`createServerFn` method types**: TanStack Start only supports `"GET"` and `"POST"`. Any `"PATCH"`/`"PUT"`/`"DELETE"` methods need to be converted to `"POST"` with the action encoded in the request body.
+
+5. **Lint warnings remain non-blocking but significant**: the current `verify:deploy` pass completes with 61 ESLint warnings, mostly `react-hooks/exhaustive-deps` and `react-refresh/only-export-components`.
+
+6. **Large bundle/chunk warnings remain**: client and SSR outputs include multi-hundred-kB assets and >2 MB router/server chunks. Deployment succeeds, but code-splitting should be improved.
+
+7. **Build warning to monitor**: Nitro/Vite warns to match the production OS/architecture with the builder (`win32-x64`) to avoid native module issues.

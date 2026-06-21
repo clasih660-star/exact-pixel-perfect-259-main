@@ -61,6 +61,8 @@ const CreateSchema = z.object({
   subject: z.string().trim().max(120).optional(),
   level: z.string().trim().max(80).optional(),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
+  price_usd: z.coerce.number().min(0).max(100000).default(0),
+  pricing_label: z.string().trim().max(60).optional(),
 });
 
 export const createCourse = createServerFn({ method: "POST" })
@@ -89,6 +91,9 @@ export const createCourse = createServerFn({ method: "POST" })
         subject: data.subject ?? null,
         level: data.level ?? null,
         status: data.status,
+        price_usd: data.price_usd ?? 0,
+        currency: "USD",
+        pricing_label: data.pricing_label ?? null,
         created_by: context.userId,
       })
       .select("*")

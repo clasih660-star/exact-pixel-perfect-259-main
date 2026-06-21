@@ -1,10 +1,68 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle, ArrowRight, Sparkles, Building2, ChevronDown } from "lucide-react";
+import { CheckCircle, ArrowRight, Sparkles, Building2, ChevronDown, BookOpen } from "lucide-react";
 import { Footer } from "@/components/landing/Footer";
 import { Logo } from "@/components/brand/Logo";
 import { CTAButton } from "@/components/landing/primitives";
 import { createSeoHead, faqSchema, webPageSchema } from "@/lib/seo";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getPurchasableCourses } from "@/lib/course-billing.functions";
+import { formatCoursePrice } from "@/lib/course-pricing";
+
+function CourseCatalogSection() {
+  const fn = useServerFn(getPurchasableCourses);
+  const q = useQuery({ queryKey: ["purchasable-courses"], queryFn: () => fn() });
+  const courses = q.data?.courses ?? [];
+  if (q.isLoading || courses.length === 0) return null;
+
+  return (
+    <div className="mt-24">
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 rounded-md border border-border bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-muted">
+          <BookOpen className="h-3.5 w-3.5" /> Individual courses
+        </div>
+        <h2 className="mt-6 text-[28px] font-extrabold tracking-tight text-heading sm:text-[34px]">
+          Buy a course in USD
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-base text-body">
+          Self-paced, AI teacher-led courses you can enroll in directly. One-time payment, full access.
+        </p>
+      </div>
+      <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {courses.map((c) => (
+          <div
+            key={c.id}
+            className="flex flex-col rounded-lg border border-slate-100 bg-white p-6 transition-all hover:-translate-y-1 hover:shadow-md"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                {c.sourceType === "kingpin" ? "KingPin" : "Course"}
+              </span>
+              <span className="text-lg font-extrabold text-heading">
+                {formatCoursePrice(c.priceUsd, c.pricingLabel)}
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-heading">{c.title}</h3>
+            {c.institutionName && <p className="mt-0.5 text-xs text-muted">{c.institutionName}</p>}
+            {c.description && (
+              <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-body">{c.description}</p>
+            )}
+            <CTAButton
+              to={`/courses/${c.slug}`}
+              variant="secondary"
+              size="md"
+              className="mt-6 w-full justify-center"
+              showArrow
+            >
+              View course
+            </CTAButton>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const DESCRIPTION =
   "Simple, transparent Klassruum pricing for AI virtual classrooms. Start with a free demo and scale to institution plans.";
@@ -227,6 +285,8 @@ function PricingPage() {
             </div>
           ))}
         </div>
+
+        <CourseCatalogSection />
 
         {/* What's included */}
         <div className="mt-24">

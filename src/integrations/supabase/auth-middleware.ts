@@ -5,24 +5,20 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 import { isDemoModeAllowed } from "@/lib/runtime-mode";
 import { SecurityConfigurationError, UnauthorizedError } from "@/lib/security-errors";
+import { getDemoRoleFromCookie, isDemoSessionCookieActive } from "@/lib/demo-mode";
 
-/** Demo context returned when Supabase is not configured. */
-function demoContext() {
+/** Demo context returned when Supabase is not configured or local quick demo is active. */
+function demoContext(role = "student") {
   return {
     supabase: null as any,
     userId: "demo-user-0000",
-    claims: { sub: "demo-user-0000", email: "demo@klassruum.com" } as any,
+    claims: { sub: "demo-user-0000", email: `demo.${role}@klassruum.com`, demoRole: role } as any,
   };
 }
 
 /** True only when Supabase credentials are genuinely missing/demo. */
 function isDemoMode(url?: string, key?: string): boolean {
-  return (
-    !url ||
-    !key ||
-    url.includes("demo.supabase") ||
-    key.includes("demo_key")
-  );
+  return !url || !key || url.includes("demo.supabase") || key.includes("demo_key");
 }
 
 export const requireSupabaseAuth = createMiddleware({ type: "function" }).server(
@@ -30,6 +26,16 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_PUBLISHABLE_KEY =
       process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
+    const request = getRequest();
+    const cookieHeader = request?.headers?.get("cookie");
+
+    if (isDemoSessionCookieActive(cookieHeader)) {
+      if (!isDemoModeAllowed()) {
+        throw new SecurityConfigurationError("Demo server functions are disabled in production.");
+      }
+
+      return next({ context: demoContext(getDemoRoleFromCookie(cookieHeader)) });
+    }
 
     // ── Demo mode: Supabase not configured ──────────────────────────────
     // Only bypass auth when credentials are genuinely absent or placeholders.
@@ -44,8 +50,6 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     }
 
     // ── Production: Supabase IS configured — fail closed ────────────────
-    const request = getRequest();
-
     if (!request?.headers) {
       throw new UnauthorizedError("Missing request context.");
     }

@@ -28,7 +28,6 @@ import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as StudentProgressRouteImport } from './routes/student.progress'
 import { Route as SolutionsUniversitiesRouteImport } from './routes/solutions.universities'
 import { Route as SolutionsTutoringCentersRouteImport } from './routes/solutions.tutoring-centers'
 import { Route as SolutionsTrainingProvidersRouteImport } from './routes/solutions.training-providers'
@@ -41,6 +40,7 @@ import { Route as DemoTeachingRouteImport } from './routes/demo.teaching'
 import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as DemoAiVideoRouteImport } from './routes/demo.ai-video'
 import { Route as DemoAccessibilityDemoRouteImport } from './routes/demo.accessibility-demo'
+import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as ClassroomLessonIdRouteImport } from './routes/classroom.$lessonId'
 import { Route as ClassroomEnhancedLessonIdRouteImport } from './routes/classroom-enhanced.$lessonId'
 import { Route as ClassroomDesignLessonIdRouteImport } from './routes/classroom-design.$lessonId'
@@ -60,6 +60,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiPaystackWebhookRouteImport } from './routes/api.paystack-webhook'
 import { Route as ApiBlogRouteImport } from './routes/api.blog'
 import { Route as AuthenticatedDevRouteRouteImport } from './routes/_authenticated/dev/route'
+import { Route as CoursesSlugCheckoutRouteImport } from './routes/courses.$slug.checkout'
 import { Route as ClassroomSessionSessionIdRouteImport } from './routes/classroom.session.$sessionId'
 import { Route as ClassroomPreviewLessonIdRouteImport } from './routes/classroom.preview.$lessonId'
 import { Route as AuthenticatedTeacherSupervisionRouteImport } from './routes/_authenticated/teacher.supervision'
@@ -79,6 +80,7 @@ import { Route as AuthenticatedStudentSessionsRouteImport } from './routes/_auth
 import { Route as AuthenticatedStudentSearchRouteImport } from './routes/_authenticated/student.search'
 import { Route as AuthenticatedStudentResourcesRouteImport } from './routes/_authenticated/student.resources'
 import { Route as AuthenticatedStudentQuizzesRouteImport } from './routes/_authenticated/student.quizzes'
+import { Route as AuthenticatedStudentProgressRouteImport } from './routes/_authenticated/student.progress'
 import { Route as AuthenticatedStudentNotificationsRouteImport } from './routes/_authenticated/student.notifications'
 import { Route as AuthenticatedStudentNotesRouteImport } from './routes/_authenticated/student.notes'
 import { Route as AuthenticatedStudentMessagesRouteImport } from './routes/_authenticated/student.messages'
@@ -294,11 +296,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudentProgressRoute = StudentProgressRouteImport.update({
-  id: '/student/progress',
-  path: '/student/progress',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SolutionsUniversitiesRoute = SolutionsUniversitiesRouteImport.update({
   id: '/solutions/universities',
   path: '/solutions/universities',
@@ -360,6 +357,11 @@ const DemoAiVideoRoute = DemoAiVideoRouteImport.update({
 const DemoAccessibilityDemoRoute = DemoAccessibilityDemoRouteImport.update({
   id: '/demo/accessibility-demo',
   path: '/demo/accessibility-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesSlugRoute = CoursesSlugRouteImport.update({
+  id: '/courses/$slug',
+  path: '/courses/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassroomLessonIdRoute = ClassroomLessonIdRouteImport.update({
@@ -460,6 +462,11 @@ const AuthenticatedDevRouteRoute = AuthenticatedDevRouteRouteImport.update({
   id: '/dev',
   path: '/dev',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const CoursesSlugCheckoutRoute = CoursesSlugCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => CoursesSlugRoute,
 } as any)
 const ClassroomSessionSessionIdRoute =
   ClassroomSessionSessionIdRouteImport.update({
@@ -573,6 +580,12 @@ const AuthenticatedStudentQuizzesRoute =
   AuthenticatedStudentQuizzesRouteImport.update({
     id: '/student/quizzes',
     path: '/student/quizzes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStudentProgressRoute =
+  AuthenticatedStudentProgressRouteImport.update({
+    id: '/student/progress',
+    path: '/student/progress',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStudentNotificationsRoute =
@@ -1330,6 +1343,7 @@ export interface FileRoutesByFullPath {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/courses/$slug': typeof CoursesSlugRouteWithChildren
   '/demo/accessibility-demo': typeof DemoAccessibilityDemoRoute
   '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
@@ -1342,7 +1356,6 @@ export interface FileRoutesByFullPath {
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
   '/solutions/universities': typeof SolutionsUniversitiesRoute
-  '/student/progress': typeof StudentProgressRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
@@ -1400,6 +1413,7 @@ export interface FileRoutesByFullPath {
   '/student/messages': typeof AuthenticatedStudentMessagesRoute
   '/student/notes': typeof AuthenticatedStudentNotesRouteWithChildren
   '/student/notifications': typeof AuthenticatedStudentNotificationsRoute
+  '/student/progress': typeof AuthenticatedStudentProgressRoute
   '/student/quizzes': typeof AuthenticatedStudentQuizzesRouteWithChildren
   '/student/resources': typeof AuthenticatedStudentResourcesRouteWithChildren
   '/student/search': typeof AuthenticatedStudentSearchRoute
@@ -1419,6 +1433,7 @@ export interface FileRoutesByFullPath {
   '/teacher/supervision': typeof AuthenticatedTeacherSupervisionRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
+  '/courses/$slug/checkout': typeof CoursesSlugCheckoutRoute
   '/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
   '/admin/kingpin-courses/$courseId': typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
   '/admin/kingpin-courses/new': typeof AuthenticatedAdminKingpinCoursesNewRoute
@@ -1521,6 +1536,7 @@ export interface FileRoutesByTo {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/courses/$slug': typeof CoursesSlugRouteWithChildren
   '/demo/accessibility-demo': typeof DemoAccessibilityDemoRoute
   '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
@@ -1533,7 +1549,6 @@ export interface FileRoutesByTo {
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
   '/solutions/universities': typeof SolutionsUniversitiesRoute
-  '/student/progress': typeof StudentProgressRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
   '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
@@ -1591,6 +1606,7 @@ export interface FileRoutesByTo {
   '/student/messages': typeof AuthenticatedStudentMessagesRoute
   '/student/notes': typeof AuthenticatedStudentNotesRouteWithChildren
   '/student/notifications': typeof AuthenticatedStudentNotificationsRoute
+  '/student/progress': typeof AuthenticatedStudentProgressRoute
   '/student/quizzes': typeof AuthenticatedStudentQuizzesRouteWithChildren
   '/student/resources': typeof AuthenticatedStudentResourcesRouteWithChildren
   '/student/search': typeof AuthenticatedStudentSearchRoute
@@ -1610,6 +1626,7 @@ export interface FileRoutesByTo {
   '/teacher/supervision': typeof AuthenticatedTeacherSupervisionRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
+  '/courses/$slug/checkout': typeof CoursesSlugCheckoutRoute
   '/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
   '/admin/kingpin-courses/$courseId': typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
   '/admin/kingpin-courses/new': typeof AuthenticatedAdminKingpinCoursesNewRoute
@@ -1714,6 +1731,7 @@ export interface FileRoutesById {
   '/classroom-design/$lessonId': typeof ClassroomDesignLessonIdRoute
   '/classroom-enhanced/$lessonId': typeof ClassroomEnhancedLessonIdRoute
   '/classroom/$lessonId': typeof ClassroomLessonIdRoute
+  '/courses/$slug': typeof CoursesSlugRouteWithChildren
   '/demo/accessibility-demo': typeof DemoAccessibilityDemoRoute
   '/demo/ai-video': typeof DemoAiVideoRoute
   '/demo/classroom': typeof DemoClassroomRoute
@@ -1726,7 +1744,6 @@ export interface FileRoutesById {
   '/solutions/training-providers': typeof SolutionsTrainingProvidersRoute
   '/solutions/tutoring-centers': typeof SolutionsTutoringCentersRoute
   '/solutions/universities': typeof SolutionsUniversitiesRoute
-  '/student/progress': typeof StudentProgressRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/ai-settings': typeof AuthenticatedAdminAiSettingsRoute
   '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
@@ -1784,6 +1801,7 @@ export interface FileRoutesById {
   '/_authenticated/student/messages': typeof AuthenticatedStudentMessagesRoute
   '/_authenticated/student/notes': typeof AuthenticatedStudentNotesRouteWithChildren
   '/_authenticated/student/notifications': typeof AuthenticatedStudentNotificationsRoute
+  '/_authenticated/student/progress': typeof AuthenticatedStudentProgressRoute
   '/_authenticated/student/quizzes': typeof AuthenticatedStudentQuizzesRouteWithChildren
   '/_authenticated/student/resources': typeof AuthenticatedStudentResourcesRouteWithChildren
   '/_authenticated/student/search': typeof AuthenticatedStudentSearchRoute
@@ -1803,6 +1821,7 @@ export interface FileRoutesById {
   '/_authenticated/teacher/supervision': typeof AuthenticatedTeacherSupervisionRoute
   '/classroom/preview/$lessonId': typeof ClassroomPreviewLessonIdRoute
   '/classroom/session/$sessionId': typeof ClassroomSessionSessionIdRoute
+  '/courses/$slug/checkout': typeof CoursesSlugCheckoutRoute
   '/_authenticated/admin/institutions/$institutionId': typeof AuthenticatedAdminInstitutionsInstitutionIdRouteWithChildren
   '/_authenticated/admin/kingpin-courses/$courseId': typeof AuthenticatedAdminKingpinCoursesCourseIdRouteWithChildren
   '/_authenticated/admin/kingpin-courses/new': typeof AuthenticatedAdminKingpinCoursesNewRoute
@@ -1907,6 +1926,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/courses/$slug'
     | '/demo/accessibility-demo'
     | '/demo/ai-video'
     | '/demo/classroom'
@@ -1919,7 +1939,6 @@ export interface FileRouteTypes {
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
     | '/solutions/universities'
-    | '/student/progress'
     | '/admin/activity'
     | '/admin/ai-settings'
     | '/admin/audit-logs'
@@ -1977,6 +1996,7 @@ export interface FileRouteTypes {
     | '/student/messages'
     | '/student/notes'
     | '/student/notifications'
+    | '/student/progress'
     | '/student/quizzes'
     | '/student/resources'
     | '/student/search'
@@ -1996,6 +2016,7 @@ export interface FileRouteTypes {
     | '/teacher/supervision'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
+    | '/courses/$slug/checkout'
     | '/admin/institutions/$institutionId'
     | '/admin/kingpin-courses/$courseId'
     | '/admin/kingpin-courses/new'
@@ -2098,6 +2119,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/courses/$slug'
     | '/demo/accessibility-demo'
     | '/demo/ai-video'
     | '/demo/classroom'
@@ -2110,7 +2132,6 @@ export interface FileRouteTypes {
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
     | '/solutions/universities'
-    | '/student/progress'
     | '/admin/activity'
     | '/admin/ai-settings'
     | '/admin/audit-logs'
@@ -2168,6 +2189,7 @@ export interface FileRouteTypes {
     | '/student/messages'
     | '/student/notes'
     | '/student/notifications'
+    | '/student/progress'
     | '/student/quizzes'
     | '/student/resources'
     | '/student/search'
@@ -2187,6 +2209,7 @@ export interface FileRouteTypes {
     | '/teacher/supervision'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
+    | '/courses/$slug/checkout'
     | '/admin/institutions/$institutionId'
     | '/admin/kingpin-courses/$courseId'
     | '/admin/kingpin-courses/new'
@@ -2290,6 +2313,7 @@ export interface FileRouteTypes {
     | '/classroom-design/$lessonId'
     | '/classroom-enhanced/$lessonId'
     | '/classroom/$lessonId'
+    | '/courses/$slug'
     | '/demo/accessibility-demo'
     | '/demo/ai-video'
     | '/demo/classroom'
@@ -2302,7 +2326,6 @@ export interface FileRouteTypes {
     | '/solutions/training-providers'
     | '/solutions/tutoring-centers'
     | '/solutions/universities'
-    | '/student/progress'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/ai-settings'
     | '/_authenticated/admin/audit-logs'
@@ -2360,6 +2383,7 @@ export interface FileRouteTypes {
     | '/_authenticated/student/messages'
     | '/_authenticated/student/notes'
     | '/_authenticated/student/notifications'
+    | '/_authenticated/student/progress'
     | '/_authenticated/student/quizzes'
     | '/_authenticated/student/resources'
     | '/_authenticated/student/search'
@@ -2379,6 +2403,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teacher/supervision'
     | '/classroom/preview/$lessonId'
     | '/classroom/session/$sessionId'
+    | '/courses/$slug/checkout'
     | '/_authenticated/admin/institutions/$institutionId'
     | '/_authenticated/admin/kingpin-courses/$courseId'
     | '/_authenticated/admin/kingpin-courses/new'
@@ -2468,6 +2493,7 @@ export interface RootRouteChildren {
   ApiPaystackWebhookRoute: typeof ApiPaystackWebhookRoute
   ClassroomDesignLessonIdRoute: typeof ClassroomDesignLessonIdRoute
   ClassroomEnhancedLessonIdRoute: typeof ClassroomEnhancedLessonIdRoute
+  CoursesSlugRoute: typeof CoursesSlugRouteWithChildren
   DemoAccessibilityDemoRoute: typeof DemoAccessibilityDemoRoute
   DemoAiVideoRoute: typeof DemoAiVideoRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
@@ -2480,7 +2506,6 @@ export interface RootRouteChildren {
   SolutionsTrainingProvidersRoute: typeof SolutionsTrainingProvidersRoute
   SolutionsTutoringCentersRoute: typeof SolutionsTutoringCentersRoute
   SolutionsUniversitiesRoute: typeof SolutionsUniversitiesRoute
-  StudentProgressRoute: typeof StudentProgressRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2618,13 +2643,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/student/progress': {
-      id: '/student/progress'
-      path: '/student/progress'
-      fullPath: '/student/progress'
-      preLoaderRoute: typeof StudentProgressRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/solutions/universities': {
       id: '/solutions/universities'
       path: '/solutions/universities'
@@ -2707,6 +2725,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/accessibility-demo'
       fullPath: '/demo/accessibility-demo'
       preLoaderRoute: typeof DemoAccessibilityDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/$slug': {
+      id: '/courses/$slug'
+      path: '/courses/$slug'
+      fullPath: '/courses/$slug'
+      preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classroom/$lessonId': {
@@ -2842,6 +2867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDevRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/courses/$slug/checkout': {
+      id: '/courses/$slug/checkout'
+      path: '/checkout'
+      fullPath: '/courses/$slug/checkout'
+      preLoaderRoute: typeof CoursesSlugCheckoutRouteImport
+      parentRoute: typeof CoursesSlugRoute
+    }
     '/classroom/session/$sessionId': {
       id: '/classroom/session/$sessionId'
       path: '/session/$sessionId'
@@ -2973,6 +3005,13 @@ declare module '@tanstack/react-router' {
       path: '/student/quizzes'
       fullPath: '/student/quizzes'
       preLoaderRoute: typeof AuthenticatedStudentQuizzesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/student/progress': {
+      id: '/_authenticated/student/progress'
+      path: '/student/progress'
+      fullPath: '/student/progress'
+      preLoaderRoute: typeof AuthenticatedStudentProgressRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/student/notifications': {
@@ -4480,6 +4519,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStudentMessagesRoute: typeof AuthenticatedStudentMessagesRoute
   AuthenticatedStudentNotesRoute: typeof AuthenticatedStudentNotesRouteWithChildren
   AuthenticatedStudentNotificationsRoute: typeof AuthenticatedStudentNotificationsRoute
+  AuthenticatedStudentProgressRoute: typeof AuthenticatedStudentProgressRoute
   AuthenticatedStudentQuizzesRoute: typeof AuthenticatedStudentQuizzesRouteWithChildren
   AuthenticatedStudentResourcesRoute: typeof AuthenticatedStudentResourcesRouteWithChildren
   AuthenticatedStudentSearchRoute: typeof AuthenticatedStudentSearchRoute
@@ -4576,6 +4616,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStudentNotesRoute: AuthenticatedStudentNotesRouteWithChildren,
   AuthenticatedStudentNotificationsRoute:
     AuthenticatedStudentNotificationsRoute,
+  AuthenticatedStudentProgressRoute: AuthenticatedStudentProgressRoute,
   AuthenticatedStudentQuizzesRoute:
     AuthenticatedStudentQuizzesRouteWithChildren,
   AuthenticatedStudentResourcesRoute:
@@ -4665,6 +4706,18 @@ const ClassroomRouteWithChildren = ClassroomRoute._addFileChildren(
   ClassroomRouteChildren,
 )
 
+interface CoursesSlugRouteChildren {
+  CoursesSlugCheckoutRoute: typeof CoursesSlugCheckoutRoute
+}
+
+const CoursesSlugRouteChildren: CoursesSlugRouteChildren = {
+  CoursesSlugCheckoutRoute: CoursesSlugCheckoutRoute,
+}
+
+const CoursesSlugRouteWithChildren = CoursesSlugRoute._addFileChildren(
+  CoursesSlugRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -4689,6 +4742,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaystackWebhookRoute: ApiPaystackWebhookRoute,
   ClassroomDesignLessonIdRoute: ClassroomDesignLessonIdRoute,
   ClassroomEnhancedLessonIdRoute: ClassroomEnhancedLessonIdRoute,
+  CoursesSlugRoute: CoursesSlugRouteWithChildren,
   DemoAccessibilityDemoRoute: DemoAccessibilityDemoRoute,
   DemoAiVideoRoute: DemoAiVideoRoute,
   DemoClassroomRoute: DemoClassroomRoute,
@@ -4701,7 +4755,6 @@ const rootRouteChildren: RootRouteChildren = {
   SolutionsTrainingProvidersRoute: SolutionsTrainingProvidersRoute,
   SolutionsTutoringCentersRoute: SolutionsTutoringCentersRoute,
   SolutionsUniversitiesRoute: SolutionsUniversitiesRoute,
-  StudentProgressRoute: StudentProgressRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

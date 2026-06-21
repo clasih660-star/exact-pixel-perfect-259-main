@@ -163,6 +163,7 @@ export const getClassroomContext = createServerFn({ method: "GET" })
   .handler(async ({ data, context }: any) => {
     if (!context.supabase) {
       const actor = await getServerActorResolution(context);
+      const staffViewer = isStaffActor(actor.role) || data.session_id.includes("teacher");
       return {
         session: {
           id: data.session_id,
@@ -170,7 +171,7 @@ export const getClassroomContext = createServerFn({ method: "GET" })
           course_id: "demo-course",
           lesson_id: "demo-lesson",
           host_user_id: context.userId,
-          mode: "ai_teacher",
+          mode: staffViewer ? "human_teacher" : "ai_teacher",
           status: "live",
           started_at: new Date().toISOString(),
         },
@@ -178,8 +179,8 @@ export const getClassroomContext = createServerFn({ method: "GET" })
           role: actor.role,
           persona: actor.persona,
           isSessionHost: true,
-          isInstitutionStaff: false,
-          isEnrolledLearner: true,
+          isInstitutionStaff: staffViewer,
+          isEnrolledLearner: !staffViewer,
         },
         institution: { id: "demo-institution", name: "Klassruum Demo Academy" },
         course: { id: "demo-course", title: "Demo Course" },
@@ -249,7 +250,7 @@ export const postChatMessage = createServerFn({ method: "POST" })
   .validator((data: unknown) =>
     z
       .object({
-        session_id: z.string().uuid(),
+        session_id: z.string().min(1),
         message: z.string().trim().min(1).max(5000),
         sender: z.enum(["student", "teacher", "ai_teacher", "system"]).default("student"),
         message_type: z.string().max(40).default("text"),
@@ -257,6 +258,16 @@ export const postChatMessage = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }: any) => {
+    if (!context.supabase) return { ok: true };
+
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        data.session_id,
+      )
+    ) {
+      throw new Error("A real session is required to send a classroom message.");
+    }
+
     // Get session to derive institution_id, course_id, lesson_id
     const session = await assertActorCanAccessSession(context, data.session_id);
 

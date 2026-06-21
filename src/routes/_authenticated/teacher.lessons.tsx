@@ -19,6 +19,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { requireInstitutionStaff } from "@/lib/route-guards";
+import { TeacherStartClassButton } from "@/components/classroom/TeacherStartClassButton";
 
 export const Route = createFileRoute("/_authenticated/teacher/lessons")({
   beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
@@ -301,14 +302,7 @@ function TeacherLessons() {
                       Preview
                     </Link>
                     {lesson.status === "ready" && (
-                      <Link
-                        to="/classroom/$lessonId"
-                        params={{ lessonId: lesson.id }}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#1F7C80] px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
-                      >
-                        <Play className="h-3.5 w-3.5" />
-                        Start Class
-                      </Link>
+                      <TeacherStartClassButton lessonId={lesson.id} label="Record live" compact />
                     )}
                     <ChevronRight className="h-4 w-4 shrink-0 text-[#CBD5E1]" />
                   </div>

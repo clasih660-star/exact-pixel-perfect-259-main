@@ -38,6 +38,8 @@ export function CreateCourseDialog({
     subject: "",
     level: "",
     status: "draft" as "draft" | "published",
+    price_usd: "0",
+    pricing_label: "",
   });
   const qc = useQueryClient();
   const fn = useServerFn(createCourse);
@@ -47,7 +49,7 @@ export function CreateCourseDialog({
       toast.success("Course created");
       qc.invalidateQueries({ queryKey: ["courses", institutionId] });
       setOpen(false);
-      setForm({ title: "", description: "", subject: "", level: "", status: "draft" });
+      setForm({ title: "", description: "", subject: "", level: "", status: "draft", price_usd: "0", pricing_label: "" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -114,6 +116,28 @@ export function CreateCourseDialog({
                 <SelectItem value="published">Published</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Price (USD)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.price_usd}
+                onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
+                placeholder="0 = free"
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">0 means free. Set a price to sell this course.</p>
+            </div>
+            <div>
+              <Label>Pricing label (optional)</Label>
+              <Input
+                value={form.pricing_label}
+                onChange={(e) => setForm({ ...form, pricing_label: e.target.value })}
+                placeholder="$15 one-time"
+              />
+            </div>
           </div>
         </div>
         <DialogFooter>

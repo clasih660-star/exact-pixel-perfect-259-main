@@ -15,6 +15,7 @@ import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { requiresEmailVerification } from "@/lib/auth-verification";
 import { isDemoModeAllowed } from "@/lib/runtime-mode";
 import { SecurityConfigurationError } from "@/lib/security-errors";
+import { isBrowserDemoSessionActive } from "@/lib/demo-mode";
 
 type AuthContext = {
   user?: { id: string; email?: string } | null;
@@ -38,7 +39,47 @@ type MembershipRecord = {
   role?: "owner" | "admin" | "teacher" | "student" | null;
 };
 
-function derivePersonaFromRole(profile: ProfileRecord, membership?: MembershipRecord | null): UserPersona {
+function isActiveDemoContext(user?: AuthContext["user"]) {
+  return isBrowserDemoSessionActive() || user?.id === "demo-user-0000";
+}
+
+function demoRoleResolutionFromContext({
+  role: contextRole,
+  persona,
+  teacherType,
+  learnerType,
+  institutionId,
+}: AuthContext): RoleResolution {
+  return {
+    role: contextRole ?? "student",
+    persona:
+      persona ??
+      (contextRole === "teacher"
+        ? "institution_teacher"
+        : contextRole === "platform_admin"
+          ? "platform_admin"
+          : contextRole === "institution_admin" || contextRole === "owner"
+            ? "institution_admin"
+            : contextRole === "parent"
+              ? "parent"
+              : "institution_learner"),
+    teacherType: teacherType ?? (contextRole === "teacher" ? "institution" : null),
+    learnerType: learnerType ?? (contextRole === "student" ? "institution" : null),
+    institutionId:
+      institutionId ??
+      (contextRole === "institution_admin" ||
+      contextRole === "owner" ||
+      contextRole === "teacher" ||
+      contextRole === "student"
+        ? "demo-institution"
+        : null),
+  };
+}
+
+function derivePersonaFromRole(
+  profile: ProfileRecord,
+  membership?: MembershipRecord | null,
+): UserPersona {
   switch (profile.role) {
     case "platform_admin":
       return "platform_admin";
@@ -175,6 +216,11 @@ async function resolveRoleResolution(
  * Returns the user context if authenticated.
  */
 export async function requireAuth({ user }: AuthContext) {
+  if (isActiveDemoContext(user)) {
+    if (isDemoModeAllowed()) return;
+    throw new SecurityConfigurationError("Demo auth is disabled in production.");
+  }
+
   // In demo mode or when Supabase isn't configured, always pass
   if (!isSupabaseConfigured()) {
     if (isDemoModeAllowed()) return;
@@ -184,7 +230,9 @@ export async function requireAuth({ user }: AuthContext) {
     throw redirect({ to: "/auth" });
   }
 
-  if (requiresEmailVerification(user as unknown as Parameters<typeof requiresEmailVerification>[0])) {
+  if (
+    requiresEmailVerification(user as unknown as Parameters<typeof requiresEmailVerification>[0])
+  ) {
     throw redirect({ to: "/auth/verify-email" });
   }
 }
@@ -195,14 +243,23 @@ export async function requireAuth({ user }: AuthContext) {
  *
  * In demo mode, all role checks pass (the user can explore any dashboard).
  */
-export async function requireRole(
-  { user, role: contextRole, persona, teacherType, learnerType, institutionId }: AuthContext,
-  roles: UserRole[],
-) {
+export async function requireRole(ctx: AuthContext, roles: UserRole[]) {
+  const { user, role: contextRole, persona, teacherType, learnerType, institutionId } = ctx;
+
+  if (isActiveDemoContext(user)) {
+    if (!isDemoModeAllowed()) {
+      throw new SecurityConfigurationError("Demo authorization is disabled in production.");
+    }
+
+    return demoRoleResolutionFromContext(ctx);
+  }
+
   // In demo mode, all role checks pass
   if (!isSupabaseConfigured()) {
     if (!isDemoModeAllowed()) {
-      throw new SecurityConfigurationError("Authorization cannot run without Supabase in production.");
+      throw new SecurityConfigurationError(
+        "Authorization cannot run without Supabase in production.",
+      );
     }
 
     return {
@@ -222,7 +279,10 @@ export async function requireRole(
       learnerType: learnerType ?? (contextRole === "student" ? "institution" : null),
       institutionId:
         institutionId ??
-        (contextRole === "institution_admin" || contextRole === "owner" || contextRole === "teacher" || contextRole === "student"
+        (contextRole === "institution_admin" ||
+        contextRole === "owner" ||
+        contextRole === "teacher" ||
+        contextRole === "student"
           ? "demo-institution"
           : null),
     };
@@ -305,7 +365,7 @@ export async function requireInstitutionStaff(ctx: AuthContext) {
   if (!resolution) return resolution;
 
   const hasInstitutionScope =
-    (resolution.role === "institution_admin" || resolution.role === "owner")
+    resolution.role === "institution_admin" || resolution.role === "owner"
       ? Boolean(resolution.institutionId)
       : resolution.role === "teacher"
         ? resolution.persona === "institution_teacher" && Boolean(resolution.institutionId)
@@ -356,7 +416,9 @@ export async function redirectByRole({ user, role: contextRole }: AuthContext) {
   if (!user) {
     if (!isSupabaseConfigured()) {
       if (isDemoModeAllowed()) return;
-      throw new SecurityConfigurationError("Authentication is not configured for this environment.");
+      throw new SecurityConfigurationError(
+        "Authentication is not configured for this environment.",
+      );
     }
     throw redirect({ to: "/auth" });
   }

@@ -4,7 +4,6 @@ import {
   BadgeCheck,
   BookOpen,
   Camera,
-  Clock3,
   MessageSquare,
   Mic,
   MonitorUp,
@@ -144,7 +143,9 @@ export function TeacherLiveClassroomPage({
     ? (classroomContext.participants as SessionParticipant[])
     : [];
   const learnerQuestions = messages.filter((m: any) => m.sender === "student");
-  const teacherMessages = messages.filter((m: any) => m.sender === "teacher" || m.sender === "ai_teacher");
+  const teacherMessages = messages.filter(
+    (m: any) => m.sender === "teacher" || m.sender === "ai_teacher",
+  );
   const sessionStatus = formatStatus(session.status);
   const roster = useMemo(
     () => buildRoster(participants, learnerQuestions),
@@ -174,7 +175,7 @@ export function TeacherLiveClassroomPage({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[28px] border border-[#D9E7EE] bg-white p-6 shadow-[0_16px_60px_rgba(15,23,42,0.08)]">
+      <section className="rounded-[28px] border border-[#C9DDE7] bg-white p-6 shadow-[0_16px_60px_rgba(15,23,42,0.08)]">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -187,10 +188,15 @@ export function TeacherLiveClassroomPage({
               </span>
             </div>
             <h1 className="text-3xl font-black tracking-tight text-[#132033]">
-              {lesson.title ?? "Live lesson"}
+              Teacher recording studio
             </h1>
-            <p className="mt-2 text-sm text-[#5D7285]">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5D7285]">
               {course.title ?? "Course"} · {institution.name ?? "Institution"}
+            </p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5D7285]">
+              Record and broadcast {lesson.title ?? "this lesson"} while learners join from their
+              own live room. This page is for delivery, questions, captions, and the saved lesson
+              recording.
             </p>
           </div>
 
@@ -203,10 +209,10 @@ export function TeacherLiveClassroomPage({
             </div>
             <div className="rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-4">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
-                <Clock3 className="h-3.5 w-3.5" /> Status
+                <Video className="h-3.5 w-3.5" /> Recording
               </div>
               <p className="mt-3 text-sm font-bold text-[#132033]">
-                {session.status === "scheduled" ? "Ready to start" : "Teaching in progress"}
+                {recordingLive ? "Streaming and saving" : "Ready to record"}
               </p>
             </div>
             <div className="rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-4">
@@ -225,8 +231,12 @@ export function TeacherLiveClassroomPage({
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button className="bg-[#1F7C80] hover:bg-[#1A5256]">
-            <PlayCircle className="mr-2 h-4 w-4" /> {session.status === "live" ? "Resume live teaching" : "Open live classroom"}
+          <Button
+            className="bg-[#1F7C80] text-white hover:bg-[#1A5256]"
+            onClick={() => setRecordingLive(true)}
+          >
+            <PlayCircle className="mr-2 h-4 w-4" />{" "}
+            {recordingLive ? "Recording live" : "Start recording"}
           </Button>
           <Button
             type="button"
@@ -258,7 +268,8 @@ export function TeacherLiveClassroomPage({
             className="border-[#D7E4EC] text-[#27465F]"
             onClick={() => setRecordingLive((value) => !value)}
           >
-            <Video className="mr-2 h-4 w-4" /> {recordingLive ? "Recording live" : "Start recording"}
+            <Video className="mr-2 h-4 w-4" />{" "}
+            {recordingLive ? "Pause recording" : "Resume recording"}
           </Button>
           <Button variant="outline" className="border-[#D7E4EC] text-[#27465F]">
             <MonitorUp className="mr-2 h-4 w-4" /> Share board
@@ -275,9 +286,11 @@ export function TeacherLiveClassroomPage({
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
-                  Teacher stage
+                  Recording booth
                 </p>
-                <h2 className="mt-2 text-xl font-black text-[#132033]">What the teacher sees live</h2>
+                <h2 className="mt-2 text-xl font-black text-[#132033]">
+                  Teacher broadcast console
+                </h2>
               </div>
               <div className="inline-flex items-center gap-2 rounded-full bg-[#EAF8F7] px-3 py-1 text-xs font-semibold text-[#1F7C80]">
                 <Radio className="h-3.5 w-3.5" /> Broadcasting
@@ -288,11 +301,13 @@ export function TeacherLiveClassroomPage({
               <div className="rounded-[24px] border border-[#E6EEF5] bg-[#0F172A] p-5 text-white">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-white/60">Live delivery</p>
-                    <h3 className="mt-2 text-lg font-bold">Teacher camera / voice area</h3>
+                    <p className="text-xs uppercase tracking-[0.18em] text-white/60">
+                      Live recording
+                    </p>
+                    <h3 className="mt-2 text-lg font-bold">Camera, voice, and caption feed</h3>
                   </div>
                   <div className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold">
-                    Human teacher
+                    Teacher source
                   </div>
                 </div>
                 <div className="mt-6 flex min-h-[220px] items-center justify-center rounded-[20px] border border-white/10 bg-[radial-gradient(circle_at_top,#27465F,transparent_55%),linear-gradient(135deg,#111827,#0B1220)]">
@@ -300,20 +315,40 @@ export function TeacherLiveClassroomPage({
                     <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/10">
                       <Volume2 className="h-9 w-9 text-white" />
                     </div>
-                    <p className="mt-4 text-lg font-semibold">Teacher is presenting live</p>
+                    <p className="mt-4 text-lg font-semibold">Recording the teacher lesson</p>
                     <p className="mt-1 text-sm text-white/65">
-                      Video, voice, captions, and the live lesson recording stream from here for learners in real time.
+                      Video, voice, captions, and transcript evidence are captured here while
+                      learners follow from their own room.
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   {[
-                    { icon: <Camera className="h-4 w-4" />, label: "Camera", value: cameraOn ? "Live" : "Off" },
-                    { icon: <Mic className="h-4 w-4" />, label: "Microphone", value: micOn ? "Open" : "Muted" },
-                    { icon: <Volume2 className="h-4 w-4" />, label: "Speaker", value: speakerOn ? "On" : "Off" },
-                    { icon: <Video className="h-4 w-4" />, label: "Recording", value: recordingLive ? "Streaming and archiving" : "Not recording" },
+                    {
+                      icon: <Camera className="h-4 w-4" />,
+                      label: "Camera",
+                      value: cameraOn ? "Live" : "Off",
+                    },
+                    {
+                      icon: <Mic className="h-4 w-4" />,
+                      label: "Microphone",
+                      value: micOn ? "Open" : "Muted",
+                    },
+                    {
+                      icon: <Volume2 className="h-4 w-4" />,
+                      label: "Speaker",
+                      value: speakerOn ? "On" : "Off",
+                    },
+                    {
+                      icon: <Video className="h-4 w-4" />,
+                      label: "Recording",
+                      value: recordingLive ? "Streaming and archiving" : "Not recording",
+                    },
                   ].map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-3 text-left">
+                    <div
+                      key={item.label}
+                      className="rounded-2xl border border-white/10 bg-white/5 p-3 text-left"
+                    >
                       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/60">
                         {item.icon} {item.label}
                       </div>
@@ -325,14 +360,25 @@ export function TeacherLiveClassroomPage({
 
               <div className="rounded-[24px] border border-[#E6EEF5] bg-[#FAFCFE] p-5">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
-                  <BookOpen className="h-3.5 w-3.5" /> Teaching notes
+                  <BookOpen className="h-3.5 w-3.5" /> Cue cards
                 </div>
-                <h3 className="mt-3 text-lg font-bold text-[#132033]">Lesson control panel</h3>
+                <h3 className="mt-3 text-lg font-bold text-[#132033]">Recording control panel</h3>
                 <ul className="mt-4 space-y-3 text-sm text-[#52687C]">
-                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Current topic: {lesson.title ?? "Live lesson"}</li>
-                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Teacher reads and delivers the lesson live while guiding examples, exercises, and learner questions.</li>
-                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Teacher sees alerts when learners need support, raise hands, or ask questions in session.</li>
-                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">Every live lesson recording is saved in real time, added to the course catalog, and becomes part of future learner enrollments.</li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">
+                    Current topic: {lesson.title ?? "Live lesson"}
+                  </li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">
+                    Teacher records the live explanation while guiding examples, exercises, and
+                    learner questions.
+                  </li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">
+                    Teacher sees alerts when learners need support, raise hands, or ask questions in
+                    session.
+                  </li>
+                  <li className="rounded-2xl border border-[#E6EEF5] bg-white p-3">
+                    Every live lesson recording is saved in real time, added to the course catalog,
+                    and becomes part of future learner enrollments.
+                  </li>
                 </ul>
               </div>
             </div>
@@ -341,12 +387,14 @@ export function TeacherLiveClassroomPage({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
-                    Shared board
+                    Published board
                   </p>
-                  <h3 className="mt-2 text-lg font-bold text-[#132033]">Teacher board and lesson flow</h3>
+                  <h3 className="mt-2 text-lg font-bold text-[#132033]">
+                    Board captured into the recording
+                  </h3>
                 </div>
                 <span className="rounded-full border border-[#DDE8EF] bg-white px-3 py-1 text-xs font-semibold text-[#537086]">
-                  Learners see this in sync
+                  Saved with the lesson
                 </span>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -355,7 +403,10 @@ export function TeacherLiveClassroomPage({
                   "Highlight key formula",
                   "Publish recording to catalog",
                 ].map((item) => (
-                  <div key={item} className="rounded-2xl border border-[#E2EBF2] bg-white p-4 text-sm font-semibold text-[#27465F]">
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-[#E2EBF2] bg-white p-4 text-sm font-semibold text-[#27465F]"
+                  >
                     {item}
                   </div>
                 ))}
@@ -367,23 +418,30 @@ export function TeacherLiveClassroomPage({
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
-                  Quick teacher actions
+                  Live teacher prompts
                 </p>
-                <h2 className="mt-2 text-xl font-black text-[#132033]">What the teacher can trigger instantly</h2>
+                <h2 className="mt-2 text-xl font-black text-[#132033]">
+                  Prompts sent to learners during recording
+                </h2>
               </div>
               <WandSparkles className="h-5 w-5 text-[#1F7C80]" />
             </div>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {quickActions.map((action) => (
-                <button
-                  key={action}
-                  type="button"
-                  onClick={() => void sendMessage(action)}
-                  className="rounded-2xl border border-[#DDE8EF] bg-[#FAFCFE] p-4 text-left text-sm font-semibold text-[#244059] transition hover:border-[#1F7C80]/35 hover:bg-[#F4FBFA]"
-                >
-                  {action}
-                </button>
-              ))}
+              {quickActions.map((action) => {
+                const prompt = action.includes("slow down")
+                  ? "Let's slow down and review the last idea together."
+                  : action;
+                return (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => void sendMessage(prompt)}
+                    className="rounded-2xl border border-[#DDE8EF] bg-[#FAFCFE] p-4 text-left text-sm font-semibold text-[#244059] transition hover:border-[#1F7C80]/35 hover:bg-[#F4FBFA]"
+                  >
+                    {prompt}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -402,19 +460,25 @@ export function TeacherLiveClassroomPage({
             <div className="mt-5 space-y-3">
               {roster.length > 0 ? (
                 roster.map((learner) => (
-                  <div key={learner.id} className="flex items-center justify-between rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-3">
+                  <div
+                    key={learner.id}
+                    className="flex items-center justify-between rounded-2xl border border-[#E4ECF3] bg-[#FAFCFE] p-3"
+                  >
                     <div>
                       <p className="font-semibold text-[#132033]">{learner.name}</p>
                       <p className="text-xs text-[#61758A]">{learner.signal}</p>
                     </div>
-                    <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${rosterTone(learner.state)}`}>
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${rosterTone(learner.state)}`}
+                    >
                       {learner.state.replace("_", " ")}
                     </span>
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-[#D9E7EE] bg-[#FBFDFC] p-5 text-sm text-[#63788D]">
-                  No learners have joined yet. When learners enter the session, the teacher will see them here.
+                  No learners have joined yet. When learners enter the session, the teacher will see
+                  them here.
                 </div>
               )}
             </div>
@@ -426,25 +490,33 @@ export function TeacherLiveClassroomPage({
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
                   Live questions
                 </p>
-                <h2 className="mt-2 text-xl font-black text-[#132033]">Question and signal queue</h2>
+                <h2 className="mt-2 text-xl font-black text-[#132033]">
+                  Question and signal queue
+                </h2>
               </div>
               <AlertCircle className="h-5 w-5 text-[#F59E0B]" />
             </div>
 
             <div className="mt-5 space-y-3">
               {learnerQuestions.length > 0 ? (
-                learnerQuestions.slice(-4).reverse().map((message: any) => (
-                  <div key={message.id} className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
-                      Learner question
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-[#233B52]">{message.message}</p>
-                  </div>
-                ))
+                learnerQuestions
+                  .slice(-4)
+                  .reverse()
+                  .map((message: any) => (
+                    <div
+                      key={message.id}
+                      className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-4"
+                    >
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7B8EA2]">
+                        Learner question
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-[#233B52]">{message.message}</p>
+                    </div>
+                  ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-[#D9E7EE] bg-[#FBFDFC] p-5 text-sm text-[#63788D]">
-                  No live learner questions yet. When learners ask in chat or raise a hand, the teacher
-                  sees them here.
+                  No live learner questions yet. When learners ask in chat or raise a hand, the
+                  teacher sees them here.
                 </div>
               )}
             </div>
@@ -480,7 +552,8 @@ export function TeacherLiveClassroomPage({
                 Captions, transcript, and the lesson recording can run live alongside the teacher.
               </li>
               <li className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-3">
-                After class, AI can answer future learner questions using the teacher’s voice and the saved lesson context.
+                After class, AI can answer future learner questions using the teacher’s voice and
+                the saved lesson context.
               </li>
               <li className="rounded-2xl border border-[#E6EEF5] bg-[#FAFCFE] p-3">
                 Latest teacher-side message count: {teacherMessages.length}

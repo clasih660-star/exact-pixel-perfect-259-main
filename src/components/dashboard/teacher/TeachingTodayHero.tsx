@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, Users, Play, Eye, UserCheck } from "lucide-react";
+import { TeacherStartClassButton } from "@/components/classroom/TeacherStartClassButton";
 
 interface TeachingTodayHeroProps {
   courseName: string;
@@ -67,14 +68,12 @@ export function TeachingTodayHero({
 
         {/* Right side: Actions */}
         <div className="flex flex-col gap-3 lg:min-w-[200px]">
-          <Link
-            to="/classroom/$lessonId"
-            params={{ lessonId }}
-            className="btn-primary flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-green-700"
-          >
-            <Play className="h-4 w-4" />
-            Start Class
-          </Link>
+          <TeacherStartClassButton
+            lessonId={lessonId}
+            sessionId={sessionId}
+            label="Open recording studio"
+            className="min-h-12 bg-green-600 px-6 py-3 hover:bg-green-700"
+          />
           <Link
             to="/teacher/lessons/$lessonId/edit"
             params={{ lessonId }}

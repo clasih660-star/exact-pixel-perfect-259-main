@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       achievements: {
@@ -358,6 +383,63 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "classroom_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assignments: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_at: string | null
+          id: string
+          institution_id: string
+          status: string
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          institution_id: string
+          status?: string
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          institution_id?: string
+          status?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
             referencedColumns: ["id"]
           },
         ]
@@ -990,6 +1072,7 @@ export type Database = {
           course_id: string
           enrolled_at: string
           enrolled_by: string | null
+          enrollment_source: string
           id: string
           institution_id: string
           status: string
@@ -1000,6 +1083,7 @@ export type Database = {
           course_id: string
           enrolled_at?: string
           enrolled_by?: string | null
+          enrollment_source?: string
           id?: string
           institution_id: string
           status?: string
@@ -1010,6 +1094,7 @@ export type Database = {
           course_id?: string
           enrolled_at?: string
           enrolled_by?: string | null
+          enrollment_source?: string
           id?: string
           institution_id?: string
           status?: string
@@ -1098,6 +1183,75 @@ export type Database = {
           },
         ]
       }
+      course_purchases: {
+        Row: {
+          amount_minor: number
+          amount_usd: number
+          course_id: string
+          created_at: string
+          currency: string
+          enrolled_at: string | null
+          id: string
+          institution_id: string
+          metadata_json: Json
+          paid_at: string | null
+          paystack_reference: string | null
+          provider_reference: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_minor?: number
+          amount_usd?: number
+          course_id: string
+          created_at?: string
+          currency?: string
+          enrolled_at?: string | null
+          id?: string
+          institution_id: string
+          metadata_json?: Json
+          paid_at?: string | null
+          paystack_reference?: string | null
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_minor?: number
+          amount_usd?: number
+          course_id?: string
+          created_at?: string
+          currency?: string
+          enrolled_at?: string | null
+          id?: string
+          institution_id?: string
+          metadata_json?: Json
+          paid_at?: string | null
+          paystack_reference?: string | null
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_purchases_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_teachers: {
         Row: {
           course_id: string
@@ -1132,14 +1286,18 @@ export type Database = {
       }
       courses: {
         Row: {
+          compare_at_price_usd: number | null
           cover_image_url: string | null
           created_at: string
           created_by: string | null
+          currency: string
           description: string | null
           id: string
           institution_id: string
           lesson_generation_mode: string | null
           level: string | null
+          price_usd: number
+          pricing_label: string | null
           programme_id: string | null
           slug: string
           source_type: string
@@ -1151,14 +1309,18 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          compare_at_price_usd?: number | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string | null
           id?: string
           institution_id: string
           lesson_generation_mode?: string | null
           level?: string | null
+          price_usd?: number
+          pricing_label?: string | null
           programme_id?: string | null
           slug: string
           source_type?: string
@@ -1170,14 +1332,18 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          compare_at_price_usd?: number | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string | null
           id?: string
           institution_id?: string
           lesson_generation_mode?: string | null
           level?: string | null
+          price_usd?: number
+          pricing_label?: string | null
           programme_id?: string | null
           slug?: string
           source_type?: string
@@ -2229,6 +2395,54 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          body: string
+          course_id: string | null
+          created_at: string
+          id: string
+          institution_id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          institution_id: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          institution_id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string
@@ -2272,50 +2486,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "notifications_institution_id_fkey"
-            columns: ["institution_id"]
-            isOneToOne: false
-            referencedRelation: "institutions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      parent_learner_links: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          institution_id: string | null
-          learner_user_id: string
-          parent_user_id: string
-          relationship: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          institution_id?: string | null
-          learner_user_id: string
-          parent_user_id: string
-          relationship?: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          institution_id?: string | null
-          learner_user_id?: string
-          parent_user_id?: string
-          relationship?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "parent_learner_links_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
             referencedRelation: "institutions"
@@ -2400,6 +2570,50 @@ export type Database = {
             columns: ["related_invite_id"]
             isOneToOne: false
             referencedRelation: "institution_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parent_learner_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          institution_id: string | null
+          learner_user_id: string
+          parent_user_id: string
+          relationship: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          institution_id?: string | null
+          learner_user_id: string
+          parent_user_id: string
+          relationship?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          institution_id?: string | null
+          learner_user_id?: string
+          parent_user_id?: string
+          relationship?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_learner_links_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
             referencedColumns: ["id"]
           },
         ]
@@ -3893,6 +4107,18 @@ export type Database = {
     }
     Functions: {
       course_institution: { Args: { _course_id: string }; Returns: string }
+      create_notification_once: {
+        Args: {
+          p_body: string
+          p_institution_id: string
+          p_notification_type: string
+          p_payload_json?: Json
+          p_target_url?: string
+          p_title: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       generate_profile_public_id: {
         Args: { _institution_id?: string; _role: string }
         Returns: {
@@ -3927,6 +4153,29 @@ export type Database = {
       is_session_participant: {
         Args: { p_session_id: string; p_user_id: string }
         Returns: boolean
+      }
+      notify_institution_staff: {
+        Args: {
+          p_body: string
+          p_institution_id: string
+          p_notification_type: string
+          p_payload_json?: Json
+          p_target_url?: string
+          p_title: string
+        }
+        Returns: undefined
+      }
+      notify_linked_parents: {
+        Args: {
+          p_body: string
+          p_institution_id: string
+          p_learner_user_id: string
+          p_notification_type: string
+          p_payload_json?: Json
+          p_target_url?: string
+          p_title: string
+        }
+        Returns: undefined
       }
       session_course: { Args: { _session_id: string }; Returns: string }
     }
@@ -4089,6 +4338,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       classroom_mode: ["ai_teacher", "human_teacher", "hybrid"],
