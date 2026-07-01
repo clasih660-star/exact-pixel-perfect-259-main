@@ -5288,3 +5288,311 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Deep Teaching Upgrades */
+.vc-teaching-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 5px;
+  transition: all 0.2s ease;
+}
+.vc-teaching-mode-explaining {
+  background: rgba(31, 124, 128, 0.12);
+  color: #1f7c80;
+  border: 1px solid rgba(31, 124, 128, 0.25);
+}
+.vc-teaching-mode-demonstrating {
+  background: rgba(124, 58, 237, 0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.25);
+}
+.vc-teaching-mode-asking {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+  border: 1px solid rgba(249, 115, 22, 0.25);
+}
+.vc-teaching-mode-reteaching {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.vc-teaching-mode-recap {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.vc-visual-frame {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.vc-visual-browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+.vc-browser-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.vc-browser-dot.dot-red { background: #ef4444; }
+.vc-browser-dot.dot-yellow { background: #f59e0b; }
+.vc-browser-dot.dot-green { background: #10b981; }
+.vc-browser-title {
+  margin-left: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vc-visual-image-wrapper {
+  position: relative;
+  background: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.vc-visual-image {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+}
+.vc-visual-cue-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+}
+.vc-visual-cue-icon {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #1d4ed8;
+  margin-bottom: 4px;
+}
+.vc-visual-cue-box p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+.vc-visual-description {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #475569;
+}
+.vc-visual-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.vc-visual-label-chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Fallback representations */
+.vc-visual-fallback-box {
+  width: 100%;
+  padding: 24px 16px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.vc-visual-fallback-icon {
+  font-size: 2rem;
+}
+.vc-visual-fallback-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+}
+.vc-visual-fallback-desc {
+  font-size: 0.74rem;
+  color: #64748b;
+}
+
+/* Formula representation */
+.vc-visual-formula-card {
+  width: 100%;
+  padding: 16px;
+  background: #0f172a;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #38bdf8;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Table representation */
+.vc-visual-table-card {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+  margin-top: 4px;
+}
+.vc-visual-table-card th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  text-align: left;
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+}
+.vc-visual-table-card td {
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+.vc-visual-table-card tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+/* =============================================================================
+   RESPONSIVENESS AND SCROLL FIXES (APPLIED FROM APPROVED PLAN)
+   ============================================================================= */
+
+/* 1. Mobile & Tablet Scroll Lock Bypass */
+@media (max-width: 980px) {
+  .vc-root {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .vc-main {
+    flex: none !important;
+    overflow: visible !important;
+  }
+
+  .vc-whiteboard-area {
+    overflow: visible !important;
+  }
+
+  .vc-board-row {
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
+
+  .vc-learning-drawer,
+  .vc-notes-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* 2. Mobile Layout Enhancements & Top Bar Fit */
+@media (max-width: 760px) {
+  /* Controls wrapping & stack instead of overflow */
+  .vc-controls {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    max-height: none !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 12px 8px !important;
+    overflow: visible !important;
+  }
+
+  .vc-control-cluster {
+    min-width: 0 !important;
+    flex: 1 1 calc(50% - 12px) !important;
+    max-width: none !important;
+  }
+
+  /* Prevent divider spacing blowout */
+  .vc-controls-divider {
+    display: none !important;
+  }
+
+  /* Shrink breadcrumbs to prevent top bar overflow */
+  .vc-top-bar-breadcrumb {
+    font-size: 0.72rem !important;
+    white-space: normal !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    max-height: 2.4em !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .vc-top-bar-breadcrumb span {
+    white-space: normal !important;
+  }
+
+  /* Allow top bar to auto-adjust height on row wrapping */
+  .vc-top-bar {
+    height: auto !important;
+    min-height: 56px !important;
+    padding-block: 8px !important;
+  }
+
+  .vc-top-bar-center {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+}
+
+/* 3. Very narrow phones / embedded webviews */
+@media (max-width: 430px) {
+  .vc-control-cluster {
+    flex: 1 1 100% !important;
+  }
+}
+
+/* 4. Desktop Low-Height Screen Adaptations */
+@media (min-width: 981px) and (max-height: 820px) {
+  .vc-teacher-frame-inner {
+    height: clamp(150px, 20dvh, 210px) !important;
+  }
+
+  .vc-root {
+    --vc-board-min-h: clamp(260px, 42dvh, 460px) !important;
+  }
+}
+

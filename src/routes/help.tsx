@@ -1,135 +1,116 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { BookOpenText, Building2, LifeBuoy, ShieldCheck, UserRoundCheck, Wrench } from "lucide-react";
 import { InfoPage } from "@/components/marketing/InfoPage";
-import {
-  Rocket,
-  PenLine,
-  School,
-  Accessibility,
-  BarChart3,
-  Shield,
-  Users,
-  FolderOpen,
-} from "lucide-react";
-
-const SITE_URL = "https://klassruum.com";
 
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "Help Center — Klassruum AI Virtual Classrooms" },
+      { title: "Help Center | Klassruum Support for Schools, Teachers and Learners" },
       {
         name: "description",
         content:
-          "Guides, FAQs, and support resources for Klassruum. Learn how to set up your institution, manage courses, use the classroom, and troubleshoot common issues.",
-      },
-      {
-        name: "keywords",
-        content:
-          "Klassruum help, support, FAQ, getting started, institution setup, course management, classroom help, troubleshooting",
-      },
-      { name: "author", content: "Klassruum" },
-      { name: "robots", content: "index, follow" },
-      { property: "og:type", content: "website" },
-      { property: "og:title", content: "Help Center — Klassruum" },
-      {
-        property: "og:description",
-        content: "Guides, FAQs, and support for setting up and using Klassruum.",
-      },
-      { property: "og:url", content: `${SITE_URL}/help` },
-      { property: "og:image", content: "/images/scenes/scene-1.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/help` }],
-    script: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: "Klassruum Help Center",
-          url: `${SITE_URL}/help`,
-          description: "Guides, FAQs, and support resources for Klassruum.",
-        }),
+          "Find Klassruum help resources for institution setup, lesson preparation, learner access, troubleshooting, accessibility, privacy, and support escalation.",
       },
     ],
   }),
   component: () => (
     <InfoPage
-      eyebrow="Help center"
-      title="How can we help?"
-      intro="Guides, FAQs, and support resources to get you up and running with Klassruum."
+      eyebrow="Help Center"
+      title="Support for rollout, teaching, and day-to-day use"
+      intro="The Klassruum Help Center is for institutions, teachers, and learners who need guidance on setup, lesson delivery, access, and common platform questions."
       cta={{ label: "Contact support", to: "/contact" }}
       sections={[
         {
-          icon: <Rocket size={20} />,
-          title: "Getting started",
-          body: "Register your institution, invite teachers and learners, and launch your first course.",
+          icon: <Building2 size={20} />,
+          title: "Institution setup help",
+          body: "Support for registration, course structure, teacher invitation, and staged rollout planning.",
         },
         {
-          icon: <PenLine size={20} />,
-          title: "Authoring lessons",
-          body: "Turn your materials into structured, teacher-led lessons grounded in your own content.",
+          icon: <BookOpenText size={20} />,
+          title: "Lesson preparation guidance",
+          body: "Learn how to prepare resources, ground the classroom, and structure AI-supported teaching.",
         },
         {
-          icon: <School size={20} />,
-          title: "Running the classroom",
-          body: "How lessons are taught, how questions work, and how learners move through a session.",
+          icon: <UserRoundCheck size={20} />,
+          title: "Learner access support",
+          body: "Help students enter lessons, use transcripts, and understand the main classroom interface.",
         },
         {
-          icon: <Accessibility size={20} />,
-          title: "Accessibility settings",
-          body: "Configure learning modes, captions, audio and display for diverse learners.",
+          icon: <Wrench size={20} />,
+          title: "Troubleshooting",
+          body: "Work through browser issues, access problems, classroom playback questions, and session behavior.",
         },
         {
-          icon: <BarChart3 size={20} />,
-          title: "Reading the evidence",
-          body: "Interpret activity, practice and confidence data for each learner.",
+          icon: <ShieldCheck size={20} />,
+          title: "Privacy and governance help",
+          body: "Understand where to look for privacy, compliance, and institution-facing review expectations.",
         },
         {
-          icon: <Shield size={20} />,
-          title: "Data & privacy",
-          body: "How learner data is stored, protected and controlled.",
-        },
-        {
-          icon: <Users size={20} />,
-          title: "Managing users",
-          body: "Invite teachers, enroll learners, and manage roles and permissions.",
-        },
-        {
-          icon: <FolderOpen size={20} />,
-          title: "Uploading materials",
-          body: "Supported file types, best practices for content, and how lesson generation works.",
+          icon: <LifeBuoy size={20} />,
+          title: "Escalation path",
+          body: "Know when to use documentation, when to contact support, and when to involve your institution team.",
         },
       ]}
     >
-      <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-8">
-        <h2 className="text-2xl font-bold text-[#0F172A]">Frequently asked questions</h2>
-        <div className="mt-6 space-y-5">
+      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="space-y-6">
+          <div className="lp-premium-card p-6">
+            <h2 className="text-heading text-2xl font-extrabold">Choose the right help route</h2>
+            <div className="text-body mt-4 space-y-4 text-sm leading-8">
+              <p>
+                If you are evaluating the platform, start with institution onboarding. If you are
+                already using Klassruum, the next best route depends on whether the issue is teaching,
+                learner access, browser behavior, or operational support.
+              </p>
+              <p>
+                The goal of this page is to make support easier to navigate for both education teams
+                and implementation stakeholders.
+              </p>
+            </div>
+          </div>
+          <div className="lp-premium-card p-6">
+            <h3 className="text-heading text-xl font-bold">Common reasons people visit this page</h3>
+            <ul className="text-body mt-4 list-disc space-y-2 pl-5 text-sm leading-7">
+              <li>Setting up a school or department rollout</li>
+              <li>Preparing the first AI-taught lesson</li>
+              <li>Helping learners access classroom sessions</li>
+              <li>Fixing browser or classroom playback issues</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
           {[
             {
-              q: "How do I get started?",
-              a: "Register your institution, create your first course, upload materials, and generate lessons. Our getting started guide walks you through each step.",
+              title: "For institutions",
+              body: "Use this if you are evaluating rollout, inviting staff, or preparing governance and course setup.",
+              link: "/institutions/register",
+              label: "Institution registration",
             },
             {
-              q: "How do I add teachers?",
-              a: "From your institution dashboard, invite teachers by email. They'll receive access to create and manage courses and lessons.",
+              title: "For teachers",
+              body: "Use this if you are preparing materials, supervising lessons, or reviewing learner progress.",
+              link: "/docs",
+              label: "Documentation",
             },
             {
-              q: "What file types can I upload?",
-              a: "Klassruum supports PDFs, PowerPoint presentations, Word documents, images, and plain text. We're adding more formats regularly.",
+              title: "Direct support",
+              body: "Use this if you are blocked on onboarding, procurement, or technical support and need the team directly.",
+              link: "/contact",
+              label: "Contact Klassruum",
             },
-            {
-              q: "How do I contact support?",
-              a: "Email us at hello@klassruum.com or use the contact form. We aim to respond within one business day.",
-            },
-          ].map((item) => (
-            <div key={item.q}>
-              <h3 className="text-[16px] font-semibold text-[#0F172A]">{item.q}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">{item.a}</p>
+          ].map((card) => (
+            <div key={card.title} className="lp-premium-card p-6">
+              <h3 className="text-heading text-xl font-bold">{card.title}</h3>
+              <p className="text-body mt-2 text-sm leading-7">{card.body}</p>
+              <Link to={card.link} className="text-learning-blue mt-4 inline-flex text-sm font-semibold hover:text-academic-blue">
+                {card.label}
+              </Link>
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </InfoPage>
   ),
 });
+

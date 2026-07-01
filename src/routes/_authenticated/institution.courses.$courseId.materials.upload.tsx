@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RouteStubPage } from "@/components/route/RouteStubPage";
-import { requireInstitutionStaff } from "@/lib/route-guards";
 
-export const Route = createFileRoute(
-  "/_authenticated/institution/courses/$courseId/materials/upload",
-)({
-  beforeLoad: (ctx) => requireInstitutionStaff(ctx.context),
+export const Route = createFileRoute("/_authenticated/institution/courses/$courseId/materials/upload")({
   component: () => (
     <RouteStubPage
       title="Upload Material"

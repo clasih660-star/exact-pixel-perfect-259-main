@@ -1,8 +1,12 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import {
   activateInstitutionSubscription,
   upsertPaymentTransaction,
 } from "@/lib/paystack-billing.functions";
+import {
+  COURSE_PURCHASE_SOURCE,
+  handleCoursePurchaseWebhookEvent,
+} from "@/lib/course-billing.functions";
 import type { Json } from "@/integrations/supabase/types";
 
 type JsonObject = { [key: string]: Json | undefined };
@@ -66,6 +70,26 @@ export async function processPaystackWebhookPayload(rawBody: string): Promise<{
 
   const reference = typeof data.reference === "string" ? data.reference : null;
   const metadata = (data.metadata ?? {}) as Record<string, unknown>;
+
+  const normalizedStatus = normalizeStatus(data.status);
+  const paidAt = typeof data.paid_at === "string" ? data.paid_at : null;
+  const providerReference =
+    typeof data.id === "number" || typeof data.id === "string" ? String(data.id) : null;
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // ── Course purchase flow (USD, student-level) ───────────────────────────
+  const source = typeof metadata.source === "string" ? metadata.source : null;
+  if (source === COURSE_PURCHASE_SOURCE && reference) {
+    await handleCoursePurchaseWebhookEvent(supabaseAdmin, {
+      reference,
+      status: data.status as string,
+      paidAt,
+      providerReference,
+    });
+    return { ok: true, event, handled: true };
+  }
+
   const institutionId =
     typeof metadata.institution_id === "string"
       ? metadata.institution_id
@@ -83,14 +107,9 @@ export async function processPaystackWebhookPayload(rawBody: string): Promise<{
     return { ok: true, event, handled: false };
   }
 
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const normalizedStatus = normalizeStatus(data.status);
   const amountMinor = toMinorUnits(data.amount);
   const currency = normalizeCurrency(data.currency as string);
   const channel = typeof data.channel === "string" ? data.channel : null;
-  const paidAt = typeof data.paid_at === "string" ? data.paid_at : null;
-  const providerReference =
-    typeof data.id === "number" || typeof data.id === "string" ? String(data.id) : null;
 
   await upsertPaymentTransaction(supabaseAdmin, {
     institutionId,
@@ -126,5 +145,10 @@ export function verifyPaystackWebhookSignature(rawBody: string, signature: strin
   const secret = process.env.PAYSTACK_WEBHOOK_SECRET;
   if (!secret) return false;
   const expected = createHmac("sha512", secret).update(rawBody).digest("hex");
-  return expected === signature;
+  const expectedBuffer = Buffer.from(expected, "hex");
+  const signatureBuffer = Buffer.from(signature, "hex");
+  return (
+    expectedBuffer.length === signatureBuffer.length &&
+    timingSafeEqual(expectedBuffer, signatureBuffer)
+  );
 }

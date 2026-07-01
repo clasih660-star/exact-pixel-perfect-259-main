@@ -68,6 +68,7 @@ export function buildDemoLessonContent(): ClassroomLessonContent {
     equation: LESSON_EQUATION,
     subject: "Quadratic Equations",
     course: "Mathematics Form 2",
+    courseLevel: "Form 2",
     institution: "Demo Academy",
     academicLevel: "secondary",
     teacher: {
@@ -108,6 +109,41 @@ export function buildDemoLessonContent(): ClassroomLessonContent {
       feedbackIncorrect: "Good effort! The correct answer is 2 and 3: 2 × 3 = 6 and 2 + 3 = 5.",
     },
     exitReflection: EXIT_REFLECTION,
+    visualPlan: [
+      {
+        id: "math_quadratic_formula",
+        anchorId: "step_1",
+        kind: "formula",
+        source: "fallback",
+        title: "Quadratic standard form",
+        description: "The general form of a quadratic equation is ax² + bx + c = 0, where a ≠ 0.",
+        alt: "ax² + bx + c = 0",
+        teacherCue: "Identify that a = 1, b = 5, and c = 6 in our equation.",
+        labels: ["Quadratic", "Standard Form", "a = 1", "b = 5", "c = 6"]
+      },
+      {
+        id: "math_factor_table",
+        anchorId: "step_2",
+        kind: "table",
+        source: "fallback",
+        title: "Factors of 6 matching sum 5",
+        description: "Finding pairs of integers that multiply to 6 and add to 5.",
+        alt: "Factors comparison",
+        teacherCue: "Look at the table: the pair (2, 3) satisfies both product = 6 and sum = 5.",
+        labels: ["Pair: 1, 6 (Sum: 7)", "Pair: 2, 3 (Sum: 5)", "Product = 6", "Sum = 5"]
+      },
+      {
+        id: "math_factored_equality",
+        anchorId: "step_6",
+        kind: "formula",
+        source: "fallback",
+        title: "Factored decomposition",
+        description: "Rewriting quadratic expression x² + 5x + 6 into two linear factors (x + 2)(x + 3).",
+        alt: "x² + 5x + 6 = (x + 2)(x + 3)",
+        teacherCue: "Compare both sides. Expanding the right side gives x² + 3x + 2x + 6 = x² + 5x + 6.",
+        labels: ["Factored Form", "Linear Factors", "Zero Product Rule"]
+      }
+    ],
     learnerNotes: FULL_LEARNER_NOTES,
     materialContext: undefined,
   };

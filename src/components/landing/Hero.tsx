@@ -38,7 +38,7 @@ export function Hero() {
       <section
         className="relative flex min-h-[92vh] flex-col justify-between overflow-hidden bg-[#07111f] pb-10 pt-28 text-white"
         style={{
-          backgroundImage: "url('/images/scenes/hero-bg.png')",
+          backgroundImage: "url('/images/scenes/kenya_cbc_learners.png')",
           backgroundSize: "cover",
           backgroundPosition: "right center",
           backgroundRepeat: "no-repeat",

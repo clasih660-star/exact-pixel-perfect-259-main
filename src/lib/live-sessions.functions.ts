@@ -14,6 +14,8 @@ import {
   assertActorCanAccessSession,
 } from "@/lib/server-authorization";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 /** Start (or resume) an AI-teacher session for the current learner on a lesson. */
 export const startLearnerSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -78,7 +80,7 @@ export const createTeacherSession = createServerFn({ method: "POST" })
   .validator((data: unknown) =>
     z
       .object({
-        lesson_id: z.string().uuid(),
+        lesson_id: z.string().min(1),
         mode: z.enum(["ai_teacher", "human_teacher", "hybrid"]).default("human_teacher"),
         scheduled_start_at: z.string().datetime().optional(),
         start_now: z.boolean().default(false),
@@ -97,6 +99,10 @@ export const createTeacherSession = createServerFn({ method: "POST" })
           started_at: data.start_now ? new Date().toISOString() : null,
         },
       };
+    }
+
+    if (!UUID_RE.test(data.lesson_id)) {
+      throw new Error("A real lesson is required to start a teacher recording session.");
     }
 
     const lesson = await assertActorCanAccessLesson(context, data.lesson_id, {
@@ -125,11 +131,15 @@ export const createTeacherSession = createServerFn({ method: "POST" })
 /** End a session. */
 export const endSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ session_id: z.string().min(1) }).parse(data))
   .handler(async ({ data, context }: any) => {
     const { supabase, userId } = context;
 
     if (!supabase) return { ok: true };
+
+    if (!UUID_RE.test(data.session_id)) {
+      throw new Error("A real session is required to end a live classroom.");
+    }
 
     await assertActorCanAccessSession(context, data.session_id, { requireModerator: true });
 
@@ -154,9 +164,12 @@ export const endSession = createServerFn({ method: "POST" })
 /** Mark the current user as having left a session. */
 export const leaveSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: unknown) => z.object({ session_id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ session_id: z.string().min(1) }).parse(data))
   .handler(async ({ data, context }: any) => {
     if (!context.supabase) return { ok: true };
+    if (!UUID_RE.test(data.session_id)) {
+      throw new Error("A real session is required to leave a live classroom.");
+    }
     await assertActorCanAccessSession(context, data.session_id);
     const db = context.supabase as any;
     await db

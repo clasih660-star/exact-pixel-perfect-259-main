@@ -64,6 +64,16 @@ export type MathTeachingItem = {
   /** Accessibility description for screen readers and assistive tech */
   accessibleDescription: string;
 
+  /** Optional visual cue shown in the classroom resource panel for this step. */
+  visualCue?: {
+    kind: "screenshot" | "diagram" | "formula" | "chart" | "table" | "illustration" | "workflow" | "map" | "text_reference";
+    title: string;
+    description: string;
+    imageUrl?: string;
+    imageAlt?: string;
+    teacherCue?: string;
+  };
+
   /** The semantic type of this board item */
   type: MathTeachingItemType;
 

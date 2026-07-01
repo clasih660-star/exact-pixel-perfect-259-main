@@ -6,10 +6,10 @@ type PricingHref = "/demo/classroom" | "/institutions/register" | "/contact";
 export function Pricing() {
   const plans = [
     {
-      name: "Explore Klassruum",
+      name: "Starter",
       price: "$0",
-      period: "free demo",
-      description: "Use a prepared classroom to see the teaching flow before setup.",
+      period: "forever",
+      description: "Explore a prepared AI classroom and experience the flow before any setup.",
       badge: "Start here",
       features: [
         "Pre-loaded classroom lesson",
@@ -21,35 +21,54 @@ export function Pricing() {
       featured: false,
     },
     {
-      name: "Monthly Classrooms",
-      price: "₦19,500",
+      name: "Essential",
+      price: "$149",
       period: "institution / month",
-      description: "Rent governed AI virtual classrooms monthly for your school, academy, or training centre.",
-      badge: "Monthly Rental",
+      description: "Launch a smaller AI classroom deployment with core teaching, billing, and learner workflows.",
+      badge: "Essential",
+      annualNote: "Save 15% annually",
       features: [
         "Institution workspace and billing",
-        "Hire/invite teachers by email",
+        "Invite teachers by email",
         "Assign teachers to courses",
         "AI classroom lessons and live sessions",
         "Learner notes, transcripts, and progress",
-        "Monthly Paystack subscription flow",
+        "Monthly subscription flow",
       ],
-      cta: { label: "Start monthly rental", to: "/institutions/register" as PricingHref },
+      cta: { label: "Start essential plan", to: "/institutions/register" as PricingHref },
+      featured: false,
+    },
+    {
+      name: "Growth",
+      price: "$349",
+      period: "institution / month",
+      description: "Scale across programmes with stronger reporting, coordination, and rollout support.",
+      badge: "Most popular",
+      annualNote: "Save 20% annually",
+      features: [
+        "Everything in Essential",
+        "Expanded teacher and programme support",
+        "Advanced progress tracking and reporting",
+        "Multi-course rollout workflows",
+        "Priority onboarding guidance",
+        "Faster support coverage",
+      ],
+      cta: { label: "Start growth plan", to: "/institutions/register" as PricingHref },
       featured: true,
     },
     {
-      name: "Enterprise",
+      name: "Custom",
       price: "Custom",
-      period: "institution / year",
-      description: "For multi-site organizations with advanced integration needs.",
-      badge: "Global Scale",
+      period: "annual agreement",
+      description: "For large institutions needing governance, integrations, and tailored implementation.",
+      badge: "Custom",
       features: [
-        "Everything in Deploy Klassruum",
+        "Everything in Growth",
         "SSO and advanced security",
         "API and custom integrations",
         "Dedicated account manager",
         "SLA and compliance support",
-        "Custom data retention",
+        "Custom data retention and procurement support",
       ],
       cta: { label: "Contact us", to: "/contact" as PricingHref },
       featured: false,
@@ -76,14 +95,14 @@ export function Pricing() {
 
         <div className="mx-auto mb-5 flex max-w-5xl items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
           <span>Choose a starting point</span>
-          <span className="hidden text-[#1F7C80] sm:inline">Demo, rent monthly, or scale</span>
+          <span className="hidden text-[#1F7C80] sm:inline">Monthly, annual savings, or custom scale</span>
         </div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-4 md:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan) => (
             <article
               key={plan.name}
-              className={`pricing-track-card flex min-h-full flex-col overflow-hidden p-6 md:p-7 ${
+              className={`pricing-track-card interactive-surface flex min-h-full flex-col overflow-hidden p-6 md:p-7 ${
                 plan.featured
                   ? "relative border-[#07111f] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.10)]"
                   : "border-slate-200 bg-white"
@@ -123,6 +142,11 @@ export function Pricing() {
                 <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-600">
                   {plan.description}
                 </p>
+                {"annualNote" in plan && plan.annualNote ? (
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#1F7C80]">
+                    {plan.annualNote}
+                  </p>
+                ) : null}
               </div>
 
               <div className="my-7 h-px bg-slate-200" />
@@ -163,8 +187,8 @@ export function Pricing() {
             after fit is clear.
           </p>
           <p>
-            <strong className="font-bold text-slate-950">Monthly rental:</strong> Paystack-backed
-            institution billing supports month-by-month classroom access.
+            <strong className="font-bold text-slate-950">Annual savings:</strong> paid plans include
+            built-in yearly discount options for longer commitments.
           </p>
           <p>
             <strong className="font-bold text-slate-950">Teacher-ready:</strong> invite teachers,

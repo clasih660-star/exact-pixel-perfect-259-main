@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ChevronDown, ChevronUp, X, Save, Loader2, Check, ArrowLeft } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronUp, X, Save, Loader2, Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { InstitutionShell } from "@/components/institution/InstitutionShell";
 import { requireInstitutionStaff } from "@/lib/route-guards";
+import { getTeacherLessonWorkspace } from "@/lib/teacher-course-workspace";
 import {
   getLesson,
   updateLessonDetails,
@@ -29,14 +30,22 @@ export const Route = createFileRoute("/_authenticated/teacher/lessons/$lessonId/
 function LessonEditorPage() {
   const { lessonId } = Route.useParams();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const isUuidLesson =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(lessonId);
+  const demoLesson = !isUuidLesson ? getTeacherLessonWorkspace(lessonId) : null;
 
   const fn = useServerFn(getLesson);
   const q = useQuery({
     queryKey: ["lesson", lessonId],
     queryFn: () => fn({ data: { lesson_id: lessonId } }),
+    enabled: isUuidLesson,
   });
 
-  if (q.isLoading) {
+  if (demoLesson) {
+    return <DemoLessonEditor lessonId={lessonId} demo={demoLesson} />;
+  }
+
+  if (isUuidLesson && q.isLoading) {
     return (
       <InstitutionShell title="Lesson Editor">
         <div className="text-center py-12">
@@ -98,7 +107,116 @@ function LessonEditorPage() {
         </div>
 
         {/* Publish Actions */}
-        <PublishSection lesson={lesson} lessonId={lessonId} onPublish={() => { }} />
+        <PublishSection lesson={lesson} lessonId={lessonId} onPublish={() => {}} />
+      </div>
+    </InstitutionShell>
+  );
+}
+
+function DemoLessonEditor({
+  lessonId,
+  demo,
+}: {
+  lessonId: string;
+  demo: NonNullable<ReturnType<typeof getTeacherLessonWorkspace>>;
+}) {
+  const { course, lesson } = demo;
+  const [form, setForm] = useState({
+    title: lesson.title,
+    objective: lesson.objective,
+    duration: lesson.duration.replace(" min", ""),
+    status: lesson.status,
+  });
+  const [saved, setSaved] = useState(false);
+
+  return (
+    <InstitutionShell
+      title={form.title || "Edit Lesson"}
+      actions={
+        <Link to="/teacher/courses/$courseId/lessons" params={{ courseId: course.id }}>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4" />
+            Course lessons
+          </Button>
+        </Link>
+      }
+    >
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Lesson details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={form.title}
+                onChange={(event) => setForm({ ...form, title: event.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Objective</Label>
+              <Textarea
+                value={form.objective}
+                onChange={(event) => setForm({ ...form, objective: event.target.value })}
+                className="min-h-24"
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Duration (minutes)</Label>
+                <Input
+                  type="number"
+                  value={form.duration}
+                  onChange={(event) => setForm({ ...form, duration: event.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Input
+                  value={form.status}
+                  onChange={(event) =>
+                    setForm({ ...form, status: event.target.value as typeof form.status })
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                className="bg-[#1F7C80] hover:bg-[#1A5256]"
+                onClick={() => {
+                  setSaved(true);
+                  toast.success("Demo lesson changes saved in this session");
+                }}
+              >
+                <Save className="h-4 w-4" />
+                Save lesson
+              </Button>
+              <Link to="/classroom/preview/$lessonId" params={{ lessonId }}>
+                <Button variant="outline">
+                  <BookOpen className="h-4 w-4" />
+                  Preview lesson
+                </Button>
+              </Link>
+            </div>
+            {saved && (
+              <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                Saved for this demo workspace. Real institution lessons continue to save through
+                Supabase when their lesson ID is a UUID.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <h3 className="font-semibold">Teaching sequence</h3>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+              This demo lesson has {lesson.steps} classroom steps. Use the preview to test pacing,
+              captions, narration, and the live classroom flow before recording.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </InstitutionShell>
   );

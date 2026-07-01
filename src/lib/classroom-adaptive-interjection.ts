@@ -51,7 +51,7 @@ const InputSchema = z.object({
 });
 
 const InterventionSchema = z.object({
-  spokenText: z.string().max(300),
+  spokenText: z.string().max(900),
   boardItem: z.object({ type: z.string(), text: z.string() }).optional(),
   strategy: z.enum(["recap", "simplify", "example", "encourage", "pause_and_ask"]),
 });
@@ -79,14 +79,15 @@ export const generateAdaptiveIntervention = createServerFn({ method: "POST" })
     try {
       const result = await caller.call(
         InterventionSchema,
-        `You are an empathetic AI teacher in a live classroom. A confusion-detection system has flagged that the learner may be struggling. Generate a short, spoken intervention to help them.
+        `You are an empathetic AI teacher in a live classroom. A confusion-detection system has flagged that the learner may be struggling. Generate an adaptive, spoken interjection to help them.
 
 RULES:
-- Maximum 3 sentences, warm and supportive.
+- Use 5–10 sentences when reteaching is needed; be warm, supportive, and unhurried.
 - Do NOT say "the system detected" or reference any AI/mechanism.
 - Speak directly to the learner as a caring teacher.
 - Address the specific confusion pattern (see context).
-- Offer a concrete next step (re-explain, simpler example, short recap).`,
+- Offer a concrete next step: explain from a different angle using a simple analogy or alternate worked example.
+- Explicitly direct the learner to the visual panel by saying things like "look at this screenshot", "notice this formula here", or "focus on this part of the diagram".`,
         `LESSON: "${data.context.lessonTitle}"
 SECTION: ${data.context.currentSection}
 CURRENT BOARD: ${data.context.currentBoardItem ?? "—"}

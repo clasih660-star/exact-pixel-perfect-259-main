@@ -14,8 +14,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { MathTeachingItem, MathTeachingItemType } from "./lesson-models";
-import type { ClassroomLessonContent } from "./classroom-content";
+import type { ClassroomLessonContent, ClassroomVisualAsset } from "./classroom-content";
 import type { AcademicLevel } from "./types";
+import {
+  buildFallbackVisualPlan,
+  createDefaultPacingPlan,
+  detectInstructionalDiscipline,
+  detectToolingContext,
+} from "./classroom-instructional-planning";
 
 /** Map a DB teaching-item type onto the board renderer's item type. */
 function toBoardType(dbType: string): MathTeachingItemType {
@@ -77,6 +83,15 @@ function toSectionKey(sectionType: string): string {
   }
 }
 
+function asRecord(value: unknown): Record<string, any> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, any>) : {};
+}
+
+function isVisualAsset(value: unknown): value is ClassroomVisualAsset {
+  const v = asRecord(value);
+  return Boolean(v.id && v.kind && v.title && v.description && v.alt && v.teacherCue);
+}
+
 export const loadClassroomLesson = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => z.object({ lesson_id: z.string().uuid() }).parse(data))
@@ -92,13 +107,41 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
     const { data: lessonRow, error: lErr } = await supabase
       .from("lessons")
       .select(
-        "id, title, objective, course_id, institution_id, " +
+        "id, title, objective, course_id, institution_id, duration_minutes, estimated_duration_minutes, minimum_duration_minutes, lesson_data_json, " +
           "courses(title, subject, level, institutions(name))",
       )
       .eq("id", data.lesson_id)
       .single();
     if (lErr || !lessonRow) return { content: null };
     const lesson = lessonRow as any;
+
+    const courseRel = lesson.courses;
+    const course = (Array.isArray(courseRel) ? courseRel[0] : courseRel) as
+      | {
+          title?: string;
+          subject?: string;
+          level?: string;
+          institutions?: { name?: string } | { name?: string }[];
+        }
+      | undefined;
+    const instRel = course?.institutions;
+    const institution = Array.isArray(instRel) ? instRel[0] : instRel;
+    const title = lesson.title ?? "Lesson";
+    const metadata = asRecord(lesson.lesson_data_json);
+    const disciplineType =
+      metadata.disciplineType ??
+      detectInstructionalDiscipline({
+        subject: course?.subject,
+        course: course?.title,
+        title,
+      });
+    const toolingContext =
+      metadata.toolingContext ??
+      detectToolingContext({
+        subject: course?.subject,
+        course: course?.title,
+        title,
+      });
 
     // 2. Sections (ordered) + their teaching items (ordered).
     const { data: sectionsRaw } = await supabase
@@ -112,7 +155,7 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
       .select(
         "id, section_id, order_index, type, board_text, exact_spoken_text, " +
           "teacher_explanation, learner_notes, accessible_description, " +
-          "why_this_matters, common_mistake, writing_speed",
+          "why_this_matters, common_mistake, writing_speed, image_url, image_alt, source_material_id",
       )
       .eq("lesson_id", data.lesson_id)
       .order("order_index", { ascending: true });
@@ -153,6 +196,22 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
           whyThisStepMatters: it.why_this_matters || "",
           commonMistake: it.common_mistake || undefined,
           accessibleDescription: it.accessible_description || board,
+          visualCue:
+            it.image_url || it.image_alt
+              ? {
+                  kind: disciplineType === "business_software" ? "screenshot" : "illustration",
+                  title: it.image_alt || board,
+                  description:
+                    it.accessible_description ||
+                    it.teacher_explanation ||
+                    `Visual support for ${board}`,
+                  imageUrl: it.image_url || undefined,
+                  imageAlt: it.image_alt || it.accessible_description || board,
+                  teacherCue:
+                    it.image_alt ||
+                    "Pause on this visual and connect it to the current board item before continuing.",
+                }
+              : undefined,
           writingSpeed: (it.writing_speed as MathTeachingItem["writingSpeed"]) || "normal",
         });
         if (it.learner_notes) learnerNotesParts.push(it.learner_notes);
@@ -174,27 +233,63 @@ export const loadClassroomLesson = createServerFn({ method: "GET" })
       .slice(0, 6000)
       .trim();
 
-    const courseRel = lesson.courses;
-    const course = (Array.isArray(courseRel) ? courseRel[0] : courseRel) as
-      | {
-          title?: string;
-          subject?: string;
-          level?: string;
-          institutions?: { name?: string } | { name?: string }[];
-        }
-      | undefined;
-    const instRel = course?.institutions;
-    const institution = Array.isArray(instRel) ? instRel[0] : instRel;
+    const { data: materialImagesRaw } = await supabase
+      .from("material_images")
+      .select("id, image_url, caption, extracted_context, course_material_id, suggested_lesson_id")
+      .eq("course_id", lesson.course_id)
+      .limit(12);
 
-    const title = lesson.title ?? "Lesson";
+    const materialVisuals: ClassroomVisualAsset[] = ((materialImagesRaw ?? []) as any[]).map(
+      (img, index) => ({
+        id: `material_${img.id}`,
+        kind: disciplineType === "business_software" ? "screenshot" : "illustration",
+        source: "uploaded_material",
+        title: img.caption || `Course material visual ${index + 1}`,
+        description:
+          img.extracted_context ||
+          img.caption ||
+          "Uploaded institutional visual that supports the current lesson.",
+        alt: img.caption || `Uploaded visual for ${title}`,
+        imageUrl: img.image_url,
+        teacherCue:
+          img.extracted_context ||
+          "Pause on this uploaded visual. Point out the labels, interface areas, or evidence before continuing.",
+      }),
+    );
+
+    const generatedVisuals = Array.isArray(metadata.visualPlan)
+      ? metadata.visualPlan.filter(isVisualAsset)
+      : [];
+
+    const fallbackVisuals = buildFallbackVisualPlan({
+      lessonId: lesson.id,
+      title,
+      subject: course?.subject ?? "General",
+      course: course?.title ?? "Course",
+      disciplineType,
+      toolingContext,
+      sequence,
+    });
+
+    const visualPlan = [...materialVisuals, ...generatedVisuals, ...fallbackVisuals].slice(0, 8);
+
     const content: ClassroomLessonContent = {
       lessonId: lesson.id,
       title,
       equation: undefined,
       subject: course?.subject ?? "General",
       course: course?.title ?? "Course",
+      courseLevel: course?.level ?? undefined,
       institution: institution?.name ?? "Klassruum",
       academicLevel: toAcademicLevel(course?.level),
+      disciplineType,
+      toolingContext,
+      pacingPlan: metadata.pacingPlan ?? createDefaultPacingPlan(lesson.estimated_duration_minutes ?? lesson.duration_minutes),
+      visualPlan,
+      instructionalSegments: metadata.instructionalSegments ?? [],
+      reteachMoments: metadata.reteachMoments ?? [],
+      guidedQuestions: metadata.guidedQuestions ?? [],
+      practiceCycles: metadata.practiceCycles ?? [],
       teacher: { name: "Ms. Ada", image: "/images/teachers/woman.png", voice: "female" },
       openingNarrative:
         lesson.objective ||

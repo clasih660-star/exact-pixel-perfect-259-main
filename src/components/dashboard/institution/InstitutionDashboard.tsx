@@ -66,6 +66,9 @@ export default function InstitutionDashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["institution-dashboard"],
     queryFn: () => fn(),
+    staleTime: 20000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) {

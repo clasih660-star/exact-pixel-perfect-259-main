@@ -255,7 +255,7 @@ function SessionRow({ session }: { session: Session }) {
             className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
           >
             <Play className="h-4 w-4" />
-            {session.status === "live" ? "Join" : "Start"}
+            {session.status === "live" ? "Open studio" : "Prepare"}
           </Link>
         ) : (
           <>

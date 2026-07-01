@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { dashboardConfigs } from "@/lib/dashboard-config";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { KpiCard } from "@/components/dashboard/shared/KpiCard";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
+import { getPlatformAdminDashboard } from "@/lib/reporting.functions";
 import {
   Building2,
   Users,
@@ -17,43 +19,54 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
+function formatCount(value: number | null | undefined): string {
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value ?? 0);
+}
+
+function timeAgo(iso: string | null | undefined): string {
+  if (!iso) return "Live data";
+  const timestamp = new Date(iso).getTime();
+  if (Number.isNaN(timestamp)) return "Live data";
+  const mins = Math.max(0, Math.floor((Date.now() - timestamp) / 60000));
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  return `${Math.floor(hrs / 24)} d ago`;
+}
+
 export function PlatformAdminDashboard() {
   const config = dashboardConfigs.platform_admin;
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // TODO: Replace with real data fetching (useServerFn + useQuery like InstitutionDashboard)
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        setIsLoading(false);
-      } catch {
-        setError("Failed to load dashboard data");
-        setIsLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  const dashboardFn = useServerFn(getPlatformAdminDashboard);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["platform-admin-dashboard"],
+    queryFn: () => dashboardFn(),
+    staleTime: 20000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: false,
+  });
 
   if (isLoading) {
     return (
-      <DashboardShell config={config} activePath="/admin/platform">
+      <DashboardShell config={config} activePath="/admin/dashboard">
         <DashboardLoadingState type="skeleton" />
       </DashboardShell>
     );
   }
 
-  if (error) {
+  if (error || !data) {
     return (
-      <DashboardShell config={config} activePath="/admin/platform">
-        <DashboardLoadingState type="error" message={error} />
+      <DashboardShell config={config} activePath="/admin/dashboard">
+        <DashboardLoadingState
+          type="error"
+          message={(error as Error)?.message || "Failed to load dashboard data"}
+        />
       </DashboardShell>
     );
   }
 
   return (
-    <DashboardShell config={config} activePath="/admin/platform">
+    <DashboardShell config={config} activePath="/admin/dashboard">
       {/* Dashboard Header */}
       <section className="mb-6">
         <div className="mb-2 flex items-center gap-2">
@@ -90,22 +103,30 @@ export function PlatformAdminDashboard() {
             <div className="mt-5 flex flex-wrap items-center gap-6">
               <div>
                 <p className="text-xs text-[var(--gray-400)]">Users Online</p>
-                <p className="text-2xl font-extrabold text-[var(--primary)]">1,284</p>
+                <p className="text-2xl font-extrabold text-[var(--primary)]">
+                  {formatCount(data.live.usersOnline)}
+                </p>
               </div>
               <div className="h-8 w-px bg-[var(--gray-200)]" />
               <div>
                 <p className="text-xs text-[var(--gray-400)]">Active Classrooms</p>
-                <p className="font-bold text-[var(--gray-900)]">96</p>
+                <p className="font-bold text-[var(--gray-900)]">
+                  {formatCount(data.live.activeClassrooms)}
+                </p>
               </div>
               <div className="h-8 w-px bg-[var(--gray-200)]" />
               <div>
                 <p className="text-xs text-[var(--gray-400)]">Institutions Live</p>
-                <p className="font-bold text-[var(--gray-900)]">38</p>
+                <p className="font-bold text-[var(--gray-900)]">
+                  {formatCount(data.live.institutionsLive)}
+                </p>
               </div>
               <div className="h-8 w-px bg-[var(--gray-200)]" />
               <div>
                 <p className="text-xs text-[var(--gray-400)]">Lessons Generating</p>
-                <p className="font-bold text-[var(--gray-900)]">7</p>
+                <p className="font-bold text-[var(--gray-900)]">
+                  {formatCount(data.live.lessonsGenerating)}
+                </p>
               </div>
             </div>
           </div>
@@ -132,7 +153,7 @@ export function PlatformAdminDashboard() {
       <section className="kr-dashboard-kpi-grid mb-6">
         <KpiCard
           title="Institutions"
-          value="1,247"
+          value={formatCount(data.stats.institutions)}
           subtitle="Active organizations"
           href="/admin/institutions"
           icon={Building2}
@@ -140,7 +161,7 @@ export function PlatformAdminDashboard() {
         />
         <KpiCard
           title="Total Users"
-          value="89,432"
+          value={formatCount(data.stats.users)}
           subtitle="Across all roles"
           href="/admin/users"
           icon={Users}
@@ -148,16 +169,16 @@ export function PlatformAdminDashboard() {
         />
         <KpiCard
           title="Active Sessions"
-          value="1,847"
+          value={formatCount(data.stats.activeSessions)}
           subtitle="Live classrooms"
           href="/admin/usage"
           icon={Activity}
           trend="+23%"
         />
         <KpiCard
-          title="Monthly Revenue"
-          value="$247,892"
-          subtitle="Subscription income"
+          title="Subscriptions"
+          value={formatCount(data.stats.activeSubscriptions)}
+          subtitle="Active or trialing"
           href="/admin/plans"
           icon={CreditCard}
           trend="+15%"
@@ -171,7 +192,7 @@ export function PlatformAdminDashboard() {
         />
         <KpiCard
           title="Support Tickets"
-          value="23"
+          value={formatCount(data.stats.supportTickets)}
           subtitle="Open issues"
           href="/admin/support"
           icon={AlertTriangle}

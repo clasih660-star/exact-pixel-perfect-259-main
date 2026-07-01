@@ -5,33 +5,27 @@ import { requiresEmailVerification } from "@/lib/auth-verification";
 import { getRoleResolution } from "@/lib/route-guards";
 import { isDemoModeAllowed } from "@/lib/runtime-mode";
 import { SecurityConfigurationError } from "@/lib/security-errors";
+import { getStoredDemoRole, isBrowserDemoSessionActive } from "@/lib/demo-mode";
 
 /** Demo roles available without Supabase. */
-const DEMO_ROLES: UserRole[] = [
-  "student",
-  "teacher",
-  "institution_admin",
-  "platform_admin",
-  "parent",
-];
-
 /**
  * Read the demo role from localStorage. Defaults to "student".
  * Users can switch via the auth page demo role selector.
  */
 function getDemoRole(): UserRole {
-  if (typeof window === "undefined") return "student";
-  const stored = localStorage.getItem("klassruum_demo_role");
-  if (stored && DEMO_ROLES.includes(stored as UserRole)) {
-    return stored as UserRole;
-  }
-  return "student";
+  return getStoredDemoRole();
 }
 
 function demoRoleResolution(role: UserRole): RoleResolution {
   switch (role) {
     case "platform_admin":
-      return { role, persona: "platform_admin", institutionId: null, teacherType: null, learnerType: null };
+      return {
+        role,
+        persona: "platform_admin",
+        institutionId: null,
+        teacherType: null,
+        learnerType: null,
+      };
     case "institution_admin":
       return {
         role,
@@ -73,6 +67,23 @@ function demoRoleResolution(role: UserRole): RoleResolution {
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
+    if (isBrowserDemoSessionActive()) {
+      if (!isDemoModeAllowed()) {
+        throw new SecurityConfigurationError("Demo auth is disabled in production.");
+      }
+
+      const role = getDemoRole();
+      const resolution = demoRoleResolution(role);
+      return {
+        user: { id: "demo-user-0000", email: `demo.${role}@klassruum.com` },
+        role: resolution.role,
+        persona: resolution.persona,
+        teacherType: resolution.teacherType ?? null,
+        learnerType: resolution.learnerType ?? null,
+        institutionId: resolution.institutionId ?? null,
+      };
+    }
+
     // ── Demo mode: Supabase not configured ───────────────────────────────
     // When credentials are missing or are placeholders, bypass all auth and
     // use the demo role from localStorage. The entire app runs as if the

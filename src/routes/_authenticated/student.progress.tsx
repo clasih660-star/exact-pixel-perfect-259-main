@@ -4,21 +4,26 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   BookOpen,
   Trophy,
-  Target,
-  Clock,
   TrendingUp,
+  Clock,
   CheckCircle2,
-  XCircle,
-  BarChart3,
 } from "lucide-react";
 import { StudentShell } from "@/components/student/StudentShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getMyProgress } from "@/lib/student.functions";
+import { requireStudent } from "@/lib/route-guards";
 
-export const Route = createFileRoute("/student/progress")({
+export const Route = createFileRoute("/_authenticated/student/progress")({
+  beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentProgressPage,
+  head: () => ({
+    meta: [
+      { title: "My Progress — Klassruum" },
+      { name: "description", content: "Track lesson completion, quiz scores, and study time." },
+    ],
+  }),
 });
 
 function StudentProgressPage() {
@@ -41,20 +46,10 @@ function StudentProgressPage() {
 }
 
 function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProgress>> }) {
-  const {
-    enrollments,
-    progressByCourse,
-    quizzesByCourse,
-    lessonCounts,
-    totalProgress,
-    totalQuizzes,
-  } = data;
+  const { enrollments, progressByCourse, quizzesByCourse, lessonCounts, totalProgress, totalQuizzes } =
+    data;
 
-  // Overall stats
   const totalLessonsCompleted = totalProgress.filter((p: any) => p.status === "completed").length;
-  const totalLessonsInProgress = totalProgress.filter(
-    (p: any) => p.status === "in_progress",
-  ).length;
   const avgProgress =
     totalProgress.length > 0
       ? Math.round(
@@ -75,26 +70,10 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
 
   return (
     <div className="space-y-6">
-      {/* Overview cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          icon={TrendingUp}
-          label="Avg. Progress"
-          value={`${avgProgress}%`}
-          color="text-primary"
-        />
-        <StatCard
-          icon={Trophy}
-          label="Quiz Score"
-          value={`${avgQuizScore}%`}
-          color="text-emerald-600"
-        />
-        <StatCard
-          icon={CheckCircle2}
-          label="Lessons Done"
-          value={totalLessonsCompleted}
-          color="text-[#1F7C80]"
-        />
+        <StatCard icon={TrendingUp} label="Avg. Progress" value={`${avgProgress}%`} color="text-primary" />
+        <StatCard icon={Trophy} label="Quiz Score" value={`${avgQuizScore}%`} color="text-emerald-600" />
+        <StatCard icon={CheckCircle2} label="Lessons Done" value={totalLessonsCompleted} color="text-[#1F7C80]" />
         <StatCard
           icon={Clock}
           label="Time Spent"
@@ -107,7 +86,6 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
         />
       </div>
 
-      {/* Per-course breakdown */}
       <div>
         <h2 className="mb-4 text-lg font-semibold">Course Progress</h2>
         {(enrollments as any[]).length === 0 ? (
@@ -115,10 +93,7 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
             <CardContent className="py-8 text-center text-muted-foreground">
               <BookOpen className="mx-auto mb-2 h-8 w-8 opacity-40" />
               <p>You're not enrolled in any courses yet.</p>
-              <Link
-                to="/student/courses"
-                className="mt-2 inline-block text-primary hover:underline"
-              >
+              <Link to="/student/courses" className="mt-2 inline-block text-primary hover:underline">
                 Browse courses
               </Link>
             </CardContent>
@@ -134,9 +109,7 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
               const courseQuizzes = quizzesByCourse[courseId] ?? [];
               const totalLessons = lessonCounts[courseId] ?? 0;
               const completed = courseProgress.filter((p: any) => p.status === "completed").length;
-              const inProgress = courseProgress.filter(
-                (p: any) => p.status === "in_progress",
-              ).length;
+              const inProgress = courseProgress.filter((p: any) => p.status === "in_progress").length;
               const avgPct =
                 courseProgress.length > 0
                   ? Math.round(
@@ -179,9 +152,7 @@ function ProgressDashboard({ data }: { data: Awaited<ReturnType<typeof getMyProg
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div>
                         <div className="text-lg font-bold text-[#1F7C80]">{inProgress}</div>
-                        <div className="text-[10px] uppercase text-muted-foreground">
-                          In Progress
-                        </div>
+                        <div className="text-[10px] uppercase text-muted-foreground">In Progress</div>
                       </div>
                       <div>
                         <div className="text-lg font-bold text-emerald-600">{completed}</div>

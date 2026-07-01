@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireInstitutionAdminAccess } from "@/lib/institution-admin.foundation";
@@ -282,7 +283,7 @@ async function getAdminClient() {
 }
 
 function randomReference(prefix = "klassruum"): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  return `${prefix}_${Date.now()}_${randomUUID()}`;
 }
 
 export const getBillingPlans = createServerFn({ method: "GET" }).handler(async () => {
@@ -540,6 +541,16 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
     );
 
     const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
+    const { data: localTransaction, error: localTransactionError } = await supabaseAdmin
+      .from("payment_transactions")
+      .select("id, institution_id, amount_minor, currency, status")
+      .eq("reference", data.reference)
+      .maybeSingle();
+    if (localTransactionError) throw new Error(localTransactionError.message);
+    if (!localTransaction || localTransaction.institution_id !== data.institutionId) {
+      throw new Error("This payment reference does not belong to the selected institution.");
+    }
+
     const response = await fetch(
       `https://api.paystack.co/transaction/verify/${encodeURIComponent(data.reference)}`,
       {
@@ -566,16 +577,18 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
         : null;
 
     const metadata = (transaction.metadata ?? {}) as Record<string, unknown>;
-    const planSlug =
-      typeof metadata.plan_slug === "string"
-        ? metadata.plan_slug
-        : ((
-            await supabaseAdmin
-              .from("billing_customers")
-              .select("plan_slug")
-              .eq("institution_id", data.institutionId)
-              .maybeSingle()
-          ).data?.plan_slug ?? "starter");
+    const metadataInstitutionId =
+      typeof metadata.institution_id === "string" ? metadata.institution_id : null;
+    const planSlug = typeof metadata.plan_slug === "string" ? metadata.plan_slug : null;
+    if (metadataInstitutionId !== data.institutionId || !planSlug) {
+      throw new Error("Paystack metadata does not match this institution checkout.");
+    }
+    if (
+      toMinorUnits(localTransaction.amount_minor) !== amountMinor ||
+      normalizeCurrency(localTransaction.currency as string) !== currency
+    ) {
+      throw new Error("Paystack amount or currency does not match the initialized checkout.");
+    }
 
     await upsertPaymentTransaction(supabaseAdmin, {
       institutionId: data.institutionId,

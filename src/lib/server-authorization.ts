@@ -60,43 +60,88 @@ function derivePersona(
   }
 }
 
-function getDemoResolution(): ActorResolution {
-  return {
-    role: "student",
-    persona: "institution_learner",
-    learnerType: "institution",
-    teacherType: null,
-    institutionId: "demo-institution",
-    memberships: [{ institution_id: "demo-institution", role: "student" }],
-  };
+function getDemoResolution(role: UserRole = "student"): ActorResolution {
+  switch (role) {
+    case "platform_admin":
+      return {
+        role,
+        persona: "platform_admin",
+        learnerType: null,
+        teacherType: null,
+        institutionId: null,
+        memberships: [],
+      };
+    case "institution_admin":
+    case "owner":
+      return {
+        role,
+        persona: "institution_admin",
+        learnerType: null,
+        teacherType: null,
+        institutionId: "demo-institution",
+        memberships: [{ institution_id: "demo-institution", role: "owner" }],
+      };
+    case "teacher":
+      return {
+        role,
+        persona: "institution_teacher",
+        learnerType: null,
+        teacherType: "institution",
+        institutionId: "demo-institution",
+        memberships: [{ institution_id: "demo-institution", role: "teacher" }],
+      };
+    case "parent":
+      return {
+        role,
+        persona: "parent",
+        learnerType: null,
+        teacherType: null,
+        institutionId: null,
+        memberships: [],
+      };
+    case "student":
+    default:
+      return {
+        role: "student",
+        persona: "institution_learner",
+        learnerType: "institution",
+        teacherType: null,
+        institutionId: "demo-institution",
+        memberships: [{ institution_id: "demo-institution", role: "student" }],
+      };
+  }
 }
 
-export async function getServerActorResolution(context: ServerAuthContext): Promise<ActorResolution> {
+export async function getServerActorResolution(
+  context: ServerAuthContext,
+): Promise<ActorResolution> {
   if (!context.userId) {
     throw new UnauthorizedError();
   }
 
   if (!context.supabase) {
     if (isDemoModeAllowed()) {
-      return getDemoResolution();
+      return getDemoResolution(context.claims?.demoRole as UserRole | undefined);
     }
 
     throw new UnauthorizedError("Authenticated database context is unavailable.");
   }
 
-  const [{ data: profileData, error: profileError }, { data: membershipData, error: membershipError }] =
-    await Promise.all([
-      context.supabase
-        .from("profiles")
-        .select("role, teacher_type, learner_type, institution_id")
-        .eq("id", context.userId)
-        .maybeSingle(),
-      context.supabase
-        .from("institution_members")
-        .select("institution_id, role")
-        .eq("user_id", context.userId)
-        .eq("status", "active"),
-    ]);
+  const [
+    { data: profileData, error: profileError },
+    { data: membershipData, error: membershipError },
+  ] = await Promise.all([
+    context.supabase
+      .from("profiles")
+      .select("role, teacher_type, learner_type, institution_id")
+      .eq("id", context.userId)
+      .maybeSingle(),
+    context.supabase
+      .from("institution_members")
+      .select("institution_id, role")
+      .eq("user_id", context.userId)
+      .eq("status", "active"),
+  ]);
 
   if (profileError) {
     throw new ForbiddenError("Unable to resolve your profile permissions.");
@@ -112,8 +157,8 @@ export async function getServerActorResolution(context: ServerAuthContext): Prom
     learner_type?: string | null;
     institution_id?: string | null;
   };
-  const memberships = ((membershipData ?? []) as ActiveMembership[]).filter(
-    (membership) => Boolean(membership.institution_id && membership.role),
+  const memberships = ((membershipData ?? []) as ActiveMembership[]).filter((membership) =>
+    Boolean(membership.institution_id && membership.role),
   );
 
   if (!profile.role) {
@@ -196,7 +241,9 @@ export async function assertActorCanAccessLesson(
     return lesson;
   }
 
-  const membership = actor.memberships.find((item) => item.institution_id === lesson.institution_id);
+  const membership = actor.memberships.find(
+    (item) => item.institution_id === lesson.institution_id,
+  );
   if (membership) {
     if (!options.requireStaff || ["owner", "admin", "teacher"].includes(membership.role)) {
       return lesson;

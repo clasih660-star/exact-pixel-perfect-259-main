@@ -14,6 +14,17 @@ const UploadSchema = z.object({
   link_url: z.string().url().optional(),
   extracted_text: z.string().max(100000).optional(),
   syllabus_reference: z.string().max(255).optional(),
+  material_role: z
+    .enum(["teacher_guide", "learner_book", "reference_text", "syllabus", "institution_excerpt", "other"])
+    .optional(),
+  book_title: z.string().trim().max(255).optional(),
+  publisher: z.string().trim().max(160).optional(),
+  edition_year: z.string().trim().max(40).optional(),
+  material_rights_status: z
+    .enum(["licensed", "institution_provided", "public_domain", "metadata_only", "pending_review"])
+    .default("institution_provided"),
+  rights_notes: z.string().trim().max(1000).optional(),
+  curriculum_metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const UpdateStatusSchema = z.object({
@@ -29,6 +40,25 @@ const DeleteSchema = z.object({
 const ListSchema = z.object({
   course_id: z.string().uuid(),
 });
+
+async function canManageCourseMaterials(context: any, institutionId: string) {
+  const { data: member } = await context.supabase
+    .from("institution_members")
+    .select("role")
+    .eq("institution_id", institutionId)
+    .eq("user_id", context.userId)
+    .maybeSingle();
+
+  if (member && ["owner", "admin", "teacher"].includes(member.role)) return true;
+
+  const { data: profile } = await context.supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", context.userId)
+    .maybeSingle();
+
+  return profile?.role === "platform_admin";
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Upload Material
@@ -47,15 +77,13 @@ export const uploadCourseMaterial = createServerFn({ method: "POST" })
 
     if (courseErr) throw new Error(`Course not found: ${courseErr.message}`);
 
-    const { data: member, error: memberErr } = await context.supabase
-      .from("institution_members")
-      .select("role")
-      .eq("institution_id", course.institution_id)
-      .eq("user_id", context.userId)
-      .single();
-
-    if (memberErr || !member || !["admin", "teacher"].includes(member.role)) {
+    if (!(await canManageCourseMaterials(context, course.institution_id))) {
       throw new Error("Not authorized to upload materials for this course");
+    }
+
+    const hasSourceText = Boolean(data.extracted_text?.trim());
+    if (hasSourceText && data.material_rights_status === "metadata_only") {
+      throw new Error("Metadata-only materials cannot include extracted source text.");
     }
 
     // Insert material
@@ -70,6 +98,13 @@ export const uploadCourseMaterial = createServerFn({ method: "POST" })
         link_url: data.link_url || null,
         extracted_text: data.extracted_text || null,
         syllabus_reference: data.syllabus_reference || null,
+        material_role: data.material_role || null,
+        book_title: data.book_title || null,
+        publisher: data.publisher || null,
+        edition_year: data.edition_year || null,
+        material_rights_status: data.material_rights_status,
+        rights_notes: data.rights_notes || null,
+        curriculum_metadata: data.curriculum_metadata || {},
         processing_status: "ready", // For Phase 1, assume ready (no extraction pipeline yet)
         processing_error: null,
         uploaded_by: context.userId,
@@ -99,7 +134,7 @@ export const listCourseMaterials = createServerFn({ method: "GET" })
     const { data: materials, error } = await context.supabase
       .from("course_materials")
       .select(
-        "id, title, type, processing_status, processing_error, file_url, link_url, created_at, uploaded_by",
+        "id, title, type, processing_status, processing_error, file_url, link_url, created_at, uploaded_by, syllabus_reference, material_role, book_title, publisher, edition_year, material_rights_status, rights_notes, curriculum_metadata",
       )
       .eq("course_id", data.course_id)
       .order("created_at", { ascending: false });
@@ -170,14 +205,7 @@ export const deleteCourseMaterial = createServerFn({ method: "POST" })
     if (getErr) throw new Error(getErr.message);
 
     // Verify authorization
-    const { data: member, error: memberErr } = await context.supabase
-      .from("institution_members")
-      .select("role")
-      .eq("institution_id", (material.courses as any).institution_id)
-      .eq("user_id", context.userId)
-      .single();
-
-    if (memberErr || !member || !["admin", "teacher"].includes(member.role)) {
+    if (!(await canManageCourseMaterials(context, (material.courses as any).institution_id))) {
       throw new Error("Not authorized to delete this material");
     }
 
@@ -207,7 +235,9 @@ export const getCourseMateriaisText = createServerFn({ method: "GET" })
   .handler(async ({ data, context }: any) => {
     const { data: materials, error } = await context.supabase
       .from("course_materials")
-      .select("title, extracted_text, type, processing_status")
+      .select(
+        "title, extracted_text, type, processing_status, syllabus_reference, material_role, book_title, publisher, edition_year, material_rights_status",
+      )
       .eq("course_id", data.course_id)
       .eq("processing_status", "ready")
       .order("created_at", { ascending: true });
@@ -216,7 +246,12 @@ export const getCourseMateriaisText = createServerFn({ method: "GET" })
 
     const combinedText = materials
       ?.map((m: any) => {
-        const header = `[${m.title} - ${m.type}]`;
+        const book = m.book_title ? ` | book: ${m.book_title}` : "";
+        const publisher = m.publisher ? ` | publisher: ${m.publisher}` : "";
+        const syllabus = m.syllabus_reference ? ` | syllabus: ${m.syllabus_reference}` : "";
+        const role = m.material_role ? ` | role: ${m.material_role}` : "";
+        const rights = m.material_rights_status ? ` | rights: ${m.material_rights_status}` : "";
+        const header = `[${m.title} - ${m.type}${role}${book}${publisher}${syllabus}${rights}]`;
         const content = m.extracted_text || "(No text extracted)";
         return `${header}\n${content}`;
       })
@@ -225,6 +260,16 @@ export const getCourseMateriaisText = createServerFn({ method: "GET" })
     return {
       combinedText: combinedText || "",
       materialCount: materials?.length ?? 0,
-      materialsList: materials?.map((m: any) => ({ title: m.title, type: m.type })) ?? [],
+      materialsList:
+        materials?.map((m: any) => ({
+          title: m.title,
+          type: m.type,
+          materialRole: m.material_role ?? null,
+          bookTitle: m.book_title ?? null,
+          publisher: m.publisher ?? null,
+          editionYear: m.edition_year ?? null,
+          syllabusReference: m.syllabus_reference ?? null,
+          materialRightsStatus: m.material_rights_status ?? null,
+        })) ?? [],
     };
   });

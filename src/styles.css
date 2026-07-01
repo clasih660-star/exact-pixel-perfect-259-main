@@ -365,7 +365,7 @@
   html {
     min-width: 320px;
     overflow-x: hidden;
-    scroll-behavior: smooth;
+    overflow-y: auto;
   }
   body {
     background-color: var(--color-background);
@@ -374,7 +374,9 @@
     -webkit-font-smoothing: antialiased;
     min-width: 320px;
     overflow-x: hidden;
+    overflow-y: auto;
     text-rendering: optimizeLegibility;
+    overscroll-behavior-y: auto;
   }
   img,
   svg,
@@ -387,5 +389,39 @@
   h3,
   h4 {
     letter-spacing: -0.02em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    body {
+      scroll-timeline-name: --page-scroll;
+    }
+
+    a,
+    button,
+    [role="button"],
+    .interactive-surface {
+      transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease,
+        background-color 180ms ease,
+        color 180ms ease,
+        opacity 180ms ease;
+      will-change: transform;
+    }
+
+    a:hover,
+    button:hover,
+    [role="button"]:hover,
+    .interactive-surface:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    html,
+    body {
+      width: 100%;
+    }
   }
 }

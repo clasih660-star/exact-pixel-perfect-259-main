@@ -463,6 +463,30 @@ export function buildEnglishLessonContent(): ClassroomLessonContent {
       question: "Before we finish — which part of speech should we practice more?",
       options: ["Nouns", "Verbs", "Adjectives", "I understood everything"],
     },
+    visualPlan: [
+      {
+        id: "eng_def_table",
+        anchorId: "eng_3",
+        kind: "table",
+        source: "fallback",
+        title: "Noun, Verb, and Adjective definitions",
+        description: "Definitions and key indicators for the three core parts of speech.",
+        alt: "Definitions matrix",
+        teacherCue: "Compare how nouns name, verbs show actions or states, and adjectives describe nouns.",
+        labels: ["Nouns: Person/Place/Thing/Idea", "Verbs: Action/State of Being", "Adjectives: Modifiers of Nouns"]
+      },
+      {
+        id: "eng_sentence_diagram",
+        anchorId: "eng_15",
+        kind: "workflow",
+        source: "fallback",
+        title: "Word classification workflow",
+        description: "Deconstructing the sentence: 'The tall teacher reads a book' into parts of speech.",
+        alt: "[The - Art] [tall - Adj] [teacher - Noun] [reads - Verb] [a - Art] [book - Noun]",
+        teacherCue: "Identify how 'tall' describes 'teacher', and 'reads' links the teacher to the 'book'.",
+        labels: ["Article", "Adjective", "Subject Noun", "Action Verb", "Object Noun"]
+      }
+    ],
     learnerNotes: `# Parts of Speech: Nouns, Verbs, and Adjectives
 
 ## Nouns

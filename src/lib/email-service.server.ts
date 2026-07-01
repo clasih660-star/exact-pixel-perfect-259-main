@@ -1,6 +1,10 @@
 import { getServerConfig } from "@/lib/config.server";
 
-type EmailTemplateKey = "institution_member_invite" | "institution_invite_accepted";
+type EmailTemplateKey =
+  | "institution_member_invite"
+  | "institution_invite_accepted"
+  | "institution_owner_verify_email"
+  | "institution_owner_welcome";
 
 type EmailJobPayload = Record<string, unknown>;
 
@@ -259,12 +263,109 @@ function renderAcceptedTemplate(subject: string, recipientName?: string | null, 
   } satisfies RenderedEmailTemplate;
 }
 
+function renderOwnerVerifyTemplate(
+  subject: string,
+  recipientName?: string | null,
+  payload?: EmailJobPayload,
+) {
+  const institutionName = escapeHtml(payload?.institution_name ?? "your institution");
+  const verificationUrl =
+    typeof payload?.verification_url === "string"
+      ? payload.verification_url
+      : toAbsoluteUrl("/auth/verify-email");
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello ${getRecipientLabel(recipientName)},</p>
+    <p style="margin:0 0 18px 0;">Your Klassruum institution workspace for <strong>${institutionName}</strong> has been created. Verify your email before opening the institution dashboard.</p>
+    <p style="margin:0 0 16px 0;">This protects your workspace and prevents automated signups from activating owner accounts.</p>
+  `;
+
+  const text = [
+    `Hello ${recipientName?.trim() || "there"},`,
+    "",
+    `Your Klassruum institution workspace for ${String(payload?.institution_name ?? "your institution")} has been created.`,
+    "Verify your email before opening the institution dashboard.",
+    "",
+    `Verify email: ${verificationUrl}`,
+    `Support: ${BRAND.supportEmail}`,
+  ].join("\n");
+
+  return {
+    html: renderShell({
+      preheader: "Verify your Klassruum institution owner account.",
+      title: "Verify your institution account",
+      eyebrow: "Email verification",
+      intro: "Confirm this email address to activate your owner access and continue setup securely.",
+      bodyHtml,
+      ctaLabel: "Verify email",
+      ctaUrl: verificationUrl,
+      footerNote: "This verification email was generated after a Klassruum institution registration.",
+    }),
+    text,
+    fromEmail: BRAND.supportEmail,
+    fromName: "Klassruum Support",
+    replyTo: BRAND.replyTo,
+  } satisfies RenderedEmailTemplate;
+}
+
+function renderOwnerWelcomeTemplate(
+  subject: string,
+  recipientName?: string | null,
+  payload?: EmailJobPayload,
+) {
+  const institutionName = escapeHtml(payload?.institution_name ?? "your institution");
+  const dashboardUrl = toAbsoluteUrl("/institution/dashboard");
+  const nextSteps = Array.isArray(payload?.next_steps) ? payload.next_steps.map(String) : [];
+  const stepsHtml = nextSteps.length
+    ? `<ul style="margin:0 0 18px 20px;padding:0;">${nextSteps
+        .map((step) => `<li style="margin:0 0 8px 0;">${escapeHtml(step)}</li>`)
+        .join("")}</ul>`
+    : "";
+
+  const bodyHtml = `
+    <p style="margin:0 0 16px 0;">Hello ${getRecipientLabel(recipientName)},</p>
+    <p style="margin:0 0 18px 0;">Welcome to Klassruum. Your workspace for <strong>${institutionName}</strong> is ready for setup once your email is verified.</p>
+    ${stepsHtml}
+  `;
+
+  const text = [
+    `Hello ${recipientName?.trim() || "there"},`,
+    "",
+    `Welcome to Klassruum. Your workspace for ${String(payload?.institution_name ?? "your institution")} is ready for setup once your email is verified.`,
+    ...nextSteps.map((step) => `- ${step}`),
+    "",
+    `Dashboard: ${dashboardUrl}`,
+    `Support: ${BRAND.supportEmail}`,
+  ].join("\n");
+
+  return {
+    html: renderShell({
+      preheader: `Welcome to Klassruum for ${String(payload?.institution_name ?? "your institution")}.`,
+      title: "Your institution workspace is ready",
+      eyebrow: "Welcome",
+      intro: "Set up courses, invite your team, and prepare governed AI classrooms after verification.",
+      bodyHtml,
+      ctaLabel: "Open dashboard",
+      ctaUrl: dashboardUrl,
+      footerNote: "You received this message because an institution workspace was registered on Klassruum.",
+    }),
+    text,
+    fromEmail: BRAND.supportEmail,
+    fromName: "Klassruum Support",
+    replyTo: BRAND.replyTo,
+  } satisfies RenderedEmailTemplate;
+}
+
 export function renderEmailTemplate(input: RenderEmailTemplateInput): RenderedEmailTemplate {
   switch (input.templateKey) {
     case "institution_member_invite":
       return renderInviteTemplate(input.subject, input.recipientName, input.payload);
     case "institution_invite_accepted":
       return renderAcceptedTemplate(input.subject, input.recipientName, input.payload);
+    case "institution_owner_verify_email":
+      return renderOwnerVerifyTemplate(input.subject, input.recipientName, input.payload);
+    case "institution_owner_welcome":
+      return renderOwnerWelcomeTemplate(input.subject, input.recipientName, input.payload);
     default:
       throw new Error(`Unsupported email template: ${input.templateKey satisfies never}`);
   }

@@ -1,99 +1,62 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { StudentShell } from "@/components/student/StudentShell";
-import { ChevronLeft, ChevronRight, Clock, Video, Dot } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Video } from "lucide-react";
 import { requireStudent } from "@/lib/route-guards";
+import { getStudentSessions } from "@/lib/student.functions";
 
 export const Route = createFileRoute("/_authenticated/student/calendar")({
   beforeLoad: (ctx) => requireStudent(ctx.context),
   component: StudentCalendar,
 });
 
-type SessionEntry = {
-  day: number;
-  title: string;
-  course: string;
-  time: string;
-  status: "live" | "upcoming" | "completed" | "review";
-};
+type CalStatus = "live" | "upcoming" | "completed";
 
-// Demo schedule for the current month. In production this comes from
-// programme/course timelines + classroom_sessions.
-const SESSIONS: SessionEntry[] = [
-  {
-    day: 9,
-    title: "Quadratic Equations",
-    course: "Mathematics Form 2",
-    time: "3:30–4:30 PM",
-    status: "live",
-  },
-  {
-    day: 9,
-    title: "Chemical Reactions",
-    course: "KCSE Chemistry Revision",
-    time: "5:00–6:00 PM",
-    status: "upcoming",
-  },
-  {
-    day: 11,
-    title: "Factoring Practice",
-    course: "Mathematics Form 2",
-    time: "3:30–4:15 PM",
-    status: "upcoming",
-  },
-  {
-    day: 12,
-    title: "Daily Conversation",
-    course: "English Speaking Practice",
-    time: "4:00–4:45 PM",
-    status: "upcoming",
-  },
-  {
-    day: 4,
-    title: "Algebraic Expressions",
-    course: "Mathematics Form 2",
-    time: "3:30–4:30 PM",
-    status: "completed",
-  },
-  {
-    day: 6,
-    title: "Atomic Structure",
-    course: "KCSE Chemistry Revision",
-    time: "5:00–6:00 PM",
-    status: "review",
-  },
-];
-
-const STATUS_META: Record<
-  SessionEntry["status"],
-  { label: string; dot: string; bg: string; fg: string }
-> = {
+const STATUS_META: Record<CalStatus, { label: string; dot: string; bg: string; fg: string }> = {
   live: { label: "Live", dot: "#2563eb", bg: "#dbeafe", fg: "#1d4ed8" },
   upcoming: { label: "Upcoming", dot: "#64748b", bg: "#f1f5f9", fg: "#475569" },
   completed: { label: "Completed", dot: "#22c55e", bg: "#dcfce7", fg: "#15803d" },
-  review: { label: "Needs review", dot: "#f59e0b", bg: "#fffbeb", fg: "#b45309" },
 };
 
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function toCal(db: "live" | "completed" | "scheduled"): CalStatus {
+  if (db === "live") return "live";
+  if (db === "completed") return "completed";
+  return "upcoming";
+}
 
 function StudentCalendar() {
-  // Anchor on June 2026 to match the demo data; navigable.
-  const [view, setView] = useState({ year: 2026, month: 5 });
-  const [selected, setSelected] = useState<number | null>(9);
+  const fn = useServerFn(getStudentSessions);
+  const q = useQuery({ queryKey: ["student-sessions"], queryFn: () => fn() });
+  const sessions = q.data?.sessions ?? [];
+
+  const today = new Date();
+  const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
+  const [selected, setSelected] = useState<number | null>(today.getDate());
+
+  const entries = useMemo(
+    () =>
+      sessions
+        .filter((s: any) => s.startedAt)
+        .map((s: any) => {
+          const d = new Date(s.startedAt);
+          return {
+            year: d.getFullYear(),
+            month: d.getMonth(),
+            day: d.getDate(),
+            time: d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+            title: s.lessonTitle,
+            course: s.courseTitle,
+            status: toCal(s.status as any),
+            id: s.id,
+          };
+        }),
+    [sessions],
+  );
 
   const firstDay = new Date(view.year, view.month, 1).getDay();
   const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
@@ -102,7 +65,8 @@ function StudentCalendar() {
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
 
-  const sessionsForDay = (day: number) => SESSIONS.filter((s) => s.day === day);
+  const sessionsForDay = (day: number) =>
+    entries.filter((e) => e.year === view.year && e.month === view.month && e.day === day);
   const daySessions = selected ? sessionsForDay(selected) : [];
 
   const move = (delta: number) => {
@@ -116,7 +80,6 @@ function StudentCalendar() {
   return (
     <StudentShell title="Calendar">
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        {/* Month grid */}
         <div className="kr-pcard p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-[var(--gray-900)]">
@@ -134,10 +97,7 @@ function StudentCalendar() {
 
           <div className="grid grid-cols-7 gap-1 text-center">
             {WEEKDAYS.map((d) => (
-              <div
-                key={d}
-                className="py-2 text-[11px] font-bold uppercase tracking-wide text-[var(--gray-400)]"
-              >
+              <div key={d} className="py-2 text-[11px] font-bold uppercase tracking-wide text-[var(--gray-400)]">
                 {d}
               </div>
             ))}
@@ -154,11 +114,7 @@ function StudentCalendar() {
                   <span className="kr-cal-num">{day}</span>
                   <span className="kr-cal-dots">
                     {items.slice(0, 3).map((s, idx) => (
-                      <span
-                        key={idx}
-                        className="kr-cal-dot"
-                        style={{ background: STATUS_META[s.status].dot }}
-                      />
+                      <span key={idx} className="kr-cal-dot" style={{ background: STATUS_META[s.status].dot }} />
                     ))}
                   </span>
                 </button>
@@ -166,7 +122,6 @@ function StudentCalendar() {
             })}
           </div>
 
-          {/* Legend */}
           <div className="mt-4 flex flex-wrap gap-4 border-t border-[var(--gray-100)] pt-4 text-xs text-[var(--gray-600)]">
             {Object.entries(STATUS_META).map(([k, m]) => (
               <span key={k} className="flex items-center gap-1.5">
@@ -177,7 +132,6 @@ function StudentCalendar() {
           </div>
         </div>
 
-        {/* Day detail */}
         <div className="kr-pcard p-5">
           <h3 className="text-sm font-bold uppercase tracking-wide text-[var(--gray-500)]">
             {selected ? `${MONTHS[view.month]} ${selected}` : "Select a day"}
@@ -194,10 +148,7 @@ function StudentCalendar() {
                   <div className="flex items-center justify-between">
                     <span
                       className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
-                      style={{
-                        background: STATUS_META[s.status].bg,
-                        color: STATUS_META[s.status].fg,
-                      }}
+                      style={{ background: STATUS_META[s.status].bg, color: STATUS_META[s.status].fg }}
                     >
                       {STATUS_META[s.status].label}
                     </span>
@@ -210,22 +161,26 @@ function StudentCalendar() {
                   <div className="mt-3 flex gap-2">
                     {s.status === "live" ? (
                       <Link
-                        to="/demo/ai-video"
+                        to="/student/classrooms"
                         className="kr-btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
                       >
                         <Video className="h-3.5 w-3.5" /> Join now
                       </Link>
-                    ) : s.status === "completed" || s.status === "review" ? (
+                    ) : s.status === "completed" ? (
                       <Link
-                        to="/student/sessions"
+                        to="/student/sessions/$sessionId/summary"
+                        params={{ sessionId: s.id }}
                         className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-1.5 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]"
                       >
                         Review
                       </Link>
                     ) : (
-                      <button className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-1.5 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]">
-                        <Dot className="h-3.5 w-3.5" /> Remind me
-                      </button>
+                      <Link
+                        to="/student/classrooms"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gray-200)] px-3 py-1.5 text-xs font-semibold text-[var(--gray-700)] hover:bg-[var(--gray-50)]"
+                      >
+                        Open
+                      </Link>
                     )}
                   </div>
                 </div>

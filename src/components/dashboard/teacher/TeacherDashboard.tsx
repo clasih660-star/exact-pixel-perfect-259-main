@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, BookOpen, CheckCircle2, Eye, Gauge, Play, Users, Video } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/shared/DashboardShell";
 import { DashboardLoadingState } from "@/components/dashboard/shared/DashboardLoadingState";
 import { StatusBadge } from "@/components/dashboard/shared/StatusBadge";
 import { type DashboardConfig } from "@/lib/dashboard-config";
 import { useDashboardConfig } from "@/hooks/useDashboardConfig";
+import { getTeacherDashboardOverview } from "@/lib/reporting.functions";
 
 function getTeacherDashboardCopy(role: DashboardConfig["role"]) {
   switch (role) {
@@ -28,9 +30,9 @@ function getTeacherDashboardCopy(role: DashboardConfig["role"]) {
         headerTitle: "Deliver official KingPin learning experiences",
         headerSubtitle:
           "Manage assigned delivery queues, refine official lessons, and maintain quality across learner groups.",
-        alertTitle: "2 official lessons need your review",
+        alertTitle: "Lesson review queue needs attention",
         alertDescription:
-          "Chemical Bonding and HTML Forms lessons have pending quality and caption updates before release.",
+          "Review pending lesson quality, caption, and classroom readiness updates before release.",
         courseSectionTitle: "KingPin course assignments",
         courseSectionSubtitle: "Official courses you are assigned to deliver",
         scheduleTitle: "Delivery queue",
@@ -41,9 +43,9 @@ function getTeacherDashboardCopy(role: DashboardConfig["role"]) {
         headerTitle: "Prepare, teach, and support assigned classes",
         headerSubtitle:
           "Manage your institution courses, review lessons, and monitor learner progress across assigned classes.",
-        alertTitle: "2 lessons need your review",
+        alertTitle: "Lesson review queue needs attention",
         alertDescription:
-          "Chemical Bonding and HTML Forms lessons have pending caption and quiz updates.",
+          "Review pending lesson caption, quiz, and classroom readiness updates.",
         courseSectionTitle: "Assigned courses",
         courseSectionSubtitle: "Courses you are responsible for",
         scheduleTitle: "Today's schedule",
@@ -54,9 +56,9 @@ function getTeacherDashboardCopy(role: DashboardConfig["role"]) {
         headerTitle: "Prepare, teach, and support learners",
         headerSubtitle:
           "Manage your courses, review lessons, and monitor student progress across all assigned classes.",
-        alertTitle: "2 lessons need your review",
+        alertTitle: "Lesson review queue needs attention",
         alertDescription:
-          "Chemical Bonding and HTML Forms lessons have pending caption and quiz updates.",
+          "Review pending lesson caption, quiz, and classroom readiness updates.",
         courseSectionTitle: "My courses",
         courseSectionSubtitle: "Courses you are responsible for",
         scheduleTitle: "Today's schedule",
@@ -64,176 +66,83 @@ function getTeacherDashboardCopy(role: DashboardConfig["role"]) {
   }
 }
 
-const mockUpcomingSession = {
-  title: "Solving Quadratic Equations by Factoring",
-  course: "Mathematics Form 2",
-  time: "Today at 10:30 AM",
-  mode: "AI-Assisted",
-  expectedStudents: 32,
+function formatScheduleTime(iso: string | null | undefined): string {
+  if (!iso) return "Time not scheduled";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "Time not scheduled";
+
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const time = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(
+    date,
+  );
+
+  if (date.toDateString() === now.toDateString()) return `Today at ${time}`;
+  if (date.toDateString() === tomorrow.toDateString()) return `Tomorrow at ${time}`;
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function timeAgo(iso: string | null | undefined): string {
+  if (!iso) return "Live data";
+  const timestamp = new Date(iso).getTime();
+  if (Number.isNaN(timestamp)) return "Live data";
+  const mins = Math.max(0, Math.floor((Date.now() - timestamp) / 60000));
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  return `${Math.floor(hrs / 24)} d ago`;
+}
+
+function lessonBadgeVariant(status: string | null | undefined) {
+  const normalized = (status ?? "").toLowerCase();
+  if (["approved", "published", "ready"].includes(normalized)) return "success" as const;
+  if (["draft", "generated", "needs_review"].includes(normalized)) return "warning" as const;
+  return "neutral" as const;
+}
+
+type TeacherDashboardCourse = {
+  id: string;
+  title: string;
+  institution: string;
+  stats: Array<{ label: string; value: string }>;
+  progress: number;
 };
 
-const mockCourses = [
-  {
-    title: "Mathematics Form 2",
-    institution: "Klassruum Demo Academy",
-    stats: [
-      { label: "Students", value: "32" },
-      { label: "Lessons", value: "12/28" },
-    ],
-    progress: 65,
-    href: "/teacher/courses",
-  },
-  {
-    title: "Science Form 3",
-    institution: "Klassruum Demo Academy",
-    stats: [
-      { label: "Students", value: "45" },
-      { label: "Lessons", value: "18/24" },
-    ],
-    progress: 42,
-    href: "/teacher/courses",
-  },
-  {
-    title: "English Form 2",
-    institution: "Klassruum Demo Academy",
-    stats: [
-      { label: "Students", value: "28" },
-      { label: "Lessons", value: "9/15" },
-    ],
-    progress: 78,
-    href: "/teacher/courses",
-  },
-];
+type TeacherDashboardLesson = {
+  id: string;
+  title: string;
+  course: string;
+  description: string;
+  status: string;
+};
 
-const mockUpcomingSessions = [
-  {
-    title: "Quadratic Equations",
-    course: "Mathematics Form 2",
-    time: "Today at 10:30 AM",
-    participantCount: 32,
-    href: "/teacher/sessions",
-  },
-  {
-    title: "Chemical Bonding",
-    course: "Science Form 3",
-    time: "Today at 2:00 PM",
-    participantCount: 45,
-    href: "/teacher/sessions",
-  },
-  {
-    title: "Parts of Speech",
-    course: "English Form 2",
-    time: "Tomorrow at 9:00 AM",
-    participantCount: 28,
-    href: "/teacher/sessions",
-  },
-];
-
-const mockLessonReview = [
-  {
-    title: "Quadratic Equations",
-    course: "Mathematics Form 2",
-    description: "Ready for teaching",
-    href: "/teacher/lessons",
-  },
-  {
-    title: "Chemical Bonding",
-    course: "Science Form 3",
-    description: "Ready for teaching",
-    href: "/teacher/lessons",
-  },
-  {
-    title: "Parts of Speech",
-    course: "English Form 2",
-    description: "Ready for teaching",
-    href: "/teacher/lessons",
-  },
-];
-
-const mockActivity = [
-  {
-    id: "1",
-    action: "Lesson published",
-    description: "Quadratic Equations lesson is live",
-    timestamp: "Today at 9:30 AM",
-  },
-  {
-    id: "2",
-    action: "Student question",
-    description: "3 students asked for help with factoring",
-    timestamp: "Today at 8:45 AM",
-  },
-  {
-    id: "3",
-    action: "Session completed",
-    description: "32 students completed Chemical Reactions lesson",
-    timestamp: "Yesterday at 4:15 PM",
-  },
-  {
-    id: "4",
-    action: "Quiz graded",
-    description: "Reviewed 45 quiz submissions from Math Form 2",
-    timestamp: "Yesterday at 3:00 PM",
-  },
-];
-
-const teacherMetrics = [
-  {
-    label: "Assigned courses",
-    value: "3",
-    meta: "Active courses",
-    href: "/teacher/courses",
-    icon: BookOpen,
-  },
-  {
-    label: "Total students",
-    value: "105",
-    meta: "Across all courses",
-    href: "/teacher/students",
-    icon: Users,
-  },
-  {
-    label: "Lessons ready",
-    value: "12",
-    meta: "Approved lessons",
-    href: "/teacher/lessons",
-    icon: CheckCircle2,
-  },
-  {
-    label: "Pending review",
-    value: "2",
-    meta: "Needs your action",
-    href: "/teacher/lessons",
-    icon: Eye,
-  },
-  {
-    label: "Sessions today",
-    value: "3",
-    meta: "Teaching sessions",
-    href: "/teacher/sessions",
-    icon: Video,
-  },
-];
+type TeacherDashboardSession = {
+  id: string;
+  title: string;
+  course: string;
+  time: string | null;
+  participantCount: number;
+};
 
 export default function TeacherDashboard() {
   const config = useDashboardConfig();
   const copy = getTeacherDashboardCopy(config.role);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        setIsLoading(false);
-      } catch {
-        setError("Failed to load dashboard data");
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
+  const dashboardFn = useServerFn(getTeacherDashboardOverview);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["teacher-dashboard-overview"],
+    queryFn: () => dashboardFn(),
+    staleTime: 20000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: false,
+  });
 
   if (isLoading) {
     return (
@@ -243,13 +152,55 @@ export default function TeacherDashboard() {
     );
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <DashboardShell config={config} activePath="/teacher/dashboard">
-        <DashboardLoadingState type="error" message={error} />
+        <DashboardLoadingState
+          type="error"
+          message={(error as Error)?.message || "Failed to load dashboard data"}
+        />
       </DashboardShell>
     );
   }
+
+  const teacherMetrics = [
+    {
+      label: "Assigned courses",
+      value: String(data.metrics.assignedCourses),
+      meta: "Active courses",
+      href: "/teacher/courses",
+      icon: BookOpen,
+    },
+    {
+      label: "Total students",
+      value: String(data.metrics.totalStudents),
+      meta: "Across all courses",
+      href: "/teacher/students",
+      icon: Users,
+    },
+    {
+      label: "Lessons ready",
+      value: String(data.metrics.lessonsReady),
+      meta: "Approved lessons",
+      href: "/teacher/lessons",
+      icon: CheckCircle2,
+    },
+    {
+      label: "Pending review",
+      value: String(data.metrics.pendingReview),
+      meta: "Needs your action",
+      href: "/teacher/lessons",
+      icon: Eye,
+    },
+    {
+      label: "Sessions today",
+      value: String(data.metrics.sessionsToday),
+      meta: "Teaching sessions",
+      href: "/teacher/sessions",
+      icon: Video,
+    },
+  ];
+  const nextSession = data.upcomingSession;
 
   return (
     <DashboardShell config={config} activePath="/teacher/dashboard">
@@ -268,19 +219,21 @@ export default function TeacherDashboard() {
                 <span className="kr-live-dot" />
                 Next session
               </div>
-              <h2>{mockUpcomingSession.title}</h2>
+              <h2>{nextSession?.title ?? "No session scheduled"}</h2>
               <p>
-                {mockUpcomingSession.course} - {mockUpcomingSession.time}
+                {nextSession
+                  ? `${nextSession.course} - ${formatScheduleTime(nextSession.time)}`
+                  : "Create or start a teaching session when your lesson is ready."}
               </p>
             </div>
             <dl className="kr-session-facts">
               <div>
                 <dt>Mode</dt>
-                <dd>{mockUpcomingSession.mode}</dd>
+                <dd>{nextSession?.mode ?? "Not set"}</dd>
               </div>
               <div>
                 <dt>Students</dt>
-                <dd>{mockUpcomingSession.expectedStudents}</dd>
+                <dd>{nextSession?.expectedStudents ?? 0}</dd>
               </div>
               <div>
                 <dt>Access</dt>
@@ -305,8 +258,8 @@ export default function TeacherDashboard() {
         <section className="kr-attention-rail kr-reveal" aria-label="Needs attention">
           <div>
             <span>Attention</span>
-            <strong>{copy.alertTitle}</strong>
-            <p>{copy.alertDescription}</p>
+            <strong>{data.attention.title || copy.alertTitle}</strong>
+            <p>{data.attention.description || copy.alertDescription}</p>
           </div>
           <Link to="/teacher/lessons">
             Review queue
@@ -337,29 +290,46 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="kr-course-ledger kr-reveal">
-              {mockCourses.map((course) => (
-                <Link key={course.title} to={course.href} className="kr-ledger-row">
+              {data.courses.length === 0 ? (
+                <div className="kr-ledger-row">
                   <div className="kr-ledger-title">
                     <BookOpen className="h-4 w-4" />
                     <div>
-                      <strong>{course.title}</strong>
-                      <span>{course.institution}</span>
+                      <strong>No courses assigned</strong>
+                      <span>Your courses will appear here once assigned.</span>
                     </div>
                   </div>
-                  <div className="kr-ledger-stats">
-                    {course.stats.map((stat) => (
-                      <span key={stat.label}>
-                        <small>{stat.label}</small>
-                        {stat.value}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="kr-progress-line" aria-label={`${course.progress}% complete`}>
-                    <span style={{ width: `${course.progress}%` }} />
-                  </div>
-                  <ArrowRight className="kr-row-arrow h-4 w-4" />
-                </Link>
-              ))}
+                </div>
+              ) : (
+                data.courses.map((course: TeacherDashboardCourse) => (
+                  <Link
+                    key={course.id}
+                    to="/teacher/courses/$courseId"
+                    params={{ courseId: course.id }}
+                    className="kr-ledger-row"
+                  >
+                    <div className="kr-ledger-title">
+                      <BookOpen className="h-4 w-4" />
+                      <div>
+                        <strong>{course.title}</strong>
+                        <span>{course.institution}</span>
+                      </div>
+                    </div>
+                    <div className="kr-ledger-stats">
+                      {course.stats.map((stat) => (
+                        <span key={stat.label}>
+                          <small>{stat.label}</small>
+                          {stat.value}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="kr-progress-line" aria-label={`${course.progress}% complete`}>
+                      <span style={{ width: `${course.progress}%` }} />
+                    </div>
+                    <ArrowRight className="kr-row-arrow h-4 w-4" />
+                  </Link>
+                ))
+              )}
             </div>
 
             <div className="kr-section-heading kr-reveal">
@@ -372,17 +342,36 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="kr-review-list kr-reveal">
-              {mockLessonReview.map((lesson) => (
-                <Link key={lesson.title} to={lesson.href} className="kr-review-row">
+              {data.lessonReview.length === 0 ? (
+                <div className="kr-review-row">
                   <div>
-                    <strong>{lesson.title}</strong>
-                    <span>{lesson.course}</span>
+                    <strong>No lessons waiting</strong>
+                    <span>Your lesson review queue is clear.</span>
                   </div>
-                  <StatusBadge variant="success">Ready</StatusBadge>
-                  <small>{lesson.description}</small>
+                  <StatusBadge variant="success">Clear</StatusBadge>
+                  <small>Live data</small>
                   <Eye className="h-4 w-4" />
-                </Link>
-              ))}
+                </div>
+              ) : (
+                data.lessonReview.map((lesson: TeacherDashboardLesson) => (
+                  <Link
+                    key={lesson.id}
+                    to="/teacher/lessons/$lessonId"
+                    params={{ lessonId: lesson.id }}
+                    className="kr-review-row"
+                  >
+                    <div>
+                      <strong>{lesson.title}</strong>
+                      <span>{lesson.course}</span>
+                    </div>
+                    <StatusBadge variant={lessonBadgeVariant(lesson.status)}>
+                      {lesson.description}
+                    </StatusBadge>
+                    <small>{lesson.description}</small>
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                ))
+              )}
             </div>
           </div>
 
@@ -396,28 +385,45 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="kr-timeline kr-reveal">
-              {mockUpcomingSessions.map((session) => (
-                <Link key={session.title} to={session.href} className="kr-timeline-row">
+              {data.upcomingSessions.length === 0 ? (
+                <div className="kr-timeline-row">
                   <span className="kr-timeline-pin" />
                   <div>
-                    <small>{session.time}</small>
-                    <strong>{session.title}</strong>
-                    <span>{session.course}</span>
+                    <small>Nothing scheduled</small>
+                    <strong>No upcoming sessions</strong>
+                    <span>Start one from your lessons or sessions page.</span>
                   </div>
-                  <em>{session.participantCount}</em>
-                </Link>
-              ))}
+                  <em>0</em>
+                </div>
+              ) : (
+                data.upcomingSessions.map((session: TeacherDashboardSession) => (
+                  <Link
+                    key={session.id}
+                    to="/teacher/sessions/$sessionId"
+                    params={{ sessionId: session.id }}
+                    className="kr-timeline-row"
+                  >
+                    <span className="kr-timeline-pin" />
+                    <div>
+                      <small>{formatScheduleTime(session.time)}</small>
+                      <strong>{session.title}</strong>
+                      <span>{session.course}</span>
+                    </div>
+                    <em>{session.participantCount}</em>
+                  </Link>
+                ))
+              )}
             </div>
 
             <div className="kr-live-panel kr-reveal">
               <div>
                 <span className="kr-section-kicker">Live now</span>
-                <strong>87</strong>
+                <strong>{data.live.onlineStudents}</strong>
                 <p>Students online in your courses</p>
               </div>
               <div className="kr-live-gauge">
                 <Gauge className="h-5 w-5" />
-                <span>+12 this hour</span>
+                <span>+{data.live.activeThisHour} this hour</span>
               </div>
             </div>
 
@@ -428,16 +434,27 @@ export default function TeacherDashboard() {
                   <h2>Recent movement</h2>
                 </div>
               </div>
-              {mockActivity.slice(0, 4).map((item) => (
-                <div key={item.id} className="kr-activity-row">
+              {data.activity.length === 0 ? (
+                <div className="kr-activity-row">
                   <CheckCircle2 className="h-4 w-4" />
                   <div>
-                    <strong>{item.action}</strong>
-                    <span>{item.description}</span>
-                    <small>{item.timestamp}</small>
+                    <strong>No recent activity</strong>
+                    <span>Learner questions and classroom events will appear here.</span>
+                    <small>Live data</small>
                   </div>
                 </div>
-              ))}
+              ) : (
+                data.activity.map((item) => (
+                  <div key={item.id} className="kr-activity-row">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <div>
+                      <strong>{item.action}</strong>
+                      <span>{item.description}</span>
+                      <small>{timeAgo(item.timestamp)}</small>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </aside>
         </section>

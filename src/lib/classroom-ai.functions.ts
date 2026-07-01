@@ -7,7 +7,7 @@
  *   1. Judge whether the question is clear, unclear, or off-topic.
  *   2. If UNCLEAR  → ask ONE clarifying question (with quick-pick options).
  *   3. If OFF-TOPIC → gently steer back, offer a short answer or to continue.
- *   4. If CLEAR    → answer in 74–150 words using ONLY the lesson/course context,
+ *   4. If CLEAR    → answer in a careful teachable explanation using ONLY the lesson/course context,
  *                    adapt the style to the learner's academic level, decide if it
  *                    should also be shown on the board, whether to save it to notes,
  *                    and suggest a natural follow-up.
@@ -92,8 +92,8 @@ export type AnswerLearnerQuestionResult = TeacherAnswer & {
   wordCount: number;
 };
 
-const MIN_WORDS = 74;
-const MAX_WORDS = 150;
+const MIN_WORDS = 160;
+const MAX_WORDS = 450;
 
 function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -115,17 +115,17 @@ function clampWords(text: string): string {
 function levelStyle(level: AcademicLevel | undefined): string {
   switch (level) {
     case "elementary":
-      return "Learner is an ELEMENTARY/PRIMARY child. Use very simple words and short sentences. Go slowly, one idea at a time. Be warm and encouraging ('Great effort!'). Use a concrete everyday example. Avoid jargon entirely.";
+      return "Learner is an ELEMENTARY/PRIMARY child. Use very simple words and short sentences. Go slowly, one idea at a time. Be warm and encouraging ('Great effort!'). Use a concrete everyday example. Avoid jargon entirely. Pause to check understanding before moving on.";
     case "secondary":
-      return "Learner is a SECONDARY/HIGH-SCHOOL student. Explain step by step with a worked example. Name the one common mistake to avoid. Keep it clear and exam-aware but not intimidating.";
+      return "Learner is a SECONDARY/HIGH-SCHOOL student. Explain step by step with a worked example. Name the one common mistake to avoid. Keep it clear and exam-aware but not intimidating. Do not rush: explain the reason behind each step.";
     case "college":
-      return "Learner is a COLLEGE/VOCATIONAL student. Use correct technical vocabulary, give an applied example, and explain the reasoning. Less hand-holding.";
+      return "Learner is a COLLEGE/VOCATIONAL student. Use correct technical vocabulary, give an applied example, and explain the reasoning. Demonstrate procedures carefully, including what to observe in outputs or diagrams.";
     case "tertiary":
-      return "Learner is a UNIVERSITY/TERTIARY student. Give deeper reasoning, precise terminology, and the 'why it is valid'. Reference where the concept applies. Minimal repetition.";
+      return "Learner is a UNIVERSITY/TERTIARY student. Give deeper reasoning, precise terminology, and the 'why it is valid'. Reference where the concept applies. Include interpretation, assumptions, and a check for understanding rather than merely stating facts.";
     case "adult":
-      return "Learner is an ADULT/PROFESSIONAL. Be efficient and practical. Lead with the shortest reliable method and a real-world application. Offer an optional deeper dive.";
+      return "Learner is an ADULT/PROFESSIONAL. Be practical but thorough. Lead with the reliable method, explain why it works, connect to a real-world application, and offer a deeper dive or practice step.";
     default:
-      return "Learner is at school level. Explain clearly, step by step, with a short example and a supportive tone.";
+      return "Learner is at school level. Explain clearly, step by step, with an example, a supportive tone, and a short check for understanding.";
   }
 }
 
@@ -157,8 +157,13 @@ DECIDE clarity:
 - "off_topic": the question is unrelated to this lesson or needs future content. Set clarity="off_topic", briefly acknowledge in 'answer' (2–3 sentences), and steer back with suggestedFollowUp.
 - "clear": answer it.
 
-WHEN CLEAR — fill 'answer' with plain spoken prose (NO markdown/lists/headings), 74–150 words, warm and supportive, using ONLY the lesson context. Then:
-- shouldShowOnBoard: true only if a tiny worked line/diagram would genuinely help; if so add 1–3 boardItems (type like "calculation"/"equation"/"bullet").
+WHEN CLEAR — fill 'answer' with plain spoken prose (NO markdown/lists/headings), 160–450 words, warm and supportive, using ONLY the lesson context. Use this teaching structure naturally: acknowledge the question, explain the idea step by step, connect it to the current board/material, give or reference a small example/visual if useful, state a common mistake, then ask one check-for-understanding question. Do not rush.
+- For SPSS/Excel/Power BI/software: describe the screen/menu/field/output interpretation when relevant. Explicitly direct the learner's attention to the visual by saying things like "look at this screenshot" or "as you see in the visuals pane...".
+- For formulas/statistics/math: explain each symbol, why the operation is valid, and say "notice this formula here".
+- For science/biology/anatomy: name the labelled parts, their function, their connection to the system, and say "focus on this part of the diagram".
+- For technical/mechanical topics: explain component roles, flow of force/pressure/signal/material, and say "focus on this workflow chart".
+- For humanities/languages: explain context, meaning, grammar details, invite learner response, and refer to text passages/tables.
+- shouldShowOnBoard: true if a worked line, formula, diagram label, screenshot cue, or summary table would help; if so add 1–4 boardItems (type like "calculation"/"equation"/"bullet"/"diagram"/"screenshot").
 - saveToNotes: true if the answer contains a reusable idea, rule, or correction worth revising later.
 - suggestedFollowUp: one short offer, e.g. "Want me to show this on the board?" or "Shall I give another example?".
 
@@ -227,7 +232,13 @@ function fallbackTeacherAnswer(
   return {
     clarity: "clear",
     answer: out,
-    shouldShowOnBoard: false,
+      shouldShowOnBoard: true,
+      boardItems: [
+        {
+          type: "bullet",
+          text: `Focus: ${ctx.currentSection ?? "current step"} → example → check understanding`,
+        },
+      ],
     saveToNotes: true,
     suggestedFollowUp: "Does that help, or should I show another example?",
     source: "fallback",

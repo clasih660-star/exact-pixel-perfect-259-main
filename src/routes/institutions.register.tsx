@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -20,9 +20,27 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { registerInstitution } from "@/lib/institutions-register.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { rememberPendingVerification } from "@/lib/auth-verification";
 
 const SITE_URL = "https://klassruum.com";
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        element: HTMLElement,
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          "expired-callback": () => void;
+          "error-callback": () => void;
+        },
+      ) => string;
+      reset: (widgetId?: string) => void;
+    };
+  }
+}
 
 export const Route = createFileRoute("/institutions/register")({
   head: () => ({
@@ -52,6 +70,15 @@ export const Route = createFileRoute("/institutions/register")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/institutions/register` }],
     script: [
+      ...(TURNSTILE_SITE_KEY
+        ? [
+            {
+              src: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
+              async: true,
+              defer: true,
+            },
+          ]
+        : []),
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -129,6 +156,9 @@ const LABEL_CLASS = "block text-xs font-bold uppercase tracking-[0.12em] text-sl
 function RegisterPage() {
   const navigate = useNavigate();
   const fn = useServerFn(registerInstitution);
+  const turnstileRef = useRef<HTMLDivElement | null>(null);
+  const turnstileWidgetId = useRef<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const [form, setForm] = useState({
     institution_name: "",
@@ -139,13 +169,45 @@ function RegisterPage() {
     admin_email: "",
     phone: "",
     password: "",
+    website: "",
     learner_count: "",
     preferred_use_case: "ai_classroom" as (typeof USE_CASES)[number][0],
   });
 
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileRef.current || turnstileWidgetId.current) return;
+
+    let cancelled = false;
+    const renderWidget = () => {
+      if (cancelled || !window.turnstile || !turnstileRef.current || turnstileWidgetId.current) {
+        return;
+      }
+
+      turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: setCaptchaToken,
+        "expired-callback": () => setCaptchaToken(""),
+        "error-callback": () => setCaptchaToken(""),
+      });
+    };
+
+    const timer = window.setInterval(() => {
+      if (window.turnstile) {
+        window.clearInterval(timer);
+        renderWidget();
+      }
+    }, 100);
+
+    renderWidget();
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
+
   const mut = useMutation({
     mutationFn: async () => {
-      await fn({
+      const result = await fn({
         data: {
           institution_name: form.institution_name,
           type: form.type,
@@ -155,21 +217,24 @@ function RegisterPage() {
           admin_email: form.admin_email,
           phone: form.phone,
           password: form.password,
+          captchaToken,
+          website: form.website,
           learner_count: form.learner_count ? Number(form.learner_count) : undefined,
           preferred_use_case: form.preferred_use_case,
         },
       });
-      const { error } = await supabase.auth.signInWithPassword({
-        email: form.admin_email,
-        password: form.password,
-      });
-      if (error) throw new Error(error.message);
+      return result;
     },
     onSuccess: () => {
-      toast.success("Your institution is ready");
-      navigate({ to: "/institution/dashboard" });
+      rememberPendingVerification(form.admin_email);
+      toast.success("Check your email to verify your account");
+      navigate({ to: "/auth/verify-email" });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      setCaptchaToken("");
+      window.turnstile?.reset(turnstileWidgetId.current ?? undefined);
+      toast.error(e.message);
+    },
   });
 
   return (
@@ -321,6 +386,16 @@ function RegisterPage() {
                 </div>
 
                 <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form.website}
+                    onChange={(e) => setForm({ ...form, website: e.target.value })}
+                    className="hidden"
+                    aria-hidden="true"
+                  />
+
                   <div className="space-y-2 sm:col-span-2">
                     <label htmlFor="iname" className={LABEL_CLASS}>
                       Institution name *
@@ -515,11 +590,16 @@ function RegisterPage() {
                 <div className="flex items-start gap-3 text-sm leading-6 text-slate-600">
                   <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#2563eb]" />
                   <p className="ir-note-copy">
-                    After registration, you can configure courses, resources, accessibility
-                    defaults, and team invitations from the institution dashboard.
+                    After registration, verify your email before configuring courses, resources,
+                    accessibility defaults, and team invitations from the institution dashboard.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  {TURNSTILE_SITE_KEY && (
+                    <div className="min-h-[65px]">
+                      <div ref={turnstileRef} />
+                    </div>
+                  )}
                   <Link
                     to="/"
                     className="inline-flex h-11 items-center justify-center border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 transition-colors hover:border-slate-400 hover:text-[#07111f]"
@@ -528,10 +608,10 @@ function RegisterPage() {
                   </Link>
                   <button
                     type="submit"
-                    disabled={mut.isPending}
+                    disabled={mut.isPending || Boolean(TURNSTILE_SITE_KEY && !captchaToken)}
                     className="inline-flex h-11 items-center justify-center gap-2 border border-[#07111f] bg-[#07111f] px-5 text-sm font-bold text-white shadow-[0_16px_34px_rgba(7,17,31,0.18)] transition-colors hover:bg-[#10233f] focus:outline-none focus:ring-4 focus:ring-[#2563eb]/20 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {mut.isPending ? "Creating..." : "Create institution"}
+                    {mut.isPending ? "Creating..." : "Create and verify"}
                     <ArrowRight size={15} />
                   </button>
                 </div>
