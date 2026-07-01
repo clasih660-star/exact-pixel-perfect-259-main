@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import {
   activateInstitutionSubscription,
   upsertPaymentTransaction,
@@ -145,5 +145,10 @@ export function verifyPaystackWebhookSignature(rawBody: string, signature: strin
   const secret = process.env.PAYSTACK_WEBHOOK_SECRET;
   if (!secret) return false;
   const expected = createHmac("sha512", secret).update(rawBody).digest("hex");
-  return expected === signature;
+  const expectedBuffer = Buffer.from(expected, "hex");
+  const signatureBuffer = Buffer.from(signature, "hex");
+  return (
+    expectedBuffer.length === signatureBuffer.length &&
+    timingSafeEqual(expectedBuffer, signatureBuffer)
+  );
 }

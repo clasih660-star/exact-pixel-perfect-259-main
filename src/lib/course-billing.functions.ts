@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -24,7 +25,7 @@ function safeJsonParse<T>(value: string | null | undefined, fallback: T): T {
 }
 
 function randomReference(prefix = "klassruum_course"): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  return `${prefix}_${Date.now()}_${randomUUID()}`;
 }
 
 function normalizeStatus(status: unknown): "success" | "pending" | "failed" | "abandoned" {
@@ -145,7 +146,12 @@ export type CourseCheckoutResult = {
  */
 export async function fulfillCoursePurchase(
   supabaseAdmin: Awaited<ReturnType<typeof getAdminClient>>,
-  input: { reference: string; status: "success" | "pending" | "failed" | "abandoned"; paidAt?: string | null; providerReference?: string | null },
+  input: {
+    reference: string;
+    status: "success" | "pending" | "failed" | "abandoned";
+    paidAt?: string | null;
+    providerReference?: string | null;
+  },
 ): Promise<{ fulfilled: boolean; courseId: string | null; userId: string | null }> {
   const { data: purchase, error } = await supabaseAdmin
     .from("course_purchases")
@@ -172,20 +178,18 @@ export async function fulfillCoursePurchase(
   }
 
   // Grant enrollment idempotently.
-  const { error: enrollErr } = await supabaseAdmin
-    .from("course_enrollments")
-    .upsert(
-      {
-        institution_id: purchase.institution_id,
-        course_id: purchase.course_id,
-        student_id: purchase.user_id,
-        status: "active",
-        enrolled_by: purchase.user_id,
-        enrollment_source: "self_registered",
-        enrolled_at: new Date().toISOString(),
-      },
-      { onConflict: "course_id,student_id" },
-    );
+  const { error: enrollErr } = await supabaseAdmin.from("course_enrollments").upsert(
+    {
+      institution_id: purchase.institution_id,
+      course_id: purchase.course_id,
+      student_id: purchase.user_id,
+      status: "active",
+      enrolled_by: purchase.user_id,
+      enrollment_source: "self_registered",
+      enrolled_at: new Date().toISOString(),
+    },
+    { onConflict: "course_id,student_id" },
+  );
   if (enrollErr) throw new Error(enrollErr.message);
 
   const nowIso = new Date().toISOString();
@@ -200,7 +204,12 @@ export async function fulfillCoursePurchase(
 /** Webhook entrypoint: update purchase status + fulfill on success. */
 export async function handleCoursePurchaseWebhookEvent(
   supabaseAdmin: Awaited<ReturnType<typeof getAdminClient>>,
-  input: { reference: string; status: string; paidAt?: string | null; providerReference?: string | null },
+  input: {
+    reference: string;
+    status: string;
+    paidAt?: string | null;
+    providerReference?: string | null;
+  },
 ) {
   return fulfillCoursePurchase(supabaseAdmin, {
     reference: input.reference,
@@ -223,7 +232,8 @@ export const initializeCourseCheckout = createServerFn({ method: "POST" })
       .maybeSingle();
     if (courseErr) throw new Error(courseErr.message);
     if (!course) throw new Error("Course not found.");
-    if (course.status !== "published") throw new Error("This course is not available for purchase.");
+    if (course.status !== "published")
+      throw new Error("This course is not available for purchase.");
 
     const amountUsd = Number(course.price_usd ?? 0);
 
@@ -241,7 +251,13 @@ export const initializeCourseCheckout = createServerFn({ method: "POST" })
         },
         { onConflict: "course_id,student_id" },
       );
-      return { free: true, reference: null, authorizationUrl: null, amountUsd: 0, courseId: course.id } satisfies CourseCheckoutResult;
+      return {
+        free: true,
+        reference: null,
+        authorizationUrl: null,
+        amountUsd: 0,
+        courseId: course.id,
+      } satisfies CourseCheckoutResult;
     }
 
     // Already enrolled? Short-circuit.
@@ -253,15 +269,23 @@ export const initializeCourseCheckout = createServerFn({ method: "POST" })
       .in("status", ["active", "completed"])
       .maybeSingle();
     if (owned) {
-      return { free: true, reference: null, authorizationUrl: null, amountUsd, courseId: course.id } satisfies CourseCheckoutResult;
+      return {
+        free: true,
+        reference: null,
+        authorizationUrl: null,
+        amountUsd,
+        courseId: course.id,
+      } satisfies CourseCheckoutResult;
     }
 
     const reference = randomReference();
     const amountMinor = Math.round(amountUsd * 100);
     const customerEmail =
       (context.claims?.email as string | undefined) ??
-      ((await supabaseAdmin.from("profiles").select("email").eq("id", context.userId).maybeSingle()).data?.email as string | undefined);
-    if (!customerEmail) throw new Error("We couldn't find an email on your account for the receipt.");
+      ((await supabaseAdmin.from("profiles").select("email").eq("id", context.userId).maybeSingle())
+        .data?.email as string | undefined);
+    if (!customerEmail)
+      throw new Error("We couldn't find an email on your account for the receipt.");
 
     const { error: purchaseErr } = await supabaseAdmin.from("course_purchases").insert({
       user_id: context.userId,
@@ -277,7 +301,10 @@ export const initializeCourseCheckout = createServerFn({ method: "POST" })
 
     const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
     const appUrl =
-      process.env.APP_URL || process.env.VITE_APP_URL || process.env.PUBLIC_APP_URL || "https://klassruum.com";
+      process.env.APP_URL ||
+      process.env.VITE_APP_URL ||
+      process.env.PUBLIC_APP_URL ||
+      "https://klassruum.com";
     const callbackUrl = `${appUrl}/courses/${course.slug}/checkout?reference=${encodeURIComponent(reference)}`;
 
     const response = await fetch("https://api.paystack.co/transaction/initialize", {
@@ -301,7 +328,10 @@ export const initializeCourseCheckout = createServerFn({ method: "POST" })
     const responseBody = safeJsonParse<Record<string, unknown>>(await response.text(), {});
     if (!response.ok) {
       const message = (responseBody.message as string) || "Unable to start Paystack checkout.";
-      await supabaseAdmin.from("course_purchases").update({ status: "failed" }).eq("paystack_reference", reference);
+      await supabaseAdmin
+        .from("course_purchases")
+        .update({ status: "failed" })
+        .eq("paystack_reference", reference);
       throw new Error(message);
     }
 
@@ -338,9 +368,12 @@ export const verifyCoursePayment = createServerFn({ method: "POST" })
     }
 
     const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
-    const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(data.reference)}`, {
-      headers: { Authorization: `Bearer ${secretKey}` },
-    });
+    const response = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(data.reference)}`,
+      {
+        headers: { Authorization: `Bearer ${secretKey}` },
+      },
+    );
     const responseBody = safeJsonParse<Record<string, unknown>>(await response.text(), {});
     if (!response.ok) {
       const message = (responseBody.message as string) || "Unable to verify Paystack payment.";
@@ -353,7 +386,12 @@ export const verifyCoursePayment = createServerFn({ method: "POST" })
     const providerReference =
       typeof txn.id === "number" || typeof txn.id === "string" ? String(txn.id) : null;
 
-    await fulfillCoursePurchase(supabaseAdmin, { reference: data.reference, status, paidAt, providerReference });
+    await fulfillCoursePurchase(supabaseAdmin, {
+      reference: data.reference,
+      status,
+      paidAt,
+      providerReference,
+    });
 
     return { status, courseId: purchase.course_id, alreadyVerified: false };
   });

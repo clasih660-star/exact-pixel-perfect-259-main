@@ -145,6 +145,8 @@ const SaveSessionSchema = z.object({
   confusion_score: z.number().optional(),
   weak_topics: z.array(z.string()).optional(),
   strong_topics: z.array(z.string()).optional(),
+  learning_mode: z.string().optional(),
+  preferred_style_signal: z.enum(["visual", "auditory", "kinesthetic", "reading"]).optional(),
 });
 
 export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
@@ -180,6 +182,23 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
     const practiceRate =
       data.practice_attempts > 0 ? data.practice_correct / data.practice_attempts : 0.5;
     const cognitiveLoad = Math.min(1, confusion * 0.6 + (1 - practiceRate) * 0.4);
+    const preferredStyle =
+      data.preferred_style_signal ??
+      (data.learning_mode === "blind"
+        ? "auditory"
+        : data.learning_mode === "speech_difficulty" || data.learning_mode === "dyslexia"
+          ? "reading"
+          : "visual");
+    const optimalPace =
+      data.learning_mode === "challenge"
+        ? 1.15
+        : data.learning_mode === "extra_support"
+          ? 0.85
+          : cognitiveLoad > 0.6
+            ? 0.8
+            : cognitiveLoad < 0.3 && practiceRate > 0.8
+              ? 1.15
+              : 1.0;
 
     // Upsert cognitive profile
     const profileData = {
@@ -188,8 +207,8 @@ export const saveLearnerSessionSummary = createServerFn({ method: "POST" })
       course_id: data.course_id || null,
       last_emotion_state: emotion,
       avg_engagement_score: Math.min(1, data.score / 100),
-      preferred_learning_style: "visual", // Will be refined over time
-      optimal_pace: cognitiveLoad > 0.6 ? 0.8 : cognitiveLoad < 0.3 ? 1.2 : 1.0,
+      preferred_learning_style: preferredStyle,
+      optimal_pace: optimalPace,
       baseline_cognitive_load: cognitiveLoad,
       current_cognitive_load: cognitiveLoad,
       strong_topics: data.strong_topics ?? [],

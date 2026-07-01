@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { createAuditLog } from "@/lib/institution-admin.foundation";
-import { queueEmailJob } from "@/lib/onboarding.foundation";
+import { getAppUrl, queueEmailJob } from "@/lib/onboarding.foundation";
+import { SecurityConfigurationError } from "@/lib/security-errors";
+import { isProductionRuntime } from "@/lib/runtime-mode";
 
 const RegisterSchema = z.object({
   institution_name: z.string().trim().min(1).max(200),
@@ -24,6 +27,8 @@ const RegisterSchema = z.object({
   phone: z.string().trim().min(3).max(40),
   password: z.string().min(8).max(128),
   learner_count: z.number().int().min(0).max(10_000_000).optional(),
+  captchaToken: z.string().max(4096).optional(),
+  website: z.string().max(0).optional(),
   preferred_use_case: z
     .enum([
       "ai_classroom",
@@ -35,6 +40,70 @@ const RegisterSchema = z.object({
     ])
     .optional(),
 });
+
+const WINDOW_MS = 60 * 60 * 1000;
+const MAX_ATTEMPTS_PER_WINDOW = 5;
+const registrationAttempts = new Map<string, { count: number; resetAt: number }>();
+
+function getClientIp(request: Request | undefined) {
+  const forwarded = request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return (
+    request?.headers.get("cf-connecting-ip")?.trim() ||
+    request?.headers.get("x-real-ip")?.trim() ||
+    forwarded ||
+    "unknown"
+  );
+}
+
+function rateLimitKey(data: z.infer<typeof RegisterSchema>, request: Request | undefined) {
+  return `${getClientIp(request)}:${data.admin_email.toLowerCase()}`;
+}
+
+function assertRegistrationRateLimit(key: string) {
+  const now = Date.now();
+  const current = registrationAttempts.get(key);
+  if (!current || current.resetAt <= now) {
+    registrationAttempts.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return;
+  }
+
+  if (current.count >= MAX_ATTEMPTS_PER_WINDOW) {
+    throw new Error("Too many registration attempts. Please wait before trying again.");
+  }
+
+  current.count += 1;
+}
+
+async function verifyTurnstileToken(token: string | undefined, request: Request | undefined) {
+  const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
+  if (!secret) {
+    if (isProductionRuntime()) {
+      throw new SecurityConfigurationError("TURNSTILE_SECRET_KEY is required for public registration.");
+    }
+    return;
+  }
+
+  if (!token) {
+    throw new Error("Please complete the security check before creating an institution.");
+  }
+
+  const body = new URLSearchParams({
+    secret,
+    response: token,
+  });
+  const remoteIp = getClientIp(request);
+  if (remoteIp !== "unknown") body.set("remoteip", remoteIp);
+
+  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  const result = (await response.json().catch(() => ({}))) as { success?: boolean };
+  if (!response.ok || !result.success) {
+    throw new Error("Security check failed. Please refresh and try again.");
+  }
+}
 
 function slugify(input: string) {
   return (
@@ -50,13 +119,21 @@ function slugify(input: string) {
 export const registerInstitution = createServerFn({ method: "POST" })
   .validator((data: unknown) => RegisterSchema.parse(data))
   .handler(async ({ data }) => {
+    if (process.env.PUBLIC_REGISTRATION_ENABLED === "false") {
+      throw new Error("Institution self-registration is temporarily disabled.");
+    }
+
+    const request = getRequest();
+    assertRegistrationRateLimit(rateLimitKey(data, request));
+    await verifyTurnstileToken(data.captchaToken, request);
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Create auth user
     const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
       email: data.admin_email,
       password: data.password,
-      email_confirm: true,
+      email_confirm: false,
       user_metadata: {
         full_name: data.admin_full_name,
         phone: data.phone,
@@ -66,6 +143,18 @@ export const registerInstitution = createServerFn({ method: "POST" })
       throw new Error(createErr?.message || "Could not create account.");
     }
     const userId = created.user.id;
+    const verificationResult = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email: data.admin_email,
+      options: {
+        redirectTo: `${getAppUrl()}/auth/callback`,
+      },
+    });
+    const verificationUrl = verificationResult.data?.properties?.action_link;
+    if (verificationResult.error || !verificationUrl) {
+      await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+      throw new Error(verificationResult.error?.message || "Could not create a verification link.");
+    }
 
     // 2. Unique slug
     const base = slugify(data.institution_name);
@@ -130,7 +219,25 @@ export const registerInstitution = createServerFn({ method: "POST" })
       throw new Error(profileErr.message);
     }
 
-    // 6. Queue a welcome/onboarding email job. Delivery is handled later by the worker/processor layer.
+    // 6. Queue verification and welcome/onboarding email jobs. Delivery is handled by the worker layer.
+    await queueEmailJob(supabaseAdmin, {
+      institutionId: inst.id,
+      relatedUserId: userId,
+      kind: "institution_owner_verify_email",
+      templateKey: "institution_owner_verify_email",
+      toEmail: data.admin_email,
+      toName: data.admin_full_name,
+      subject: "Verify your Klassruum institution account",
+      idempotencyKey: `institution:${inst.id}:owner_verify:${userId}`,
+      payload: {
+        institution_id: inst.id,
+        institution_slug: inst.slug,
+        institution_name: data.institution_name,
+        owner_name: data.admin_full_name,
+        verification_url: verificationUrl,
+      },
+    });
+
     await queueEmailJob(supabaseAdmin, {
       institutionId: inst.id,
       relatedUserId: userId,
@@ -164,5 +271,5 @@ export const registerInstitution = createServerFn({ method: "POST" })
       details: { slug: inst.slug, type: data.type },
     });
 
-    return { ok: true, institution_id: inst.id, slug: inst.slug };
+    return { ok: true, institution_id: inst.id, slug: inst.slug, requiresEmailVerification: true };
   });

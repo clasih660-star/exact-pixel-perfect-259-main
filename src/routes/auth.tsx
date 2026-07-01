@@ -16,7 +16,7 @@ import {
 } from "@/lib/auth-verification";
 import { beginGoogleOAuth } from "@/lib/google-oauth.functions";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
-import { roleDashboardPath } from "@/lib/route-guards";
+import { redirectAuthenticatedUsers, roleDashboardPath } from "@/lib/route-guards";
 import { setDemoSessionRole } from "@/lib/demo-mode";
 import { isDemoModeAllowed } from "@/lib/runtime-mode";
 import type { UserRole } from "@/lib/types";
@@ -41,6 +41,7 @@ async function signInWithGoogle(getRedirectTo: (inviteToken?: string | null) => 
 }
 
 export const Route = createFileRoute("/auth")({
+  beforeLoad: () => redirectAuthenticatedUsers(),
   head: () => ({
     meta: [
       { title: "Sign in — Klassruum" },

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { acceptInstitutionInvite } from "@/lib/institution-invites.functions";
-import { roleDashboardPath } from "@/lib/route-guards";
+import { redirectAuthenticatedUsers, roleDashboardPath } from "@/lib/route-guards";
 import { resolvePostAuthPath } from "@/lib/auth-redirects";
 import {
   clearPendingVerification,
@@ -19,6 +19,7 @@ import type { UserRole } from "@/lib/types";
 const SITE_URL = "https://klassruum.com";
 
 export const Route = createFileRoute("/auth/login")({
+  beforeLoad: () => redirectAuthenticatedUsers(),
   head: () => ({
     meta: [
       { title: "Sign In — Klassruum AI Virtual Classrooms" },

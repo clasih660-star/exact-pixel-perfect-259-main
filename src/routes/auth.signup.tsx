@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { getAuthCallbackUrl, rememberPendingVerification } from "@/lib/auth-verification";
+import { redirectAuthenticatedUsers } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/auth/signup")({
+  beforeLoad: () => redirectAuthenticatedUsers(),
   component: SignupPage,
 });
 

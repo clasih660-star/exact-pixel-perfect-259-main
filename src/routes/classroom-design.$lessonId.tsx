@@ -43,9 +43,11 @@ import { teacherTurn } from "@/lib/teacher.functions";
 import { updateLessonProgress } from "@/lib/student.functions";
 import { speak, stopSpeech, createRecognizer } from "@/lib/speech";
 import { QuizCard } from "@/components/QuizCard";
+import { requireClientAuthRoute } from "@/lib/route-guards";
 import "@/styles/design-system.css";
 
 export const Route = createFileRoute("/classroom-design/$lessonId")({
+  beforeLoad: () => requireClientAuthRoute(),
   loader: ({ params }) => {
     const lesson = getLesson(params.lessonId);
     if (!lesson) throw notFound();

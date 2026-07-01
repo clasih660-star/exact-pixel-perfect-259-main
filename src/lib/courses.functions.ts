@@ -56,13 +56,21 @@ export const getCourse = createServerFn({ method: "GET" })
 
 const CreateSchema = z.object({
   institution_id: z.string().uuid(),
+  programme_id: z.string().uuid().optional(),
   title: z.string().trim().min(1).max(160),
   description: z.string().trim().max(2000).optional(),
   subject: z.string().trim().max(120).optional(),
   level: z.string().trim().max(80).optional(),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
+  source_type: z.enum(["institution", "kingpin"]).default("institution"),
   price_usd: z.coerce.number().min(0).max(100000).default(0),
   pricing_label: z.string().trim().max(60).optional(),
+  country: z.string().trim().max(80).optional(),
+  curriculum_family: z.string().trim().max(80).optional(),
+  grade: z.coerce.number().int().min(1).max(20).optional(),
+  curriculum_subject: z.string().trim().max(120).optional(),
+  curriculum_subject_slug: z.string().trim().max(120).optional(),
+  curriculum_metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const createCourse = createServerFn({ method: "POST" })
@@ -85,15 +93,23 @@ export const createCourse = createServerFn({ method: "POST" })
       .from("courses")
       .insert({
         institution_id: data.institution_id,
+        programme_id: data.programme_id ?? null,
         title: data.title,
         slug,
         description: data.description ?? null,
         subject: data.subject ?? null,
         level: data.level ?? null,
         status: data.status,
+        source_type: data.source_type,
         price_usd: data.price_usd ?? 0,
         currency: "USD",
         pricing_label: data.pricing_label ?? null,
+        country: data.country ?? null,
+        curriculum_family: data.curriculum_family ?? null,
+        grade: data.grade ?? null,
+        curriculum_subject: data.curriculum_subject ?? data.subject ?? null,
+        curriculum_subject_slug: data.curriculum_subject_slug ?? null,
+        curriculum_metadata: data.curriculum_metadata ?? {},
         created_by: context.userId,
       })
       .select("*")

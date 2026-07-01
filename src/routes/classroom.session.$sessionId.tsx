@@ -5,13 +5,15 @@ import { useEffect } from "react";
 import { InteractiveClassroomPage } from "@/components/classroom/InteractiveClassroomPage";
 import { LearnerLiveClassroomPage } from "@/components/classroom/LearnerLiveClassroomPage";
 import { TeacherLiveClassroomPage } from "@/components/classroom/TeacherLiveClassroomPage";
-import { getClassroomContext, endSession } from "@/lib/sessions.functions";
+import { AIBroadcastClassroom } from "@/components/classroom/AIBroadcastClassroom";
+import { getClassroomContext, endSession, postChatMessage } from "@/lib/sessions.functions";
 import { leaveSession, endSession as endLiveSession } from "@/lib/live-sessions.functions";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { postChatMessage } from "@/lib/sessions.functions";
+import { requireClientAuthRoute } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/classroom/session/$sessionId")({
+  beforeLoad: () => requireClientAuthRoute(),
   component: ClassroomSessionRoute,
 });
 
@@ -118,6 +120,7 @@ function ClassroomSessionRoute() {
 
   const isTeacherHost = Boolean(query.data.viewer?.isInstitutionStaff);
 
+  // ---- Human teacher or hybrid: teacher → TeacherLiveClassroomPage, learner → LearnerLiveClassroomPage ----
   if (
     isTeacherHost &&
     (query.data.session?.mode === "human_teacher" || query.data.session?.mode === "hybrid")
@@ -173,6 +176,56 @@ function ClassroomSessionRoute() {
     );
   }
 
+  // ---- AI teacher group mode: broadcast to multiple learners ----
+  const participants = query.data.participants ?? [];
+  const activeCount = participants.filter((p: any) => p.status !== "left").length;
+  const isGroupSession = query.data.session?.mode === "ai_teacher" && activeCount > 1;
+
+  if (isGroupSession) {
+    return (
+      <AIBroadcastClassroom
+        sessionId={sessionId}
+        content={(query.data as any).lesson_content ?? (query.data as any).lesson ?? {}}
+        classroomContext={query.data}
+        mode={isTeacherHost ? "host" : "learner"}
+        onLeave={async () => {
+          if (isTeacherHost) {
+            await endLiveFn({ data: { session_id: sessionId } });
+            await router.navigate({ to: "/teacher/sessions" });
+          } else {
+            await leaveFn({ data: { session_id: sessionId } });
+            await router.navigate({ to: "/student/classrooms" });
+          }
+        }}
+        onAskQuestion={async (message) => {
+          await postFn({
+            data: {
+              session_id: sessionId,
+              message,
+              sender: isTeacherHost ? "teacher" : "student",
+              message_type: isTeacherHost ? "announcement" : "question",
+            },
+          });
+        }}
+        onBroadcast={
+          isTeacherHost
+            ? async (message) => {
+                await postFn({
+                  data: {
+                    session_id: sessionId,
+                    message,
+                    sender: "teacher",
+                    message_type: "announcement",
+                  },
+                });
+              }
+            : undefined
+        }
+      />
+    );
+  }
+
+  // ---- Default: individual AI classroom (1:1 or solo) ----
   return (
     <InteractiveClassroomPage
       classroomContext={query.data as any}

@@ -468,6 +468,41 @@ export function buildChemistryLessonContent(): ClassroomLessonContent {
         "I understood everything",
       ],
     },
+    visualPlan: [
+      {
+        id: "chem_ionic_bond",
+        anchorId: "chem_8",
+        kind: "diagram",
+        source: "fallback",
+        title: "Sodium Chloride electron transfer",
+        description: "Sodium (Na) transfers its 1 valence electron to Chlorine (Cl), forming stable Na⁺ and Cl⁻ ions.",
+        alt: "Na [•] + Cl [•••••••] → Na⁺ + [••••••••]⁻",
+        teacherCue: "Observe how Sodium loses an electron to become a positive cation, and Chlorine gains it to become a negative anion.",
+        labels: ["Valence Electron", "Electron Transfer", "Na+ Cation", "Cl- Anion", "Electrostatic Attraction"]
+      },
+      {
+        id: "chem_covalent_bond",
+        anchorId: "chem_14",
+        kind: "workflow",
+        source: "fallback",
+        title: "Water (H₂O) electron sharing",
+        description: "Oxygen shares two of its valence electrons with two separate Hydrogen atoms so all achieve full shells.",
+        alt: "H — O — H structure",
+        teacherCue: "Notice that the shared electrons are counted toward the outer shells of both Oxygen and Hydrogen.",
+        labels: ["Shared Electron Pair", "Single Covalent Bond", "Full Outer Shell", "H2O Molecule"]
+      },
+      {
+        id: "chem_comparison_table",
+        anchorId: "chem_17",
+        kind: "table",
+        source: "fallback",
+        title: "Ionic vs Covalent bonds comparison",
+        description: "Side-by-side comparison of the core characteristics of ionic and covalent bonding.",
+        alt: "Comparison matrix",
+        teacherCue: "Note how metal + non-metal pairs always transfer electrons, whereas non-metals share electrons.",
+        labels: ["Bond Type", "Electron Action", "Elements Involved", "Structure Formed"]
+      }
+    ],
     learnerNotes: `# Chemical Bonding: Ionic vs Covalent
 
 ## What is a Chemical Bond?

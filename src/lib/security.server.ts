@@ -17,11 +17,17 @@ export function assertProductionSecurityConfiguration() {
   if (!isProductionRuntime()) return;
 
   const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+  const appUrl = process.env.APP_URL ?? process.env.PUBLIC_APP_URL ?? process.env.VITE_APP_URL;
   const supabaseKey =
     process.env.SUPABASE_PUBLISHABLE_KEY ??
     process.env.SUPABASE_ANON_KEY ??
     process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
     process.env.VITE_SUPABASE_ANON_KEY;
+  const requiredServerSecrets = {
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
+    PAYSTACK_WEBHOOK_SECRET: process.env.PAYSTACK_WEBHOOK_SECRET,
+  };
 
   const isMissing = !supabaseUrl || !supabaseKey;
   const isPlaceholder =
@@ -32,6 +38,25 @@ export function assertProductionSecurityConfiguration() {
   if (isMissing || isPlaceholder) {
     throw new SecurityConfigurationError(
       "Supabase authentication is not securely configured for production.",
+    );
+  }
+
+  const missingSecrets = Object.entries(requiredServerSecrets)
+    .filter(([, value]) => !value)
+    .map(([name]) => name);
+  if (missingSecrets.length > 0) {
+    throw new SecurityConfigurationError(
+      `Missing production server secret(s): ${missingSecrets.join(", ")}.`,
+    );
+  }
+
+  if (!appUrl || !toOrigin(appUrl)?.startsWith("https://")) {
+    throw new SecurityConfigurationError("APP_URL/PUBLIC_APP_URL must be a production HTTPS origin.");
+  }
+
+  if (process.env.PUBLIC_REGISTRATION_ENABLED !== "false" && !process.env.TURNSTILE_SECRET_KEY) {
+    throw new SecurityConfigurationError(
+      "TURNSTILE_SECRET_KEY is required when public registration is enabled.",
     );
   }
 }
@@ -60,11 +85,12 @@ export function buildContentSecurityPolicy() {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'none'",
-    "frame-src 'none'",
+    "frame-src https://challenges.cloudflare.com",
     "form-action 'self'",
     "manifest-src 'self'",
     // TanStack Start injects inline bootstrap data/scripts required for SSR hydration.
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+    "script-src-attr 'none'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

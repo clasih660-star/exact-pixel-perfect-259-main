@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RouteStubPage } from "@/components/route/RouteStubPage";
+import { requireClientRoleRoute } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/classroom/preview/$lessonId")({
+  beforeLoad: () => requireClientRoleRoute(["teacher", "institution_admin", "owner", "platform_admin"]),
   component: () => (
     <RouteStubPage
       role="Classroom"

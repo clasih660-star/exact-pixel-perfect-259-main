@@ -22,6 +22,55 @@
 import type { MathTeachingItem } from "./lesson-models";
 import type { AcademicLevel } from "./types";
 
+export type ClassroomDisciplineType =
+  | "mathematics"
+  | "science"
+  | "technical"
+  | "business_software"
+  | "humanities"
+  | "languages"
+  | "general";
+
+export type ClassroomVisualKind =
+  | "screenshot"
+  | "diagram"
+  | "formula"
+  | "chart"
+  | "table"
+  | "illustration"
+  | "workflow"
+  | "map"
+  | "text_reference";
+
+export type ClassroomVisualSource = "uploaded_material" | "ai_generated" | "whiteboard" | "fallback";
+
+export interface ClassroomVisualAsset {
+  id: string;
+  /** Teaching item id, section key, or general lesson anchor this visual supports. */
+  anchorId?: string;
+  kind: ClassroomVisualKind;
+  source: ClassroomVisualSource;
+  title: string;
+  description: string;
+  alt: string;
+  imageUrl?: string;
+  /** What the teacher should explicitly point out while this visual is visible. */
+  teacherCue: string;
+  /** Optional labels for diagrams/anatomy/workflows. */
+  labels?: string[];
+}
+
+export interface ClassroomPacingPlan {
+  /** Universities expect a real class rhythm; generated lessons should not under-run this. */
+  minimumDurationMinutes: number;
+  /** Normal planned delivery time. */
+  targetDurationMinutes: number;
+  /** Hard ceiling to prevent endless AI delivery. */
+  maximumDurationMinutes: number;
+  /** Built-in recap/practice/reteach moments used when runtime detects rushing or confusion. */
+  extensionStrategies: string[];
+}
+
 /** A single practice problem the learner attempts (guided or independent). */
 export interface ClassroomPracticeProblem {
   /** The equation / prompt shown large on the practice card. */
@@ -72,6 +121,36 @@ export interface ClassroomTeacherPersona {
   voice: "female" | "male";
 }
 
+export interface ClassroomInstructionalSegment {
+  id: string;
+  title: string;
+  type: string;
+  estimatedMinutes: number;
+  visualRequired?: boolean;
+  visualCue?: string;
+}
+
+export interface ClassroomReteachMoment {
+  concept: string;
+  recapPoints: string[];
+  alternateExplanation: string;
+  visualCue?: string;
+}
+
+export interface ClassroomGuidedQuestion {
+  question: string;
+  options: string[];
+  correct: string;
+  explanation: string;
+}
+
+export interface ClassroomPracticeCycle {
+  id: string;
+  topic: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  problems: ClassroomPracticeProblem[];
+}
+
 /**
  * Everything the AI video classroom needs to teach one lesson, end to end.
  * Built either from the demo or from a real DB lesson.
@@ -84,9 +163,23 @@ export interface ClassroomLessonContent {
   equation?: string;
   subject: string;
   course: string;
+  /** Human-readable course/grade level, e.g. "Grade 8", "Form 2", "Tertiary". */
+  courseLevel?: string;
   institution: string;
   /** Drives the AI teacher's vocabulary, depth, pacing, encouragement. */
   academicLevel: AcademicLevel;
+  /** Drives discipline-specific pedagogy and media choices. */
+  disciplineType?: ClassroomDisciplineType;
+  /** Optional software/tool context: SPSS, Excel, Power BI, AutoCAD, lab equipment, etc. */
+  toolingContext?: string;
+  /** Runtime pacing contract for 30–60 minute delivery. */
+  pacingPlan?: ClassroomPacingPlan;
+  /** Syllabus-aware visual plan: uploaded screenshots/images first, AI/fallback visuals where needed. */
+  visualPlan?: ClassroomVisualAsset[];
+  instructionalSegments?: ClassroomInstructionalSegment[];
+  reteachMoments?: ClassroomReteachMoment[];
+  guidedQuestions?: ClassroomGuidedQuestion[];
+  practiceCycles?: ClassroomPracticeCycle[];
   teacher: ClassroomTeacherPersona;
 
   /** Opening narrative spoken before any board writing. */

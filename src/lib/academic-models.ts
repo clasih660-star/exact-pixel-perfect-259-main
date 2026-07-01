@@ -24,6 +24,10 @@ export interface Programme {
   level?: string;
   subjectArea?: string;
   targetLearners?: string;
+  country?: string;
+  curriculumFamily?: string;
+  grade?: number;
+  curriculumMetadata?: Record<string, unknown>;
   learningOutcomes: string[];
   startDate?: string;
   endDate?: string;
@@ -43,6 +47,12 @@ export interface CourseAcademicFields {
   timelineWeeks?: number;
   lessonGenerationMode: LessonGenerationMode;
   targetLessonCount?: number;
+  country?: string;
+  curriculumFamily?: string;
+  grade?: number;
+  curriculumSubject?: string;
+  curriculumSubjectSlug?: string;
+  curriculumMetadata?: Record<string, unknown>;
 }
 
 // ── Course Material ──────────────────────────────────────────────────────────
@@ -58,6 +68,19 @@ export type CourseMaterialType =
   | "syllabus";
 
 export type MaterialProcessingStatus = "pending" | "processing" | "ready" | "failed";
+export type CourseMaterialRole =
+  | "teacher_guide"
+  | "learner_book"
+  | "reference_text"
+  | "syllabus"
+  | "institution_excerpt"
+  | "other";
+export type MaterialRightsStatus =
+  | "licensed"
+  | "institution_provided"
+  | "public_domain"
+  | "metadata_only"
+  | "pending_review";
 
 export interface CourseMaterial {
   id: string;
@@ -70,6 +93,13 @@ export interface CourseMaterial {
   linkUrl?: string;
   extractedText?: string;
   syllabusReference?: string;
+  materialRole?: CourseMaterialRole;
+  bookTitle?: string;
+  publisher?: string;
+  editionYear?: string;
+  materialRightsStatus?: MaterialRightsStatus;
+  rightsNotes?: string;
+  curriculumMetadata?: Record<string, unknown>;
   processingStatus: MaterialProcessingStatus;
   processingError?: string;
   createdAt?: string;
@@ -88,7 +118,58 @@ export interface MaterialImage {
   createdAt?: string;
 }
 
-// ── Lesson + Sections + Teaching Items ───────────────────────────────────────
+// ── Lesson Metadata Extensions for Deep Teaching ────────────────────────────
+
+export interface InstructionalSegment {
+  id: string;
+  title: string;
+  type: string;
+  estimatedMinutes: number;
+  visualRequired?: boolean;
+  visualCue?: string;
+}
+
+export interface LessonVisualPlanAsset {
+  id: string;
+  anchorId?: string;
+  kind: "screenshot" | "diagram" | "formula" | "chart" | "table" | "illustration" | "workflow" | "map" | "text_reference";
+  source: "uploaded_material" | "ai_generated" | "whiteboard" | "fallback";
+  title: string;
+  description: string;
+  alt: string;
+  imageUrl?: string;
+  teacherCue: string;
+  labels?: string[];
+}
+
+export interface ReteachMoment {
+  concept: string;
+  recapPoints: string[];
+  alternateExplanation: string;
+  visualCue?: string;
+}
+
+export interface GuidedQuestion {
+  question: string;
+  options: string[];
+  correct: string;
+  explanation: string;
+}
+
+export interface PracticeCycleProblem {
+  equation: string;
+  question: string;
+  correctAnswer: string;
+  hints: string[];
+  misconception?: { answer: string; note: string };
+}
+
+export interface PracticeCycle {
+  id: string;
+  topic: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  problems: PracticeCycleProblem[];
+}
 
 export type LessonStatus = "draft" | "published" | "archived";
 
@@ -101,6 +182,17 @@ export interface GeneratedLesson {
   orderIndex: number;
   objective: string;
   syllabusReference?: string;
+  curriculum?: {
+    country?: string | null;
+    curriculumFamily?: string | null;
+    grade?: number | null;
+    subject?: string | null;
+    subjectSlug?: string | null;
+    strand?: string | null;
+    subStrand?: string | null;
+    syllabusReference?: string | null;
+    sourceBookReferences?: string[];
+  };
   sourceMaterialIds: string[];
   minimumDurationMinutes: number;
   estimatedDurationMinutes?: number;
@@ -257,4 +349,25 @@ export interface ClassroomQuestionContext {
   imageDescriptions?: string[];
   learningMode?: string;
   learnerLevel?: string;
+}
+
+export interface CurriculumScopeMapping {
+  id: string;
+  country: string;
+  curriculumFamily: string;
+  grade: number;
+  subject: string;
+  subjectSlug: string;
+  curriculumCode?: string;
+  strand?: string;
+  subStrand?: string;
+  syllabusReference?: string;
+  expectedMaterialRole?: CourseMaterialRole;
+  courseId?: string;
+  courseMaterialId?: string;
+  lessonId?: string;
+  coverageStatus: "unmapped" | "material_mapped" | "lesson_drafted" | "published";
+  sourceNotes?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

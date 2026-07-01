@@ -4,6 +4,7 @@
  */
 import { useMemo } from "react";
 import {
+  applyLaunchVisibility,
   dashboardConfigs,
   resolveDashboardRole,
   type DashboardConfig,
@@ -23,7 +24,7 @@ export function useDashboardConfig(): DashboardConfig {
     learnerType,
   });
 
-  return useMemo(() => dashboardConfigs[dashboardRole], [dashboardRole]);
+  return useMemo(() => applyLaunchVisibility(dashboardConfigs[dashboardRole]), [dashboardRole]);
 }
 
 /**

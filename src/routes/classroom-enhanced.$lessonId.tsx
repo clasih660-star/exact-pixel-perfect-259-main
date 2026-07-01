@@ -6,8 +6,10 @@ import { generateTeacherResponse } from "@/lib/ai-teacher";
 import { speak, stopSpeech, createRecognizer, startListening, stopListening } from "@/lib/speech";
 import type { TeacherState, ChatMessage, ClassroomContext } from "@/lib/types";
 import { ArrowLeft, Subtitles, Eye, EyeOff, Mic, MicOff, Loader2, Sparkles } from "lucide-react";
+import { requireClientAuthRoute } from "@/lib/route-guards";
 
 export const Route = createFileRoute("/classroom-enhanced/$lessonId")({
+  beforeLoad: () => requireClientAuthRoute(),
   component: ClassroomLesson,
   head: ({ params }) => ({
     meta: [

@@ -1,147 +1,83 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Captions, Eye, Keyboard, NotebookText, Volume2, WholeWord } from "lucide-react";
 import { InfoPage } from "@/components/marketing/InfoPage";
-import {
-  MessageSquare,
-  PenLine,
-  Key,
-  Eye,
-  Palette,
-  Film,
-  Brain,
-  Volume2,
-  MessageCircle,
-} from "lucide-react";
-
-const SITE_URL = "https://klassruum.com";
 
 export const Route = createFileRoute("/accessibility")({
   head: () => ({
     meta: [
-      { title: "Accessibility — AI Virtual Classroom for Every Learner | Klassruum" },
+      { title: "Accessibility | Inclusive AI Learning and Classroom Support | Klassruum" },
       {
         name: "description",
         content:
-          "Klassruum accessibility features: live captions, transcripts, keyboard navigation, screen reader support, high contrast, large text, reduced motion, focus mode, and dedicated learner modes for deaf, low-vision, dyslexia, and ADHD.",
-      },
-      {
-        name: "keywords",
-        content:
-          "accessible classroom, live captions, transcript, keyboard navigation, screen reader, WCAG, inclusive learning, deaf accessibility, ADHD focus mode, dyslexia support",
-      },
-      { name: "author", content: "Klassruum" },
-      { name: "robots", content: "index, follow" },
-      { property: "og:type", content: "website" },
-      { property: "og:title", content: "Accessibility — Built for Every Learner | Klassruum" },
-      {
-        property: "og:description",
-        content:
-          "Accessibility is built into Klassruum from day one — captions, transcripts, keyboard nav, screen reader support, and dedicated modes for diverse learners.",
-      },
-      { property: "og:url", content: `${SITE_URL}/accessibility` },
-      { property: "og:image", content: "/images/scenes/scene-1.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Klassruum Accessibility" },
-      {
-        name: "twitter:description",
-        content:
-          "A classroom designed for every learner — deaf, low-vision, neurodivergent, and more.",
-      },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/accessibility` }],
-    script: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: "Klassruum Accessibility",
-          url: `${SITE_URL}/accessibility`,
-          description:
-            "Accessibility features built into Klassruum: live captions, transcripts, keyboard navigation, screen reader support, and dedicated learner modes.",
-        }),
+          "Discover Klassruum accessibility features including captions, transcript-first learning, readable visuals, keyboard-friendly navigation, and adaptable AI lesson delivery.",
       },
     ],
   }),
   component: () => (
     <InfoPage
       eyebrow="Accessibility"
-      title="Built for every learner"
-      intro="Accessibility is a core part of the classroom, not an add-on. Klassruum adapts how a lesson is delivered so more learners can take part — built with WCAG-aligned design principles."
-      cta={{ label: "Try the accessible classroom", to: "/demo/classroom" }}
+      title="Built so more learners can stay with the same lesson"
+      intro="Klassruum supports inclusive digital learning with accessibility features that help learners follow AI-taught lessons through voice, text, readable presentation, and alternative interaction modes."
+      cta={{ label: "See the classroom demo", to: "/demo/classroom" }}
       sections={[
         {
-          icon: <MessageSquare size={20} />,
-          title: "Live captions",
-          body: "Every spoken line is captioned in real time — essential for deaf and hard-of-hearing learners, and useful for everyone.",
+          icon: <Captions size={20} />,
+          title: "Live captions during teaching",
+          body: "Learners can follow spoken delivery as readable text while the lesson is happening.",
         },
         {
-          icon: <PenLine size={20} />,
-          title: "Full transcript",
-          body: "A complete, searchable transcript is saved after every session for review and study.",
-        },
-        {
-          icon: <Key size={20} />,
-          title: "Keyboard navigation",
-          body: "The entire classroom is navigable by keyboard — no mouse required.",
+          icon: <NotebookText size={20} />,
+          title: "Transcript-first learning mode",
+          body: "A text-led route helps learners review information at their own pace without losing context.",
         },
         {
           icon: <Eye size={20} />,
-          title: "Screen reader support",
-          body: "ARIA labels, semantic HTML, and focus management ensure screen readers can navigate the classroom.",
+          title: "Readable visual explanation",
+          body: "Board content and lesson visuals are designed to keep explanation focused, legible, and easier to process.",
         },
         {
-          icon: <Palette size={20} />,
-          title: "High contrast & large text",
-          body: "Visual adjustments for learners who need stronger contrast or larger text sizes.",
+          icon: <WholeWord size={20} />,
+          title: "Adaptable lesson presentation",
+          body: "Different display patterns can support comprehension, pacing, and attention across varied learner needs.",
         },
         {
-          icon: <Film size={20} />,
-          title: "Reduced motion",
-          body: "Animations and transitions can be reduced for learners with motion sensitivity.",
-        },
-        {
-          icon: <Brain size={20} />,
-          title: "Focus mode",
-          body: "Minimizes distractions and concentrates attention on the current whiteboard item.",
+          icon: <Keyboard size={20} />,
+          title: "Keyboard-friendly interaction",
+          body: "Core navigation patterns support learners and staff who rely on non-mouse input.",
         },
         {
           icon: <Volume2 size={20} />,
-          title: "Adjustable speech speed",
-          body: "Control the pace of the AI teacher's speech to match comprehension needs.",
-        },
-        {
-          icon: <MessageCircle size={20} />,
-          title: "Text-first questions",
-          body: "Learners who can't speak can ask questions entirely by typing.",
+          title: "Voice plus text support",
+          body: "Learners are not forced into a single format; spoken and written teaching can work together throughout the session.",
         },
       ]}
     >
-      <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-8">
-        <h2 className="text-2xl font-bold text-[#0F172A]">Learner modes</h2>
-        <p className="mt-3 leading-7 text-[#475569]">
-          Klassruum includes dedicated modes that adapt the classroom for specific needs:
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {[
-            "Standard learners",
-            "Deaf & hard-of-hearing",
-            "Blind & low-vision",
-            "Dyslexia support",
-            "ADHD focus mode",
-            "Motor support",
-            "Speech difficulty support",
-            "Extra support mode",
-            "Challenge mode",
-          ].map((m) => (
-            <span
-              key={m}
-              className="rounded-[999px] border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm text-[#475569]"
-            >
-              {m}
-            </span>
-          ))}
+      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="lp-premium-card p-6 sm:p-8">
+          <h2 className="text-heading text-2xl font-extrabold">Accessibility in a real teaching workflow</h2>
+          <div className="text-body mt-4 space-y-4 text-sm leading-8 sm:text-base">
+            <p>
+              Accessibility in Klassruum is not treated as a separate afterthought. The aim is to let
+              more learners participate in the same lesson through multiple support layers built into
+              the classroom experience.
+            </p>
+            <p>
+              That includes text support, clearer visual presentation, adaptable pacing, and learning
+              modes that reduce the need for students to leave the main teaching flow just to keep up.
+            </p>
+          </div>
         </div>
-      </div>
+
+        <div className="lp-premium-card p-6">
+          <h3 className="text-heading text-xl font-bold">Relevant for institutions that need</h3>
+          <ul className="text-body mt-4 list-disc space-y-2 pl-5 text-sm leading-7">
+            <li>More inclusive online classroom delivery</li>
+            <li>Text-supported AI teaching</li>
+            <li>Accessible blended learning tools</li>
+            <li>Better support for varied learner needs</li>
+          </ul>
+        </div>
+      </section>
     </InfoPage>
   ),
 });

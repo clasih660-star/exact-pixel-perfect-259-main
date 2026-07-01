@@ -17,7 +17,11 @@ import { Logo } from "@/components/brand/Logo";
 import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 import { useAuthContext } from "@/hooks/useUserRole";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { isLearnerDashboardRole, isTeacherDashboardRole } from "@/lib/dashboard-config";
+import {
+  applyLaunchVisibility,
+  isLearnerDashboardRole,
+  isTeacherDashboardRole,
+} from "@/lib/dashboard-config";
 import { NotificationBell } from "@/components/dashboard/shared/NotificationBell";
 
 type Props = {
@@ -41,7 +45,7 @@ export function DashboardShell({
     !configProp ||
     (configProp.role === "teacher" && isTeacherDashboardRole(configFromHook.role)) ||
     (configProp.role === "learner" && isLearnerDashboardRole(configFromHook.role));
-  const config = shouldUseResolvedConfig ? configFromHook : configProp;
+  const config = applyLaunchVisibility(shouldUseResolvedConfig ? configFromHook : configProp);
   const { user } = useAuthContext();
   const location = useLocation();
   const activePath = activePathProp ?? location.pathname;
@@ -131,9 +135,8 @@ export function DashboardShell({
 
       {/* Sidebar */}
       <aside
-        className={`kr-sidebar fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border transition-transform duration-300 lg:translate-x-0 ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`kr-sidebar fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-5">
           <Link to="/" className="flex items-center">
@@ -163,11 +166,10 @@ export function DashboardShell({
                   key={item.href}
                   to={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 ${
-                    isActive
+                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150 ${isActive
                       ? "bg-heading text-white shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{item.label}</span>

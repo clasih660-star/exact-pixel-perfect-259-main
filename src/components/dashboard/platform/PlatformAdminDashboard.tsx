@@ -48,7 +48,7 @@ export function PlatformAdminDashboard() {
 
   if (isLoading) {
     return (
-      <DashboardShell config={config} activePath="/admin/platform">
+      <DashboardShell config={config} activePath="/admin/dashboard">
         <DashboardLoadingState type="skeleton" />
       </DashboardShell>
     );
@@ -56,7 +56,7 @@ export function PlatformAdminDashboard() {
 
   if (error || !data) {
     return (
-      <DashboardShell config={config} activePath="/admin/platform">
+      <DashboardShell config={config} activePath="/admin/dashboard">
         <DashboardLoadingState
           type="error"
           message={(error as Error)?.message || "Failed to load dashboard data"}
@@ -66,7 +66,7 @@ export function PlatformAdminDashboard() {
   }
 
   return (
-    <DashboardShell config={config} activePath="/admin/platform">
+    <DashboardShell config={config} activePath="/admin/dashboard">
       {/* Dashboard Header */}
       <section className="mb-6">
         <div className="mb-2 flex items-center gap-2">

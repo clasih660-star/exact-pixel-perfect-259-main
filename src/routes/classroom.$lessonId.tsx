@@ -5,10 +5,16 @@ import { loadClassroomLesson } from "@/lib/classroom-lesson.functions";
 import { DEMO_LESSON_LIST, getDemoLessonContent } from "@/lib/demo-lessons/demo-lesson-registry";
 import { startLearnerSession, endSession } from "@/lib/live-sessions.functions";
 import type { ClassroomLessonContent } from "@/lib/classroom-content";
+import { requireClientAuthRoute } from "@/lib/route-guards";
 
 const SITE_URL = "https://klassruum.com";
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const Route = createFileRoute("/classroom/$lessonId")({
+  beforeLoad: ({ params }) => {
+    if (!UUID_RE.test(params.lessonId)) return;
+    return requireClientAuthRoute();
+  },
   head: ({ params }) => {
     const demoMeta = DEMO_LESSON_LIST.find((lesson) => lesson.id === params.lessonId);
     const title = demoMeta
@@ -42,8 +48,6 @@ export const Route = createFileRoute("/classroom/$lessonId")({
   },
   component: Classroom,
 });
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * The live AI classroom. For a real (UUID) lesson id it loads the published

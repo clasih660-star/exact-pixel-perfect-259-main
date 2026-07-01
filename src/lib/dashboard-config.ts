@@ -83,6 +83,164 @@ export type DashboardConfig = {
   learnerType?: LearnerType;
 };
 
+const LAUNCH_NAV_ALLOWLIST: Partial<Record<DashboardRole, string[]>> = {
+  learner: [
+    "/student/dashboard",
+    "/student/classrooms",
+    "/student/courses",
+    "/student/lessons",
+    "/student/calendar",
+    "/student/resources",
+    "/student/notes",
+    "/student/progress",
+    "/student/assignments",
+    "/student/quizzes",
+    "/student/messages",
+    "/student/access",
+    "/student/search",
+    "/student/notifications",
+    "/student/settings",
+  ],
+  institution_learner: [
+    "/student/dashboard",
+    "/student/classrooms",
+    "/student/courses",
+    "/student/lessons",
+    "/student/calendar",
+    "/student/resources",
+    "/student/notes",
+    "/student/progress",
+    "/student/assignments",
+    "/student/quizzes",
+    "/student/messages",
+    "/student/access",
+    "/student/notifications",
+    "/student/settings",
+  ],
+  private_learner: [
+    "/student/dashboard",
+    "/student/courses",
+    "/student/lessons",
+    "/student/classrooms",
+    "/student/calendar",
+    "/student/resources",
+    "/student/notes",
+    "/student/progress",
+    "/student/messages",
+    "/student/notifications",
+    "/student/settings",
+  ],
+  teacher_enrolled_learner: [
+    "/student/dashboard",
+    "/student/classrooms",
+    "/student/courses",
+    "/student/lessons",
+    "/student/resources",
+    "/student/notes",
+    "/student/progress",
+    "/student/messages",
+    "/student/notifications",
+    "/student/settings",
+  ],
+  teacher: [
+    "/teacher/dashboard",
+    "/teacher/courses",
+    "/teacher/lessons",
+    "/teacher/sessions",
+    "/teacher/students",
+    "/teacher/supervision",
+    "/teacher/analytics",
+    "/teacher/notifications",
+    "/teacher/settings",
+  ],
+  private_teacher: [
+    "/teacher/dashboard",
+    "/teacher/courses",
+    "/teacher/lessons",
+    "/teacher/students",
+    "/teacher/sessions",
+    "/teacher/analytics",
+    "/teacher/notifications",
+    "/teacher/settings",
+  ],
+  institution_teacher: [
+    "/teacher/dashboard",
+    "/teacher/courses",
+    "/teacher/lessons",
+    "/teacher/sessions",
+    "/teacher/students",
+    "/teacher/supervision",
+    "/teacher/analytics",
+    "/teacher/notifications",
+    "/teacher/settings",
+  ],
+  kingpin_teacher: [
+    "/teacher/dashboard",
+    "/teacher/courses",
+    "/teacher/lessons",
+    "/teacher/sessions",
+    "/teacher/students",
+    "/teacher/supervision",
+    "/teacher/analytics",
+    "/teacher/notifications",
+    "/teacher/settings",
+  ],
+  institution: [
+    "/institution/dashboard",
+    "/institution/courses",
+    "/institution/sessions",
+    "/institution/resources",
+    "/institution/teachers",
+    "/institution/billing",
+    "/institution/notifications",
+    "/institution/settings",
+  ],
+  platform_admin: [
+    "/admin/users",
+    "/admin/institutions",
+    "/admin/plans",
+    "/admin/usage",
+    "/admin/support",
+    "/admin/health",
+    "/admin/notifications",
+    "/admin/settings",
+  ],
+  parent: ["/parent/dashboard"],
+};
+
+const LAUNCH_PRIMARY_ACTION_OVERRIDES: Partial<
+  Record<DashboardRole, DashboardConfig["primaryAction"]>
+> = {
+  institution: { label: "Manage Courses", href: "/institution/courses" },
+  platform_admin: { label: "View Institutions", href: "/admin/institutions" },
+  parent: { label: "Parent dashboard", href: "/parent/dashboard" },
+};
+
+export function applyLaunchVisibility(config: DashboardConfig): DashboardConfig {
+  const allowed = LAUNCH_NAV_ALLOWLIST[config.role];
+  if (!allowed?.length) {
+    return {
+      ...config,
+      sidebar: [],
+      primaryAction: LAUNCH_PRIMARY_ACTION_OVERRIDES[config.role] ?? config.primaryAction,
+    };
+  }
+
+  const allowedSet = new Set(allowed);
+  const sidebar = config.sidebar.filter((item) => allowedSet.has(item.href));
+  const primaryAction = LAUNCH_PRIMARY_ACTION_OVERRIDES[config.role] ?? config.primaryAction;
+
+  if (sidebar === config.sidebar && primaryAction === config.primaryAction) {
+    return config;
+  }
+
+  return {
+    ...config,
+    sidebar,
+    primaryAction,
+  };
+}
+
 export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
   learner: {
     role: "learner",

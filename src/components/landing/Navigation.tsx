@@ -8,6 +8,7 @@ export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const previousBodyOverflowRef = useRef<string | null>(null);
 
   // Track scroll position for nav background
   useEffect(() => {
@@ -34,10 +35,12 @@ export function Navigation() {
   useEffect(() => {
     if (!isMobileOpen) return;
     document.addEventListener("keydown", handleKeyDown);
+    previousBodyOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousBodyOverflowRef.current ?? "";
+      previousBodyOverflowRef.current = null;
     };
   }, [isMobileOpen, handleKeyDown]);
 

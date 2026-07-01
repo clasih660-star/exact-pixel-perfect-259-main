@@ -15,7 +15,7 @@ import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { requiresEmailVerification } from "@/lib/auth-verification";
 import { isDemoModeAllowed } from "@/lib/runtime-mode";
 import { SecurityConfigurationError } from "@/lib/security-errors";
-import { isBrowserDemoSessionActive } from "@/lib/demo-mode";
+import { getStoredDemoRole, isBrowserDemoSessionActive } from "@/lib/demo-mode";
 
 type AuthContext = {
   user?: { id: string; email?: string } | null;
@@ -171,7 +171,11 @@ async function getActiveInstitutionMembership(userId: string): Promise<Membershi
 export async function getRoleResolution(userId: string): Promise<RoleResolution | null> {
   try {
     const [{ data: profileData }, membership] = await Promise.all([
-      supabase.from("profiles").select("role").eq("id", userId).single(),
+      supabase
+        .from("profiles")
+        .select("role, teacher_type, learner_type, institution_id")
+        .eq("id", userId)
+        .single(),
       getActiveInstitutionMembership(userId),
     ]);
 
@@ -251,10 +255,13 @@ export async function requireRole(ctx: AuthContext, roles: UserRole[]) {
       throw new SecurityConfigurationError("Demo authorization is disabled in production.");
     }
 
-    return demoRoleResolutionFromContext(ctx);
+    const resolution = demoRoleResolutionFromContext(ctx);
+    if (!roles.includes(resolution.role)) {
+      throw redirect({ to: roleDashboardPath(resolution.role) });
+    }
+    return resolution;
   }
 
-  // In demo mode, all role checks pass
   if (!isSupabaseConfigured()) {
     if (!isDemoModeAllowed()) {
       throw new SecurityConfigurationError(
@@ -262,7 +269,7 @@ export async function requireRole(ctx: AuthContext, roles: UserRole[]) {
       );
     }
 
-    return {
+    const resolution: RoleResolution = {
       role: contextRole ?? "student",
       persona:
         persona ??
@@ -286,6 +293,10 @@ export async function requireRole(ctx: AuthContext, roles: UserRole[]) {
           ? "demo-institution"
           : null),
     };
+    if (!roles.includes(resolution.role)) {
+      throw redirect({ to: roleDashboardPath(resolution.role) });
+    }
+    return resolution;
   }
 
   await requireAuth({ user });
@@ -426,4 +437,76 @@ export async function redirectByRole({ user, role: contextRole }: AuthContext) {
   const resolution = await resolveRoleResolution(user.id, { user, role: contextRole });
   const path = resolveDashboardPath(resolution);
   throw redirect({ to: path });
+}
+
+/**
+ * Guard public route files that still open protected product surfaces outside
+ * the `_authenticated` route tree, such as direct classroom/session URLs.
+ */
+export async function requireClientAuthRoute() {
+  if (isBrowserDemoSessionActive()) {
+    if (isDemoModeAllowed()) return;
+    throw new SecurityConfigurationError("Demo auth is disabled in production.");
+  }
+
+  if (!isSupabaseConfigured()) {
+    if (isDemoModeAllowed()) return;
+    throw new SecurityConfigurationError("Authentication is not configured for this environment.");
+  }
+
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    throw redirect({ to: "/auth" });
+  }
+
+  if (
+    requiresEmailVerification(data.user as unknown as Parameters<typeof requiresEmailVerification>[0])
+  ) {
+    throw redirect({ to: "/auth/verify-email" });
+  }
+
+  return data.user;
+}
+
+export async function requireClientRoleRoute(roles: UserRole[]) {
+  const user = await requireClientAuthRoute();
+  if (!user || user.id === "demo-user-0000") {
+    const resolution = demoRoleResolutionFromContext({
+      user: user ?? { id: "demo-user-0000" },
+      role: getStoredDemoRole(),
+    });
+    if (!roles.includes(resolution.role)) {
+      throw redirect({ to: roleDashboardPath(resolution.role) });
+    }
+    return resolution;
+  }
+
+  const resolution = await getRoleResolution(user.id);
+  if (!resolution?.role) {
+    throw redirect({ to: "/auth/complete-profile" });
+  }
+  if (!roles.includes(resolution.role)) {
+    throw redirect({ to: roleDashboardPath(resolution.role) });
+  }
+  return resolution;
+}
+
+export async function redirectAuthenticatedUsers() {
+  if (!isSupabaseConfigured()) return;
+
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return;
+
+  if (
+    requiresEmailVerification(data.user as unknown as Parameters<typeof requiresEmailVerification>[0])
+  ) {
+    throw redirect({ to: "/auth/verify-email" });
+  }
+
+  const resolution = await getRoleResolution(data.user.id);
+  if (!resolution?.role) {
+    throw redirect({ to: "/auth/complete-profile" });
+  }
+
+  throw redirect({ to: resolveDashboardPath(resolution) });
 }

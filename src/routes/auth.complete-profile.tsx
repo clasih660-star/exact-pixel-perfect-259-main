@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
-import { roleDashboardPath } from "@/lib/route-guards";
+import { requireClientAuthRoute, roleDashboardPath } from "@/lib/route-guards";
 import { clearPendingVerification, requiresEmailVerification } from "@/lib/auth-verification";
 import { completeAuthProfile } from "@/lib/auth-profile.functions";
 import type { UserRole } from "@/lib/types";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap, School, Users } from "lucide-react";
 
 export const Route = createFileRoute("/auth/complete-profile")({
+  beforeLoad: () => requireClientAuthRoute(),
   component: CompleteProfilePage,
 });
 

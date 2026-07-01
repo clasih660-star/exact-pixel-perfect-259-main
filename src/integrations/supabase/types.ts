@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       achievements: {
@@ -163,6 +138,13 @@ export type Database = {
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admission_applications_target_course_id_fkey"
+            columns: ["target_course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
         ]
       }
       admission_cycles: {
@@ -209,6 +191,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "admission_cycles_default_programme_id_fkey"
+            columns: ["default_programme_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["programme_id"]
+          },
           {
             foreignKeyName: "admission_cycles_default_programme_id_fkey"
             columns: ["default_programme_id"]
@@ -436,6 +425,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "assignments_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -602,6 +598,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "board_snapshots_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "board_snapshots_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -698,6 +701,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "calendar_events_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "calendar_events_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -788,6 +798,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "certificates_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -840,6 +857,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "chat_messages_institution_id_fkey"
@@ -985,6 +1009,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "classroom_sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "classroom_sessions_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -1058,6 +1089,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "completion_rules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "completion_rules_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -1109,6 +1147,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "course_enrollments_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -1119,15 +1164,22 @@ export type Database = {
       }
       course_materials: {
         Row: {
+          book_title: string | null
           course_id: string
           created_at: string
+          curriculum_metadata: Json
+          edition_year: string | null
           extracted_text: string | null
           file_url: string | null
           id: string
           institution_id: string
           link_url: string | null
+          material_rights_status: string | null
+          material_role: string | null
           processing_error: string | null
           processing_status: string
+          publisher: string | null
+          rights_notes: string | null
           syllabus_reference: string | null
           title: string
           type: string
@@ -1135,15 +1187,22 @@ export type Database = {
           uploaded_by: string | null
         }
         Insert: {
+          book_title?: string | null
           course_id: string
           created_at?: string
+          curriculum_metadata?: Json
+          edition_year?: string | null
           extracted_text?: string | null
           file_url?: string | null
           id?: string
           institution_id: string
           link_url?: string | null
+          material_rights_status?: string | null
+          material_role?: string | null
           processing_error?: string | null
           processing_status?: string
+          publisher?: string | null
+          rights_notes?: string | null
           syllabus_reference?: string | null
           title: string
           type?: string
@@ -1151,15 +1210,22 @@ export type Database = {
           uploaded_by?: string | null
         }
         Update: {
+          book_title?: string | null
           course_id?: string
           created_at?: string
+          curriculum_metadata?: Json
+          edition_year?: string | null
           extracted_text?: string | null
           file_url?: string | null
           id?: string
           institution_id?: string
           link_url?: string | null
+          material_rights_status?: string | null
+          material_role?: string | null
           processing_error?: string | null
           processing_status?: string
+          publisher?: string | null
+          rights_notes?: string | null
           syllabus_reference?: string | null
           title?: string
           type?: string
@@ -1173,6 +1239,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_materials_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "course_materials_institution_id_fkey"
@@ -1244,6 +1317,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "course_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "course_purchases_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -1282,16 +1362,29 @@ export type Database = {
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "course_teachers_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
         ]
       }
       courses: {
         Row: {
           compare_at_price_usd: number | null
+          country: string | null
           cover_image_url: string | null
           created_at: string
           created_by: string | null
           currency: string
+          curriculum_family: string | null
+          curriculum_metadata: Json
+          curriculum_subject: string | null
+          curriculum_subject_slug: string | null
           description: string | null
+          grade: number | null
           id: string
           institution_id: string
           lesson_generation_mode: string | null
@@ -1310,11 +1403,17 @@ export type Database = {
         }
         Insert: {
           compare_at_price_usd?: number | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
+          curriculum_family?: string | null
+          curriculum_metadata?: Json
+          curriculum_subject?: string | null
+          curriculum_subject_slug?: string | null
           description?: string | null
+          grade?: number | null
           id?: string
           institution_id: string
           lesson_generation_mode?: string | null
@@ -1333,11 +1432,17 @@ export type Database = {
         }
         Update: {
           compare_at_price_usd?: number | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
+          curriculum_family?: string | null
+          curriculum_metadata?: Json
+          curriculum_subject?: string | null
+          curriculum_subject_slug?: string | null
           description?: string | null
+          grade?: number | null
           id?: string
           institution_id?: string
           lesson_generation_mode?: string | null
@@ -1366,7 +1471,106 @@ export type Database = {
             foreignKeyName: "courses_programme_id_fkey"
             columns: ["programme_id"]
             isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["programme_id"]
+          },
+          {
+            foreignKeyName: "courses_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
             referencedRelation: "programmes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculum_scope_mappings: {
+        Row: {
+          country: string
+          course_id: string | null
+          course_material_id: string | null
+          coverage_status: string
+          created_at: string
+          curriculum_code: string | null
+          curriculum_family: string
+          expected_material_role: string | null
+          grade: number
+          id: string
+          lesson_id: string | null
+          source_notes: string | null
+          strand: string | null
+          sub_strand: string | null
+          subject: string
+          subject_slug: string
+          syllabus_reference: string | null
+          updated_at: string
+        }
+        Insert: {
+          country: string
+          course_id?: string | null
+          course_material_id?: string | null
+          coverage_status?: string
+          created_at?: string
+          curriculum_code?: string | null
+          curriculum_family: string
+          expected_material_role?: string | null
+          grade: number
+          id?: string
+          lesson_id?: string | null
+          source_notes?: string | null
+          strand?: string | null
+          sub_strand?: string | null
+          subject: string
+          subject_slug: string
+          syllabus_reference?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          course_id?: string | null
+          course_material_id?: string | null
+          coverage_status?: string
+          created_at?: string
+          curriculum_code?: string | null
+          curriculum_family?: string
+          expected_material_role?: string | null
+          grade?: number
+          id?: string
+          lesson_id?: string | null
+          source_notes?: string | null
+          strand?: string | null
+          sub_strand?: string | null
+          subject?: string
+          subject_slug?: string
+          syllabus_reference?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_scope_mappings_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_scope_mappings_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
+            foreignKeyName: "curriculum_scope_mappings_course_material_id_fkey"
+            columns: ["course_material_id"]
+            isOneToOne: false
+            referencedRelation: "course_materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curriculum_scope_mappings_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
@@ -1797,6 +2001,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "learner_questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "learner_questions_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -1913,6 +2124,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "learning_results_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "learning_results_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -1996,11 +2214,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lesson_generation_jobs_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "lesson_generation_jobs_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
             referencedRelation: "institutions"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_generation_jobs_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["programme_id"]
           },
           {
             foreignKeyName: "lesson_generation_jobs_programme_id_fkey"
@@ -2072,6 +2304,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lesson_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "lesson_progress_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -2140,6 +2379,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lesson_sections_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "lesson_sections_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -2202,6 +2448,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_summaries_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "lesson_summaries_institution_id_fkey"
@@ -2308,11 +2561,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "lessons_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
             referencedRelation: "institutions"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["programme_id"]
           },
           {
             foreignKeyName: "lessons_programme_id_fkey"
@@ -2371,6 +2638,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_images_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "material_images_course_material_id_fkey"
@@ -2433,6 +2707,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "messages_institution_id_fkey"
@@ -2781,10 +3062,14 @@ export type Database = {
       }
       programmes: {
         Row: {
+          country: string | null
           created_at: string
           created_by: string | null
+          curriculum_family: string | null
+          curriculum_metadata: Json
           description: string | null
           end_date: string | null
+          grade: number | null
           id: string
           institution_id: string
           learning_outcomes: Json
@@ -2798,10 +3083,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          country?: string | null
           created_at?: string
           created_by?: string | null
+          curriculum_family?: string | null
+          curriculum_metadata?: Json
           description?: string | null
           end_date?: string | null
+          grade?: number | null
           id?: string
           institution_id: string
           learning_outcomes?: Json
@@ -2815,10 +3104,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          country?: string | null
           created_at?: string
           created_by?: string | null
+          curriculum_family?: string | null
+          curriculum_metadata?: Json
           description?: string | null
           end_date?: string | null
+          grade?: number | null
           id?: string
           institution_id?: string
           learning_outcomes?: Json
@@ -2899,6 +3192,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "quiz_results_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "quiz_results_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -2969,6 +3269,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quizzes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "quizzes_institution_id_fkey"
@@ -3047,6 +3354,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "recommendations_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "recommendations_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -3122,6 +3436,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_events_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "session_events_institution_id_fkey"
@@ -3271,6 +3592,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_notes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "session_notes_institution_id_fkey"
@@ -3475,6 +3803,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_cognitive_profiles_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "student_cognitive_profiles_institution_id_fkey"
@@ -3870,6 +4205,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "teaching_items_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "teaching_items_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -3969,6 +4311,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "topic_mastery_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
+          },
+          {
             foreignKeyName: "topic_mastery_institution_id_fkey"
             columns: ["institution_id"]
             isOneToOne: false
@@ -4024,6 +4373,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_presence_current_course_id_fkey"
+            columns: ["current_course_id"]
+            isOneToOne: false
+            referencedRelation: "kingpin_kenyan_cbc_course_completeness"
+            referencedColumns: ["course_id"]
           },
           {
             foreignKeyName: "user_presence_current_lesson_id_fkey"
@@ -4103,7 +4459,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      kingpin_kenyan_cbc_course_completeness: {
+        Row: {
+          book_metadata_count: number | null
+          course_id: string | null
+          course_slug: string | null
+          course_status: string | null
+          covered_scope_count: number | null
+          detailed_lesson_count: number | null
+          grade: number | null
+          has_course_shell: boolean | null
+          has_detailed_lessons: boolean | null
+          has_draft_lessons: boolean | null
+          has_usable_material: boolean | null
+          lesson_count: number | null
+          material_count: number | null
+          programme_id: string | null
+          published_lesson_count: number | null
+          ready_for_publish_review: boolean | null
+          scope_count: number | null
+          section_count: number | null
+          subject: string | null
+          subject_slug: string | null
+          teaching_item_count: number | null
+          usable_material_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       course_institution: { Args: { _course_id: string }; Returns: string }
@@ -4338,9 +4720,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       classroom_mode: ["ai_teacher", "human_teacher", "hybrid"],

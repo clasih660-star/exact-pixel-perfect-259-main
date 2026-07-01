@@ -18,6 +18,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import { KENYAN_CBC_SUBJECT_MATRIX } from "@/lib/kenyan-cbc-curriculum";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -301,6 +302,138 @@ export const listPlatformCourses = createServerFn({ method: "GET" })
       total: countRes.count ?? 0,
     };
   });
+
+export const listKingpinKenyanCbcRollout = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { grade?: number } = {}) => data)
+  .handler(async ({ data, context }: any) => {
+    await assertPlatformAdmin(context);
+
+    const fallbackRows = KENYAN_CBC_SUBJECT_MATRIX.filter(
+      (row) => !data.grade || row.grade === data.grade,
+    ).map((row) => ({
+      grade: row.grade,
+      subject: row.subject,
+      subjectSlug: row.slug,
+      programmeId: null,
+      courseId: null,
+      courseSlug: `kenyan-cbc-grade-${row.grade}-${row.slug}`,
+      courseStatus: "draft",
+      materialCount: 0,
+      usableMaterialCount: 0,
+      bookMetadataCount: 0,
+      lessonCount: 0,
+      publishedLessonCount: 0,
+      scopeCount: 0,
+      coveredScopeCount: 0,
+      sectionCount: 0,
+      teachingItemCount: 0,
+      detailedLessonCount: 0,
+      hasCourseShell: false,
+      hasUsableMaterial: false,
+      hasDraftLessons: false,
+      hasDetailedLessons: false,
+      readyForPublishReview: false,
+    }));
+
+    if (!isSupabaseConfigured()) {
+      return summarizeKenyanCbcRows(fallbackRows);
+    }
+
+    const admin = await getAdminClient();
+    let query = (admin as any)
+      .from("kingpin_kenyan_cbc_course_completeness")
+      .select("*")
+      .order("grade", { ascending: true })
+      .order("subject", { ascending: true });
+
+    if (data.grade) query = query.eq("grade", data.grade);
+
+    const result = await query;
+    if (result.error) {
+      return summarizeKenyanCbcRows(fallbackRows);
+    }
+
+    const rows = safeRows<any>(result).map((row) => ({
+      grade: row.grade,
+      subject: row.subject,
+      subjectSlug: row.subject_slug,
+      programmeId: row.programme_id ?? null,
+      courseId: row.course_id ?? null,
+      courseSlug: row.course_slug ?? null,
+      courseStatus: row.course_status ?? "draft",
+      materialCount: row.material_count ?? 0,
+      usableMaterialCount: row.usable_material_count ?? 0,
+      bookMetadataCount: row.book_metadata_count ?? 0,
+      lessonCount: row.lesson_count ?? 0,
+      publishedLessonCount: row.published_lesson_count ?? 0,
+      scopeCount: row.scope_count ?? 0,
+      coveredScopeCount: row.covered_scope_count ?? 0,
+      sectionCount: row.section_count ?? 0,
+      teachingItemCount: row.teaching_item_count ?? 0,
+      detailedLessonCount: row.detailed_lesson_count ?? 0,
+      hasCourseShell: Boolean(row.has_course_shell),
+      hasUsableMaterial: Boolean(row.has_usable_material),
+      hasDraftLessons: Boolean(row.has_draft_lessons),
+      hasDetailedLessons: Boolean(row.has_detailed_lessons),
+      readyForPublishReview: Boolean(row.ready_for_publish_review),
+    }));
+
+    return summarizeKenyanCbcRows(rows);
+  });
+
+function summarizeKenyanCbcRows(rows: Array<{
+  grade: number;
+  subject?: string;
+  subjectSlug?: string;
+  programmeId?: string | null;
+  courseId?: string | null;
+  courseSlug?: string | null;
+  courseStatus?: string;
+  materialCount: number;
+  usableMaterialCount: number;
+  bookMetadataCount?: number;
+  lessonCount: number;
+  publishedLessonCount?: number;
+  scopeCount?: number;
+  coveredScopeCount?: number;
+  sectionCount?: number;
+  teachingItemCount?: number;
+  detailedLessonCount?: number;
+  hasCourseShell: boolean;
+  hasUsableMaterial?: boolean;
+  hasDraftLessons?: boolean;
+  hasDetailedLessons?: boolean;
+  readyForPublishReview: boolean;
+}>) {
+  const gradeSummary = [6, 7, 8, 9].map((grade) => {
+    const gradeRows = rows.filter((row) => row.grade === grade);
+    return {
+      grade,
+      expectedSubjects: gradeRows.length,
+      seededCourses: gradeRows.filter((row) => row.hasCourseShell).length,
+      materialCount: gradeRows.reduce((sum, row) => sum + row.materialCount, 0),
+      usableMaterialCount: gradeRows.reduce((sum, row) => sum + row.usableMaterialCount, 0),
+      lessonCount: gradeRows.reduce((sum, row) => sum + row.lessonCount, 0),
+      detailedLessonCount: gradeRows.reduce((sum, row) => sum + (row.detailedLessonCount ?? 0), 0),
+      teachingItemCount: gradeRows.reduce((sum, row) => sum + (row.teachingItemCount ?? 0), 0),
+      readyForPublishReview: gradeRows.filter((row) => row.readyForPublishReview).length,
+    };
+  });
+
+  return {
+    rows,
+    totalExpectedSubjects: rows.length,
+    seededCourses: rows.filter((row) => row.hasCourseShell).length,
+    materialCount: rows.reduce((sum, row) => sum + row.materialCount, 0),
+    usableMaterialCount: rows.reduce((sum, row) => sum + row.usableMaterialCount, 0),
+    lessonCount: rows.reduce((sum, row) => sum + row.lessonCount, 0),
+    detailedLessonCount: rows.reduce((sum, row) => sum + (row.detailedLessonCount ?? 0), 0),
+    teachingItemCount: rows.reduce((sum, row) => sum + (row.teachingItemCount ?? 0), 0),
+    readyForPublishReview: rows.filter((row) => row.readyForPublishReview).length,
+    gradeSummary,
+  };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lessons (all DB-backed lessons across courses/institutions)

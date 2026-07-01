@@ -16,9 +16,10 @@ import { Logo } from "@/components/brand/Logo";
 import { useDashboardConfig } from "@/hooks/useDashboardConfig";
 import { useAuthContext } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
+import { applyLaunchVisibility } from "@/lib/dashboard-config";
 
 export function Sidebar() {
-  const config = useDashboardConfig();
+  const config = applyLaunchVisibility(useDashboardConfig());
   const { user } = useAuthContext();
   const location = useLocation();
 

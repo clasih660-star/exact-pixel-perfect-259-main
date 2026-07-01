@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { StudentShell } from "@/components/student/StudentShell";
 import {
@@ -15,9 +15,13 @@ import {
   PlayCircle,
   Sparkles,
   FileText,
+  Loader2,
+  Users,
 } from "lucide-react";
 import { requireStudent } from "@/lib/route-guards";
 import { getStudentSessions } from "@/lib/student.functions";
+import { joinSession } from "@/lib/teacher-availability.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/student/sessions")({
   beforeLoad: (ctx) => requireStudent(ctx.context),
@@ -71,10 +75,21 @@ function toUiStatus(db: "live" | "completed" | "scheduled"): keyof typeof STATUS
 }
 
 function StudentSessions() {
+  const router = useRouter();
   const fn = useServerFn(getStudentSessions);
   const q = useQuery({ queryKey: ["student-sessions"], queryFn: () => fn() });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+
+  const joinFn = useServerFn(joinSession);
+  const joinMutation = useMutation({
+    mutationFn: (sessionId: string) => joinFn({ data: { session_id: sessionId } }),
+    onSuccess: (_result, sessionId) => {
+      toast.success("Joined the session!");
+      void router.navigate({ to: `/classroom/session/${sessionId}` });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   const sessions = q.data?.sessions ?? [];
 
@@ -227,16 +242,33 @@ function StudentSessions() {
                       <BarChart2 className="h-3.5 w-3.5" /> Summary
                     </Link>
                   ) : session.status === "in-progress" ? (
-                    <Link
-                      to="/student/classrooms"
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256]"
+                    <button
+                      type="button"
+                      onClick={() => joinMutation.mutate(session.id)}
+                      disabled={joinMutation.isPending}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F7C80] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1A5256] disabled:opacity-60"
                     >
-                      Continue <ChevronRight className="h-4 w-4" />
-                    </Link>
+                      {joinMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <PlayCircle className="h-4 w-4" />
+                      )}
+                      Join Class <ChevronRight className="h-4 w-4" />
+                    </button>
                   ) : (
-                    <span className="inline-flex cursor-default items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-xs font-semibold text-[#475569]">
-                      <Calendar className="h-3.5 w-3.5" /> Scheduled
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => joinMutation.mutate(session.id)}
+                      disabled={joinMutation.isPending}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-xs font-semibold text-[#475569] transition-all hover:border-[#1F7C80]/30 hover:bg-[#F4FBFA] disabled:opacity-60"
+                    >
+                      {joinMutation.isPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Calendar className="h-3.5 w-3.5" />
+                      )}
+                      Reserve Slot
+                    </button>
                   )}
                 </div>
               </div>
